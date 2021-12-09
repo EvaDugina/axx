@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>536 Акселератор - Редактор</title>
+    <!-- MDB icon -->
+    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
+    <!-- Google Fonts Roboto -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
+    />
+    <!-- MDB -->
+    <link rel="stylesheet" href="css/mdb.min.css" />
+    <link rel="stylesheet" href="css/rdt.css" />
+  </head>
+  <body>
+    <header>
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg bg-warning navbar-light">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+          <!-- Navbar brand -->
+          <a class="navbar-brand" href="#"><b>536 Акселератор</b></a>
+
+          <!-- Toggle button -->
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <!-- Collapsible wrapper -->
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          	<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+	          <nav class="navbar navbar-expand-lg">
+						  <div class="container-fluid">
+						    <nav aria-label="breadcrumb">
+						      <ol class="breadcrumb">
+						        <li class="breadcrumb-item">
+						          <a href="#">Введение в разработку ПО 2021</a>
+						        </li>
+						        <li class="breadcrumb-item">
+						          <a href="#">Задание 1</a>
+						        </li>
+						        <li class="breadcrumb-item active" aria-current="page">
+						          <a href="#">Редактор</a>
+						        </li>
+						      </ol>
+						    </nav>
+						  </div>
+						</nav>
+
+            </ul>
+            <!-- Icons -->
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Notifications -->
+              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell fa-lg"></i>
+                <span class="badge rounded-pill badge-notification bg-danger">4</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 4. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 3. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 2. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 1. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+              </ul>
+            </ul>
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Avatar -->
+              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
+                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2">Иван Сергеевич</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
+                <li><a class="dropdown-item" href="#">Профиль</a></li>
+                <li><a class="dropdown-item" href="#">Выйти</a></li>
+              </ul>
+            </ul>
+          </div>
+        </div>
+        <!-- Container wrapper -->
+      </nav>
+      <!-- Navbar -->
+    </header>
+
+    <main class="container-fluid overflow-hidden">
+    	<div class="pt-2">
+    	<div class="row">
+    		<div class="col-md-auto">
+				<div class="table-responsive bg-white">
+					<table class="table">
+		                <thead>
+		                  <tr>
+		                    <th scope="col" style="width:100%;">Файлы</th>
+		                    <th scope="col"></th>
+		                    <th scope="col"></th>
+		                  </tr>
+		                </thead>
+		                <tbody>
+				            <tr>
+				            	<td>
+				                    <input type="text" class="form-control-plaintext" id="validationCustom01" value="main.c" required>
+								</td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-edit fa-lg"></i></button>
+			                    </td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-times fa-lg"></i></button>
+			                    </td>
+		                  	</tr>
+		                  	<tr>
+			                    <td>
+				                    <input type="text" class="form-control-plaintext" id="validationCustom01" value="header.h" required></td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-edit fa-lg"></i></button>
+			                    </td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-times fa-lg"></i></button>
+			                    </td>
+		                  	</tr>
+		                  	<tr>
+			                    <td> 
+				                    <input type="text" class="form-control-plaintext" id="validationCustom01" value="test.c" required></td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-edit fa-lg"></i></button>
+			                    </td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-times fa-lg"></i></button>
+			                    </td>
+		                  	</tr>
+		                  	<tr>
+			                    <td><input type="text" class="form-control-plaintext" id="validationCustom01" value="Новый файл" required>
+			                    <td class="text-nowrap">
+			                    </td>
+			                    <td class="text-nowrap">
+			                      <button type="button" class="btn btn-sm px-3"> <i class="far fa-plus-square fa-lg"></i></button>
+			                    </td>
+		                  	</tr>
+	                  	</tbody>
+		              </table>
+
+				</div>
+			</div>
+    	<div class="col-md-auto">
+				<div>
+                <select class="form-select" aria-label=".form-select">
+                  <option selected>C++</option>
+                  <option value="1">C</option>
+                  <option value="2">Python</option>
+                  <option value="3">Java</option>
+                </select>
+              </div>
+				<div id="container" style="width: 700px; height: 600px; border: 1px solid grey"></div>
+					<!-- OR ANY OTHER AMD LOADER HERE INSTEAD OF loader.js -->
+					<script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+					<script>
+						require.config({ paths: { vs: '../node_modules/monaco-editor/min/vs' } });
+
+						require(['vs/editor/editor.main'], function () {
+							var editor = monaco.editor.create(document.getElementById('container'), {
+								value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
+								language: 'javascript'
+							});
+						});
+					</script>
+
+    			<div class="row">
+					<div class="col-sm"><button type="button" class="btn btn-outline-primary"> Отправить на проверку</button></div>
+					<div class="col-sm"><button type="button" class="btn btn-outline-primary"> Запустить в консоли</button></div>
+
+				</div>		
+
+			</div>
+    	<div class="col-md-auto">
+				<div class="tab">
+				  <button class="tablinks" onclick="openCity(event, 'Task')">Задача</button>
+				  <button class="tablinks" onclick="openCity(event, 'Console')">Консоль</button>
+				  <button class="tablinks" onclick="openCity(event, 'Test')">Тесты</button>
+				  <button class="tablinks" onclick="openCity(event, 'Chat')">Чат</button>
+				</div>
+
+				<div id="Task" class="tabcontent">
+				  <h3>Условие</h3>
+				  <p>1.	Провести анализ достоинств, недостатков и условий применения следующих методов командного наведения самолётов истребителей:
+						прямого метода наведения;
+						метода манёвра;
+						метода перехвата.
+					2.	Разработать систему продукционных правил, позволяющую вырабатывать рекомендации по выбору метода наведения в зависимости от условий применения.
+					</p>
+				</div>
+
+				<div id="Console" class="tabcontent">
+				  <h3>Консоль</h3>
+				  <p>авюваютавитваиви</p> 
+				</div>
+
+				<div id="Test" class="tabcontent">
+				  <h3>Результаты тестов</h3>
+				  <p>автавьбювают</p>
+				</div>
+
+				<div id="Chat" class="tabcontent">
+				  <h3>Чат</h3>
+				  <p>аолвабдмваблдва</p>
+				</div>
+				<script>
+
+				function openCity(evt, cityName) {
+				    var i, tabcontent, tablinks;
+				    tabcontent = document.getElementsByClassName("tabcontent");
+				    for (i = 0; i < tabcontent.length; i++) {
+				        tabcontent[i].style.display = "none";
+				    }
+				    tablinks = document.getElementsByClassName("tablinks");
+				    for (i = 0; i < tablinks.length; i++) {
+				        tablinks[i].className = tablinks[i].className.replace(" active", "");
+				    }
+				    document.getElementById(cityName).style.display = "block";
+				    evt.currentTarget.className += " active";
+				}
+				</script>
+			</div>
+		</div>	
+		</div>	
+    </main>
+    <!-- End your project here-->
+
+    <!-- MDB -->
+    <script type="text/javascript" src="js/mdb.min.js"></script>
+    <!-- Custom scripts -->
+    <script type="text/javascript"></script>
+  </body>
+</html>
