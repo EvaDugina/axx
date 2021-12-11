@@ -146,7 +146,8 @@ INSERT INTO ax_page_group(id, page_id, group_id) VALUES
 (-12, -12, -5),
 (-13, -5, -4),
 (-14, -9, -5),
-(-15, -11, -5);
+(-15, -11, -5),
+(-16, -8, -1);
 
 
 CREATE TABLE ax_color_theme (		-- цветовые схемы
