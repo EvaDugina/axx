@@ -17,6 +17,7 @@
 					)
 				);
 ?>
+    <script src="js/jquery-3.5.1.min.js"></script>
     <main class="pt-2">
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
@@ -32,10 +33,12 @@
 	  echo 'Задания по этой дисциплине отсутствуют';
 	else {
 ?>
+              <form id="checkActiveForm">
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></th>
+                    <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="checkAllActive"
+                      onChange="$('#checkActiveForm').find('input:checkbox').not(this).prop('checked', this.checked);"/></div></th>
                     <th scope="col" style="width:100%;">Название</th>
                     <th scope="col"></th>
                   </tr>
@@ -45,7 +48,7 @@
 		while ( $row = pg_fetch_assoc($result) ) {
 ?>
                   <tr>
-                    <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td>
+                    <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$row['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
                     <td>
 <?php
 			if ($row['type'] == 1) {
@@ -63,7 +66,8 @@
 						<?=$row['title']?>
 						
 <?php
-			$query = 'select students.middle_name || \' \' || students.first_name fio, ax_assignment.id aid from ax_task '.
+			$query = 'select students.middle_name || \' \' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, \'DD-MM-YYYY HH24:MI:SS\') ts '.
+           ' from ax_task '.
 					 ' inner join ax_assignment on ax_task.id = ax_assignment.task_id '.
 					 ' inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id '.
 					 ' inner join students on students.id = ax_assignment_student.student_user_id '.
@@ -77,15 +81,27 @@
 				while ($row2 = pg_fetch_assoc($result2))
 				{
 					if ($row2['aid'] == $prev_assign)
-						  echo ', '.$row2['fio'];
+					  echo ', '.$row2['fio'];
 					else
-						  echo '</li><li>'.$row2['fio'];
+					  echo '</li><li>'.($row2['ts'] != '' ? '(до '.$row2['ts'].') ' :'').$row2['fio'];
           $prev_assign = $row2['aid'];
 				}
 				echo '</li></ul></div>';
 			}
+
+			$query =  'select ax_task_file.* '.
+                ' from ax_task inner join ax_task_file on ax_task.id = ax_task_file.task_id '.
+                ' where ax_task.id = '.$row['id'].' and ax_task_file.type = 0 '.
+					      ' order by id';
+			$result2 = pg_query($dbconnect, $query);
+			
+			if ($result2 && pg_num_rows($result2) > 0) {
+				echo '<div class="small">Приложения:<ul>';
+				while ($row2 = pg_fetch_assoc($result2))
+          echo '<li>'.$row2['file_name'].'</li>';
+				echo '</ul></div>';
+			}
 ?>
-						
 					</td>
                     <td class="text-nowrap">
                       <button type="button" class="btn btn-sm px-3"><i class="fas fa-pen fa-lg"></i></button>
@@ -97,6 +113,7 @@
 ?>
                 </tbody>
               </table>
+              </form>
 <?php
 	}
 ?>
@@ -114,7 +131,7 @@
               <table class="table table-secondary table-hover">
                 <thead>
                   <tr>
-                    <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></th>
+                    <!-- <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></th> -->
                     <th scope="col" style="width:100%;">Название</th>
                     <th scope="col"></th>
                   </tr>
@@ -124,7 +141,7 @@
 		while ( $row = pg_fetch_assoc($result) ) {
 ?>
                   <tr>
-                    <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td>
+                    <!-- <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td> -->
                     <td>
 <?php
 			if ($row['type'] == 1) {
@@ -175,7 +192,19 @@
           <div class="col-4">
             <div class="p-3 border bg-light">
               <h6>Массовые операции</h6>
-              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-paperclip fa-lg"></i> Приложить файл</button></div>
+              <form method="post" action="preptasks_edit.php" name="linkFileForm" id="linkFileForm" enctype="multipart/form-data" >
+                <input type="hidden" name="action" value="linkFile" />
+                <input type="hidden" name="page" value="<?=$page_id?>" />
+                <input type="hidden" name="tasknum" id="tasknum" value="" />
+                <div class="pt-1 pb-1">
+                  <label><i class="fas fa-paperclip fa-lg"></i> <small>ПРИЛОЖИТЬ ФАЙЛ</small></label>
+                </div>
+                <div class="pt-1 pb-1 ps-5">
+                  <input type="file" class="form-control" id="customFile" name="customFile" 
+                    onclick="$(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get())"
+                    onChange="$(linkFileForm).trigger('submit')" />
+                </div>
+              </form>
               <div class="pt-1 pb-1">
                 <label><i class="fas fa-users fa-lg"></i> <small>НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
               </div>
