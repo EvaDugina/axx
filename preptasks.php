@@ -1,5 +1,6 @@
 <?php
 	require_once("common.php");
+	require_once("dbqueries.php");
 
 	// получение параметров запроса
 	$page_id = 0;
@@ -24,32 +25,38 @@
           <div class="col-8">
             <div class="pt-3">
 
-              <h2>Задания по дисциплине</h2>
+              <h2 class="text-nowrap">
+                <form id="addTask" method="post" action="taskedit.php">
+                  <input type="hidden" name="page" value="<?=$page_id?>" />
+                  Задания по дисциплине<button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;"><i class="fas fa-plus-square fa-lg"></i> Новое задание</button>
+                </form>
+              </h2>
+              
 <?php
-	$query = "select * from ax_task where page_id = " . $page_id . ' and status = 1 order by id';
+	$query = select_page_tasks($page_id, 1);
 	$result = pg_query($dbconnect, $query);
 	
 	if (!@result || pg_num_rows($result) < 1)
 	  echo 'Задания по этой дисциплине отсутствуют';
 	else {
 ?>
-              <form id="checkActiveForm">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="checkAllActive"
-                      onChange="$('#checkActiveForm').find('input:checkbox').not(this).prop('checked', this.checked);"/></div></th>
-                    <th scope="col" style="width:100%;">Название</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody>
+              <div id="checkActiveForm">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="checkAllActive"
+                        onChange="$('#checkActiveForm').find('input:checkbox').not(this).prop('checked', this.checked);"/></div></th>
+                      <th scope="col" style="width:100%;">Название</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
 <?php
 		while ( $row = pg_fetch_assoc($result) ) {
 ?>
-                  <tr>
-                    <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$row['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
-                    <td>
+                   <tr>
+                      <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$row['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
+                     <td>
 <?php
 			if ($row['type'] == 1) {
 ?>
@@ -66,13 +73,7 @@
 						<?=$row['title']?>
 						
 <?php
-			$query = 'select students.middle_name || \' \' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, \'DD-MM-YYYY HH24:MI:SS\') ts '.
-           ' from ax_task '.
-					 ' inner join ax_assignment on ax_task.id = ax_assignment.task_id '.
-					 ' inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id '.
-					 ' inner join students on students.id = ax_assignment_student.student_user_id '.
-					 ' where ax_task.id = '.$row['id'].
-					 ' order by ax_assignment.id';
+			$query = select_assigned_students($row['id']);
 			$result2 = pg_query($dbconnect, $query);
 			
 			if ($result2 && pg_num_rows($result2) > 0) {
@@ -89,10 +90,7 @@
 				echo '</li></ul></div>';
 			}
 
-			$query =  'select ax_task_file.* '.
-                ' from ax_task inner join ax_task_file on ax_task.id = ax_task_file.task_id '.
-                ' where ax_task.id = '.$row['id'].' and ax_task_file.type = 0 '.
-					      ' order by id';
+			$query = select_task_files($row['id']);
 			$result2 = pg_query($dbconnect, $query);
 			
 			if ($result2 && pg_num_rows($result2) > 0) {
@@ -102,25 +100,38 @@
 				echo '</ul></div>';
 			}
 ?>
-					</td>
-                    <td class="text-nowrap">
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-pen fa-lg"></i></button>
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-download fa-lg"></i></button>
-                    </td>
-                  </tr>
+				            	</td>
+                      <td class="text-nowrap">
+<!--
+                        <form  class="text-nowrap" method="post" action="preptasks_edit.php" name="delete1Form" id="delete1Form">
+                          <input type="hidden" name="action" value="delete" />
+                          <input type="hidden" name="page" value="<?=$page_id?>" />
+                          <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
+                          <button type="submit" class="btn btn-sm px-3"><i class="fas fa-pen fa-lg"></i></button>&nbsp;
+                          <button type="button" class="btn btn-sm px-3" disabled><i class="fas fa-download fa-lg"></i></button>
+                        </form>
+-->
+                        <form  class="text-nowrap" method="post" action="taskedit.php" name="editForm" id="editForm">
+                          <input type="hidden" name="page" value="<?=$page_id?>" />
+                          <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
+                          <button type="submit" class="btn btn-sm px-3"><i class="fas fa-pen fa-lg"></i></button>&nbsp;
+                          <button type="button" class="btn btn-sm px-3" disabled><i class="fas fa-download fa-lg"></i></button>
+                        </form>
+                      </td>
+                    </tr>
 <?php
 		}	
 ?>
-                </tbody>
-              </table>
-              </form>
+                  </tbody>
+                </table>
+              </div>
 <?php
 	}
 ?>
 
               <h2 class="pt-5 text-secondary"><i class="fas fa-ban"></i> Архив заданий</h2>
 <?php
-	$query = "select * from ax_task where page_id = " . $page_id . ' and (status is null or status != 1) order by id';
+	$query = select_page_tasks($page_id, 0);
 	$result = pg_query($dbconnect, $query);
 	
 	if (!$result || pg_num_rows($result) < 1)
@@ -157,31 +168,20 @@
 ?>
 						
 						<?=$row['title']?>
-					</td>
+					          </td>
                     <td class="text-nowrap">
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-undo fa-lg"></i></button>
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-download fa-lg"></i></button>
+                      <form class="text-nowrap" method="post" action="preptasks_edit.php" name="recover1Form" id="recover1Form">
+                        <input type="hidden" name="action" value="recover" />
+                        <input type="hidden" name="page" value="<?=$page_id?>" />
+                        <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
+                        <button type="submit" class="btn btn-sm px-3"><i class="fas fa-undo fa-lg"></i></button>&nbsp;
+                        <button type="button" class="btn btn-sm px-3" disabled><i class="fas fa-download fa-lg"></i></button>
+                      </form>                      
                     </td>
                   </tr>
 <?php
 		}	
 ?>				  
-                  <tr>
-                    <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td>
-                    <td><i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i> #2. Атрибуты</td>
-                    <td class="text-nowrap">
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-undo fa-lg"></i></button>
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-download fa-lg"></i></button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td>
-                    <td><i class="fas fa-code fa-lg"></i> #3. Методы</td>
-                    <td class="text-nowrap">
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-undo fa-lg"></i></button>
-                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-download fa-lg"></i></button>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
 <?php
@@ -201,69 +201,63 @@
                 </div>
                 <div class="pt-1 pb-1 ps-5">
                   <input type="file" class="form-control" id="customFile" name="customFile" 
-                    onclick="$(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get())"
+                    onclick="$(linkFileForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get())"
                     onChange="$(linkFileForm).trigger('submit')" />
                 </div>
               </form>
-              <div class="pt-1 pb-1">
-                <label><i class="fas fa-users fa-lg"></i> <small>НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
-              </div>
-              <div class="ps-5">
-                <section class="w-100 d-flex border">
-                  <div class="w-100 h-100 d-flex" style="margin:10px; height:150px; text-align: left;">
-                    <div id="demo-example-1" style="overflow-y: auto; height: 150px; width: 100%;">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck1">
-                        <label class="form-check-label" for="flexCheck1">Иванов А.А.</label>
+              <form method="post" action="preptasks_edit.php" name="assignForm" id="assignForm" enctype="multipart/form-data" >
+                <input type="hidden" name="action" value="assign" />
+                <input type="hidden" name="page" value="<?=$page_id?>" />
+                <input type="hidden" name="tasknum" id="tasknum" value="" />
+                <input type="hidden" name="groupped" id="tasknum" value="0" />
+                <div class="pt-1 pb-1">
+                  <label><i class="fas fa-users fa-lg"></i> <small>НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
+                </div>
+                <div class="ps-5">
+                  <section class="w-100 d-flex border">
+                    <div class="w-100 h-100 d-flex" style="margin:10px; height:250px; text-align: left;">
+                      <div id="demo-example-1" style="overflow-y: auto; height:250px; width: 100%;">
+<?php
+  $query = select_page_students($page_id);
+  $result2 = pg_query($dbconnect, $query);
+
+  while($row2 = pg_fetch_assoc($result2))
+  {
+    echo '<div class="form-check">';
+    echo '  <input class="form-check-input" type="checkbox" name="students[]" value="'.$row2['id'].'" id="flexCheck'.$row2['id'].'">';
+    echo '  <label class="form-check-label" for="flexCheck'.$row2['id'].'">'.$row2['fio'].'</label>';
+    echo '</div>';
+  }
+
+  $query = select_timestamp('3 months');
+  $result2 = pg_query($dbconnect, $query);
+
+  if ($row2 = pg_fetch_assoc($result2))
+  $timetill = $row2['val'];
+?>
                       </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck2">
-                        <label class="form-check-label" for="flexCheck2">Петров Б.Б.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck3">
-                        <label class="form-check-label" for="flexCheck3">Сидоров В.В.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck4">
-                        <label class="form-check-label" for="flexCheck4">Иванова Г.Г.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck5">
-                        <label class="form-check-label" for="flexCheck5">Сидоров В.В.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck6">
-                        <label class="form-check-label" for="flexCheck6">Иванова Г.Г.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck7">
-                        <label class="form-check-label" for="flexCheck7">Сидоров В.В.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck8">
-                        <label class="form-check-label" for="flexCheck8">Иванова Г.Г.</label>
-                      </div>                                            
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck9">
-                        <label class="form-check-label" for="flexCheck9">Сидоров В.В.</label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheck10">
-                        <label class="form-check-label" for="flexCheck10">Иванова Г.Г.</label>
-                      </div>                                            
                     </div>
-                  </div>
-                </section>
-                <section class="w-100 py-2 d-flex justify-content-center">
-                  <div class="form-outline datetimepicker w-100" style="width: 22rem">
-                    <input type="text" class="form-control active" value="2021-12-31 14:12:56" id="datetimepickerExample" style="margin-bottom: 0px;">
-                    <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Срок выполения</label>
-                  </div>
-                </section>
-                <button type="button" class="btn btn-outline-primary"><i class="fas fa-user fa-lg"></i> Назначить индивидуально</button>
-                <button type="button" class="btn btn-outline-primary"><i class="fas fa-users fa-lg"></i> Назначить группой</button>
-              </div>
+                  </section>
+                  <section class="w-100 py-2 d-flex justify-content-center">
+                    <div class="form-outline datetimepicker w-100" style="width: 22rem">
+                      <input type="text" class="form-control active" name="tilltime" value="<?=$timetill?>" id="datetimepickerExample" style="margin-bottom: 0px;">
+                      <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Срок выполения</label>
+                    </div>
+                  </section>
+                  <button type="submit" class="btn btn-outline-primary"
+                    onclick="$(assignForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
+                            $(assignForm).find(groupped).val(0);"
+                    onChange="$(assignForm).trigger('submit')">
+                      <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                  </button>
+                  <button type="submit" class="btn btn-outline-primary"
+                    onclick="$(assignForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
+                            $(assignForm).find(groupped).val(1);"
+                    onChange="$(assignForm).trigger('submit')">
+                    <i class="fas fa-users fa-lg"></i> Назначить группой
+                  </button>
+                </div>
+              </form>
               <div class="pt-1 pb-1">
                 <label><i class="fas fa-copy fa-lg"></i> <small>КОПИРОВАТЬ В ДИСЦИПЛИНУ</small></label>
               </div>
@@ -276,11 +270,22 @@
                 </select>
               </div>
               <div class="pt-1 pb-1 align-items-center ps-5">
-                  <button type="button" class="btn btn-outline-primary"><i class="fas fa-copy fa-lg"></i> Копировать</button> 
+                  <button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-copy fa-lg"></i> Копировать</button> 
               </div>
-              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
-              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-ban fa-lg"></i> Перенести в архив</button></div>
-              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-trash fa-lg"></i> Удалить</button></div>
+              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
+              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-ban fa-lg"></i> Перенести в архив</button></div>
+              <form method="post" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="page" value="<?=$page_id?>" />
+                <input type="hidden" name="tasknum" id="tasknum" value="" />
+                <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-primary"
+                      onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
+                                $(deleteForm).find(groupped).val(0);"
+                      onChange="$(deleteForm).trigger('submit')">
+                    <i class="fas fa-trash fa-lg"></i> Удалить
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
