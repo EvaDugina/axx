@@ -1,16 +1,29 @@
 <?php
 	session_start();
 	
-	require("settings.php");
-	
-	// подключение к БД
-	$dbconnect = pg_connect($DB_CONNECTION_STRING);
-	if (!$dbconnect) {
-		echo "Ошибка подключения к БД";
-		http_response_code(500);
-		exit;
-	}
-	
+	require_once("settings.php");
+  require_once("dbqueries.php");
+
+  $pageurl = explode('/', $_SERVER['REQUEST_URI']);
+  $pageurl = $pageurl[count($pageurl) - 1];
+  $_SESSION['username'] = '';
+
+  if ($pageurl != 'login.php')
+  {
+    include_once('auth_ssh.class.php');
+    $au = new auth_ssh();  
+    if (!$au->loggedIn()) {
+      header('Location:login.php');
+      exit;
+    }
+    else {
+      $query = get_user_name($au->getUserId());
+      $result = pg_query($query);
+      if ($row = pg_fetch_assoc($result))
+      $_SESSION['username'] = $row['fio'];
+    }
+  }
+
 	function show_breadcrumbs(&$breadcrumbs)
 	{
 		if (count($breadcrumbs) < 1)
@@ -61,7 +74,7 @@
         <!-- Container wrapper -->
         <div class="container-fluid">
           <!-- Navbar brand -->
-          <a class="navbar-brand" href="#"><b>536 Акселератор</b></a>
+          <a class="navbar-brand" href="index.php"><b>536 Акселератор</b></a>
 
           <!-- Toggle button -->
           <button
@@ -81,6 +94,8 @@
 
 <?php
 		show_breadcrumbs($breadcrumbs);
+    
+    if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
 ?>			
             <!-- Icons -->
             <ul class="navbar-nav d-flex flex-row me-1">
@@ -100,13 +115,16 @@
               <!-- Avatar -->
               <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                 <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2">Иван Сергеевич</span>
+                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
-                <li><a class="dropdown-item" href="#">Профиль</a></li>
-                <li><a class="dropdown-item" href="#">Выйти</a></li>
+                <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
+                <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
               </ul>
             </ul>
+<?php 
+    }
+?>
           </div>
         </div>
         <!-- Container wrapper -->

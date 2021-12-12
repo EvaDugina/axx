@@ -11,6 +11,11 @@
     {
         return 'select to_timestamp(\''.$datetime.'\', \'YYYY-MM-DD HH24:MI:SS\')';
     }
+
+    function get_user_name($id)
+    {
+        return 'select first_name || \' \' || middle_name fio from students where id = '.$id;
+    }
     
     // СТРАНИЦЫ
     function select_page_students($page_id)
