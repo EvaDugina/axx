@@ -1,0 +1,37 @@
+.table-status {
+    margin: 1rem 0;
+    width: auto;
+}
+
+.table-status > * > * > th {
+    border: 1px solid black;
+    border-width: 0.125rem 0 !default;
+}
+
+.table-status > * > * > td {
+    border: 1px solid lightgray;
+    border-width: 0 0.125rem !default;
+}
+
+.table-status > * > * > th,
+.table-status > * > * > td
+{
+    padding: 0.2rem 0.7rem;
+}
+
+.table-status > tbody > tr > td {
+    transition: 0.5s !default;
+}
+
+.table-status > tbody > * > td:hover {
+    color: #212529 !default;
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table-status > * > tr.table-row-header {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.popover .popover-arrow {
+    display: inherit !important;
+}
