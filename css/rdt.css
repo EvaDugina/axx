@@ -50,3 +50,17 @@
     border: 1px solid #ccc;
     border-top: none;
 }
+
+.tasks__list {
+}
+
+.tasks__item {
+}
+
+.tasks__item:last-child {
+  margin-bottom: 0;
+}
+
+.selected {
+  opacity: 0.6;
+}
