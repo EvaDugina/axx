@@ -95,63 +95,39 @@
 
     <main class="container-fluid overflow-hidden">
     	<div class="pt-2">
-    	<div class="row">
-    		<div class="col-md-3">
-				<div class="table-responsive bg-white">
-					<table class="table">
-		                <thead>
-		                  <tr>
-		                    <th scope="col" style="width:100%;">Файлы</th>
-		                    <th scope="col"></th>
-		                    <th scope="col"></th>
-		                  </tr>
-		                </thead>
-		                <tbody>
-				            <tr>
-				            	<td>
-				                    <input type="text" class="form-control-plaintext" id="validationCustom01" value="main.c" required>
-								</td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-edit fa-lg"></i></button>
-			                    </td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-times fa-lg"></i></button>
-			                    </td>
-		                  	</tr>
-		                  	<tr>
-			                    <td>
-				                    <input type="text" class="form-control-plaintext" id="validationCustom01" value="header.h" required></td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-edit fa-lg"></i></button>
-			                    </td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-times fa-lg"></i></button>
-			                    </td>
-		                  	</tr>
-		                  	<tr>
-			                    <td> 
-				                    <input type="text" class="form-control-plaintext" id="validationCustom01" value="test.c" required></td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-edit fa-lg"></i></button>
-			                    </td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"><i class="fas fa-times fa-lg"></i></button>
-			                    </td>
-		                  	</tr>
-		                  	<tr>
-			                    <td><input type="text" class="form-control-plaintext" id="validationCustom01" value="Новый файл" required>
-			                    <td class="text-nowrap">
-			                    </td>
-			                    <td class="text-nowrap">
-			                      <button type="button" class="btn btn-sm px-3"> <i class="far fa-plus-square fa-lg"></i></button>
-			                    </td>
-		                  	</tr>
-	                  	</tbody>
-		              </table>
+    	<div class="row d-flex justify-content-between">
+    		<div class="col-md-2 ">
+    		<div class="d-none d-sm-block d-print-block">
 
-				</div>
+				<ul class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
+          <li class="list-group-item disabled px-0">Файлы</li>
+        	<li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
+        		<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>
+            <input type="text" class="form-control-plaintext form-control-sm" id="validationCustom01" value="main.c" required>
+            <button type="button" class="btn btn-sm mx-1 float-right"><i class="fas fa-edit fa-lg"></i></button>
+            <button type="button" class="btn btn-sm float-right"><i class="fas fa-times fa-lg"></i></button>
+          </li>
+        	<li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
+        		<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>
+            <input type="text" class="form-control-plaintext form-control-sm" id="validationCustom02" value="header.h" required>
+            <button type="button" class="btn btn-sm mx-1 float-right"><i class="fas fa-edit fa-lg"></i></button>
+            <button type="button" class="btn btn-sm float-right"><i class="fas fa-times fa-lg"></i></button>
+          </li>
+        	<li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
+        		<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div> 
+            <input type="text" class="form-control-plaintext form-control-sm" id="validationCustom03" value="test.c" required>
+            <button type="button" class="btn btn-sm mx-1"><i class="fas fa-edit fa-lg"></i></button>
+            <button type="button" class="btn btn-sm"><i class="fas fa-times fa-lg"></i></button>
+          </li>
+        	<li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
+        		<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>
+          	<input type="text" class="form-control-plaintext form-control-sm" id="validationCustom04" value="Новый файл" required>
+            <button type="button" class="btn btn-sm px-3"> <i class="far fa-plus-square fa-lg"></i></button>
+          </li>  
+			</ul>
 			</div>
-    	<div class="col-md-6">
+			</div>
+    	<div class="col-md-6 px-0">
 				<div>
                 <select class="form-select" aria-label=".form-select">
                   <option selected>C++</option>
@@ -160,7 +136,9 @@
                   <option value="3">Java</option>
                 </select>
               </div>
-				<div id="container" style="width: 750px; height: 600px; border: 1px solid grey"></div>
+        <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
+				<div id="container" class="embed-responsive-item"></div>
+				</div>
 					<!-- OR ANY OTHER AMD LOADER HERE INSTEAD OF loader.js -->
 					<script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
 					<script>
@@ -168,28 +146,29 @@
 
 						require(['vs/editor/editor.main'], function () {
 							var editor = monaco.editor.create(document.getElementById('container'), {
-								value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
-								language: 'javascript'
+								language: 'javascript',
+								automaticLayout: true,
 							});
 						});
 					</script>
 
-    			<div class="row">
-					<div class="col-sm"><button type="button" class="btn btn-outline-primary"> Отправить на проверку</button></div>
-					<div class="col-sm"><button type="button" class="btn btn-outline-primary"> Запустить в консоли</button></div>
-
-				</div>		
+    			<div class="d-flex justify-content-between">
+					<button type="button" class="btn btn-outline-primary" style="width: 50%;"> Отправить на проверку</button>
+					<button type="button" class="btn btn-outline-primary" style="width: 50%;"> Запустить в консоли</button>
+	
 
 			</div>
-    	<div class="col-md-3">
-				<div class="tab">
-				  <button class="tablinks" onclick="openCity(event, 'Task')">Задача</button>
+			</div>
+    	<div class="col-md-4 ">
+    		<div class="d-none d-sm-block d-print-block">
+				<div class="tab d-flex justify-content-between">
+				  <button id="defaultOpen" class="tablinks" onclick="openCity(event, 'Task')">Задача</button>
 				  <button class="tablinks" onclick="openCity(event, 'Console')">Консоль</button>
 				  <button class="tablinks" onclick="openCity(event, 'Test')">Тесты</button>
 				  <button class="tablinks" onclick="openCity(event, 'Chat')">Чат</button>
 				</div>
 
-				<div id="Task" class="tabcontent">
+				<div id="Task" class="tabcontent" style="height: 88%;">
 				  <h3>Условие</h3>
 				  <p>1.	Провести анализ достоинств, недостатков и условий применения следующих методов командного наведения самолётов истребителей:
 						прямого метода наведения;
@@ -214,7 +193,7 @@
 				  <p>аолвабдмваблдва</p>
 				</div>
 				<script>
-
+				document.getElementById("defaultOpen").click();
 				function openCity(evt, cityName) {
 				    var i, tabcontent, tablinks;
 				    tabcontent = document.getElementsByClassName("tabcontent");
@@ -229,12 +208,14 @@
 				    evt.currentTarget.className += " active";
 				}
 				</script>
-				<p>Осталось времени:  6 дн. 5</p>
+				<p>Осталось времени:  6 дн. 5 ч.</p>
+			</div>
 			</div>
 		</div>	
 		</div>	
     </main>
-    <!-- End your project here-->
+    <!-- End your project here-->    
+    <script src="js/drag.js"></script>
 
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
