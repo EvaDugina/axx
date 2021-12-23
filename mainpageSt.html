@@ -1,183 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>536 Акселератор - Задания по дисциплине</title>
-    <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-    <!-- Google Fonts Roboto -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-    />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-  </head>
-  <body>
-    <header>
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg bg-warning navbar-light">
-        <!-- Container wrapper -->
-        <div class="container-fluid">
-          <!-- Navbar brand -->
-          <a class="navbar-brand" href="#"><b>536 Акселератор</b></a>
+<?php
 
-          <!-- Toggle button -->
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-mdb-toggle="collapse"
-            data-mdb-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
+require_once("common.php");
+require_once("dbqueries.php");
 
-          <!-- Collapsible wrapper -->
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpageSt.php'));
 
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <!-- Link -->
+$result2 = pg_query($dbconnect, 'select year, short_name,semester, status from ax_page');
+$result = pg_fetch_all($result2);
 
-            </ul>
 
-            <!-- Icons -->
-            <ul class="navbar-nav d-flex flex-row me-1">
-              <!-- Notifications -->
-              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="badge rounded-pill badge-notification bg-danger">4</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
-                <li><a class="dropdown-item" href="#">C++ 2021<br>Задание 4. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21<br>Задание 3. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21<br>Задание 2. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21<br>Задание 1. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-              </ul>
-            </ul>
-            <ul class="navbar-nav d-flex flex-row me-1">
-              <!-- Avatar -->
-              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>-->
-                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2">Иван Сергеевич</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
-                <li><a class="dropdown-item" href="#">Профиль</a></li>
-                <li><a class="dropdown-item" href="#">Выйти</a></li>
-              </ul>
-            </ul>
-          </div>
-        <!-- Container wrapper -->
-      </nav>
-      <!-- Navbar -->
-    </header>
-<!-- main -->
+?>
+<?php
+$first_semestr = [];
+$second_semestr = [];
+
+foreach($result as $item) {
+ if($item['semester'] == 1) {
+  $first_semestr[]= $item;
+ } else {
+  $second_semestr[]= $item;
+ }
+}
+?>
+
 <main class="pt-2 justify-content-between">
-  <h2 class= "row" style="margin-top: 30px; margin-left: 50px">8 семестр</h2>
-  <div class="container">
-      <div class="row d-flex justify-content-between">
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-      	  <div class="d-flex justify-content-between" style="margin-top: 60px;">
-      		  <span>Выполнено</span>
-      		  <span>10/12</span>
-      		</div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
+      <h2 class= "row" style="margin-top: 30px; margin-left: 50px">1 семестр</h2>
+ <div class="container">
+ <div class="row d-flex justify-content-between">
+ <?php foreach($first_semestr as $item) { ?>
+          
+          <div class="col-3 border border-dark">
+            <a href=""><?=$item['short_name']?></a>
+                <div class="d-flex justify-content-between" style="margin-top: 60px;">
+                    <span>Выполнено</span>
+                    <span>10/12</span>
+                  </div>
+              <div class="progress" style="height: 20px">
+                <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
+              </div>
+              <div><small id="" class="form-text text-muted">Проектирование пользовательских<br> интерфейсов</small></div>
           </div>
-          <div><small id="" class="form-text text-muted">Проектирование пользовательских<br> интерфейсов</small></div>
-      </div>
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-      	  <div class="d-flex justify-content-between" style="margin-top: 60px;">
-      		  <span>Выполнено</span>
-      		  <span>10/12</span>
-      		</div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
+  <?php } ?>
+</div>
+ </div>
+ 
+ <h2 class= "row" style="margin-top: 30px; margin-left: 50px">2 семестр</h2>
+<div class="container">
+<div class="row d-flex justify-content-between">
+ <?php foreach($second_semestr as $item) { ?>
+          <div class="col-3 border border-dark">
+            <a href=""><?=$item['short_name']?></a>
+                <div class="d-flex justify-content-between" style="margin-top: 60px;">
+                    <span>Выполнено</span>
+                    <span>10/12</span>
+                  </div>
+              <div class="progress" style="height: 20px">
+                <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
+              </div>
+              <div><small id="" class="form-text text-muted">Проектирование пользовательских<br> интерфейсов</small>
+              </div>
           </div>
-      </div>
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-      	  <div class="d-flex justify-content-between" style="margin-top: 60px;">
-      		  <span>Выполнено</span>
-      		  <span>10/12</span>
-      		</div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
-          </div>
-      </div>
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-          <div class="d-flex justify-content-between" style="margin-top: 60px;">
-            <span>Выполнено</span>
-            <span>10/12</span>
-          </div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
-          </div>
-      </div>
-    </div>
-  </div>
-  <!--7 sem-->
-  <h2 class= "row" style="margin-top: 30px; margin-left: 50px">7 семестр</h2>
-  <div class="container">
-      <div class="row d-flex justify-content-between">
-      <div class="col-3 border border-dark">
-        <a href="">C++</a>
-      	  <div class="d-flex justify-content-between" style="margin-top: 60px;">
-      		  <span>Выполнено</span>
-      		  <span>6/12</span>
-      		</div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">50%</div>
-          </div>
-          <div><small id="" class="form-text text-muted">Проектирование пользовательских<br> интерфейсов</small></div>
-      </div>
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-      	  <div class="d-flex justify-content-between" style="margin-top: 60px;">
-      		  <span>Выполнено</span>
-      		  <span>10/12</span>
-      		</div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
-          </div>
-      </div>
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-      	  <div class="d-flex justify-content-between" style="margin-top: 60px;">
-      		  <span>Выполнено</span>
-      		  <span>10/12</span>
-      		</div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
-          </div>
-      </div>
-      <div class="col-3 border border-dark">
-        <a href="">ППИ-2021</a>
-          <div class="d-flex justify-content-between" style="margin-top: 60px;">
-            <span>Выполнено</span>
-            <span>10/12</span>
-          </div>
-          <div class="progress" style="height: 20px">
-            <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">80%</div>
-          </div>
-      </div>
-    </div>
-  </div>
+  <?php } ?>
+</div>
+</div>
 </main>
-    <!-- End your project here-->
 
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript"></script>
-  </body>
-</html>
+<?php
+	show_footer();
+?>
