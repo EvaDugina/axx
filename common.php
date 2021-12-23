@@ -66,6 +66,8 @@
     />
     <!-- MDB -->
     <link rel="stylesheet" href="css/mdb.min.css" />
+    <!-- extra -->
+    <link rel="stylesheet" href="css/accelerator.css" />
   </head>
   <body>
     <header>
