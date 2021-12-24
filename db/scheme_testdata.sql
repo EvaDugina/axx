@@ -138,9 +138,9 @@ CREATE TABLE ax_page_group (		-- группы, обучающиеся по эт�
 ); ALTER TABLE ax_page_group OWNER TO postgres;
 
 INSERT INTO ax_page_group(id, page_id, group_id) VALUES 
-(-1, -1, -3),
-(-2, -2, -3),
-(-3, -3, -3),
+(-1, -1, -1),
+(-2, -2, -1),
+(-3, -3, -1),
 (-4, -4, -1),
 (-5, -5, -1),
 (-6, -6, -1),
@@ -254,10 +254,10 @@ INSERT INTO public.ax_assignment(id, task_id, variant_comment, start_limit, fini
 (-4, -5, '4', now(), null, 2, 0, 'активно', null),
 (-5, -6, '5', now(), null, 2, 0, 'активно', null),
 (-6, -6, '6', now(), now()+'1 day', 2, 0, 'активно', null),
-(-7, -1, '7', now(), now()+'1 year', 2, 0, 'активно', null),
-(-8, -1, '1', null, null, 3, 0, 'выполнено', '4'),
-(-9, -1, '2', now()+'-2 years', now()+'-1 year', 4, 1, 'отменено', null),
-(-10, -1, '3', now()+'1 year', null, 1, 0, 'недоступно', null),
+(-7, -2, '7', now(), now()+'1 year', 2, 0, 'активно', null),
+(-8, -2, '1', null, null, 3, 0, 'выполнено', '4'),
+(-9, -3, '2', now()+'-2 years', now()+'-1 year', 4, 1, 'отменено', null),
+(-10, -3, '3', now()+'1 year', null, 1, 0, 'недоступно', null),
 (-11, -16, '3', now()+'1 year', null, 3, 0, 'выполнено', '4'),
 (-12, -15, '3', now()+'1 year', null, 3, 0, 'выполнено', '5'),
 (-13, -14, '3', now()+'1 year', null, 2, 0, 'активно', null),
@@ -284,7 +284,7 @@ CREATE TABLE ax_assignment_student (	-- студенты, назначенные
 
 INSERT INTO public.ax_assignment_student(id, assignment_id, student_user_id) VALUES 
 (-1, -1, -1),
-(-2, -2, -1),
+(-2, -2, -2),
 (-3, -4, -1),
 (-4, -4, -2),
 (-5, -5, -3),
@@ -292,9 +292,9 @@ INSERT INTO public.ax_assignment_student(id, assignment_id, student_user_id) VAL
 (-7, -6, -1),
 (-8, -6, -2),
 (-9, -7, -1),
-(-10, -8, -1),
+(-10, -8, -2),
 (-11, -9, -1),
-(-12, -10, -1),
+(-12, -10, -2),
 (-13, -11, -3),
 (-14, -12, -3),
 (-15, -13, -3),
