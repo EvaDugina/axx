@@ -460,10 +460,11 @@ INSERT INTO ax_settings(user_id, email, notification_type, monaco_dark) VALUES
 CREATE TABLE ax_student_page_info (	-- информация о работе студента по дисциплине
 	id serial,
 	student_user_id integer,-- --> students
-	page_id integer,	-- ax_page
+	page_id integer,	    -- --> ax_page
 	total_count integer,	-- общее количество назначенных студенту заданий по дисциплине
 	passed_count integer,	-- количество выполненных студентом заданий по дисциплине
-	variant_comment text,	-- номер варианта студента для всех заданий по дисциплине (для гениальной таблицы)
+	variant_num text,	    -- номер варианта студента для всех заданий по дисциплине (для гениальной таблицы)
+	variant_comment text,	-- описание варианта студента для всех заданий по дисциплине (для гениальной таблицы)
 	CONSTRAINT ax_student_page_info_pkey PRIMARY KEY (id)
 ); ALTER TABLE ax_student_page_info OWNER TO postgres;
 
