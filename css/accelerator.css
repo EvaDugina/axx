@@ -35,3 +35,29 @@
 .popover .popover-arrow {
     display: inherit !important;
 }
+
+.message-prep {
+    position: relative !important;
+    margin: 10px 10px 10px auto !important;
+    background-color: #80E08040;
+    z-index: 1;
+}
+
+.message-prep .popover-header {
+    background-color: #80E08040;
+}
+
+.message-stud {
+    position: relative !important;
+    margin: 10px 10px 10px 10px !important;
+    background-color: #F0F0F040;
+    z-index: 1;
+}
+
+.message-stud .popover-header {
+    background-color: #F0F0F040;
+}
+
+.tooltip-inner {
+    text-align: left !important;
+}

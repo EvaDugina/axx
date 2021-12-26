@@ -30,12 +30,12 @@
 
     function select_page_students_grouped($page_id)
     {
-        return 'select students.middle_name || \' \' || students.first_name fio, students.id id, ax_student_page_info.variant_comment var, groups.name grp, groups.id gid'.
+        return 'select students.middle_name || \' \' || students.first_name fio, students.id id, ax_student_page_info.variant_num vnum, ax_student_page_info.variant_comment vtext, groups.name grp, groups.id gid'.
                 ' from ax_page_group '.
 	            ' inner join students_to_groups on ax_page_group.group_id = students_to_groups.group_id'.
 	            ' inner join students on students_to_groups.student_id = students.id'.
 	            ' inner join groups on groups.id = students_to_groups.group_id'.
-	            ' left join ax_student_page_info on ax_student_page_info.student_user_id = students.id'.
+	            ' left join ax_student_page_info on ax_student_page_info.student_user_id = students.id and ax_student_page_info.page_id=ax_page_group.page_id'.
                 ' where ax_page_group.page_id = '. $page_id.
                 ' order by grp, fio';
     }
@@ -88,35 +88,62 @@
     }
     
     // получение сообщений для таблицы посылок
-    function select_page_messages_table($page_id)
+    function select_page_messages($page_id)
     {
-        return 'select distinct on (tid, sid) students.middle_name || \' \' || students.first_name fio, '.
-                '       ax_task.id tid, ax_assignment.id aid, ax_message.id mid, ax_assignment_student.student_user_id sid,'.
+        return 'select s1.middle_name || \' \' || s1.first_name fio, groups.name grp,'.
+                '       ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, ax_message_attachment.id fid,'.
                 '       case when ax_assignment.mark is not null then ax_assignment.mark'.
-                '            when ax_message.id is not null then \'?\' '.
                 '            when ax_assignment.status_code in (0,1) then \'X\' '.
                 '            when ax_assignment.status_code in (4) then \'-\' '.
+                '            when m1.sender_user_type = 0 then \'?\' '.
+                '            when m1.sender_user_type = 1 then \'!\' '.
                 '       else null end val,'.
-                '       ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code ascode, ax_assignment.status_text astext,'.
-                '       to_char(ax_message.date_time, \'DD-MM-YYYY HH24:MI:SS\') mtime, ax_message.full_text mtext, ax_message_attachment.file_name as mfile, ax_message_attachment.download_url as murl'.
+                '       ax_task.title task, ax_task.max_mark max_mark,'.
+                '       ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, ax_assignment.status_text astext,'.
+                '       to_char(m1.date_time, \'DD-MM-YYYY HH24:MI:SS\') mtime, m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.full_text mreply,'.
+                '       s2.middle_name || \' \' || s2.first_name mfio, s2.login mlogin,'.
+                '       ax_message_attachment.file_name as mfile, ax_message_attachment.download_url as murl'.
                 ' from ax_task '.
                 ' inner join ax_assignment on ax_task.id = ax_assignment.task_id and ax_assignment.status_code in (2,3,4)'.
                 ' inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id'.
-                ' inner join students on students.id = ax_assignment_student.student_user_id '.
-                ' left join ax_message on ax_assignment.id = ax_message.assignment_id and (ax_message.sender_user_id=ax_assignment_student.student_user_id or ax_message.sender_user_type=1) and ax_message.status in (0,1)'.
-                ' left join ax_message_attachment on ax_message.id = ax_message_attachment.message_id'.
+                ' inner join students s1 on s1.id = ax_assignment_student.student_user_id '.
+                ' left join ax_message m1 on ax_assignment.id = m1.assignment_id and (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) and m1.status in (0,1)'.
+                ' left join ax_message m2 on m1.reply_to_id = m2.id'.
+                ' left join students s2 on s2.id = m1.sender_user_id'.
+                ' left join ax_message_attachment on m1.id = ax_message_attachment.message_id'.
+	            ' inner join students_to_groups on s1.id = students_to_groups.student_id'.
+	            ' inner join groups on groups.id = students_to_groups.group_id'.
                 ' where ax_task.page_id = '.$page_id.
-                ' order by sid asc, tid asc, ax_assignment.id desc, ax_message.date_time desc';
+                ' order by mtime desc, mid desc';
+    }
+
+    // отправка ответа на сообщение
+    function insert_message($message_id, $message_text, $mark, $sender_id) {
+        if ($message_text != null)
+            $message_text = str_replace("'", "''", $message_text);
+        if ($mark != null)
+            $mark = str_replace("'", "''", $mark);
+        if ($mark != null)
+        {
+            return "update ax_assignment set mark='$mark' where id in (select assignment_id from ax_message where id=$message_id);\n" .
+                   "update ax_message set status=1 where id=$message_id and status=0;\n" .
+                   "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)\n" .
+                   "(select assignment_id, 2, 1, $sender_id, now(), $message_id, '$message_text<br/>\nОценка: $mark', null, 0 from ax_message where id=$message_id);";
+        } else {
+            return "update ax_message set status=1 where id=$message_id and status=0;\n" .
+                   "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)\n" .
+                   "(select assignment_id, 0, 1, $sender_id, now(), $message_id, '$message_text', null, 0 from ax_message where id=$message_id);";
+        }
     }
     
-  function pg_fetch_all_assoc($res) {
-    if (PHP_VERSION_ID >= 70100) 
-        return pg_fetch_all($res, PGSQL_ASSOC);
-    $array_out = array();
-    while ($row = pg_fetch_array($res, null, PGSQL_ASSOC)) {
-        $array_out[] = $row;
+    function pg_fetch_all_assoc($res) {
+        if (PHP_VERSION_ID >= 70100) 
+            return pg_fetch_all($res, PGSQL_ASSOC);
+        $array_out = array();
+        while ($row = pg_fetch_array($res, null, PGSQL_ASSOC)) {
+            $array_out[] = $row;
+        }
+        return $array_out;
     }
-    return $array_out;
-  }
     
 ?>

@@ -1,8 +1,10 @@
 <?php
 	require_once("common.php");
 	require_once("dbqueries.php");
+    $scripts = null;
 
 	// получение параметров запроса
+    $user_id = -5; // TODO: get current user id
 	$page_id = 0;
 	if (array_key_exists('page', $_REQUEST))
 		$page_id = $_REQUEST['page'];
@@ -11,6 +13,23 @@
 		http_response_code(400);
 		exit;
 	}
+
+    // отправка сообщения
+	if (array_key_exists('message', $_REQUEST) && array_key_exists('text', $_REQUEST))
+    {
+        $mark = (array_key_exists('mark', $_REQUEST)) ? $_REQUEST['mark'] : null;
+        $query = insert_message($_REQUEST['message'], $_REQUEST['text'], $mark, $user_id);
+        $result = pg_query($dbconnect, $query);
+        echo pg_result_error($result);
+        if (!@result)
+        {
+            echo "Ошибка запроса";
+            http_response_code(500);
+            exit;
+        }
+        $scripts .= "<script>window.history.replaceState(null, document.title, '" . $_SERVER['PHP_SELF'] . "?page=" . $page_id . "');</script>\n";
+        // OR remove &message=N in $_SERVER['REQUEST_URI'] 
+    }
 
     // TODO: check prep access rights to page
 
@@ -32,6 +51,8 @@
                 )
         );
     }
+    
+    if ($scripts) echo $scripts;
 ?>
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
@@ -63,16 +84,13 @@
 	  echo 'Задания по этой дисциплине отсутствуют';
 	else {
         $tasks = pg_fetch_all_assoc($result, PGSQL_ASSOC);
-        
-        $query = select_page_groups($page_id, 1);
-        $result = pg_query($dbconnect, $query);
-        $groups = pg_fetch_all_assoc($result, PGSQL_ASSOC);
+        $group = null;
         
         $query = select_page_students_grouped($page_id, 1);
         $result = pg_query($dbconnect, $query);
         $students = pg_fetch_all_assoc($result, PGSQL_ASSOC);
         
-        $query = select_page_messages_table($page_id);
+        $query = select_page_messages($page_id);
         $result = pg_query($dbconnect, $query);
         $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
 ?>
@@ -97,56 +115,54 @@
                     </thead>
                     <tbody>
 <?php
-		for ( $g = 0; $g < count($groups); $g++) {
+            for ( $s = 0; $s < count($students); $s++) {
+                if ($group != $students[$s]['grp']) {
+                    $group = $students[$s]['grp'];
 ?>
                       <tr class="table-row-header">
-                        <th scope="row" colspan="1"><?=$groups[$g]['grp']?></th>
+                        <th scope="row" colspan="1"><?=$group?></th>
                         <th colspan="1"> </th>
                         <td colspan="<?=count($tasks)?>"> </td>
                       </tr>
 <?php
-            for ( $s = 0; $s < count($students); $s++) {
-                if ($students[$s]['gid'] != $groups[$g]['id']) continue;
+                }
 ?>
                       <tr>
                         <th scope="row" data-group="<?=$students[$s]['grp']?>"><?=$s+1?>. <?= $students[$s]['fio']?></th>
-                        <th data-mdb-toggle="tooltip" title="TODO: добавить в БД описание варианта отдельным полем"><?=$students[$s]['var']?></th>
+                        <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?=$students[$s]['vtext']?>"><?=$students[$s]['vnum']?></th>
 <?php
-                    for ( $t = 0; $t < count($tasks); $t++) {
+                    for ( $t = 0; $t < count($tasks); $t++) { // tasks cycle
                         $task_message = null;
-                        for ( $m = 0; $m < count($messages); $m++)
-                            if ($messages[$m]['tid'] == $tasks[$t]['id'] && $messages[$m]['sid'] == $students[$s]['id'])
-                            {
+                        for ( $m = 0; $m < count($messages); $m++) { // search for last student+task message
+                            if ($messages[$m]['tid'] == $tasks[$t]['id'] && $messages[$m]['sid'] == $students[$s]['id']) {
                                 $task_message = $messages[$m];
                                 break;
                             }
+                        }
                         if ($task_message == null || $task_message['amark'] == null && $task_message['mtime'] == null) { // no assignment or no answer
 ?>
                         <td tabindex="-1"> </td>
 <?php
                         } else if ($task_message['mtime'] != null && $task_message['amark'] == null && $task_message['mfile'] != null) { // have message without mark and with file, can answer
 ?>
-                        <td tabindex="0" onclick="showPopover(this,'<?=$task_message['mid']?>')" title="<?=$task_message['mtime']?>" data-mdb-content="<a target='_blank' href='<?=$task_message['murl']?>'>FILE: <?=$task_message['mfile']?></a><br/> <?=$task_message['mtext']?><br/> <a href='#' type='button' class='btn btn-outline-primary'>Зачесть</a> <a href='#' type='button' class='btn btn-outline-primary'>Ответить</a>"><?=$task_message['val']?></td>
+                        <td tabindex="0" onclick="showPopover(this,'<?=$task_message['mid']?>')" title="@<?=$task_message['mlogin']?> <?=$task_message['mtime']?>" data-mdb-content="<a target='_blank' href='<?=$task_message['murl']?>'>FILE: <?=$task_message['mfile']?></a><br/> <?=$task_message['mtext']?><br/> <a href='javascript:answerPress(2,<?=$task_message['mid']?>,<?=$task_message['max_mark']?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?=$task_message['mid']?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?=$task_message['val']?></td>
 <?php
                         } else if ($task_message['mtime'] != null && $task_message['amark'] == null) { // have message without mark, can answer
 ?>
-                        <td tabindex="0" onclick="showPopover(this,'<?=$task_message['mid']?>')" title="<?=$task_message['mtime']?>" data-mdb-content="<?=$task_message['mtext']?><br/> <a href='#' type='button' class='btn btn-outline-primary'>Зачесть</a> <a href='#' type='button' class='btn btn-outline-primary'>Ответить</a>"><?=$task_message['val']?></td>
+                        <td tabindex="0" onclick="showPopover(this,'<?=$task_message['mid']?>')" title="@<?=$task_message['mlogin']?> <?=$task_message['mtime']?>" data-mdb-content="<?=$task_message['mtext']?><br/> <a href='javascript:answerPress(2,<?=$task_message['mid']?>,<?=$task_message['max_mark']?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?=$task_message['mid']?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?=$task_message['val']?></td>
 <?php
                         } else if ($task_message['amark'] != null) { // have mark, not need to answer
 ?>
-                        <td tabindex="0" onclick="showPopover(this)" title="<?=$task_message['mtime']?>" data-mdb-content="<?=$task_message['mtext']?>"><?=$task_message['val']?></td>
+                        <td tabindex="0" onclick="showPopover(this)" title="@<?=$task_message['mlogin']?> <?=$task_message['mtime']?>" data-mdb-content="<?=$task_message['mtext']?>"><?=$task_message['val']?></td>
 <?php
                         }
 ?>
 <?php
-                    }
+                    } // $tasks cycle
 ?>                        
                       </tr>
 <?php
-            }
-?>
-<?php
-		}
+            } // students cycle
 ?>
                     </tbody>
                 </table>
@@ -175,15 +191,89 @@
       
       <div class="col-4">
         <div class="p-3 border bg-light">
-          <h5>История посылок</h5>
-          <div class="popover" style="position: relative; margin: 10px; background-color: #8080E040;" role="tooltip"><div class="arrow"></div><h3 class="popover-header" style="background-color: #8080E0A0;">@avz 12-12-2021 10:30:11</h3><div class="popover-body">Проверка связи</div></div>
-          <div class="popover" style="position: relative; margin: 10px 10px 10px auto; background-color: #E0E0E040;" role="tooltip"><div class="arrow"></div><h3 class="popover-header" style="background-color: #E0E0E0A0;">@ruslan 12-12-2021 10:32:22</h3><div class="popover-body">Все работает ок, прием!</div></div>
-          <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div>
+          <h5>История сообщений</h5>
+          <div id="list-messages-id">
+<?php
+            for ( $m = 0; $m < count($messages); $m++) { // list all messages
+                if ($messages[$m]['mtype'] != null)
+                    show_message($messages[$m]);
+            }
+?>         
+          </div>
+          <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div>-->
         </div>
       </div>
-      
+                  
     </main>
-    
+        
+    <!-- Modal dialog answer -->
+    <div
+      class="modal fade"
+      id="dialogAnswer"
+      tabindex="-1"
+      aria-labelledby="dialogAnswerLabel"
+      aria-hidden="true"
+    >
+      <form class="needs-validation" onsubmit="answerSend(this)">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dialogAnswerLabel">Ответить студенту</h5>
+            <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close" ></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-outline">
+              <textarea class="form-control" id="dialogAnswerText" rows="4" name="text" required></textarea>
+              <label class="form-label" for="dialogAnswerText">Текст ответа</label>
+            </div>
+            <input type="hidden" id="dialogAnswerMessageId" name="message"/>
+            <input type="hidden" name="page" value="<?=$page_id?>"/>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary">Ответить</button>
+          </div>
+        </div>
+      </div>
+      </form>
+    </div>
+          
+    <!-- Modal dialog mark -->
+    <div
+      class="modal fade"
+      id="dialogMark"
+      tabindex="-1"
+      aria-labelledby="dialogMarkLabel"
+      aria-hidden="true"
+    >
+      <form class="needs-validation" onsubmit="answerSend(this)">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dialogMarkLabel">Зачесть задание</h5>
+            <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close" ></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-outline">
+              <input type="number" id="dialogMarkMarkInput" name="mark" class="form-control" required />
+              <label class="form-label" for="typeNumber" id="dialogMarkMarkLabel">Оценка</label>
+            </div>
+            <br/>
+            <div class="form-outline">
+              <textarea class="form-control" id="dialogMarkText" rows="4" name="text" required></textarea>
+              <label class="form-label" for="dialogMarkText">Текст ответа</label>
+            </div>
+            <input type="hidden" id="dialogMarkMessageId" name="message"/>
+            <input type="hidden" name="page" value="<?=$page_id?>"/>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary" onclick="answerSend(this)">Ответить</button>
+          </div>
+        </div>
+      </div>
+      </form>
+    </div>
     
     <!-- Custom scripts -->
     <script type="text/javascript">
@@ -199,11 +289,19 @@
     
     function filterTable(value) {
         if (value.trim() === '')
+        {
             $('#table-status-id').find('tbody>tr').show();
+            $('#list-messages-id').find('.message').show();
+        }
         else
+        {
             $('#table-status-id').find('tbody>tr').each(function(){
                 $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
             });
+            $('#list-messages-id').find('.message').each(function(){
+                $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
+            });
+        }
     }
     
     function showPopover(element,message_id) {
@@ -213,21 +311,55 @@
             delay: 250,
             trigger: 'focus',
             placement: 'bottom',
+            sanitize: false,
             title: element.getAttribute('title'),
             content: element.getAttribute('data-mdb-content')
-        } ).popover('show');
+        } )
+        //.on('inserted.bs.popover', function(e){
+        //    var p = document.getElementById(e.target.getAttribute('aria-describedby'));
+        //    $(p).find('a').click(function(args){answerPress(args.currentTarget,message_id);}); 
+        //    //$(element).popover('dispose');});
+        //})
+        .popover('show');
         $('.popover-dismiss').popover({
             trigger: 'focus'
         });
-        $(".popover-body>a").click(function(args){answerPress(args.currentTarget.innerText,message_id); $(element).popover('dispose');});
     }
     
-    function answerPress(answer_type, message_id)
+    function answerPress(answer_type, message_id, max_mark)
     {
-        console.log(answer_type,message_id);
-        if (answer_type.toUpperCase() == 'ЗАЧЕСТЬ') {
-            //prompt('Введите оценку');
+        // TODO: implement answer
+        console.log('pressed: ',answer_type == 2 ? 'mark' :'answer', max_mark, message_id);
+        if (answer_type == 2) { // mark
+            //const dialog = document.getElementById('dialogMark');
+            document.getElementById('dialogMarkMessageId').value = message_id;
+            document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
+            document.getElementById('dialogMarkText').value = 'Задание зачтено';
+            $('#dialogMark').modal('show');
+        } else {
+            //const dialog = document.getElementById('dialogAnswer');
+            document.getElementById('dialogAnswerMessageId').value = message_id;
+            document.getElementById('dialogAnswerText').value = '';
+            $('#dialogAnswer').modal('show');
         }
+    }
+    
+    function answerSend(form) 
+    {
+        $(form)
+            .find(':submit')
+            .attr('disabled','disabled')
+            .append(' <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+    }
+    
+    function answerText(answer_text, message_id)
+    {
+        console.log('answer: ', answer_text, message_id);
+    }
+    
+    function answerMark(answer_text, mark, message_id)
+    {
+        console.log('mark: ', answer_text, mark, message_id);
     }
     </script>
     

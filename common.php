@@ -150,4 +150,29 @@
 
 <?php
 	}
+    
+    function show_message($message)
+    {
+        if ($message == null || $message['mtype'] == null) return;
+        $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
+        $message_text = $message['mtext'];
+        if ($message['mfile'] != null) // have file attachment
+        {
+            // to be usefull image preview need: 1) scale to max message size 2) make big preview or link to big image and
+            //if (preg_match('/\.(gif|png|jpg|jpeg|bmp|tif|tiff|ico|svg)$/i', $message['mfile'])) // file is image, inline it
+            //    $message_text = "<img src='" . $message['murl'] . "' alt='" . $message['mfile']. "'/><br/>";
+            //else 
+            if ($message['murl'] != null) // file is attachment, add link to open in new window
+                $message_text = "<a target='_blank' download href='" . $message['murl'] . "'><i class='fa fa-paperclip' aria-hidden='true'></i> " . $message['mfile']. "</a><br/>" . $message_text;
+            else // file is text content, add link to open in new window
+                $message_text = "<a target='_blank' download href='message_file.php?id=" . $message['fid'] . "'><i class='fa fa-paperclip' aria-hidden='true'></i> " . $message['mfile'] . "</a><br/>" . $message_text;
+        }
+        if ($message['mreply'] != null) // is reply message, add citing
+            $message_text = "<p class='note note-light'>" . $message['mreply'] . "</p>" . $message_text;
+        if ($message['amark'] == null && $message['mtype'] == 0 && $message['mstatus'] == 0) // is student message not viewed/answered, no mark, add buttons answer/mark
+            $message_text = $message_text . "<br/><a href='javascript:answerPress(2," . $message['mid'] . "," . $message['max_mark'] . ")' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0," . $message['mid'] . ")' type='message' class='btn btn-outline-primary'>Ответить</a>";
+?>
+        <div class="popover message <?=$message_style?>" role="listitem"><div class="popover-arrow"></div><h3 class="popover-header" title="Переписка с: <?=$message['fio']?>, <?=$message['grp']. "\nЗадание: " . $message['task']?>">@<?=$message['mlogin']?> <?=$message['mtime']?></h3><div class="popover-body"><?=$message_text?></div></div>
+<?php        
+    }
 ?>
