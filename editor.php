@@ -2,7 +2,7 @@
   require_once("common.php");
   require_once("dbqueries.php");
   show_header('Редактор', array('Введение в разработку' => 'mainpageSt.php'));
-  $result2 = pg_query($dbconnect, 'select assignment_id, full_text, file_name from ax_solution_file');
+  $result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file');
   $result1 = pg_query($dbconnect, 'select id, description from ax_task');
   $result_file = pg_fetch_all($result2);
   $result_task = pg_fetch_all($result1);
@@ -50,16 +50,15 @@ foreach($result_task as $item) {
           
       <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
         <div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>
-        <input type="text" class="form-control-plaintext form-control-sm" id="validationCustom" value="<?=$item['file_name']?>" required>
+        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$item['id']?>" value="<?=$item['file_name']?>" required>
         <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>
-        <button type="button" class="btn btn-sm mx-0 float-right" id="saveFile"><i class="fas fa-save fa-lg"></i></button>
         <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>
       </li>
   <?php } ?>
 
     	<li class="list-group-item w-100 d-flex justify-content-between px-0">
     		<div class="px-1 align-items-center"><i class="fas fa-file-code fa-lg"></i></div>
-      	<input type="text" class="form-control-plaintext form-control-sm" id="validationCustom" value="Новый файл" required>
+      	<input type="text" class="form-control-plaintext form-control-sm validationCustom" id="x" value="Новый файл" required>
         <button type="button" class="btn btn-sm px-3" id="newFile"> <i class="far fa-plus-square fa-lg"></i></button>
       </li>  
 	</ul>
