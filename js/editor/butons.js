@@ -3,33 +3,47 @@ import editor from "./editor.js";
 
 var list = document.getElementsByClassName("tasks__list")[0];
 var listItems = list.querySelectorAll(".tasks__item");
+//var cur_id = listItems[0].querySelector(".validationCustom").id;
 for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
 
-function openFile(event) {    
-    var name = this.parentNode.querySelector("#validationCustom").value;
-    var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&" + "type=" + "open" + "&" + "file_name=" + name, "open");
+function openFile(event) { 
+    var id = this.parentNode.querySelector(".validationCustom").id;
+    if (id != editor.id){
+        if (editor.id){
+            var items = list.querySelectorAll(".validationCustom");
+            var name = "";
+            for (var i = 0; i < items.length; i++) {
+                if(items[i].id == editor.id){
+                    name = items[i].value;
+                    break;
+                }
+            }
+            saveFile(name, editor.id);
+        };
+        editor.id = id;
+        makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + id, "open");
+    }
 }
 
 function delFile(event) {  
-    var name = this.parentNode.querySelector("#validationCustom").value;
+    var id = this.parentNode.querySelector(".validationCustom").id;
     var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&" + "type=" + "del" + "&" + "file_name=" + name, "del");
+    makeRequest('textdb.php?' + param + "&" + "type=" + "del" + "&" + "id=" + id, "del");
     list.removeChild(this.parentNode);
 }
 
-function saveFile(event) {
-    var name = this.parentNode.querySelector("#validationCustom").value;
-    var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&" + "type=" + "save" + "&" + "file_name=" + name + "&" + "file=" + encodeURIComponent(editor.current.getValue()), "save");
+function saveFile(name, id) {
+    var text = editor.current.getValue();
+    makeRequest('textdb.php?' + "type=" + "save" + "&" + "id=" + id + "&" + "file_name=" + name + "&" + "file=" + encodeURIComponent(text), "save");
 }
 
-function setEventListener(listItem) {   
+function setEventListener(listItem) {  
+    var id = listItem.querySelector(".validationCustom").id;
+    editor.files = null;
     listItem.querySelector("#openFile").addEventListener('click', openFile);
     listItem.querySelector("#delFile").addEventListener('click', delFile);
-    listItem.querySelector("#saveFile").addEventListener('click', saveFile);
 }
 
 
@@ -39,7 +53,7 @@ document.querySelector("#language").addEventListener('click', async e => {
     monaco.editor.setModelLanguage(editor.current.getModel(), sel);
 });
 
-function makeRequest(url, type) {
+export default function makeRequest(url, type) {
     var httpRequest = false;
     if (window.XMLHttpRequest) { // Mozilla, Safari, ...
         httpRequest = new XMLHttpRequest();
@@ -81,8 +95,8 @@ function makeRequest(url, type) {
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
     }
-    else if (type == "rename") {
-        httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
+    else if (type == "get") {
+        httpRequest.onreadystatechange = function() { alertContentsGet(httpRequest); };  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
     }
@@ -90,7 +104,6 @@ function makeRequest(url, type) {
 }
 
 function alertContents(httpRequest) {
-
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
@@ -107,7 +120,7 @@ function alertContents(httpRequest) {
 }
 
 function alertContents1(httpRequest) {
-        try {
+    try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
             } else {
@@ -120,17 +133,33 @@ function alertContents1(httpRequest) {
     }
 }
 
+function alertContentsGet(httpRequest) {
+    try {
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                editor.t = httpRequest.responseText;
+            } else {
+                alert('С запросом возникла проблема.');
+            }
+        }
+    }
+    catch( e ) {
+        alert('Произошло исключение: ' + e.description);
+    }
+
+}
+
 document.querySelector("#newFile").addEventListener('click', async e => {
-    var name = document.querySelector("#newFile").parentNode.querySelector("#validationCustom").value;
-    document.querySelector("#newFile").parentNode.querySelector("#validationCustom").value = "Новый файл";
+    var name = document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value;
+    document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value = "Новый файл";
     var entry = document.createElement('li'); 
     entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
-    entry.innerHTML = "<div class=\"px-1 align-items-center\" style=\"cursor: move;\"><i class=\"fas fa-file-code fa-lg\"></i></div> <input type=\"text\" class=\"form-control-plaintext form-control-sm\" id=\"validationCustom\" value="+ name + " required> <button type=\"button\" class=\"btn btn-sm mx-0 float-right\" id=\"openFile\"><i class=\"fas fa-edit fa-lg\"></i></button><button type=\"button\" class=\"btn btn-sm mx-0 float-right\" id=\"saveFile\"><i class=\"fas fa-save fa-lg\"></i></button><button type=\"button\" class=\"btn btn-sm float-right\" id=\"delFile\"><i class=\"fas fa-times fa-lg\"></i></button>";
-    document.querySelector("#newFile").parentNode.insertAdjacentElement('beforebegin',entry);
-    setEventListener(entry);
-
-
+    entry.innerHTML = "<div class=\"px-1 align-items-center\" style=\"cursor: move;\"><i class=\"fas fa-file-code fa-lg\"></i></div> <input type=\"text\" class=\"form-control-plaintext form-control-sm validationCustom\" value="+ name + " required> <button type=\"button\" class=\"btn btn-sm mx-0 float-right\" id=\"openFile\"><i class=\"fas fa-edit fa-lg\"></i></button><button type=\"button\" class=\"btn btn-sm float-right\" id=\"delFile\"><i class=\"fas fa-times fa-lg\"></i></button>";
 
     var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&" + "type=" + "new" + "&" + "file_name=" + name, "new");
+    entry.querySelector(".validationCustom").id = makeRequest('textdb.php?' + param + "&" + "type=" + "new" + "&" + "file_name=" + name, "new");
+    setEventListener(entry);
+
+    document.querySelector("#newFile").parentNode.insertAdjacentElement('beforebegin',entry);
 });
+//makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + cur_id, "open");
