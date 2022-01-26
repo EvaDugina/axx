@@ -146,32 +146,95 @@
         return $array_out;
     }
 
-    // Название дисциплины 
-	function select_all_disciplines()
+   //
+    function select_task($task_id)
     {
-        return 'SELECT * from discipline';
+    return 'select type, title, description from ax_task where id ='.$task_id;
     }
-	// Страница дисциплины 
-	function select_discipline_page($id)
+
+    // Название дисциплины
+    function select_all_disciplines()
     {
-        return 'SELECT * from ax_page where id ='.$id;
+    return 'SELECT * from discipline';
     }
-	// Все года и семестры
-	function select_discipline_timestamps()
+    // Страница дисциплины
+    function select_discipline_page($id)
     {
-        return 'SELECT distinct year, semester from ax_page order by year desc';
+    return 'SELECT * from ax_page where id ='.$id;
     }
-	// Изменение страницы дисциплины
-	function update_discipline($discipline)
+    // Все года и семестры
+    function select_discipline_timestamps()
     {
-		$timestamp = convert_timestamp_from_string($discipline['timestamp']);
-		$short_name = pg_escape_string($discipline['short_name']);
-		$id = pg_escape_string($discipline['id']);
-		$disc_id = pg_escape_string($discipline['disc_id']);
-		$year = pg_escape_string($timestamp['year']);
-		$semester = pg_escape_string($timestamp['semester']);
-		
-		return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester' where id ='$id'";
+    return 'SELECT distinct year, semester from ax_page order by year desc';
     }
+    // Изменение страницы дисциплины
+    function update_discipline($discipline)
+    {
+    $timestamp = convert_timestamp_from_string($discipline['timestamp']);
+    $short_name = pg_escape_string($discipline['short_name']);
+    $id = pg_escape_string($discipline['id']);
+    $disc_id = pg_escape_string($discipline['disc_id']);
+    $year = pg_escape_string($timestamp['year']);
+    $semester = pg_escape_string($timestamp['semester']);
+
+    return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester' where id ='$id'";
+    }
+
+    function prep_ax_prep_page($id, $first_name, $middle_name)
+    {
+    $first_name = pg_escape_string($first_name);
+    $middle_name = pg_escape_string($middle_name);
+    return "INSERT INTO ax_page_prep
+    (id, prep_user_id, page_id)
+    values(default, (select id from students where first_name = '$first_name' and middle_name = '$middle_name'),'$id')";
+    }
+
+    function update_ax_page_group($id, $groups)
+    {
+    $groups = pg_escape_string($groups);
+
+    return "INSERT INTO ax_page_group(group_id, page_id)
+    values ((select id from groups where name = '$groups'), '$id')";
+    }
+
+    //все группы
+    function select_groups()
+    {
+    return 'select * from groups';
+    }
+
+    // группы у конкретной дисциплины
+    function select_discipline_groups($page_id)
+    {
+    return 'select name from groups inner join ax_page_group on groups.id = ax_page_group.group_id where page_id ='.$page_id;
+    }
+    // все преподователи
+    function select_teacher_name()
+    {
+    return 'select student_id, first_name, middle_name, last_name from students_to_groups inner join students on students_to_groups.student_id = students.id where group_id = 29';
+    }
+    // преподователи у конкретной дисциплины
+    function select_page_prep_name($page_id)
+    {
+    return 'select first_name, middle_name from ax_page_prep inner join students on students.id = ax_page_prep.prep_user_id where page_id ='.$page_id;
+    }
+    // удаление из таблицы дисциплины-преподователи
+    function delete_page_prep($page_id)
+    {
+    return 'DELETE FROM ax_page_prep WHERE page_id ='.$page_id;
+    }
+
+    // удаление из таблицы дисциплины-группы
+    function delete_page_group($page_id)
+    {
+    return 'DELETE FROM ax_page_group WHERE page_id ='.$page_id;
+    }
+
+    // получения файлов для задание
+    function select_task_file($type, $task_id)
+    {
+    return 'select * from ax_task_file where type ='.$type.' and task_id ='.$task_id;
+    }
+
     
 ?>
