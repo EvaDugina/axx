@@ -1,118 +1,71 @@
 <!DOCTYPE html>
+
+<?php
+	require_once("common.php");
+	require_once("dbqueries.php");
+	
+	// получение параметров запроса
+	$page_id = 0;
+	if (array_key_exists('page', $_REQUEST))
+		$page_id = $_REQUEST['page'];
+	else {
+		echo "Некорректное обращение";
+		http_response_code(400);
+		exit;
+	}
+	
+	$query = select_task($page_id);
+	$result = pg_query($dbconnect, $query);
+	$task = pg_fetch_assoc($result);
+	
+	if (!$result)
+	  echo 'Ошибка';
+  
+	$query = select_task_file(2, $page_id);
+	$result = pg_query($dbconnect, $query);
+	$test = pg_fetch_all($result);
+	
+	$query = select_task_file(3, $page_id);
+	$result = pg_query($dbconnect, $query);
+	$test_of_test = pg_fetch_all($result);
+	
+	#echo "<pre>";
+	#var_dump($task);
+	#echo "</pre>";
+  
+  	show_header('Задания по дисциплине', 
+		array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
+				'Задания по дисциплине' => 'preptasks.php?page='.$page_id
+			)
+		);
+?>
+
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>536 Акселератор - Задания по дисциплине-привет</title>
-    <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-    <!-- Google Fonts Roboto -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-    />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-  </head>
-  <body>
-    <header>
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg bg-warning navbar-light">
-        <!-- Container wrapper -->
-        <div class="container-fluid">
-          <!-- Navbar brand -->
-          <a class="navbar-brand" href="#"><b>536 Акселератор</b></a>
-
-          <!-- Toggle button -->
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-mdb-toggle="collapse"
-            data-mdb-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-
-          <!-- Collapsible wrapper -->
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <!-- Link -->
-              <!-- <li class="nav-item">Введение в разработку ПО 2021</li>-->
-            </ul>
-
-            <!-- Icons -->
-            <ul class="navbar-nav d-flex flex-row me-1">
-              <!-- Notifications -->
-              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bell fa-2x"></i>
-                <span class="badge rounded-pill badge-notification bg-danger">4</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 4. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 3. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 2. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 1. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-              </ul>
-            </ul>
-            <ul class="navbar-nav d-flex flex-row me-1">
-              <!-- Avatar -->
-              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-2x"></i></button> <span class="text-reset ms-2">Иван Сергеевич</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
-                <li><a class="dropdown-item" href="#">Профиль</a></li>
-                <li><a class="dropdown-item" href="#">Выйти</a></li>
-              </ul>
-            </ul>
-          </div>
-        </div>
-        <!-- Container wrapper -->
-      </nav>
-      <!-- Navbar -->
-    </header>
 
     <main class="pt-2">
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
           <div class="col-8">
-            <div class="pt-3">
-
-              <h2><i class="fas fa-arrow-left"></i> Введение в разработку ПО</h2>
+            <form class="pt-3" action="task_utilities.php" name="task_utilities" id="task_utilities" method = "post">
+			  <input type = "hidden" name = "task_id" value = "<?=$page_id?>"></input>
+              <!--<h2><i class="fas fa-arrow-left"></i> Введение в разработку ПО</h2>-->
               <table class="table table-hover">
-               
+			  
 				<div class="pt-3">
 					<div class="form-outline">
-					  <input type="text" id="form12" class="form-control" />
-					  <label class="form-label" for="form12">Название задания</label>
+						<input type="text" id="form12" class="form-control" value = "<?=$task['title']?>" name = "title"/>
+						<label class="form-label" for="form12">Название задания</label>
 					</div>
 				</div>
-
+				
 				<div class="pt-3">
-					<div class="form-outline">
-					  <textarea class="form-control" id="textAreaExample" rows="5"></textarea>
-					  <label class="form-label" for="textAreaExample">Описание</label>
-					</div>
-				</div>			
-              </table>
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="p-3">
-				<div class="p-1 border bg-light">
 
 					<label>Тип задания:</label>
 
-					<select class="form-select" aria-label=".form-select">
-						<option selected>Программирование</option>
-						<option value="1">Обычное</option>
+					<select id = "task_type" class="form-select" aria-label=".form-select" name = "type">
+						<option selected value = "0">Обычное</option>
+						<option value = "1">Программирование</option>
 					</select>
 					<!-- 
 					<label>Максимальный балл:</label>
@@ -122,17 +75,40 @@
 					</div>
 					-->
 				</div>
-				<div class="p-1 border bg-light" >
-					<div class="pt-2 pb-2">
-						<button type="button" class="btn btn-outline-primary">Сохранить</button>
-						<button type="button" class="btn btn-outline-primary">Проверить сборку</button>
-						<!--<button type="button" class="btn btn-outline-primary"><i class="fas fa-ban fa-lg"></i> В архив</button>-->
+
+				<div class="pt-3">
+					<div class="form-outline">
+					  <textarea class="form-control" id="textAreaExample" rows="5" name = "description"><?=$task['description']?></textarea>
+					  <label class="form-label" for="textAreaExample">Описание</label>
 					</div>
 				</div>
-				<div class="p-1 border bg-light" >
-					<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-paperclip fa-lg"></i> Приложить файл</button></div>
+				
+				<div class="pt-3 d-flex d-none" id = "tools">
+					
+					<div class="form-outline col-6">
+					  <textarea class="form-control" id="textAreaExample" rows="5" name = "full_text_test"><?php if($task['type'] == 1) echo $test[0]['full_text'];?></textarea>
+					  <label class="form-label" for="textAreaExample">Код теста</label>
+					</div>
+
+					<div class="form-outline col-6">
+					  <textarea class="form-control" id="textAreaExample" rows="5" name = "full_text_test_of_test"><?php if($task['type'] == 1) echo $test_of_test[0]['full_text'];?></textarea>
+					  <label class="form-label" for="textAreaExample">Код проверки</label>
+					</div>
+
 				</div>
-			  
+              </table>
+
+			  <button type="submit" class="btn btn-outline-primary">Сохранить</button>
+			  <button type="button" class="btn btn-outline-primary">Проверить сборку</button>
+            </form>
+          </div>
+		  
+		  
+
+		  
+          <div class="col-4">
+            <div class="p-3">
+ 
 			  <div class="p-1 border bg-light">
 			  <div class="pt-1 pb-1">
                 <label><i class="fas fa-users fa-lg"></i> <small>НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
@@ -189,13 +165,18 @@
                       </div>                                            
                     </div>
                   </div>
+				  
                 </section>
 
 				<div class="pt-1 pb-1">
 					<button type="button" class="btn btn-outline-primary"><i class="fas fa-user fa-lg"></i> Назначить индивидуально</button>
 					<button type="button" class="btn btn-outline-primary"><i class="fas fa-users fa-lg"></i> Назначить группе</button>
 				</div>
-			</div>
+				
+				</div>
+				<div class="p-1 border bg-light" >
+					<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary"><i class="fas fa-paperclip fa-lg"></i> Приложить файл</button></div>
+				</div>
 			</div>
           </div>
         </div>
@@ -206,6 +187,31 @@
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript"></script>
+    <script type="text/javascript">
+	
+		let tools = document.getElementById("tools");
+		let task_select = document.getElementById("task_type");
+		
+		
+		let select_change = function(){
+			
+			//alert(task_select.value);
+			if(task_select.value == 0)
+				tools.classList.add("d-none");
+			else 
+				tools.classList.remove("d-none");
+		}
+		
+		task_select.addEventListener("change", select_change);
+		
+		var type = <?php echo json_encode($task["type"]); ?>;
+		//alert(type);
+
+		task_select.selectedIndex = parseInt(type);
+		select_change();
+		//alert(type);
+		
+		
+	</script>
   </body>
 </html>
