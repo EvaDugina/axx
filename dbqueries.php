@@ -236,5 +236,21 @@
     return 'select * from ax_task_file where type ='.$type.' and task_id ='.$task_id;
     }
 
+    // обновление задания
+    function update_task($id, $type, $title, $description)
+    {
+    return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' WHERE id = '$id'";
+    }
+    // обновление текста файла
+    function update_file($type, $task_id, $full_text)
+    {
+    return "UPDATE ax_task_file SET full_text = '$full_text' where task_id = '$task_id' and type = '$type'";
+    }
+    // добовление файла
+    function insert_file($type, $task_id, $file_name, $full_text)
+    {
+    return "INSERT INTO ax_task_file(type, task_id, file_name, full_text)
+    values ('$type', '$task_id', '$file_name', '$full_text')";
+    }
     
 ?>
