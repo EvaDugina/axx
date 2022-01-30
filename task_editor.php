@@ -47,15 +47,14 @@
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
           <div class="col-8">
-            <div class="pt-3">
-
-              <h2><i class="fas fa-arrow-left"></i> Введение в разработку ПО</h2>
+            <form class="pt-3" action="task_utilities.php" name="task_utilities" id="task_utilities" method = "post">
+			  <input type = "hidden" name = "task_id" value = "<?=$page_id?>"></input>
+              <!--<h2><i class="fas fa-arrow-left"></i> Введение в разработку ПО</h2>-->
               <table class="table table-hover">
 			  
 				<div class="pt-3">
 					<div class="form-outline">
-					
-						<input type="text" id="form12" class="form-control" value = "<?=$task['title']?>"/>
+						<input type="text" id="form12" class="form-control" value = "<?=$task['title']?>" name = "title"/>
 						<label class="form-label" for="form12">Название задания</label>
 					</div>
 				</div>
@@ -64,9 +63,9 @@
 
 					<label>Тип задания:</label>
 
-					<select class="form-select" aria-label=".form-select">
-						<option selected>Программирование</option>
-						<option value="1">Обычное</option>
+					<select id = "task_type" class="form-select" aria-label=".form-select" name = "type">
+						<option selected value = "0">Обычное</option>
+						<option value = "1">Программирование</option>
 					</select>
 					<!-- 
 					<label>Максимальный балл:</label>
@@ -79,37 +78,33 @@
 
 				<div class="pt-3">
 					<div class="form-outline">
-					  <textarea class="form-control" id="textAreaExample" rows="5"><?=$task['description']?></textarea>
+					  <textarea class="form-control" id="textAreaExample" rows="5" name = "description"><?=$task['description']?></textarea>
 					  <label class="form-label" for="textAreaExample">Описание</label>
 					</div>
 				</div>
 				
-				<div class="pt-3 d-flex">
-
+				<div class="pt-3 d-flex d-none" id = "tools">
+					
 					<div class="form-outline col-6">
-					  <textarea class="form-control" id="textAreaExample" rows="5"><?=$test[0]['full_text']?></textarea>
+					  <textarea class="form-control" id="textAreaExample" rows="5" name = "full_text_test"><?php if($task['type'] == 1) echo $test[0]['full_text'];?></textarea>
 					  <label class="form-label" for="textAreaExample">Код теста</label>
 					</div>
 
 					<div class="form-outline col-6">
-					  <textarea class="form-control" id="textAreaExample" rows="5"><?=$test_of_test[0]['full_text']?></textarea>
+					  <textarea class="form-control" id="textAreaExample" rows="5" name = "full_text_test_of_test"><?php if($task['type'] == 1) echo $test_of_test[0]['full_text'];?></textarea>
 					  <label class="form-label" for="textAreaExample">Код проверки</label>
 					</div>
 
 				</div>
               </table>
 
-			  <button type="button" class="btn btn-outline-primary">Сохранить</button>
+			  <button type="submit" class="btn btn-outline-primary">Сохранить</button>
 			  <button type="button" class="btn btn-outline-primary">Проверить сборку</button>
-            </div>
+            </form>
           </div>
 		  
 		  
 
-		  
-		  
-		  
-		  
 		  
           <div class="col-4">
             <div class="p-3">
@@ -192,6 +187,31 @@
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript"></script>
+    <script type="text/javascript">
+	
+		let tools = document.getElementById("tools");
+		let task_select = document.getElementById("task_type");
+		
+		
+		let select_change = function(){
+			
+			//alert(task_select.value);
+			if(task_select.value == 0)
+				tools.classList.add("d-none");
+			else 
+				tools.classList.remove("d-none");
+		}
+		
+		task_select.addEventListener("change", select_change);
+		
+		var type = <?php echo json_encode($task["type"]); ?>;
+		//alert(type);
+
+		task_select.selectedIndex = parseInt(type);
+		select_change();
+		//alert(type);
+		
+		
+	</script>
   </body>
 </html>
