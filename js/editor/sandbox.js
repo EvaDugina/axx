@@ -38,6 +38,7 @@ document.querySelector("#run").addEventListener('click', async e => {
     var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make "}), headers: {'Content-Type': 'application/json'}})).json();
     //}
     alert(resp['stdout']);
+    alert(resp['stderr']);
 });
 
 document.querySelector("#check").addEventListener('click', async e => {
