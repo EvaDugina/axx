@@ -3,6 +3,7 @@ import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
 import makeRequest from "./butons.js";
 //запуск в консоли. 
+
 function saveAll() {
     var list = document.getElementsByClassName("tasks__list")[0];
     var items = list.querySelectorAll(".validationCustom");
@@ -24,33 +25,35 @@ document.querySelector("#run").addEventListener('click', async e => {
     var list = document.getElementsByClassName("tasks__list")[0];
     var items = list.querySelectorAll(".validationCustom");
     var name = "";
-    for (var i = 0; i < items.length; i++) {
-        makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + items[i].id, "get");
-        const content = new Blob([editor.t], {
-            type: 'text/plain'
-        });
-
-        const body = new FormData();
-        body.append('files', content, items[i].value);
-        const user = "sandbox";
-
-        await fetch(`${apiUrl}/sandbox/${Sandbox.id}/upload/${user}`, {method: "POST", body});
+    var t = 0;
+    for (var i = 0; i < items.length-1; i++) {
+        //if(items[i].value.split(".")[items[i].value.split(".").length-1] == "makefile" ^ items[i].value.split(".")[items[i].value.split(".").length-1] == "make"){
+        //    t = i;
+        //}
+        makeRequest(['textdb.php?' + "type=" + "open" + "&" + "id=" + items[i].id, items[i].value], "get");
     }
+
+    //if(t){
+        //var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make -f "+items[t].value}), headers: {'Content-Type': 'application/json'}})).json();
+    await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make "}), headers: {'Content-Type': 'application/json'}})).json();
+    //}
 });
 
 document.querySelector("#check").addEventListener('click', async e => {
-    alert(apiUrl);
-    const content = new Blob([editor.current.getValue()], {
-        type: 'text/plain'
-    });
-
-    const body = new FormData();
-    body.append('files', content, "a.c");
-
-    const user = "sandbox";
-
-    await fetch(`${apiUrl}/sandbox/${Sandbox.id}/upload/${user}`, {method: "POST", body});
+    var param = document.location.href.split("?")[1].split("#")[0];
+    makeRequest('textdb.php?' + param + "&" + "type=" + "oncheck", "oncheck");
 });
+
+function funonload() {
+    var list = document.getElementsByClassName("tasks__list")[0];
+    var listItems = list.querySelectorAll(".tasks__item");
+    var id = listItems[0].querySelector(".validationCustom").id;
+    listItems[0].className += " active_file";
+    makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + id, "open");
+    editor.id = id;
+} 
+window.onload = funonload;
+
 
 window.onbeforeunload = closingCode;
 function closingCode(){
