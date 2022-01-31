@@ -140,6 +140,7 @@ foreach($result_task as $item) {
 			</div>
 	</div>
 <?php 
+if ($time){
 echo '
 <script>
 function getTimeRemaining(endtime) {
@@ -189,7 +190,7 @@ function fun() {
 } 
 fun();
 </script>'
-;
+;}
 ?>
 	</div>
 </div>	
