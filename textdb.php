@@ -54,7 +54,7 @@
       exit;
     }
     if (array_key_exists('file', $_REQUEST)){
-      $file = urldecode($_REQUEST['file']);
+      $file = $_REQUEST['file'];
 
       pg_query($dbconnect, "UPDATE ax_solution_file SET full_text='$file', file_name='$file_name' where id='$id'");
     }
