@@ -30,7 +30,7 @@ foreach($result as $item) {
  <?php foreach($first_semestr as $item) { ?>
           
           <div class="col-3 border border-dark">
-            <a href="<?='/task4students.html?page='. $item['id']?>"><?=$item['short_name']?></a>
+            <a href="<?='accel/task4students.html?page='. $item['id']?>"><?=$item['short_name']?></a>
                 <div class="d-flex justify-content-between" style="margin-top: 60px;">
                     <span>Выполнено</span>
                     <span>10/12</span>
