@@ -25,7 +25,7 @@ foreach($result_years as $key => $item) { ?>
                 <?php foreach($item as $itm) { ?>
                         <div class="col-3">
                                 <div class="d-flex justify-content-end">
-                                     <!--поменять на accelerator -->   <?php echo '<a href="/accel/page_edit.php?page=' . $itm["id"] . '">'; ?>   
+                                     <!--поменять на accelerator -->   <?php echo '<a href="/accel/pageedit.php?page=' . $itm["id"] . '">'; ?>   
                                         <button type="button" class="btn btn-link"><i class="fas fa-pencil-alt"></i></button>
                                         </a>
                                 </div>
@@ -39,7 +39,7 @@ foreach($result_years as $key => $item) { ?>
                                 </div>
                         <div class="d-flex justify-content-end">
                                 <img src="https://img.icons8.com/ios/50/000000/plus--v1.png"/></br>
-                                </br><a class="justify-content-md-center" href="">Добавить новый предмет</a>
+                                </br><a class="justify-content-md-center" href="<?='/accel/pageedit.php?page='. $itm['id']?>">Добавить новый предмет</a>
                         </div>
                 </div>
         <?php } ?>
