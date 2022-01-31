@@ -1,4 +1,4 @@
-const editor = { current: null, id: 0, t: null };
+const editor = { current: null, id: 0};
 
 export default editor;
 
