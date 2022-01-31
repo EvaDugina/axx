@@ -1,3 +1,3 @@
 <?php
-    header('Location:preptasks.php?page=-8');
+    header('Location:mainpage.php');
 ?>
