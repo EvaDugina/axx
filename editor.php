@@ -2,8 +2,10 @@
   require_once("common.php");
   require_once("dbqueries.php");
   show_header('Редактор', array('Введение в разработку' => 'mainpageSt.php'));
+  $result3 = pg_query($dbconnect, 'select id, task_id, finish_limit from ax_assignment');
   $result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file');
   $result1 = pg_query($dbconnect, 'select id, description from ax_task');
+  $result_assig = pg_fetch_all($result3);
   $result_file = pg_fetch_all($result2);
   $result_task = pg_fetch_all($result1);
   $assignment = 0;
@@ -18,14 +20,22 @@
 <?php
 $files = [];
 $descr = "";
+$task_id= 0;
+$time= 0;
 
 foreach($result_file as $item) {
  if($item['assignment_id'] == $assignment) {
   $files[]= $item;
  }
 }
+foreach($result_assig as $item) {
+ if($item['id'] == $assignment) {
+  $task_id= $item['task_id'];
+  $time= $item['finish_limit'];
+ }
+}
 foreach($result_task as $item) {
- if($item['id'] == -6) {
+ if($item['id'] == $task_id) {
   $descr= $item['description'];
  }
 }
@@ -104,15 +114,83 @@ foreach($result_task as $item) {
 
 		<div id="Test" class="tabcontent">
 		  <h3>Результаты тестов</h3>
-		  <p>автавьбювают</p>
+		  <p>Результаты тестов</p>
 		</div>
 
 		<div id="Chat" class="tabcontent">
 		  <h3>Чат</h3>
-		  <p>аолвабдмваблдва</p>
-		</div>
-		<p>Осталось времени:  6 дн. 5 ч.</p>
+		  <p>чат</p>
+			</div>
+			<div id="deadline-message" class="deadline-message">
+	  Time is up!
+			</div>
+			<div id="countdown" class="countdown">
+			  <div class="countdown-number">
+			    <span class="days countdown-time"></span>
+			  </div>
+			  <div class="countdown-number">
+			    <span class="hours countdown-time"></span>
+			  </div>
+			  <div class="countdown-number">
+			    <span class="minutes countdown-time"></span>
+			  </div>
+			  <div class="countdown-number">
+			    <span class="seconds countdown-time"></span>
+			  </div>
+			</div>
 	</div>
+<?php 
+echo '
+<script>
+function getTimeRemaining(endtime) {
+  var t = Date.parse(endtime) - Date.parse(new Date());
+  var seconds = Math.floor((t / 1000) % 60);
+  var minutes = Math.floor((t / 1000 / 60) % 60);
+  var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+  var days = Math.floor(t / (1000 * 60 * 60 * 24));
+  return {
+    total: t,
+    days: days,
+    hours: hours,
+    minutes: minutes,
+    seconds: seconds
+  };
+}
+
+function initializeClock(id, endtime) {
+  var clock = document.getElementById(id);
+  var daysSpan = clock.querySelector(".days");
+  var hoursSpan = clock.querySelector(".hours");
+  var minutesSpan = clock.querySelector(".minutes");
+  var secondsSpan = clock.querySelector(".seconds");
+
+  function updateClock() {
+    var t = getTimeRemaining(endtime);
+
+    if (t.total <= 0) {
+      document.getElementById("countdown").className = "hidden";
+      document.getElementById("deadline-message").className = "visible";
+      clearInterval(timeinterval);
+      return true;
+    }
+
+    daysSpan.innerHTML = t.days+"д.";
+    hoursSpan.innerHTML = ("0" + t.hours).slice(-2)+"ч.";
+    minutesSpan.innerHTML = ("0" + t.minutes).slice(-2)+"м.";
+    secondsSpan.innerHTML = ("0" + t.seconds).slice(-2)+"с.";
+  }
+
+  updateClock();
+  var timeinterval = setInterval(updateClock, 1000);
+}
+function fun() { 
+	var deadline = "'.$time.'"; // for endless timer
+	initializeClock("countdown", deadline);
+} 
+fun();
+</script>'
+;
+?>
 	</div>
 </div>	
 </div>	
