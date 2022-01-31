@@ -30,10 +30,10 @@
 
     foreach($result as $item) {
      if($item['id'] == $id) {
+      header('Content-Type: text/plain');
       $responce= $item['full_text'];
      } 
     }
-
 
   } else if ($type == "save"){
 
