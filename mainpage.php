@@ -25,23 +25,26 @@ foreach($result_years as $key => $item) { ?>
                 <?php foreach($item as $itm) { ?>
                         <div class="col-3">
                                 <div class="d-flex justify-content-end">
-                                     <!--поменять на accelerator -->   <?php echo '<a href="/accel/pageedit.php?page=' . $itm["id"] . '">'; ?>   
+                                        <?php echo '<a href="/accel/pageedit.php?page=' . $itm["id"] . '">'; ?>   
                                         <button type="button" class="btn btn-link"><i class="fas fa-pencil-alt"></i></button>
                                         </a>
                                 </div>
-                                <a class="d-flex justify-content-md-center" href="<?='/accel/preptasks.php?page='. $itm['id']?>"><?=$itm['name']?></a>
+                                <a class="d-flex justify-content-md-center" href="<?='/accel/preptasks.php?page='. $itm['id']?>"><?=$itm['short_name']?></a>
                                 <div class="border-top border-dark d-flex justify-content-between">
                                         <span>Сообщение</span>
                                         <span class="justify-content-md-center"><button class="btn btn-link btn-sm" style="width: 55px"><i class="fas fa-bell fa-lg"></i><span class="badge rounded-pill badge-notification bg-danger">4</span></button></span>
                                 </div>
                         </div>
                 <?php }?>
+                                
+                        <div class="col-4">
+                                <div style="margin-top: 30px;">
+                                        <img src="https://img.icons8.com/ios/50/000000/plus--v1.png" style="margin-left:75px;"><br>
+                                        <a href="<?='/accel/pageedit.php?page='. $itm['id']?>">Добавить новый предмет</a>
                                 </div>
-                        <div class="d-flex justify-content-end">
-                                <img src="https://img.icons8.com/ios/50/000000/plus--v1.png"/></br>
-                                </br><a class="justify-content-md-center" href="<?='/accel/pageedit.php?page='. $itm['id']?>">Добавить новый предмет</a>
                         </div>
                 </div>
+
         <?php } ?>
 </main>
 
