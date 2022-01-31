@@ -105,6 +105,19 @@
     }
     pg_query($dbconnect, "DELETE FROM ax_solution_file WHERE id='$id'");
 
+  }else if ($type == "oncheck"){
+    
+    //-----------------------------------------------------------------DEL---------------------------------------------------------
+
+    if (array_key_exists('assignment', $_REQUEST))
+      $assignment = $_REQUEST['assignment'];
+    else {
+      echo "Некорректное обращение";
+      http_response_code(400);
+      exit;
+    }
+
+      pg_query($dbconnect, "UPDATE ax_assignment SET status_code='3' where id='$assignment'");
   }
 ?>
 <?=$responce?>
