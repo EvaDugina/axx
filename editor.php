@@ -122,7 +122,7 @@ foreach($result_task as $item) {
 		  <p>чат</p>
 			</div>
 			<div id="deadline-message" class="deadline-message">
-	  Time is up!
+	  Время вышло!
 			</div>
 			<div id="countdown" class="countdown">
 			  <div class="countdown-number">
