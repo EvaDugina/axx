@@ -43,7 +43,7 @@ function delFile(event) {
 
 function saveFile(name, id) {
     var text = editor.current.getValue();
-    makeRequest('textdb.php?' + "type=" + "save" + "&" + "id=" + id + "&" + "file_name=" + name + "&" + "file=" + encodeURIComponent(text), "save");
+    makeRequest(['textdb.php?' + "type=" + "save" + "&" + "id=" + id + "&" + "file_name=" + name, text], "save");
 }
 
 function setEventListener(listItem) {  
@@ -88,8 +88,11 @@ export default function makeRequest(url, type) {
     }
     else if (type == "save") {
         httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
-        httpRequest.open('GET', encodeURI(url), true);
-        httpRequest.send(null);
+        const body = new FormData();
+        body.append('file', url[1]);
+        await fetch(url[0], {method: "POST", body});
+        //httpRequest.open('GET', encodeURI(url), true);
+        //httpRequest.send(null);
     }
     else if (type == "new") {
         httpRequest.onreadystatechange = function() { alertContentsNew(httpRequest); };  
