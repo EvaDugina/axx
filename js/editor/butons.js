@@ -1,23 +1,29 @@
 import editor from "./editor.js";
+import apiUrl from "../api.js";
+import Sandbox from "../../src/js/sandbox.js";
 
 
 var list = document.getElementsByClassName("tasks__list")[0];
 var listItems = list.querySelectorAll(".tasks__item");
-//var cur_id = listItems[0].querySelector(".validationCustom").id;
 for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
 
-function openFile(event) { 
+function openFile(event) {
     var id = this.parentNode.querySelector(".validationCustom").id;
     if (id != editor.id){
         if (editor.id){
+            for (var i = 0; i < listItems.length; i++) {
+                listItems[i].className = listItems[i].className.replace(" active_file", "");
+            }
             var items = list.querySelectorAll(".validationCustom");
             var name = "";
             for (var i = 0; i < items.length; i++) {
                 if(items[i].id == editor.id){
                     name = items[i].value;
-                    break;
+                }
+                else if(items[i].id == id){
+                    listItems[i].className += " active_file";
                 }
             }
             saveFile(name, editor.id);
@@ -32,6 +38,7 @@ function delFile(event) {
     var param = document.location.href.split("?")[1].split("#")[0];
     makeRequest('textdb.php?' + param + "&" + "type=" + "del" + "&" + "id=" + id, "del");
     list.removeChild(this.parentNode);
+    listItems = list.querySelectorAll(".tasks__item");
 }
 
 function saveFile(name, id) {
@@ -41,7 +48,6 @@ function saveFile(name, id) {
 
 function setEventListener(listItem) {  
     var id = listItem.querySelector(".validationCustom").id;
-    editor.files = null;
     listItem.querySelector("#openFile").addEventListener('click', openFile);
     listItem.querySelector("#delFile").addEventListener('click', delFile);
 }
@@ -86,7 +92,7 @@ export default function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "new") {
-        httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
+        httpRequest.onreadystatechange = function() { alertContentsNew(httpRequest); };  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
     }
@@ -96,7 +102,18 @@ export default function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "get") {
-        httpRequest.onreadystatechange = function() { alertContentsGet(httpRequest); };  
+        httpRequest.onreadystatechange = function() { alertContentsGet(httpRequest, url[1]); };  
+        httpRequest.open('GET', encodeURI(url[0]), false);
+        httpRequest.send(null);
+    }
+    else if (type == "oncheck") {
+        httpRequest.onreadystatechange = function() { alertContents1(httpRequest, url); };  
+        httpRequest.open('GET', encodeURI(url), true);
+        httpRequest.send(null);
+    }
+    else if (type == "ws") {
+        alert("ws");
+        httpRequest.onreadystatechange = function() { alertContents2(httpRequest, url); };  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
     }
@@ -133,11 +150,50 @@ function alertContents1(httpRequest) {
     }
 }
 
-function alertContentsGet(httpRequest) {
+function alertContents2(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                editor.t = httpRequest.responseText;
+                alert(httpRequest.responseText);
+            } else {
+                alert('С запросом возникла проблема.' + httpRequest.status);
+            }
+        }
+    }
+    catch( e ) {
+        alert('Произошло исключение: ' + e.description);
+    }
+}
+ 
+function alertContentsNew(httpRequest) {
+    try {
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                listItems[listItems.length-1].querySelector(".validationCustom").id = httpRequest.responseText;
+            } else {
+                alert('С запросом возникла проблема.' + httpRequest.status);
+            }
+        }
+    }
+    catch( e ) {
+        alert('Произошло исключение: ' + e.description);
+    }
+}
+
+
+async function alertContentsGet(httpRequest, name) {
+    try {
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                const content = new Blob([httpRequest.responseText], {
+                    type: 'text/plain'
+                });
+
+
+                const body = new FormData();
+                body.append('files', content, name);
+                const user = "sandbox";
+                await fetch(`${apiUrl}/sandbox/${Sandbox.id}/upload/${user}`, {method: "POST", body});
             } else {
                 alert('С запросом возникла проблема.');
             }
@@ -154,12 +210,16 @@ document.querySelector("#newFile").addEventListener('click', async e => {
     document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value = "Новый файл";
     var entry = document.createElement('li'); 
     entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
-    entry.innerHTML = "<div class=\"px-1 align-items-center\" style=\"cursor: move;\"><i class=\"fas fa-file-code fa-lg\"></i></div> <input type=\"text\" class=\"form-control-plaintext form-control-sm validationCustom\" value="+ name + " required> <button type=\"button\" class=\"btn btn-sm mx-0 float-right\" id=\"openFile\"><i class=\"fas fa-edit fa-lg\"></i></button><button type=\"button\" class=\"btn btn-sm float-right\" id=\"delFile\"><i class=\"fas fa-times fa-lg\"></i></button>";
 
     var param = document.location.href.split("?")[1].split("#")[0];
-    entry.querySelector(".validationCustom").id = makeRequest('textdb.php?' + param + "&" + "type=" + "new" + "&" + "file_name=" + name, "new");
-    setEventListener(entry);
 
+    entry.innerHTML = '<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>\
+        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="'+0+'" value="'+name+'" required>\
+        <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>\
+        <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>';
+    setEventListener(entry);
     document.querySelector("#newFile").parentNode.insertAdjacentElement('beforebegin',entry);
+
+    listItems = list.querySelectorAll(".tasks__item");
+    makeRequest('textdb.php?' + param + "&" + "type=" + "new" + "&" + "file_name=" + name, "new");
 });
-//makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + cur_id, "open");
