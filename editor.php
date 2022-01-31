@@ -3,7 +3,7 @@
   require_once("dbqueries.php");
   show_header('Редактор', array('Введение в разработку' => 'mainpageSt.php'));
   $result3 = pg_query($dbconnect, 'select id, task_id, finish_limit from ax_assignment');
-  $result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file');
+  $result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file order by id');
   $result1 = pg_query($dbconnect, 'select id, description from ax_task');
   $result_assig = pg_fetch_all($result3);
   $result_file = pg_fetch_all($result2);
