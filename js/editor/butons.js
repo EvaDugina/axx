@@ -87,10 +87,10 @@ export default function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "save") {
-        httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
+        //httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
         const body = new FormData();
         body.append('file', url[1]);
-        await fetch(url[0], {method: "POST", body});
+        fetch(url[0], {method: "POST", body});
         //httpRequest.open('GET', encodeURI(url), true);
         //httpRequest.send(null);
     }
