@@ -181,15 +181,15 @@
     }
 
         function insert_discipline($discipline) {
-        $timestamp = convert_timestamp_from_string($discipline['timestamp']);
-        $short_name = pg_escape_string($discipline['short_name']);
-        $id = pg_escape_string($discipline['id']);
-        $disc_id = pg_escape_string($discipline['disc_id']);
-        $year = pg_escape_string($timestamp['year']);
-        $semester = pg_escape_string($timestamp['semester']);
+$timestamp = convert_timestamp_from_string($discipline['timestamp']);
+$short_name = pg_escape_string($discipline['short_name']);
+$id = pg_escape_string($discipline['id']);
+$disc_id = pg_escape_string($discipline['disc_id']);
+$year = pg_escape_string($timestamp['year']);
+$semester = pg_escape_string($timestamp['semester']);
 
-        return "INSERT INTO ax_page (disc_id, short_name, year, semester) VALUES ('$disc_id', '$short_name', '$year', '$semester')";
-    }
+return "INSERT INTO ax_page (disc_id, short_name, year, semester) VALUES ('$disc_id', '$short_name', '$year', '$semester') returning id";
+}
 
     function prep_ax_prep_page($id, $first_name, $middle_name)
     {
