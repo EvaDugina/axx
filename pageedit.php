@@ -5,29 +5,47 @@
 		require_once("common.php");
 		require_once("dbqueries.php");
 		require_once("utilities.php");
+
+		$name = "";
+		$disc_id = 0;
+		$semester = "";
+		$short_name = "";
+
+		$actual_teachers = [];
+		$page_groups = [];
 		
-		if (array_key_exists('page', $_REQUEST))
+		if (array_key_exists('page', $_REQUEST)) {
 			$page_id = $_REQUEST['page'];
-		else {
-			echo "Некорректное обращение";
-			http_response_code(400);
-			exit;
+
+			$query = select_discipline_page($page_id);
+			$result = pg_query($dbconnect, $query);
+			$page = pg_fetch_all($result)[0];
+			$disc_id = $page['disc_id'];
+			
+			foreach($disciplines as $key => $discipline){
+				if($discipline['id'] == $page['disc_id'])
+					$name = $discipline['name'];
+			}
+
+			$semester = $page['year']."/".convert_sem_from_id($page['semester']);
+			$short_name = $page['short_name'];
+
+			$query = select_page_prep_name($page_id);
+			$result = pg_query($dbconnect, $query);
+			$actual_teachers = pg_fetch_all($result);
+
+			$query = select_discipline_groups($page_id);
+			$result = pg_query($dbconnect, $query);
+			$page_groups = pg_fetch_all($result);
+		} else {
+			$page_id = 0;
 		}
-		
+
 		$query = select_all_disciplines();
 		$result = pg_query($dbconnect, $query);
 		$disciplines = pg_fetch_all($result);
 		
-		$name = "";
 		
-		$query = select_discipline_page($page_id);
-		$result = pg_query($dbconnect, $query);
-		$page = pg_fetch_all($result)[0];
-		
-		foreach($disciplines as $key => $discipline){
-			if($discipline['id'] == $page['disc_id'])
-				$name = $discipline['name'];
-		}
 		
 		$query = select_discipline_timestamps();
 		$result = pg_query($dbconnect, $query);
@@ -37,22 +55,17 @@
 		$result = pg_query($dbconnect, $query);
 		$teachers = pg_fetch_all($result);
 		
-		$query = select_page_prep_name($page_id);
-		$result = pg_query($dbconnect, $query);
-		$actual_teachers = pg_fetch_all($result);
-		
 		$query = select_groups();
 		$result = pg_query($dbconnect, $query);
 		$groups = pg_fetch_all($result);
-		
-		$query = select_discipline_groups($page_id);
-		$result = pg_query($dbconnect, $query);
-		$page_groups = pg_fetch_all($result);
 		
 		
 		#echo "<pre>";
 		#var_dump(json_decode($page_groups_json));
 		#echo "</pre>";
+		show_header('Добавление/редактирование дисциплины', 
+			array('Дисциплины' => 'mainpageSt.php')
+		);
 	?>
 
 <html lang="en">
@@ -71,71 +84,6 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
     />
     <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-  </head>
-  <body>
-    <header>
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg bg-warning navbar-light">
-        <!-- Container wrapper -->
-        <div class="container-fluid">
-          <!-- Navbar brand -->
-          <a class="navbar-brand" href="#"><b>536 Акселератор</b></a>
-
-          <!-- Toggle button -->
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-mdb-toggle="collapse"
-            data-mdb-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-
-          <!-- Collapsible wrapper -->
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <!-- Link -->
-              <li class="nav-item">Добавление/редактирование дисциплины</li>
-            </ul>
-
-            <!-- Icons -->
-            <ul class="navbar-nav d-flex flex-row me-1">
-              <!-- Notifications -->
-              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="badge rounded-pill badge-notification bg-danger">4</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 4. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 3. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 2. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 1. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-              </ul>
-            </ul>
-            <ul class="navbar-nav d-flex flex-row me-1">
-              <!-- Avatar -->
-              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2">Иван Сергеевич</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
-                <li><a class="dropdown-item" href="#">Профиль</a></li>
-                <li><a class="dropdown-item" href="#">Выйти</a></li>
-              </ul>
-            </ul>
-          </div>
-        </div>
-        <!-- Container wrapper -->
-      </nav>
-      <!-- Navbar -->
-    </header>
-
-
 
 
     <main class="pt-2">
@@ -147,22 +95,21 @@
 				<h2>Добавление/редактирование дисциплины</h2>
 			</div>
 		</div>
-		<input type = "hidden" name = "disc_id" value = "<?=$page['disc_id']?>"></input>
 		<input type = "hidden" name = "id" value = "<?=$page['id']?>"></input>
 		
 		<div class="row align-items-center m-3" style="height: 40px;">
 			<div class="col-2 row justify-content-left">Полное название</div>
 			<div class="col-4">
 				<div class="btn-group shadow-0">
-				  <select class="form-select" name = "timestamp">
-					<option selected>
+				  <select class="form-select" name = "disc_id">
+					<option selected value="<?=$disc_id?>">
 						<?=$name?>
 					</option>
 					<?php
 						foreach($disciplines as $discipline){
 							if($discipline['name'] == $name)
 								continue;
-							echo "<option>".$discipline['name']."</option>";
+							echo "<option value=".$discipline['id'].">".$discipline['name']."</option>";
 						}
 					?>
 				  </select>
@@ -174,9 +121,9 @@
 			<div class="col-2 row justify-content-left">Семестр</div>
 			<div class="col-4">
 				<div class="btn-group shadow-0">
-					  <select class="form-select" name = "timestamp">
+					  <select class="form-select" name = "timestamp">           
 						<option selected>
-							<?=$page['year']."/".convert_sem_from_id($page['semester'])?>
+							<?=$semester?>
 						</option>
 						<?php
 							foreach($timestamps as $timestamp){
@@ -194,7 +141,7 @@
 			<div class="col-2 row justify-content-left">Краткое название</div>
 			<div class="col-4">
 				<div class="form-outline" style="width:250px;">
-					<input type="text" id="form12" class="form-control" value = "<?=$page['short_name']?>" name = "short_name"/>
+					<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
 				</div>
 			</div>
 		</div>
