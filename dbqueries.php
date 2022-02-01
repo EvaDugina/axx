@@ -180,6 +180,17 @@
     return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester' where id ='$id'";
     }
 
+        function insert_discipline($discipline) {
+        $timestamp = convert_timestamp_from_string($discipline['timestamp']);
+        $short_name = pg_escape_string($discipline['short_name']);
+        $id = pg_escape_string($discipline['id']);
+        $disc_id = pg_escape_string($discipline['disc_id']);
+        $year = pg_escape_string($timestamp['year']);
+        $semester = pg_escape_string($timestamp['semester']);
+
+        return "INSERT INTO ax_page (disc_id, short_name, year, semester) VALUES ('$disc_id', '$short_name', '$year', '$semester')";
+    }
+
     function prep_ax_prep_page($id, $first_name, $middle_name)
     {
     $first_name = pg_escape_string($first_name);
