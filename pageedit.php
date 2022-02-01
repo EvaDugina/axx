@@ -5,7 +5,9 @@
 		require_once("common.php");
 		require_once("dbqueries.php");
 		require_once("utilities.php");
-
+		
+		
+		$id = 0;
 		$name = "";
 		$disc_id = 0;
 		$semester = "";
@@ -14,9 +16,25 @@
 		$actual_teachers = [];
 		$page_groups = [];
 		
+		$query = select_all_disciplines();
+		$result = pg_query($dbconnect, $query);
+		$disciplines = pg_fetch_all($result);
+		
+		$query = select_discipline_timestamps();
+		$result = pg_query($dbconnect, $query);
+		$timestamps = pg_fetch_all($result);
+		
+		$query = select_teacher_name();
+		$result = pg_query($dbconnect, $query);
+		$teachers = pg_fetch_all($result);
+		
+		$query = select_groups();
+		$result = pg_query($dbconnect, $query);
+		$groups = pg_fetch_all($result);
+		
 		if (array_key_exists('page', $_REQUEST)) {
 			$page_id = $_REQUEST['page'];
-
+			
 			$query = select_discipline_page($page_id);
 			$result = pg_query($dbconnect, $query);
 			$page = pg_fetch_all($result)[0];
@@ -41,23 +59,6 @@
 			$page_id = 0;
 		}
 
-		$query = select_all_disciplines();
-		$result = pg_query($dbconnect, $query);
-		$disciplines = pg_fetch_all($result);
-		
-		
-		
-		$query = select_discipline_timestamps();
-		$result = pg_query($dbconnect, $query);
-		$timestamps = pg_fetch_all($result);
-		
-		$query = select_teacher_name();
-		$result = pg_query($dbconnect, $query);
-		$teachers = pg_fetch_all($result);
-		
-		$query = select_groups();
-		$result = pg_query($dbconnect, $query);
-		$groups = pg_fetch_all($result);
 		
 		
 		#echo "<pre>";
@@ -95,7 +96,7 @@
 				<h2>Добавление/редактирование дисциплины</h2>
 			</div>
 		</div>
-		<input type = "hidden" name = "id" value = "<?=$page['id']?>"></input>
+		<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
 		
 		<div class="row align-items-center m-3" style="height: 40px;">
 			<div class="col-2 row justify-content-left">Полное название</div>
