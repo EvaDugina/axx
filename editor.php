@@ -1,7 +1,7 @@
 <?php
   require_once("common.php");
   require_once("dbqueries.php");
-  show_header('Редактор', array('Введение в разработку' => 'mainpageSt.php'));
+  show_header('Редактор', array('Дисциплины' => 'index.php'));
   $result3 = pg_query($dbconnect, 'select id, task_id, finish_limit from ax_assignment');
   $result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file order by id');
   $result1 = pg_query($dbconnect, 'select id, description from ax_task');
@@ -40,6 +40,7 @@ foreach($result_task as $item) {
  }
 }
 ?>
+
     <link rel="stylesheet" href="css/rdt.css" />
 
     <link rel="stylesheet" href="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm/css/xterm.css" />
@@ -139,6 +140,8 @@ foreach($result_task as $item) {
 			  </div>
 			</div>
 	</div>
+
+
 <?php 
 if ($time){
 echo '
