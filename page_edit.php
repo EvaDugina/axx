@@ -31,5 +31,5 @@
 	}
 
 	#var_dump($_POST);
-	header('Location: http://localhost/accelerator/preptasks.php?page=-1#');
+	header('Location: mainpage.php');
 ?>

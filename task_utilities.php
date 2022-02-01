@@ -30,5 +30,5 @@
 	$result = pg_query($dbconnect, $query);
 	$file = pg_fetch_all($result);
 	
-	header('Location: http://localhost/accelerator/preptasks.php?page=-1#');
+	header('Location: index.php');
 ?>
