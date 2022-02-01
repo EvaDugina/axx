@@ -2,6 +2,7 @@ import editor from "./editor.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
 import makeRequest from "./butons.js";
+//import alertify from "./alertifyjs/alertify.js";
 //запуск в консоли. 
 
 function saveAll() {
@@ -37,7 +38,15 @@ document.querySelector("#run").addEventListener('click', async e => {
         //var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make -f "+items[t].value}), headers: {'Content-Type': 'application/json'}})).json();
     var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make "}), headers: {'Content-Type': 'application/json'}})).json();
     //}
-    alert(resp['stdout']+",\n"+resp['stderr']+",\n"+resp['exitCode']);
+    //alert(resp['stdout']+",\n"+resp['stderr']+",\n"+resp['exitCode']);
+    //alert(t);
+    var entry = document.createElement("div"); 
+    var l = resp['stdout']
+    if (resp['stderr']){
+        l = resp['stdout']+"\n Ошибка"+resp['stderr'];
+    }
+    entry.innerHTML = '<p> Результат Makefile:'+ l +' <p>';
+    document.querySelector("#terminal").insertAdjacentElement('afterend',entry);
 });
 
 document.querySelector("#check").addEventListener('click', async e => {
