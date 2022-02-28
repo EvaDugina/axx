@@ -81,11 +81,11 @@
     </header>
 
     <main class="pt-2 p-2">
-    	<button type="button" class="btn btn-floating">image</button>
+    	<button type="button" class="btn"><i class="fas fa-arrow-left"></i></button>
     	<span class="text-reset ms-2">Введение в разработку ПО</span><br>
     	<h1>Задание #3. Работа с файлами</h1>
     	<div class="row">
-	    	<div class="col-md-6 border border-dark" style="margin-left: 10px;">
+	    	<div class="col-md-6" style="margin-left: 10px;">
 	    			<button type="button" class="btn" style="display: block; margin-left: auto;"><i class="fas fa-pencil-alt"></i></button>
 		    		<p>Разработать программу для чтения файла с диска, выбора нечетных строк и сохранения их в новый файл.<br>Новый файл должен получить то же самое имя.</p>
 		    		<p>Требования к результату:</p>
@@ -97,11 +97,13 @@
 	    		<span>выполнено</span><br>
 	    		<span class="time-right">21.10.2021 17:34</span>
 	    		<br>
-	    		<button type="button" class="btn" style="display:block; margin-top: 200px;">Онлайн-редактор кода</button>
+	    		<button type="button" class="btn" style="display:block; margin-top: 170px;">Онлайн-редактор кода</button>
 	    	</div>
-	    </div>
+	    </div><br>
+      
 	    <div class="chat-history">
-	    	 <div class="m-b-0">
+        <h2>Чат по заданию</h2>
+	    	  <div class="m-b-0">
                         <div class="clearfix col-md-6">
                             <div class="fio">
                                 <span class="message-data-time">Сергей Иванов</span>
@@ -186,6 +188,9 @@
                         </button>
 	    </div>
 
+
+
+
         <div class = "uploadFile" style="margin-top: 10px;">
             <span> Вложения: 
                 <button type="button" class="btn">
@@ -215,49 +220,6 @@
         </div>
     
     </main>
-    <!-- End your project here-->
-
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- jQuery -->
-    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript">
-    $(function () {
-      //$('[data-toggle="tooltip"]').tooltip();
-      //$('[data-toggle="popover"]').popover();      
-    });
-
-    $( document ).ready(function() {
-        //$("#table-status-id>a").click(function(sender){alert(sender)});
-        //console.log( "ready!" );
-    });    
-    
-    function filterTable(value) {
-        if (value.trim() === '')
-            $('#table-status-id').find('tbody>tr').show();
-        else
-            $('#table-status-id').find('tbody>tr').each(function(){
-                $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
-            });
-    }
-    
-    function showPopover(element) {
-        //console.log(element);
-        $(element).popover( { 
-            html: true, 
-            delay: 500,
-            trigger: 'focus',
-            placement: 'bottom',
-            title: element.getAttribute('title'),
-            content: element.getAttribute('data-mdb-content')
-        } ).popover('show');
-        $('.popover-dismiss').popover({
-            trigger: 'focus'
-        });
-        $(".popover-body>a").click(function(args){console.log(args.currentTarget.innerText); $(element).popover('dispose');});
-    }
-    </script>
   </body>
 </html>
 
