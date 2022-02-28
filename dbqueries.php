@@ -167,6 +167,12 @@
     {
     return 'SELECT distinct year, semester from ax_page order by year desc';
     }
+
+    // Все года
+    function select_discipline_years(){
+        return 'SELECT distinct year from ax_page order by year desc'; 
+    }
+
     // Изменение страницы дисциплины
     function update_discipline($discipline)
     {

@@ -23,6 +23,10 @@
 		$query = select_discipline_timestamps();
 		$result = pg_query($dbconnect, $query);
 		$timestamps = pg_fetch_all($result);
+
+		$query = select_discipline_years();
+		$result = pg_query($dbconnect, $query);
+		$years = pg_fetch_all($result);
 		
 		$query = select_teacher_name();
 		$result = pg_query($dbconnect, $query);
@@ -58,8 +62,6 @@
 		} else {
 			$page_id = 0;
 		}
-
-		
 		
 		#echo "<pre>";
 		#var_dump(json_decode($page_groups_json));
@@ -88,12 +90,15 @@
 
 
     <main class="pt-2">
-	<form class="container-fluid overflow-hidden" action="page_edit.php" name="page_edit" id="page_edit" method = "post">
-		
-		
+	<form class="container-fluid overflow-hidden" action="page_edit.php" name="page_edit" id="page_edit" method = "post">	
 		<div class="row gy-5">
 			<div class="col-12">
-				<h2>Добавление/редактирование дисциплины</h2>
+				<?php
+				if ($page_id == 0)
+					echo '<h2>Добавление дисциплины</h2>';
+				else 
+					echo '<h2>Редактирование дисциплины</h2>';
+				?>
 			</div>
 		</div>
 		<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
@@ -127,6 +132,14 @@
 							<?=$semester?>
 						</option>
 						<?php
+							// ИСПРАВЛЕНИЕ ВЫПАДАЮЩЕГО СПИСКА СЕМЕСТРОВ
+							/*foreach($years as $year){
+								if ($year != $page['year'] and $page['semester']%2 != 0)
+									echo "<option>".$year."/".convert_sem_from_id(0)."</option>";
+								if ($year != $page['year'] and $page['semester']%2 != 1)
+									echo "<option>".$year."/".convert_sem_from_id(1)."</option>";
+							}*/
+
 							foreach($timestamps as $timestamp){
 								if($timestamp['year'] == $page['year'] and $timestamp['semester'] == $page['semester'])
 									continue;
@@ -135,16 +148,20 @@
 						?>
 					  </select>
 				</div>
+				<span style="color: red;"><?php echo '&nbsp;&nbsp;' . $semester_Err; ?></span>
 			</div>
 		</div>
 		
 		<div class="row align-items-center m-3">
 			<div class="col-2 row justify-content-left">Краткое название</div>
-			<div class="col-4">
+			<div class="col-2">
 				<div class="form-outline" style="width:250px;">
 					<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
 				</div>
 			</div>
+			<div class="col-3">
+				<span style="color: red;"><?php echo '&nbsp;&nbsp;' . $short_name_Err; ?></span>
+			</div>	
 		</div>
 		
 		<div class="row align-items-center m-3" id="teachers_container">
@@ -220,13 +237,14 @@
 			</div>
 		</div>
 		
-			<div class="row align-items-center mx-2" style="height: 40px;">
-				<div class="col-2 row justify-content-left">
-					<button type="submit" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
-						Сохранить
-					</button>
-				</div>
+		<div class="row align-items-center mx-2" style="height: 40px;">
+			<div class="col-2 row justify-content-left">
+				<button type="submit" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+					Сохранить
+				</button>
 			</div>
+		</div>
+
 	</form>	
     </main>
     <!-- End your project here-->

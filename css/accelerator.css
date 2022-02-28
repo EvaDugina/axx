@@ -61,3 +61,7 @@
 .tooltip-inner {
     text-align: left !important;
 }
+
+.error{ 
+    color: red; 
+}
