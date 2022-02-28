@@ -133,17 +133,11 @@
 						</option>
 						<?php
 							// ИСПРАВЛЕНИЕ ВЫПАДАЮЩЕГО СПИСКА СЕМЕСТРОВ
-							/*foreach($years as $year){
-								if ($year != $page['year'] and $page['semester']%2 != 0)
-									echo "<option>".$year."/".convert_sem_from_id(0)."</option>";
-								if ($year != $page['year'] and $page['semester']%2 != 1)
-									echo "<option>".$year."/".convert_sem_from_id(1)."</option>";
-							}*/
-
-							foreach($timestamps as $timestamp){
-								if($timestamp['year'] == $page['year'] and $timestamp['semester'] == $page['semester'])
-									continue;
-								echo "<option>".$timestamp['year']."/".convert_sem_from_id($timestamp['semester'])."</option>";
+							foreach($years as $year){
+								if ($year['year'] != $page['year'] or $page['semester']%2 != 1)
+									echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
+								if ($year['year'] != $page['year'] or $page['semester']%2 != 0)
+									echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
 							}
 						?>
 					  </select>
