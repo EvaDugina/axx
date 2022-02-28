@@ -132,7 +132,7 @@
 							<?=$semester?>
 						</option>
 						<?php
-							// ИСПРАВЛЕНИЕ ВЫПАДАЮЩЕГО СПИСКА СЕМЕСТРОВ
+
 							foreach($years as $year){
 								if ($year['year'] != $page['year'] or $page['semester']%2 != 1)
 									echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
@@ -142,7 +142,6 @@
 						?>
 					  </select>
 				</div>
-				<span style="color: red;"><?php echo '&nbsp;&nbsp;' . $semester_Err; ?></span>
 			</div>
 		</div>
 		
@@ -153,9 +152,6 @@
 					<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
 				</div>
 			</div>
-			<div class="col-3">
-				<span style="color: red;"><?php echo '&nbsp;&nbsp;' . $short_name_Err; ?></span>
-			</div>	
 		</div>
 		
 		<div class="row align-items-center m-3" id="teachers_container">
