@@ -263,7 +263,7 @@ return "INSERT INTO ax_page (disc_id, short_name, year, semester) VALUES ('$disc
     {
     return "UPDATE ax_task_file SET full_text = '$full_text' where task_id = '$task_id' and type = '$type'";
     }
-    // добовление файла
+    // добавление файла
     function insert_file($type, $task_id, $file_name, $full_text)
     {
     return "INSERT INTO ax_task_file(type, task_id, file_name, full_text)

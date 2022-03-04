@@ -21,7 +21,7 @@
         $query = insert_message($_REQUEST['message'], $_REQUEST['text'], $mark, $user_id);
         $result = pg_query($dbconnect, $query);
         echo pg_result_error($result);
-        if (!@result)
+        if (!$result)
         {
             echo "Ошибка запроса";
             http_response_code(500);
@@ -35,7 +35,7 @@
 
 	$query = select_page_name($page_id, 1);
 	$result = pg_query($dbconnect, $query);
-	if (!@result || pg_num_rows($result) < 1)
+	if (!$result || pg_num_rows($result) < 1)
     {
 	    echo 'Неверно указана дисциплина';
 		http_response_code(400);
@@ -80,7 +80,7 @@
 	$query = select_page_tasks($page_id, 1);
 	$result = pg_query($dbconnect, $query);
     $tasks = array();
-	if (!@result || pg_num_rows($result) < 1)
+	if (!$result || pg_num_rows($result) < 1)
 	  echo 'Задания по этой дисциплине отсутствуют';
 	else {
         $tasks = pg_fetch_all_assoc($result, PGSQL_ASSOC);

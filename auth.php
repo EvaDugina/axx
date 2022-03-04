@@ -13,12 +13,15 @@ if (array_key_exists('action', $_POST))
 	{
 			case 'login':
 				$loggedIn = $au->login($_POST['login'], $_POST['password'], $_SERVER['HTTP_REFERER']);
-				if(!$loggedIn)
-				{
+				if(!$loggedIn) {
 					http_response_code(401);
 					exit;
-				}
-				header('Location:index.php');
+				} 
+
+				if ($au->isAdmin())
+					header('Location:mainpage.php');
+				else 
+					header('Location:mainpage_student.php');
 			break;
 			
 			case 'logout':
