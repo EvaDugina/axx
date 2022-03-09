@@ -473,3 +473,12 @@ INSERT INTO public.ax_student_page_info(id, student_user_id, page_id, total_coun
 (-2, -4, -8, 1, 0, '17', 'А тут описние задания варианта 17'),
 (-3, -3, -13, 10, 0, '3', 'Грамматика арифметических выражений над INT с использованием +,-,*,/,()'),
 (-4, -4, -13, 10, 0, '15', E'Грамматика оператора switch c рекурсивными вложениями и с поддержкой printf и break. Пример:<i><br/>switch(2) {<br/>&nbsp;&nbsp;case 1:<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf(1);<br/>&nbsp;&nbsp;&nbsp;&nbsp;break;<br/>&nbsp;&nbsp;case 2:<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf(22);<br/>&nbsp;&nbsp;&nbsp;&nbsp;break;<br/>&nbsp;&nbsp;case 3:<br/>&nbsp;&nbsp;default:<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf(100500);<br/>}</i>');
+
+
+
+CREATE TABLE ax_task_answers (id SERIAL PRIMARY KEY, task_id INTEGER, sender_user_id INTEGER, date_time timestamptz, mark INTEGER);
+
+INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (1, -16, -7, '2022.02.14 10:00:00', 0);
+INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (2, -15, -7, '2022.02.14 10:00:10', 0);
+INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (3, -14, -7, '2022.02.14 02:54:15', 1);
+INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (4, -13, -7, '2022.02.14 03:54:15', 5);
