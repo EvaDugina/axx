@@ -96,9 +96,10 @@
 
 <?php
 		show_breadcrumbs($breadcrumbs);
+    if (count($breadcrumbs) < 1) echo '</div>';
     
     if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
-?>			
+?>
             <!-- Icons -->
             <ul class="navbar-nav d-flex flex-row me-1">
               <!-- Notifications -->
@@ -125,9 +126,7 @@
               </ul>
             </ul>
 <?php 
-    }
-?>
-          </div>
+    } if (count($breadcrumbs) >= 1) echo '</div>'; ?>
         </div>
         <!-- Container wrapper -->
       </nav>

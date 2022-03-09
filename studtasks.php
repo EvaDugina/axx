@@ -1,150 +1,164 @@
 <!DOCTYPE html>
 
 <?php
-	require_once("common.php");
-	require_once("dbqueries.php");
+require_once("common.php");
+require_once("dbqueries.php");
+require_once("utilities.php");
 
-	// получение параметров запроса
-	$page_id = 0;
-	if (array_key_exists('page', $_REQUEST))
-		$page_id = $_REQUEST['page'];
-	else {
-		echo "Некорректное обращение";
-		http_response_code(400);
-		exit;
+
+$id = 0;
+$discipline_name = "";
+$disc_id = 0;
+$semester = "";
+$short_name = "";
+
+$actual_teachers = [];
+$page_groups = [];
+
+$query = select_all_disciplines();
+$result = pg_query($dbconnect, $query);
+$disciplines = pg_fetch_all($result);
+
+$query = select_discipline_timestamps();
+$result = pg_query($dbconnect, $query);
+$timestamps = pg_fetch_all($result);
+
+$query = select_discipline_years();
+$result = pg_query($dbconnect, $query);
+$years = pg_fetch_all($result);
+
+$query = select_teacher_name();
+$result = pg_query($dbconnect, $query);
+$teachers = pg_fetch_all($result);
+
+$query = select_groups();
+$result = pg_query($dbconnect, $query);
+$groups = pg_fetch_all($result);
+
+if (array_key_exists('page', $_REQUEST)) {
+	$page_id = $_REQUEST['page'];
+
+	$query = select_discipline_page($page_id);
+	$result = pg_query($dbconnect, $query);
+	$page = pg_fetch_all($result)[0];
+	$disc_id = $page['disc_id'];
+
+	foreach ($disciplines as $key => $discipline) {
+		if ($discipline['id'] == $page['disc_id'])
+			$discipline_name = $discipline['name'];
 	}
-						
-	show_header('Задания по дисциплине', 
-				array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
-						'Задания по дисциплине' => 'preptasks.php?page='.$page_id
-					)
-				);
+
+	$semester = $page['year'] . "/" . convert_sem_from_id($page['semester']);
+	$short_name = $page['short_name'];
+
+	$query = select_page_prep_name($page_id);
+	$result = pg_query($dbconnect, $query);
+	$actual_teachers = pg_fetch_all($result);
+
+	$query = select_discipline_groups($page_id);
+	$result = pg_query($dbconnect, $query);
+	$page_groups = pg_fetch_all($result);
+} else {
+	$page_id = 0;
+	echo "Некорректное обращение";
+	http_response_code(400);
+	exit;
+}
+
+show_header('Задания по дисциплине', array());
 ?>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>536 Акселератор - список заданий</title>
-    <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-    <!-- Google Fonts Roboto -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-    />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-    <link rel="stylesheet" href="css/rdt.css" />
-  </head>
-  
-  <body>
 
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<meta http-equiv="x-ua-compatible" content="ie=edge" />
+	<title>536 Акселератор - список заданий</title>
+	<!-- MDB icon -->
+	<link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
+	<!-- Google Fonts Roboto -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+	<!-- MDB -->
+	<link rel="stylesheet" href="css/mdb.min.css" />
+	<link rel="stylesheet" href="css/rdt.css" />
+</head>
 
-    <main class="container-fluid overflow-hidden">
-			<div class="pt-3">
-				<div class="row">
-				  <div class="col-4">
-				    <div class="list-group" id="list-tab" role="tablist">
-                    <?php 
-                    $query = select_page_tasks($page_id, 1);
-                    $result = pg_query($dbconnect, $query);
-                        if (!$result || pg_num_rows($result) < 1)
-                            echo 'Задания по этой дисциплине отсутствуют';
-                        else {
-                            $i = 0;
-                            while ($row = pg_fetch_assoc($result)) {?>
-				        <a
-                        <?php if ($i == 0){?> 
-				        class="list-group-item list-group-item-action active"
-                        <?php } else {?>
-                        class="list-group-item list-group-item-action"
-                        <?php }?> 
+<body>
 
-				        id="list-<?php echo $i+1;?>-list"
-				        data-mdb-toggle="list"
-				        href="#list-<?php echo $i+1;?>"
-				        role="tab"
-				        aria-controls="list-<?php echo $i+1;?>"
-				        ><?php echo $row['title'];?></a>
-				            <?php $i++;}}?>
-				    </div>
-				  </div>
-
-				  <div class="col-8">
-				    <div class="tab-content" id="nav-tabContent">
-                        <?php 
-                        $query = select_page_tasks($page_id, 1);
-                        $result = pg_query($dbconnect, $query);
-				        if (!$result || pg_num_rows($result) < 1);
-                        else {
-                            $i=0;
-                            while ($row = pg_fetch_assoc($result)) {?>
-				        <div
-
-                        <?php if ($i == 0){?> 
-                        class="tab-pane fade show active"
-                        <?php } else {?>
-                        class="tab-pane fade show"
-                        <?php }?>
-
-				        id="list-<?php echo $i+1;?>"
-				        role="tabpanel"
-				        aria-labelledby="list-<?php echo $i+1;?>-list">
-                        
-				        <table class="table table-bordered">
-								  <thead>
-								    <tr>
-								      <?php echo $row['title'];?>
-								    </tr>
-								  </thead>
-								  <tbody>
-								    <tr>
-								      <th>Описание</th>	      
-								      <td><?php echo $row['description'];?></td>
-								    </tr>
-								    <tr>
-								      <th>Оценка</th>	      
-								      <td>-</td>
-								    </tr>
-								    <tr>
-								      <th>Время на выполнение</th>	      
-								      <td>5 часов</td>
-								    </tr>
-								    <tr>
-								      <td>
-												<button type="button" class="btn btn-outline-primary"> Открыть&nbsp; <i class="fas fa-external-link-alt fa-lg"></i></button>
-											</td>	      
-								      <td>
-												<button type="button" class="btn btn-outline-primary"> Скачать&nbsp; <i class="fas fa-file-download fa-lg"></i></button>
-											</td>
-								    </tr>
-								  </tbody>
-								</table>
-				      </div>
-                        <?php $i++;}}?>
-				    </div>
-                    <div class="tab-content" id="nav-tabContent">
-                    
-						<button type="button" class="btn btn-outline-primary" style ="border-color: orange; color: orange;"> Загрузить Ответ <i class="fas fa-lg"></i></button>
-
-                    </div>
-				  </div>
-
-
-
+	<main class="container-fluid overflow-hidden">
+		<div class="pt-5 px-4">
+			<div class="row">
+				<div class="col-md-6 col-md-offset-2">
+					<h4><?php echo $discipline_name; ?></h4>
 				</div>
-			</div>	
-    </main>
-    <!-- End your project here-->
+			</div>
+			<div class="pt-4 px-5">
+				<div class="row">
+					<div class="col-md-offset-2 col-md-2">
+						<h6>Название задания</h6>
+					</div>
+				</div>
 
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript"></script>
+				<div class="row">
+					<div class="col-md-11 col-md-push-1">
+						<div class="list-group list-group-flush" id="list-tab" role="tablist">
+							<?php
+							$query_tasks = select_page_tasks($page_id, 1);
+							$result_tasks = pg_query($dbconnect, $query_tasks);
+							if (!$result_tasks || pg_num_rows($result_tasks) < 1)
+								echo 'Задания по этой дисциплине отсутствуют';
+							else {
+								$i = 0;
+								while ($row_task = pg_fetch_assoc($result_tasks)) { 
+									$query_answer = select_student_answer($row_task['id'], $_SESSION['hash']);
+									$result_answer = pg_query($dbconnect, $query_answer);
 
-  </body>
+									$date = '';
+									$text_status = 'Ответ не загружен';
+									$status = false;
+									if ($result_answer && pg_num_rows($result_answer) >= 1) {
+										$row_answer = pg_fetch_assoc($result_answer);
+										$date = $row_answer['date_time'];
+										if ($row_answer['mark'] >= 1){
+											// подтянуть информацию об оценке или изменить таблицу
+											$text_status = 'Проверено (оценка: '. $row_answer['mark'] .')';
+											$status = true;
+										} else 
+											$text_status = 'Отправлено на проверку';
+									}
+									?>
+
+									<div class="list-group-item list-group-item-action d-flex justify-content-between bd-highlight mb-3" 
+									style="cursor: pointer; margin: 10px 0; border-color: #000000; border-width: 1px; padding: 10px;  border-radius: 10px;"
+									id="studtasks-elem-<?php echo $i + 1; ?>" data-mdb-toggle="list" href="#list-<?php echo $i + 1; ?>" role="tab" aria-controls="list-<?php echo $i + 1; ?>">
+										<p class="col-md-7" style="margin:0px;"> <?php echo $row_task['title']; ?></p>
+										<p class="col-md-2" style="margin:0px; text-align: center;"><?php echo $date;?></p>
+										<p class="col-md-2" style="margin:0px; text-align: center;"><?php echo $text_status;?></p>
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?php if($status) echo 'checked'; else echo 'unchecked';?> disabled>
+											<label class="form-check-label" for="flexCheckChecked"></label>
+
+										</div>
+									</div>
+							<?php $i++;
+								}
+							} ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<!-- End your project here-->
+
+	<!-- MDB -->
+	<script type="text/javascript" src="js/mdb.min.js"></script>
+	<!-- Custom scripts -->
+	<script type="text/javascript"></script>
+
+</body>
+
 </html>

@@ -60,6 +60,12 @@
     }
     
     // ЗАДАНИЯ
+
+    // - получение статуса и времени отправки ответа студента
+    function select_student_answer($task_id, $student_id) {
+        return "SELECT * FROM ax_task_answers WHERE task_id = " . $task_id . ' and sender_user_id = '. $student_id ." LIMIT 1;";
+    }
+
     // - получение всех заданий по странице дисциплины
     function select_page_tasks($page_id, $status)
     {
@@ -157,11 +163,13 @@
     {
     return 'SELECT * from discipline';
     }
+
     // Страница дисциплины
     function select_discipline_page($id)
     {
     return 'SELECT * from ax_page where id ='.$id;
     }
+
     // Все года и семестры
     function select_discipline_timestamps()
     {
