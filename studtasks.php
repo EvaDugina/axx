@@ -15,26 +15,6 @@ $short_name = "";
 $actual_teachers = [];
 $page_groups = [];
 
-$query = select_all_disciplines();
-$result = pg_query($dbconnect, $query);
-$disciplines = pg_fetch_all($result);
-
-$query = select_discipline_timestamps();
-$result = pg_query($dbconnect, $query);
-$timestamps = pg_fetch_all($result);
-
-$query = select_discipline_years();
-$result = pg_query($dbconnect, $query);
-$years = pg_fetch_all($result);
-
-$query = select_teacher_name();
-$result = pg_query($dbconnect, $query);
-$teachers = pg_fetch_all($result);
-
-$query = select_groups();
-$result = pg_query($dbconnect, $query);
-$groups = pg_fetch_all($result);
-
 if (array_key_exists('page', $_REQUEST)) {
 	$page_id = $_REQUEST['page'];
 
@@ -43,21 +23,41 @@ if (array_key_exists('page', $_REQUEST)) {
 	$page = pg_fetch_all($result)[0];
 	$disc_id = $page['disc_id'];
 
+	$query = select_all_disciplines();
+	$result = pg_query($dbconnect, $query);
+	$disciplines = pg_fetch_all($result);
+
 	foreach ($disciplines as $key => $discipline) {
-		if ($discipline['id'] == $page['disc_id'])
+		if ($discipline['id'] == $page['disc_id']){
 			$discipline_name = $discipline['name'];
+			$discipline_name = strtoupper((string) "$discipline_name");
+			break;
+		}
 	}
 
 	$semester = $page['year'] . "/" . convert_sem_from_id($page['semester']);
 	$short_name = $page['short_name'];
 
-	$query = select_page_prep_name($page_id);
-	$result = pg_query($dbconnect, $query);
-	$actual_teachers = pg_fetch_all($result);
+	// Подсчёт количества выполненных заданий
+	$count_succes_tasks = 0;
+	$count_tasks = 0;
+	$query_tasks = select_page_tasks($page_id, 1);
+	$result_tasks = pg_query($dbconnect, $query_tasks);
+	if (!$result_tasks || pg_num_rows($result_tasks) < 1);
+	else {
+		$i = 0;
+		while ($row_task = pg_fetch_assoc($result_tasks)) {
+			$count_tasks++; 
+			$query_answer = select_student_answer($row_task['id'], $_SESSION['hash']);
+			$result_answer = pg_query($dbconnect, $query_answer);
+			if ($result_answer && pg_num_rows($result_answer) >= 1) {
+				$row_answer = pg_fetch_assoc($result_answer);
+				$date = $row_answer['date_time'];
+				if ($row_answer['mark'] >= 1) $count_succes_tasks++;
+			}
+		}
+	}
 
-	$query = select_discipline_groups($page_id);
-	$result = pg_query($dbconnect, $query);
-	$page_groups = pg_fetch_all($result);
 } else {
 	$page_id = 0;
 	echo "Некорректное обращение";
@@ -66,6 +66,8 @@ if (array_key_exists('page', $_REQUEST)) {
 }
 
 show_header('Задания по дисциплине', array());
+
+
 ?>
 
 <html lang="en">
@@ -91,18 +93,19 @@ show_header('Задания по дисциплине', array());
 	<main class="container-fluid overflow-hidden">
 		<div class="pt-5 px-4">
 			<div class="row">
-				<div class="col-md-6 col-md-offset-2">
-					<h4><?php echo $discipline_name; ?></h4>
+				<div class="col-md-6 d-flex">
+					<h3><?php echo $discipline_name; ?></h4>
+					<p style="color: grey; margin-left: 10px; margin-top:17px; "><?php echo $count_succes_tasks . "/" . $count_tasks; ?></p>
 				</div>
 			</div>
 			<div class="pt-4 px-5">
 				<div class="row">
 					<div class="col-md-offset-2 col-md-2">
-						<h6>Название задания</h6>
+						<h5>Название задания</h6>
 					</div>
 				</div>
 
-				<div class="row">
+				<div class="row pt-3">
 					<div class="col-md-11 col-md-push-1">
 						<div class="list-group list-group-flush" id="list-tab" role="tablist">
 							<?php
@@ -149,6 +152,9 @@ show_header('Задания по дисциплине', array());
 						</div>
 					</div>
 				</div>
+
+
+
 			</div>
 		</div>
 	</main>
