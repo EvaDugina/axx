@@ -476,9 +476,30 @@ INSERT INTO public.ax_student_page_info(id, student_user_id, page_id, total_coun
 
 
 
-CREATE TABLE ax_task_answers (id SERIAL PRIMARY KEY, task_id INTEGER, sender_user_id INTEGER, date_time timestamptz, mark INTEGER);
+CREATE TABLE ax_task_answers (
+	id SERIAL, 
+	task_id INTEGER, -- --> ax_task
+	sender_user_id INTEGER, -- --> students
+	date_time timestamptz, -- время отправки ответа студентом
+	mark INTEGER, -- оценка студента по заданаию (если == 0 => не проверено, если записи не существует => не был загружен ответ студента)
+	CONSTRAINT ax_task_answers_pkey PRIMARY KEY (id)
+); ALTER TABLE ax_task_answers OWNER TO postgres;
 
-INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (1, -16, -7, '2022.02.14 10:00:00', 0);
-INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (2, -15, -7, '2022.02.14 10:00:10', 0);
-INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (3, -14, -7, '2022.02.14 02:54:15', 1);
-INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES (4, -13, -7, '2022.02.14 03:54:15', 5);
+INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES 
+(1, -16, -7, '2022.02.14 10:00:00', 0),
+(2, -15, -7, '2022.02.14 10:00:10', 0),
+(3, -14, -7, '2022.02.14 02:54:15', 1),
+(4, -13, -7, '2022.02.14 03:54:15', 5);
+
+
+
+CREATE TABLE ax_message_delivery (    -- признаки уведомлений о получении сообщений
+  id serial,
+  message_id integer,  -- --> ax_message
+  recipient_user_id integer,  -- --> students
+  read boolean, -- всегда true. Если сообщение не получено, то записи в этой таблице просто нет
+  CONSTRAINT ax_message_delivery_pkey PRIMARY KEY (id)
+); ALTER TABLE ax_message_delivery OWNER TO postgres;
+
+INSERT INTO public.ax_message_delivery(id, message_id, recipient_user_id, read) VALUES 
+(-1, -1, -4, True);
