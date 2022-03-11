@@ -100,8 +100,10 @@ show_header('Задания по дисциплине', array());
 			</div>
 			<div class="pt-4 px-5">
 				<div class="row">
-					<div class="col-md-offset-2 col-md-2">
-						<h5>Название задания</h6>
+					<div class="col-md-offset-2 col-md-5">
+						<?php if (!$result_tasks || pg_num_rows($result_tasks) < 1)
+							echo '<h5>Задания по этой дисциплине отсутствуют</h5>'; 
+							else  echo '<h5>Название задания</h5>';?>
 					</div>
 				</div>
 
@@ -111,8 +113,7 @@ show_header('Задания по дисциплине', array());
 							<?php
 							$query_tasks = select_page_tasks($page_id, 1);
 							$result_tasks = pg_query($dbconnect, $query_tasks);
-							if (!$result_tasks || pg_num_rows($result_tasks) < 1)
-								echo 'Задания по этой дисциплине отсутствуют';
+							if (!$result_tasks || pg_num_rows($result_tasks) < 1);
 							else {
 								$i = 0;
 								while ($row_task = pg_fetch_assoc($result_tasks)) { 
@@ -124,7 +125,7 @@ show_header('Задания по дисциплине', array());
 									$status = false;
 									if ($result_answer && pg_num_rows($result_answer) >= 1) {
 										$row_answer = pg_fetch_assoc($result_answer);
-										$date = $row_answer['date_time'];
+										$date = date('d.m.y', strtotime($row_answer['date_time']));
 										if ($row_answer['mark'] >= 1){
 											// подтянуть информацию об оценке или изменить таблицу
 											$text_status = 'Проверено (оценка: '. $row_answer['mark'] .')';
@@ -133,19 +134,23 @@ show_header('Задания по дисциплине', array());
 											$text_status = 'Отправлено на проверку';
 									}
 									?>
-
+									
 									<div class="list-group-item list-group-item-action d-flex justify-content-between bd-highlight mb-3" 
-									style="cursor: pointer; margin: 10px 0; border-color: #000000; border-width: 1px; padding: 10px;  border-radius: 10px;"
+									style="cursor: pointer; margin-top: 10px 0; border-width: 1px; padding: 0px; padding-right: 0px; border-radius: 5px;"
 									id="studtasks-elem-<?php echo $i + 1; ?>" data-mdb-toggle="list" href="#list-<?php echo $i + 1; ?>" role="tab" aria-controls="list-<?php echo $i + 1; ?>">
-										<p class="col-md-7" style="margin:0px;"> <?php echo $row_task['title']; ?></p>
-										<p class="col-md-2" style="margin:0px; text-align: center;"><?php echo $date;?></p>
-										<p class="col-md-2" style="margin:0px; text-align: center;"><?php echo $text_status;?></p>
-										<div class="form-check">
+										<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $row_task['title']; ?></p>
+										<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $date;?></p>
+										<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $text_status;?></p>
+										<div class="form-check" style="margin: 10px;">
 											<input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?php if($status) echo 'checked'; else echo 'unchecked';?> disabled>
 											<label class="form-check-label" for="flexCheckChecked"></label>
-
 										</div>
+										<!-- ВОЗМОЖНЫЕ ДОРАБОТКИ ПО МАКЕТУ
+										<button type="button" style="color:crimson; border-width: 0px; background: none;"> <i class="fas fa-file-download fa-lg"></i></button>
+										<button type="button" class="btn btn-outline-primary" style="color: darkcyan; background: white; border-color: darkcyan; margin-top: 0px; margin-bottom: 0px;"> Загрузить </button>
+										-->
 									</div>
+
 							<?php $i++;
 								}
 							} ?>
