@@ -1,0 +1,54 @@
+p{
+    font-size: 2em;
+}
+
+.button{
+    padding: 0px;
+}
+
+.text-in-header{
+    font-size: large;
+}
+
+.container, .container-fluid{
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+progress {
+    height: 10;
+    width: 400px;
+    border-radius: 0ch;
+    padding-bottom: 0%;
+}
+
+span.text{
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    font-size: 30px;
+    color:black;
+    padding: 30px 70px;
+}
+
+.col-3 {
+    float: left;
+    margin: auto;
+    margin-top: 20px;
+}
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+
+
+
+
+
+
+
