@@ -27,7 +27,7 @@
                 <div class="row">
                     <div class="col-3">
                         <?php $i = 1; ?>
-                        <button onclick="r(<?php $url = './e.php' ?>)" class="button">
+                        <button class="button">
                         <span class="text">Дисциплина <?php echo $i; ?></span><br>
                         </button>
                     </div>
