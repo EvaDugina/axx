@@ -30,7 +30,7 @@
                     $semestr = 0;
                     while($semestr < 6) { ?>
                         <div class="col-3">
-                            <button onclick="window.open('./d1.php')" class="button" id="button-<?php  echo $i; ?>">    
+                            <button onclick="window.open('./d.php')" class="button" id="button-<?php  echo $i; ?>">    
                             <span class="text">Дисциплина <?php echo $i; ?></span><br>
                             <progress class="progressbar" id="progressbar-<?php  echo $i; ?>" value="4" max="12"></progress>
                             </button>
