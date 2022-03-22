@@ -1,7 +1,3 @@
-<?php 
-$semestr = 0;
-?>
-
 <html> 
     <head>
         <meta charset="utf-8">
@@ -30,11 +26,12 @@ $semestr = 0;
             <h2 style="text-align: center">8 Семестр</h2>
             <div class="container">
                 <div class="row">
-                    <?php $i = 0;
+                    <?php $i = 1;
+                    $semestr = 0;
                     while($semestr < 6) { ?>
                         <div class="col-3">
-                            <button onclick="r(<?php  echo $i; ?>)"class="button" id="button-<?php  echo $i; ?>" href="#">
-                            <span class="text">Проектирование<br>пользовательских<br>интерфейсов</span><br>
+                            <button onclick="window.open('./d1.php')" class="button" id="button-<?php  echo $i; ?>">    
+                            <span class="text">Дисциплина <?php echo $i; ?></span><br>
                             <progress class="progressbar" id="progressbar-<?php  echo $i; ?>" value="4" max="12"></progress>
                             </button>
                         </div>
