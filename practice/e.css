@@ -7,42 +7,50 @@ p{
 }
 
 .text-in-header{
-    font-size: large;
+    font-size: 30px;
 }
 
-.container, .container-fluid{
+.container{
     width: 100%;
     margin-right: auto;
     margin-left: auto;
+    justify-content: start;
 }
 
 progress {
     height: 10;
-    width: 400px;
+    width: 200px;
     border-radius: 0ch;
     padding-bottom: 0%;
 }
 
-span.text{
+span.discipline{
     display: inline-block;
     text-decoration: none;
     text-align: center;
     cursor: pointer;
-    font-size: 30px;
-    color: black;
-    padding: 70px 70px;
+    font-size: 20px;
+    color: #1266F1;
+    padding: 30px 30px;
+}
+
+span.text-in-button{
+    display: inline-block;
+    text-align: end;
+    font-size: 15px;
+    color: #1266F1;
 }
 
 .col-3 {
-    float: left;
-    margin: auto;
-    margin-top: 20px;
+    margin: 30px;
+    margin-top: 30px;
 }
 
 .row{
     display: flex;
     flex-wrap: wrap;
 }
+
 
 
 

@@ -1,7 +1,23 @@
+<?php 
+$DB_CONNECTION_STRING = "host=localhost port=5432 dbname=accelerator user=accelerator password=123456"; 
+		
+// подключение к БД
+$dbconnect = pg_connect($DB_CONNECTION_STRING);
+//require_once("../common.php");
+//require_once("../dbqueries.php");
+$result = pg_query($dbconnect, 'select id, short_name, year, semester from ax_page');
+$disciplines=pg_fetch_all($result);
+$result1=pg_query($dbconnect, 'select count(id) from ax_page');
+$disc_count=pg_fetch_all($result1);
+$result2=pg_query('select page_id from ax_task');
+$task=pg_fetch_all($result2);
+$result3=pg_query($dbconnect, 'select count(page_id) from ax_task');
+$task_count=pg_fetch_all($result3);
+?>
+
 <html> 
     <head>
-        <meta charset="utf-8">
-        <title>example</title>
+        <title>Дашборд студента</title>
         <link rel="stylesheet" href="./e.css">
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -22,43 +38,54 @@
                 <a class="text-in-header"><b>Акселератор</b></a>
             </div>
         </header>
-        <main class="justify-content-between">
-            <h2 style="text-align: center">8 Семестр</h2>
-            <div class="container">
-                <div class="row">
-                    <?php $i = 1;
-                    $semestr = 0;
-                    while($semestr < 6) { ?>
-                        <div class="col-3">
-                            <button onclick="window.open('./d.php')" class="button" id="button-<?php  echo $i; ?>">    
-                            <span class="text">Дисциплина <?php echo $i; ?></span><br>
-                            <progress class="progressbar" id="progressbar-<?php  echo $i; ?>" value="4" max="12"></progress>
-                            </button>
-                        </div>
-                        <?php  
-                        ++$semestr;
-                        ++$i;
-                    } ?>
+        <main class="justify-content-start">
+            <?php $k = 0;
+            $semesters = array(); // key = semester, value = number of disciplines in semester
+            while ($k < $disc_count[0]['count']) {
+                if (array_key_exists($disciplines[$k]['semester'], $semesters)) {
+                    ++$semesters[$disciplines[$k]['semester']][0];
+                }
+                else {
+                    $semesters[$disciplines[$k]['semester']] = [1, array()];
+                }
+                $semesters[$disciplines[$k]['semester']][1][] = array($disciplines[$k]['short_name'], $disciplines[$k]['id']);
+                ++$k;
+            }
+
+            $k = 0;
+            $tasks = array(); // key = page_id, value = number of tasks
+            while($k < $task_count[0]['count']) {
+                if (array_key_exists($task[$k]['page_id'], $tasks)) {
+                    ++$tasks[$task[$k]['page_id']];
+                }
+                else {
+                    $tasks[$task[$k]['page_id']] = 1;
+                }
+                ++$k;
+            }
+            krsort($semesters);
+            foreach($semesters as $key => $value) {?>
+                <h2 style="text-align: ceneter"> <?php echo $key; ?> семестр</h2>
+                <div class="container">
+                    <div class="row">
+                        <?php $k = 0;
+                        while ($k < $value[0]) { ?>
+                            <div class="col-3">
+                                <button onclick="window.open('./d.php')" class="button" >
+                                    <span class="discipline"><?php echo $value[1][$k][0];  ?></span><br>
+                                    <?php foreach($tasks as $id => $count) {
+                                            if ((int)$value[1][$k][1] == $id) { ?>
+                                                <span class="text-in-button">Выполнено 1/<?php echo $count; ?></span><br>
+                                                <progress class="progress-bar" value="1" max=<?php echo $count; ?> >
+                                            <?php }
+                                        } ?>
+                                </button>
+                            </div>
+                            <?php ++$k;
+                        }?>
+                    </div>
                 </div>
-            </div>
-        
-            <h2 style="text-align: center">7 Семестр</h2>
-            <div class="container">
-                <div class="row">
-                    <?php 
-                    while($semestr < 12) { ?>
-                        <div class="col-3">
-                            <button onclick="r()" class="button" id="button-<?php  echo $i; ?>" href="#">
-                            <span class="text">Проектирование<br>пользовательских<br>интерфейсов</span><br>
-                            <progress class="progressbar" id="progressbar-<?php  echo $i; ?>" value="10" max="10"></progress>
-                        </button>
-                        </div>
-                        <?php  
-                        ++$semestr;
-                        ++$i;
-                    } ?>
-                </div>
-            </div>
+            <?php } ?>
         </main>
         <script src="./e.js"></script>
     </body>
