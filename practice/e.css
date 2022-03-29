@@ -2,20 +2,11 @@ p{
     font-size: 2em;
 }
 
-.button{
-    padding: 0px;
-}
 
 .text-in-header{
     font-size: 30px;
 }
 
-.container{
-    width: 100%;
-    margin-right: auto;
-    margin-left: auto;
-    justify-content: start;
-}
 
 progress {
     height: 10;
@@ -41,15 +32,8 @@ span.text-in-button{
     color: #1266F1;
 }
 
-.col-3 {
-    margin: 30px;
-    margin-top: 30px;
-}
 
-.row{
-    display: flex;
-    flex-wrap: wrap;
-}
+
 
 
 

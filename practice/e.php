@@ -1,4 +1,10 @@
 <?php 
+
+require_once("../common.php");
+require_once("../dbqueries.php");
+
+show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpageSt.php'));
+
 $DB_CONNECTION_STRING = "host=localhost port=5432 dbname=accelerator user=accelerator password=123456"; 
 		
 // подключение к БД
@@ -22,6 +28,10 @@ $task_count=pg_fetch_all($result3);
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <!-- MDB -->
+    <link rel="stylesheet" href="../css/mdb.min.css" />
+    <!-- extra -->
+    <link rel="stylesheet" href="../css/accelerator.css" />
         <!-- MDB icon -->
         <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
         <!-- Font Awesome -->
@@ -33,11 +43,6 @@ $task_count=pg_fetch_all($result3);
         />
     </head>
     <body>
-        <header>
-            <div class="container-fluid">
-                <a class="text-in-header"><b>Акселератор</b></a>
-            </div>
-        </header>
         <main class="justify-content-start">
             <?php $k = 0;
             $semesters = array(); // key = semester, value = number of disciplines in semester
@@ -51,7 +56,6 @@ $task_count=pg_fetch_all($result3);
                 $semesters[$disciplines[$k]['semester']][1][] = array($disciplines[$k]['short_name'], $disciplines[$k]['id']);
                 ++$k;
             }
-
             $k = 0;
             $tasks = array(); // key = page_id, value = number of tasks
             while($k < $task_count[0]['count']) {
@@ -65,7 +69,7 @@ $task_count=pg_fetch_all($result3);
             }
             krsort($semesters);
             foreach($semesters as $key => $value) {?>
-                <h2 style="text-align: ceneter"> <?php echo $key; ?> семестр</h2>
+                <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $key; ?> семестр</h2>
                 <div class="container">
                     <div class="row">
                         <?php $k = 0;
