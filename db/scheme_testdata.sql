@@ -239,7 +239,8 @@ CREATE TABLE ax_assignment (		-- задания, назначенные студ
 				-- ограничение на время доступности задания студенту "не ранее, чем"
 	finish_limit timestamp with time zone,
 				-- ограничение на время доступности здания студенту "не позднее, чем"
-	status_code integer,	-- код статуса назначенного задания (0 - недоступно для просмотра, 1 - недоступно для выполнения, 2 - активно, 3 - выполнено, 4 - отменено)
+	status_code integer,	-- код статуса назначенного задания (0 - недоступно для просмотра, 1 - недоступно для выполнения, 
+							-- 2 - активно, 3 - выполнено, 4 - отменено, 5 - ожидает проверки)
 	delay integer,		-- признак "сдано с задержкой" (0 - нет задержки, 1 - задержка срока выполнения)
 	status_text text,	-- текстовый статус назначенного задания
 	mark text,		-- полученная оценка
@@ -267,11 +268,11 @@ INSERT INTO public.ax_assignment(id, task_id, variant_comment, start_limit, fini
 (-17, -15, '3', now()+'1 year', null, 2, 0, 'активно', null),
 (-18, -14, '3', now()+'1 year', null, 2, 0, 'активно', null),
 (-19, -13, '3', now()+'1 year', null, 2, 0, 'активно', null),
-(-20, -16, '3', now()+'1 year', null, 2, 0, 'активно', null),
-(-21, -15, '3', now()+'1 year', null, 2, 0, 'активно', null),
-(-22, -14, '3', now()+'1 year', null, 0, 0, 'скрыто', null),
-(-23, -13, '3', now()+'1 year', null, 1, 0, 'недоступно', null),
-(-24, -12, '3', now()+'1 year', null, 4, 0, 'отменено', null);
+(-20, -16, '3', now(), now()+'1 year', 2, 0, 'активно', null),
+(-21, -15, '3', now(), now()+'1 year', 2, 0, 'активно', null),
+(-22, -14, '3', now(), now()+'1 year', 3, 0, 'выполнено', 5),
+(-23, -13, '3', now(), now()+'1 year', 5, 0, 'ожидает проверки', null),
+(-24, -12, '3', now(), now()+'1 year', 5, 0, 'ожидает проверки', null);
 
 
 
@@ -473,23 +474,6 @@ INSERT INTO public.ax_student_page_info(id, student_user_id, page_id, total_coun
 (-2, -4, -8, 1, 0, '17', 'А тут описние задания варианта 17'),
 (-3, -3, -13, 10, 0, '3', 'Грамматика арифметических выражений над INT с использованием +,-,*,/,()'),
 (-4, -4, -13, 10, 0, '15', E'Грамматика оператора switch c рекурсивными вложениями и с поддержкой printf и break. Пример:<i><br/>switch(2) {<br/>&nbsp;&nbsp;case 1:<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf(1);<br/>&nbsp;&nbsp;&nbsp;&nbsp;break;<br/>&nbsp;&nbsp;case 2:<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf(22);<br/>&nbsp;&nbsp;&nbsp;&nbsp;break;<br/>&nbsp;&nbsp;case 3:<br/>&nbsp;&nbsp;default:<br/>&nbsp;&nbsp;&nbsp;&nbsp;printf(100500);<br/>}</i>');
-
-
-
-CREATE TABLE ax_task_answers (
-	id SERIAL, 
-	task_id INTEGER, -- --> ax_task
-	sender_user_id INTEGER, -- --> students
-	date_time timestamptz, -- время отправки ответа студентом
-	mark INTEGER, -- оценка студента по заданаию (если == 0 => не проверено, если записи не существует => не был загружен ответ студента)
-	CONSTRAINT ax_task_answers_pkey PRIMARY KEY (id)
-); ALTER TABLE ax_task_answers OWNER TO postgres;
-
-INSERT INTO public.ax_task_answers(id, task_id, sender_user_id, date_time, mark) VALUES 
-(1, -16, -7, '2022.02.14 10:00:00', 0),
-(2, -15, -7, '2022.02.14 10:00:10', 0),
-(3, -14, -7, '2022.02.14 02:54:15', 1),
-(4, -13, -7, '2022.02.14 03:54:15', 5);
 
 
 

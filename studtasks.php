@@ -48,12 +48,11 @@ if (array_key_exists('page', $_REQUEST)) {
 		$i = 0;
 		while ($row_task = pg_fetch_assoc($result_tasks)) {
 			$count_tasks++; 
-			$query_answer = select_student_answer($row_task['id'], $_SESSION['hash']);
-			$result_answer = pg_query($dbconnect, $query_answer);
-			if ($result_answer && pg_num_rows($result_answer) >= 1) {
-				$row_answer = pg_fetch_assoc($result_answer);
-				$date = $row_answer['date_time'];
-				if ($row_answer['mark'] >= 1) $count_succes_tasks++;
+			$query_assignment = select_task_assignment($row_task['id'], $_SESSION['hash']);
+			$result_assignment = pg_query($dbconnect, $query_assignment);
+			if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
+				$row_task_assignment = pg_fetch_assoc($result_assignment);
+				if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
 			}
 		}
 	}
@@ -117,20 +116,21 @@ show_header('Задания по дисциплине', array());
 							else {
 								$i = 0;
 								while ($row_task = pg_fetch_assoc($result_tasks)) { 
-									$query_answer = select_student_answer($row_task['id'], $_SESSION['hash']);
-									$result_answer = pg_query($dbconnect, $query_answer);
+									$query_assignment = select_task_assignment($row_task['id'], $_SESSION['hash']);
+									$result_assignment = pg_query($dbconnect, $query_assignment);
 
-									$date = '';
+									$date_finish = "";
 									$text_status = 'Ответ не загружен';
 									$status = false;
-									if ($result_answer && pg_num_rows($result_answer) >= 1) {
-										$row_answer = pg_fetch_assoc($result_answer);
-										$date = date('d.m.y', strtotime($row_answer['date_time']));
-										if ($row_answer['mark'] >= 1){
+									if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
+										$row_assignment = pg_fetch_assoc($result_assignment);
+										if ($row_assignment['finish_limit'] != null)
+											$date_finish = "до " . date('d.m.y', strtotime($row_assignment['finish_limit']));
+										if ($row_assignment['status_code'] == 3){
 											// подтянуть информацию об оценке или изменить таблицу
-											$text_status = 'Проверено (оценка: '. $row_answer['mark'] .')';
+											$text_status = 'Проверено (оценка: '. $row_assignment['mark'] .')';
 											$status = true;
-										} else 
+										} else if ($row_assignment['status_code'] == 5)
 											$text_status = 'Отправлено на проверку';
 									}
 									?>
@@ -139,7 +139,7 @@ show_header('Задания по дисциплине', array());
 									style="cursor: pointer; margin-top: 10px 0; border-width: 1px; padding: 0px; padding-right: 0px; border-radius: 5px;"
 									id="studtasks-elem-<?php echo $i + 1; ?>" data-mdb-toggle="list" href="<?='taskchat.php?id='. $row_task['id']?>" role="tab" aria-controls="list-<?php echo $i + 1; ?>">
 										<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $row_task['title']; ?></p>
-										<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $date;?></p>
+										<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $date_finish;?></p>
 										<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $text_status;?></p>
 										<div class="form-check" style="margin: 10px;">
 											<input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?php if($status) echo 'checked'; else echo 'unchecked';?> disabled>
