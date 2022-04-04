@@ -2,35 +2,15 @@ p{
     font-size: 2em;
 }
 
-
-.text-in-header{
-    font-size: 30px;
-}
-
-
-progress {
+progress{
     height: 10;
-    width: 200px;
+    width: 100%;
     border-radius: 0ch;
     padding-bottom: 0%;
+    background-color: #1266F1;
 }
 
-span.discipline{
-    display: inline-block;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
-    font-size: 20px;
-    color: #1266F1;
-    padding: 30px 30px;
-}
 
-span.text-in-button{
-    display: inline-block;
-    text-align: end;
-    font-size: 15px;
-    color: #1266F1;
-}
 
 
 

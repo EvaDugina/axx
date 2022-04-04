@@ -9,16 +9,22 @@ $DB_CONNECTION_STRING = "host=localhost port=5432 dbname=accelerator user=accele
 		
 // подключение к БД
 $dbconnect = pg_connect($DB_CONNECTION_STRING);
-//require_once("../common.php");
-//require_once("../dbqueries.php");
-$result = pg_query($dbconnect, 'select id, short_name, year, semester from ax_page');
+
+$result = pg_query($dbconnect, 'select id, short_name, disc_id, semester from ax_page');
 $disciplines=pg_fetch_all($result);
 $result1=pg_query($dbconnect, 'select count(id) from ax_page');
 $disc_count=pg_fetch_all($result1);
-$result2=pg_query('select page_id from ax_task');
-$task=pg_fetch_all($result2);
-$result3=pg_query($dbconnect, 'select count(page_id) from ax_task');
-$task_count=pg_fetch_all($result3);
+
+function task_count($discipline_id, $dbconnect) {
+    $query = 'select count(page_id) from ax_task where page_id =' .$discipline_id;
+    return pg_query($dbconnect, $query);
+}
+
+function full_name($discipline_id, $dbconnect) {
+    $query = 'select name from discipline where id =' .$discipline_id;
+    return pg_query($dbconnect, $query);
+}
+
 ?>
 
 <html> 
@@ -44,52 +50,40 @@ $task_count=pg_fetch_all($result3);
     </head>
     <body>
         <main class="justify-content-start">
-            <?php $k = 0;
-            $semesters = array(); // key = semester, value = number of disciplines in semester
-            while ($k < $disc_count[0]['count']) {
-                if (array_key_exists($disciplines[$k]['semester'], $semesters)) {
-                    ++$semesters[$disciplines[$k]['semester']][0];
-                }
-                else {
-                    $semesters[$disciplines[$k]['semester']] = [1, array()];
-                }
-                $semesters[$disciplines[$k]['semester']][1][] = array($disciplines[$k]['short_name'], $disciplines[$k]['id']);
-                ++$k;
-            }
-            $k = 0;
-            $tasks = array(); // key = page_id, value = number of tasks
-            while($k < $task_count[0]['count']) {
-                if (array_key_exists($task[$k]['page_id'], $tasks)) {
-                    ++$tasks[$task[$k]['page_id']];
-                }
-                else {
-                    $tasks[$task[$k]['page_id']] = 1;
-                }
-                ++$k;
-            }
-            krsort($semesters);
-            foreach($semesters as $key => $value) {?>
-                <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $key; ?> семестр</h2>
-                <div class="container">
-                    <div class="row">
-                        <?php $k = 0;
-                        while ($k < $value[0]) { ?>
+             <?php
+                array_multisort(array_column($disciplines, 'semester'), SORT_ASC, $disciplines);
+                $now_semester = $disciplines[0]['semester']; // first semster in database after sort function
+            ?>
+            <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
+            <div class="container">
+                <div class="row g-5">
+                    <?php 
+                        $now_semester = 1;
+                        foreach($disciplines as $key => $massiv) {
+                            if ($now_semester != $disciplines[$key]['semester']) { ?>
+                                </div>
+                                </div>
+                                <?php $now_semester = $disciplines[$key]['semester']; ?>
+                                <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
+                                <div class="container">
+                                <div class="row g-5">
+                            <?php } ?>
                             <div class="col-3">
-                                <button onclick="window.open('./d.php')" class="button" >
-                                    <span class="discipline"><?php echo $value[1][$k][0];  ?></span><br>
-                                    <?php foreach($tasks as $id => $count) {
-                                            if ((int)$value[1][$k][1] == $id) { ?>
-                                                <span class="text-in-button">Выполнено 1/<?php echo $count; ?></span><br>
-                                                <progress class="progress-bar" value="1" max=<?php echo $count; ?> >
-                                            <?php }
-                                        } ?>
-                                </button>
+                                <?php 
+                                $result = task_count($disciplines[$key]['id'], $dbconnect);
+                                $task_count = pg_fetch_all($result);
+                                $result = full_name($disciplines[$key]['disc_id'], $dbconnect);
+                                $full_name = pg_fetch_all($result);
+                                ?>
+                                <a href="./d.php"><?php echo $disciplines[$key]['short_name']; ?></a><br>
+                                <a><?php echo $full_name[0]['name']; ?></a>
+                                <div class="d-flex justify-content-between" style="margin-top: 60px;">
+                                    <span>Выполнено</span>
+                                    <span>1/<?php echo $task_count[0]['count']; ?></span>
+                                </div>
+                                <progress class="progress-bar" value="1" max=<?php echo $task_count[0]['count']; ?> >
                             </div>
-                            <?php ++$k;
-                        }?>
-                    </div>
-                </div>
-            <?php } ?>
+                        <?php } ?>
         </main>
         <script src="./e.js"></script>
     </body>
