@@ -66,9 +66,9 @@ function full_name($discipline_id, $dbconnect) {
                                 <?php $now_semester = $disciplines[$key]['semester']; ?>
                                 <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
                                 <div class="container">
-                                <div class="row g-5">
+                                <div class="row g-5 container-fluid">
                             <?php } ?>
-                            <div class="col-3">
+                            <div class="col-3" >
                                 <?php 
                                 $result = task_count($disciplines[$key]['id'], $dbconnect);
                                 $task_count = pg_fetch_all($result);

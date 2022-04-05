@@ -7,9 +7,12 @@ progress{
     width: 100%;
     border-radius: 0ch;
     padding-bottom: 0%;
-    background-color: #1266F1;
+    color: #1266F1;
 }
 
+.r {
+    border: 2px solid gray;
+}
 
 
 
