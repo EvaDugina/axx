@@ -18,6 +18,10 @@
     }
     
     // СТРАНИЦЫ
+    function select_active_pages(){
+        return 'SELECT ax_page.disc_id, ax_page.year, ax_page.semester FROM ax_page WHERE status = 1;';
+    }
+
     function select_page_students($page_id)
     {
         return 'select students.middle_name || \' \' || students.first_name fio, students.id id'.
@@ -51,13 +55,21 @@
     }
 
     // - получение названия страницы дисциплины
-    function select_page_name($page_id, $status) 
-    {
+    function select_page_name($page_id, $status) {
         // p.id as pid, d.id as did, d.name as dname, p.short_name as pname
-        return 'select d.name ||  \': \' || p.short_name || \' (\' || p.semester || \' семестр)\'' .
-                ' from ax_page p inner join discipline d on d.id = p.disc_id' .
-                ' where p.id=' . $page_id . ' and p.status=' . $status;
+        return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS name
+                FROM ax_page p inner join discipline d ON d.id = p.disc_id
+                WHERE p.id=" . $page_id . " AND p.status=" . $status;
     }
+
+    function select_page_names($status) {
+        // p.id as pid, d.id as did, d.name as dname, p.short_name as pname
+        return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names
+                FROM ax_page p inner join discipline d ON d.id = p.disc_id 
+                WHERE p.status = " . $status . "ORDER BY p.semester";
+    }
+
+
     
     // ЗАДАНИЯ
 
@@ -98,31 +110,31 @@
     // получение сообщений для таблицы посылок
     function select_page_messages($page_id)
     {
-        return 'select s1.middle_name || \' \' || s1.first_name fio, groups.name grp,'.
-                '       ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, ax_message_attachment.id fid,'.
-                '       case when ax_assignment.mark is not null then ax_assignment.mark'.
-                '            when ax_assignment.status_code in (0,1) then \'X\' '.
-                '            when ax_assignment.status_code in (4) then \'-\' '.
-                '            when m1.sender_user_type = 0 then \'?\' '.
-                '            when m1.sender_user_type = 1 then \'!\' '.
-                '       else null end val,'.
-                '       ax_task.title task, ax_task.max_mark max_mark,'.
-                '       ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, ax_assignment.status_text astext,'.
-                '       to_char(m1.date_time, \'DD-MM-YYYY HH24:MI:SS\') mtime, m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.full_text mreply,'.
-                '       s2.middle_name || \' \' || s2.first_name mfio, s2.login mlogin,'.
-                '       ax_message_attachment.file_name as mfile, ax_message_attachment.download_url as murl'.
-                ' from ax_task '.
-                ' inner join ax_assignment on ax_task.id = ax_assignment.task_id and ax_assignment.status_code in (2,3,4)'.
-                ' inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id'.
-                ' inner join students s1 on s1.id = ax_assignment_student.student_user_id '.
-                ' left join ax_message m1 on ax_assignment.id = m1.assignment_id and (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) and m1.status in (0,1)'.
-                ' left join ax_message m2 on m1.reply_to_id = m2.id'.
-                ' left join students s2 on s2.id = m1.sender_user_id'.
-                ' left join ax_message_attachment on m1.id = ax_message_attachment.message_id'.
-	            ' inner join students_to_groups on s1.id = students_to_groups.student_id'.
-	            ' inner join groups on groups.id = students_to_groups.group_id'.
-                ' where ax_task.page_id = '.$page_id.
-                ' order by mtime desc, mid desc';
+        return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
+        ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
+        ax_message_attachment.id fid, 
+    case when ax_assignment.mark is not null then ax_assignment.mark
+    when ax_assignment.status_code in (0, 1) then 'X'
+    when ax_assignment.status_code in (4) then '-'
+    when m1.sender_user_type = 0 then '?' 
+    when m1.sender_user_type = 1 then '!'
+    else null end val, ax_task.title task, ax_task.max_mark max_mark, 
+    ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, 
+    ax_assignment.status_text astext, to_char(m1.date_time, 'DD-MM-YYYY HH24:MI:SS') mtime, 
+    m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.full_text mreply, 
+    s2.middle_name || ' ' || s2.first_name mfio, s2.login mlogin, ax_message_attachment.file_name as mfile, 
+    ax_message_attachment.download_url as murl from ax_task 
+    inner join ax_assignment on ax_task.id = ax_assignment.task_id and ax_assignment.status_code in (2,3,4)
+    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
+    inner join students s1 on s1.id = ax_assignment_student.student_user_id 
+    left join ax_message m1 on ax_assignment.id = m1.assignment_id 
+    and (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) and m1.status in (0,1)
+    left join ax_message m2 on m1.reply_to_id = m2.id
+    left join students s2 on s2.id = m1.sender_user_id
+    left join ax_message_attachment on m1.id = ax_message_attachment.message_id
+    inner join students_to_groups on s1.id = students_to_groups.student_id
+    inner join groups on groups.id = students_to_groups.group_id
+    where ax_task.page_id = ". $page_id ." order by mtime desc, mid desc";
     }
 
     // отправка ответа на сообщение
@@ -161,15 +173,13 @@
     }
 
     // Название дисциплины
-    function select_all_disciplines()
-    {
-    return 'SELECT * from discipline';
+    function select_all_disciplines() {
+    return 'SELECT * FROM discipline';
     }
 
     // Страница дисциплины
-    function select_discipline_page($id)
-    {
-    return 'SELECT * from ax_page where id ='.$id;
+    function select_discipline_page($id) {
+    return 'SELECT * FROM ax_page where id ='.$id;
     }
 
     // Все года и семестры
