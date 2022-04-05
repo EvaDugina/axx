@@ -41,7 +41,48 @@ if(isset($_POST['enter'])){
 <link type="text/css" rel="stylesheet" href="style.css" />
 </head>
 
-<?php
+
+<body>
+<div class="base-container">
+        <header id="base-header">
+            <div class="return-back">
+                <a href="" class="return-button">🠔</a> <span>Введение в разработку ПО</span>
+            </div>
+            <div class="user-data">
+                <a href=""><img src="images/bell.png"></a>
+                <a href=""><img src="images/profile.png"></a>
+                <span>Сергей Иванов</span>
+            </div>
+            <div class="clear"></div>
+        </header>
+        <main>
+            <section class="task-block">
+                <h2 class="title-2">Задание #3. Работа с файлами</h2>
+                <div class="requirements">
+                    <p class="paragraph">Разработать программу для чтения файла с диска, выбора нечетных строк и сохранения их в новый файл.<br>Новый файл должен получить тоже самое имя</p>
+                    <p class="paragraph">
+                        <b>Требования к выполнению и результату:</b><br>
+                        📃 <a href="">Гайдлайн по оформлению программного кода.pdf</a><br> 
+                        📃 <a href="">Инструкция по подготовке кода к автотестам.pdf</a>
+                    </p>
+                    <p class="paragraph inline-block">
+                        <b>Срок выполения:</b> 18.04.2021 23:59
+                    </p>
+                    <a href="" class="download-button">🡇 Скачать задание</a>
+                    <div class="clear"></div>
+                </div>
+                <div class="status">
+                    <div>
+                        ✅ <b>Выполнено</b> <br><br>
+                        21.10.2021 17:34 <br>
+                        Оценка: 3
+                    </div>
+                    <a href="" class="code-redactor-button">📝 Онлайн редактор кода</a>
+                </div>
+                <div class="clear"></div>
+            </section>
+            <section>
+			<?php
 if(!isset($_SESSION['name'])){
 	loginForm();
 }
@@ -75,7 +116,7 @@ else{
 	</form>
 
 
-	
+
 	<form name="message" action="">
 		<input name="usermsg" type="text" id="usermsg" size="63" />
 		<input name="submitmsg" type="submit"  id="submitmsg" value="Send" />
@@ -120,7 +161,9 @@ $(document).ready(function(){
 <?php
 }
 ?>
-<body>
+            </section>
 
+        </main>
+    </div>
 </body>
 </html>
