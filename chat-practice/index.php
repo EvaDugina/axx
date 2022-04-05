@@ -82,7 +82,7 @@ if(isset($_POST['enter'])){
                 <div class="clear"></div>
             </section>
             <section>
-			<?php
+                <?php
 if(!isset($_SESSION['name'])){
 	loginForm();
 }
@@ -106,21 +106,38 @@ else{
 	
 
 
-	<form id="upload-container" method="POST" action="post.php">
+	<!-- <form id="upload-container" method="POST" action="post.php">
 		<img id="upload-image" src="upload.svg">
 		<div>
 			<input id="file-input" type="file" name="file" multiple>
 			<label for="file-input">Выберите файл</label>
 			<span>или перетащите его сюда</span>
 		</div>
-	</form>
+	</form> -->
 
 
 
-	<form name="message" action="">
+	<!-- <form name="message" action="">
 		<input name="usermsg" type="text" id="usermsg" size="63" />
 		<input name="submitmsg" type="submit"  id="submitmsg" value="Send" />
-	</form>
+	</form> -->
+
+
+	<form name="message" action="" class="msg-form">
+				<span>Сообщение:</span>
+				<input name="usermsg" type="text" id="usermsg" size="63" placeholder="Напишите сообщение...">
+				<input name="submitmsg" type="submit" id="submitmsg" value="Отправить">
+			</form>
+
+			<form method="POST" action="post.php" id="upload-container" class="upload-form">
+				<div>
+					<span>Вложения:</span>
+					<input id="file-input" class="input-file" type="file" name="file" multiple>
+					<!-- <span>или перетащите его сюда</span> -->
+				</div>
+			</form>
+
+	
 </div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
 <script type="text/javascript">

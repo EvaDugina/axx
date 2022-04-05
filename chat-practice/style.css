@@ -1,98 +1,27 @@
 /*Danya*/
 
+* {
+	box-sizing: border-box;
+}
+
 body {
-    font: 12px arial;
-    color: rgb(0, 0, 0);
-    text-align: center;
-    padding: 35px;
+	font-family: Arial, Helvetica, sans-serif;
+	background: #f8f4f4;
+	font-size: 16px;
 }
 
-form,
-p,
-span {
-    margin: 0;
-    padding: 0;
-}
-
-input {
-    font: 12px arial;
-}
-
-a {
-    color: #3300ff;
-    text-decoration: none;
-    margin-right: 0px auto;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-#wrapper,
-#loginform {
+.container {
+	width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding-bottom: 25px;
-    background: #ffffff;
-    width: 504px;
-    border: 1px solid #ffffff;
+    background-color: #fff;
+    border: 1px #000 solid;
 }
 
-#loginform {
-    padding-top: 18px;
+form, p, span {
+  margin: 0;
+  padding: 0;
 }
-
-#loginform p {
-    margin: 5px;
-    margin-top: -300px;
-}
-
-#chatbox {
-    text-align: left;
-    margin: 0 auto;
-    margin-bottom: -20px;
-    margin-left: -450px;
-    padding: 0px;
-    background: #fff;
-    height: 300px;
-    width: 1200px;
-    border: 1px solid #ffffff;
-    overflow: auto;
-}
-
-#usermsg {
-    width: 1200px;
-    height: 100px;
-    margin-left: -500px;
-    border: 1px solid #778891;
-}
-
-#submit {
-    width: 60px;
-}
-
-.error {
-    color: #ff0000;
-}
-
-#menu {
-    padding: 12.5px 25px 12.5px 25px;
-}
-
-.welcome {
-    float: left;
-    margin-left: -500px;
-}
-
-.logout {
-    float: right;
-}
-
-.msgln {
-    margin: 0 0 2px 0;
-    
-}
-
-
 
 /* Eduard */
 /*header */ 
@@ -195,3 +124,95 @@ a:hover {
 .inline-block {
     display: inline-block;
 }
+
+a {
+    color: #0000ff;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  #loginform {
+    margin: 0 auto;
+    padding: 18px 0 25px 0;
+    background: #f8f4f4;
+    width: 504px;
+    border: 1px solid #000000;
+  }
+  
+  #wrapper {
+      
+  }
+  
+  /* #loginform p {
+    margin: 5px;
+  } */
+  
+  #chatbox {
+      margin: 10px 0;
+      padding-bottom: 10px;
+      height: 700px;
+        overflow-y: auto;
+      border-top: 1px black solid;
+      border-bottom: 1px black solid;
+  }
+  
+  .msgln {
+      border: 1px #000 solid;
+      padding: 20px;
+      width: 700px;
+      margin: 10px 0 10px 20px;
+      border-radius: 10px;
+  }
+  
+  .msg-form {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+  }
+  
+  .input-msg {
+        border: 1px #000 solid;
+      padding: 8px 0 8px 5px;
+      margin: 0 10px;
+      flex-grow: 1;
+      width: 200px;
+      font-size: 14px;
+  }
+  
+  .submit-button {
+      padding: 8px 20px;
+      border: 1px solid #000;
+      border-radius: 3px;
+      background: none;
+  }
+  
+  .upload-form {
+      margin: 10px 0;
+      padding: 0 10px;
+  }
+  
+  .input-file {
+      margin-left: 10px;
+      
+  }
+  
+  
+  .error {
+    color: #ff0000;
+  }
+  
+  #menu {
+    padding: 12.5px 25px 12.5px 25px;
+  }
+  
+  .welcome {
+    float: left;
+  }
+  
+  .logout {
+    float: right;
+  }
+  
