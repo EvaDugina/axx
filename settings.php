@@ -1,5 +1,5 @@
 <?php
-	$DB_CONNECTION_STRING = "host=localhost port=5432 dbname=accelerator user=accelerator password=123456"; 
+	$DB_CONNECTION_STRING = "host=localhost port=5433 dbname=accelerator user=accelerator password=123456"; 
 		
 	// подключение к БД
 	$dbconnect = pg_connect($DB_CONNECTION_STRING);

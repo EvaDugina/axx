@@ -69,7 +69,7 @@
     <!-- extra -->
     <link rel="stylesheet" href="css/accelerator.css" />
   </head>
-  <body>
+  <body style="overflow: hidden;">
     <header>
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg bg-warning navbar-light">

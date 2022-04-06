@@ -218,7 +218,7 @@ if ($scripts) echo $scripts;
       </div>
 
       <div class="col-4">
-        <div class="p-3 border bg-light">
+        <div class="p-3 border bg-light" style="overflow-y: scroll; max-height: 48%;">
           <h5>История сообщений</h5>
           <div id="list-messages-id">
             <?php

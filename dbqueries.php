@@ -123,7 +123,7 @@
     ax_assignment.status_text astext, to_char(m1.date_time, 'DD-MM-YYYY HH24:MI:SS') mtime, 
     m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.full_text mreply, 
     s2.middle_name || ' ' || s2.first_name mfio, s2.login mlogin, ax_message_attachment.file_name as mfile, 
-    ax_message_attachment.download_url as murl from ax_task 
+    ax_message_attachment.download_url as murl FROM ax_task 
     inner join ax_assignment on ax_task.id = ax_assignment.task_id and ax_assignment.status_code in (2,3,4)
     inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
     inner join students s1 on s1.id = ax_assignment_student.student_user_id 
