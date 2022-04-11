@@ -4,7 +4,7 @@ if(isset($_SESSION['name'])){
 	$text = $_POST['text'];
 	
 	$fp = fopen("log.html", 'a');
-	fwrite($fp, "<div class='msgln'>(".date("g:i A").") <b>".$_SESSION['name']."</b>: ".stripslashes(htmlspecialchars($text))."<br></div>");
+	fwrite($fp, "<div class='msgln'> <div class='msgln-message'><b>".$_SESSION['name']."</b> <br><br> ".stripslashes(htmlspecialchars($text))."</div><div class='msgln-date'>(".date("g:i A").")</div></div>");
 	fclose($fp);
 }
 ?>

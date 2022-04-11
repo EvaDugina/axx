@@ -1,30 +1,22 @@
-/*Danya*/
-
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-	font-family: Arial, Helvetica, sans-serif;
-	background: #f8f4f4;
-	font-size: 16px;
+    background: #f8f4f4;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
 }
 
-.container {
-	width: 100%;
+.base-container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     background-color: #fff;
     border: 1px #000 solid;
 }
 
-form, p, span {
-  margin: 0;
-  padding: 0;
-}
-
-/* Eduard */
-/*header */ 
+/* header */
 
 #base-header {
     padding: 15px 60px 15px 15px;
@@ -72,23 +64,28 @@ form, p, span {
 }
 
 .task-block .title-2 {
-    flex-basis: 100%;
+    width: 100%;
 }
 
 .requirements {
     border: 1px #000 solid;
-    padding: 0 0 10px 20px;
-    width: 70%;
-    box-sizing: border-box;
+    padding: 0 10px 0 20px;
+    width: calc(100% - 300px);
+    position: relative;
 }
 
-.task-block .download-button {
-    display: block;
+.requirements .paragraph {
+    margin: 24px 0;
+}
+
+.requirements .download-button {
+    display: inline-block;
     border: 2px #000 solid;
     padding: 10px 15px;
     border-radius: 10px;
-    float: right;
-    margin-right: 15px; 
+    position: absolute;
+    right: 10px;
+    bottom: 15px;
 
     font-size: 18px;
     text-decoration: none;
@@ -96,16 +93,15 @@ form, p, span {
 }
 
 .status {
-    display: inline-flex;
+    display: flex;
     flex-flow: column;
     align-items: flex-start;
     justify-content: space-between;
-    width: 25%;
-    box-sizing: border-box;
-    padding-top: 10px;
+    width: 300px;
+    padding: 10px 0 0 20px;
 }
 
-.task-block .code-redactor-button {
+.status .code-redactor-button {
     display: inline-block;
     border: 2px #000 solid;
     padding: 15px 20px;
@@ -115,104 +111,133 @@ form, p, span {
     color: #000;
 }
 
+/* main - chat */
+
+#exit {
+    color: #0000ff;
+    text-decoration: none;
+  }
+  
+#exit:hover {
+    text-decoration: underline;
+}
+  
+#loginform {
+    margin: 0 auto;
+    padding: 18px 0 25px 0;
+    background: #f8f4f4;
+    width: 504px;
+    border: 1px solid #000000;
+}   
+  
+#wrapper {
+      
+}
+
+form, .welcome, .logout {
+    margin: 0;
+    padding: 0;
+}
+
+#loginform p {
+    margin: 5px;
+}
+  
+#chatbox {
+    margin: 10px 0;
+    padding-bottom: 10px;
+    width: 100%;
+    height: 400px;
+    overflow-y: auto;
+    border-top: 1px black solid;
+    border-bottom: 1px black solid;
+}
+
+.msgln {  
+    width: 70%;
+    margin: 15px 0 15px 20px;
+}
+
+.msgln-message {
+    border: 1px #000 solid;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.msgln-date {
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+
+.msg-form {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+#usermsg {
+      border: 1px #000 solid;
+    padding: 8px 0 8px 5px;
+    margin: 0 10px;
+    flex-grow: 1;
+    width: 200px;
+    font-size: 14px;
+}
+
+#submitmsg {
+    padding: 8px 20px;
+    border: 1px solid #000;
+    border-radius: 3px;
+    background: none;
+}
+
+#upload-container {
+    margin: 10px 0;
+    padding: 0 10px;
+}
+
+#file-input {
+    margin-left: 10px;
+    
+}
+
+.error {
+  color: #ff0000;
+}
+
+#menu {
+  padding: 12.5px 25px 12.5px 25px;
+}
+
+.welcome {
+  float: left;
+}
+
+.logout {
+  float: right;
+}
+
+
 /* other */
 
 .clear {
     clear: both;
 }
 
-.inline-block {
-    display: inline-block;
+@media (max-width: 960px) {
+    #base-header { padding-right: 15px; }
+    .requirements { width: 100%; }
+    .status { 
+        margin-top: 10px;
+        flex-flow: row;
+        width: 100%;
+    }
 }
 
-a {
-    color: #0000ff;
-    text-decoration: none;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  }
-  
-  #loginform {
-    margin: 0 auto;
-    padding: 18px 0 25px 0;
-    background: #f8f4f4;
-    width: 504px;
-    border: 1px solid #000000;
-  }
-  
-  #wrapper {
-      
-  }
-  
-  /* #loginform p {
-    margin: 5px;
-  } */
-  
-  #chatbox {
-      margin: 10px 0;
-      padding-bottom: 10px;
-      height: 700px;
-        overflow-y: auto;
-      border-top: 1px black solid;
-      border-bottom: 1px black solid;
-  }
-  
-  .msgln {
-      border: 1px #000 solid;
-      padding: 20px;
-      width: 700px;
-      margin: 10px 0 10px 20px;
-      border-radius: 10px;
-  }
-  
-  .msg-form {
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-  }
-  
-  .input-msg {
-        border: 1px #000 solid;
-      padding: 8px 0 8px 5px;
-      margin: 0 10px;
-      flex-grow: 1;
-      width: 200px;
-      font-size: 14px;
-  }
-  
-  .submit-button {
-      padding: 8px 20px;
-      border: 1px solid #000;
-      border-radius: 3px;
-      background: none;
-  }
-  
-  .upload-form {
-      margin: 10px 0;
-      padding: 0 10px;
-  }
-  
-  .input-file {
-      margin-left: 10px;
-      
-  }
-  
-  
-  .error {
-    color: #ff0000;
-  }
-  
-  #menu {
-    padding: 12.5px 25px 12.5px 25px;
-  }
-  
-  .welcome {
-    float: left;
-  }
-  
-  .logout {
-    float: right;
-  }
-  
+@media (max-width: 760px) {
+    .requirements .download-button {
+        position: static;
+        margin-bottom: 15px;
+    }
+}

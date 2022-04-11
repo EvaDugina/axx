@@ -51,7 +51,11 @@ if(isset($_POST['enter'])){
             <div class="user-data">
                 <a href=""><img src="images/bell.png"></a>
                 <a href=""><img src="images/profile.png"></a>
-                <span>Сергей Иванов</span>
+                <div id="menu">
+					<p class="welcome"><b><?php echo $_SESSION['name']; ?></b>,&nbsp; </p>
+					<p class="logout"><a id="exit" href="#">Sing Out</a></p>
+					<div style="clear:both"></div>
+				</div>	
             </div>
             <div class="clear"></div>
         </header>
@@ -88,12 +92,7 @@ if(!isset($_SESSION['name'])){
 }
 else{
 ?>
-<div id="wrapper">
-	<div id="menu">
-		<p class="welcome">Welcome, <b><?php echo $_SESSION['name']; ?></b></p>
-		<p class="logout"><a id="exit" href="#">Exit Chat</a></p>
-		<div style="clear:both"></div>
-	</div>	
+<div id="wrapper">	
 	<div id="chatbox"><?php
 	if(file_exists("log.html") && filesize("log.html") > 0){
 		$handle = fopen("log.html", "r");
@@ -105,45 +104,52 @@ else{
 	?></div>
 	
 
-
-	<!-- <form id="upload-container" method="POST" action="post.php">
-		<img id="upload-image" src="upload.svg">
-		<div>
-			<input id="file-input" type="file" name="file" multiple>
-			<label for="file-input">Выберите файл</label>
-			<span>или перетащите его сюда</span>
-		</div>
-	</form> -->
-
-
-
-	<!-- <form name="message" action="">
-		<input name="usermsg" type="text" id="usermsg" size="63" />
-		<input name="submitmsg" type="submit"  id="submitmsg" value="Send" />
-	</form> -->
-
-
 	<form name="message" action="" class="msg-form">
-				<span>Сообщение:</span>
-				<input name="usermsg" type="text" id="usermsg" size="63" placeholder="Напишите сообщение...">
-				<input name="submitmsg" type="submit" id="submitmsg" value="Отправить">
-			</form>
+		<span>Сообщение:</span>
+		<input name="usermsg" type="text" id="usermsg" size="63" placeholder="Напишите сообщение...">
+		<input name="submitmsg" type="submit" id="submitmsg" value="Отправить">
+	</form>
 
-			<form method="POST" action="post.php" id="upload-container" class="upload-form">
-				<div>
-					<span>Вложения:</span>
-					<input id="file-input" class="input-file" type="file" name="file" multiple>
-					<!-- <span>или перетащите его сюда</span> -->
-				</div>
-			</form>
+	<form method="POST" action="post.php" id="upload-container">
+		<div>
+			<span>Вложения:</span>
+			<input id="file-input" class="input-file" type="file" name="file" multiple>
+			<!-- <span>или перетащите его сюда</span> -->
+		</div>
+	</form>		
 
 	
 </div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
 <script type="text/javascript">
+
 // jQuery Document
 $(document).ready(function(){
 	//If user submits the form
+	$('#file-input').change(function() {
+     let files = this.files;
+     sendFiles(files);
+	});
+
+	function sendFiles(files) {
+		let maxFileSize = 5242880;
+		let Data = new FormData();
+		$(files).each(function(index, file) {
+			if ((file.size <= maxFileSize) && ((file.type == 'image/png') || (file.type == 'image/jpeg'))) {
+				Data.append('images[]', file);
+			}
+		});
+		$.ajax({
+				url: dropZone.attr('action'),
+				type: dropZone.attr('method'),
+				data: Data,
+				contentType: false,
+				processData: false,
+				success: function(data) {
+					alert ('Файлы были успешно загружены!');
+				}
+			});
+	};	
 	$("#submitmsg").click(function(){	
 		var clientmsg = $("#usermsg").val();
 		$.post("post.php", {text: clientmsg});				
@@ -174,6 +180,9 @@ $(document).ready(function(){
 		if(exit==true){window.location = 'index.php?logout=true';}		
 	});
 });
+
+	
+
 </script>
 <?php
 }
