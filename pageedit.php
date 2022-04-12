@@ -67,7 +67,7 @@
 		#var_dump(json_decode($page_groups_json));
 		#echo "</pre>";
 		show_header('Добавление/редактирование дисциплины', 
-			array('Дисциплины' => 'mainpageSt.php')
+			array('Дисциплины' => 'mainpage_student.php')
 		);
 	?>
 

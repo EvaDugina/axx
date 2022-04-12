@@ -69,7 +69,7 @@
     <!-- extra -->
     <link rel="stylesheet" href="css/accelerator.css" />
   </head>
-  <body>
+  <body style="overflow: hidden;">
     <header>
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg bg-warning navbar-light">
@@ -96,9 +96,10 @@
 
 <?php
 		show_breadcrumbs($breadcrumbs);
+    if (count($breadcrumbs) < 1) echo '</div>';
     
     if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
-?>			
+?>
             <!-- Icons -->
             <ul class="navbar-nav d-flex flex-row me-1">
               <!-- Notifications -->
@@ -125,9 +126,7 @@
               </ul>
             </ul>
 <?php 
-    }
-?>
-          </div>
+    } if (count($breadcrumbs) >= 1) echo '</div>'; ?>
         </div>
         <!-- Container wrapper -->
       </nav>
@@ -171,8 +170,20 @@
             $message_text = "<p class='note note-light'>" . $message['mreply'] . "</p>" . $message_text;
         if ($message['amark'] == null && $message['mtype'] == 0 && $message['mstatus'] == 0) // is student message not viewed/answered, no mark, add buttons answer/mark
             $message_text = $message_text . "<br/><a href='javascript:answerPress(2," . $message['mid'] . "," . $message['max_mark'] . ")' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0," . $message['mid'] . ")' type='message' class='btn btn-outline-primary'>Ответить</a>";
-?>
-        <div class="popover message <?=$message_style?>" role="listitem"><div class="popover-arrow"></div><h3 class="popover-header" title="Переписка с: <?=$message['fio']?>, <?=$message['grp']. "\nЗадание: " . $message['task']?>">@<?=$message['mlogin']?> <?=$message['mtime']?></h3><div class="popover-body"><?=$message_text?></div></div>
+        $time_date = explode(" ", $message['mtime']);
+        $date = explode("-", $time_date[0]);
+        $time = explode(":", $time_date[1]);
+        $time_date_output = $date[0] .".". $date[1] ." ". $time[0] .":". $time[1];
+        ?>
+        <div class="popover message <?=$message_style?>" role="listitem">
+          <div class="popover-arrow"></div>
+          <div class="p-3 popover-header">
+            <h6 style="margin-bottom: 0px;" title="Переписка с: <?=$message['fio']?>, <?=$message['grp']. "\nЗадание: " . $message['task']?>">
+              <?=$message['fio']. '<br>'?></h6>
+            <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=$time_date_output?></p>
+          </div>
+          <div class="popover-body"><?=$message_text?></div>
+        </div>
 <?php        
     }
 ?>

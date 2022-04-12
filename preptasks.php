@@ -36,7 +36,7 @@
 	$query = select_page_tasks($page_id, 1);
 	$result = pg_query($dbconnect, $query);
 	
-	if (!@result || pg_num_rows($result) < 1)
+	if (!$result || pg_num_rows($result) < 1)
 	  echo 'Задания по этой дисциплине отсутствуют';
 	else {
 ?>
