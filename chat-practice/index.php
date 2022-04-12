@@ -1,7 +1,7 @@
 <?php
-require_once("common.php");
-require_once("dbqueries.php");
-require_once("../settings.php");
+
+
+
 session_start();
 
 if(isset($_GET['logout'])){	
@@ -40,6 +40,7 @@ if(isset($_POST['enter'])){
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta charset="UTF-8"/>
 <title>Chat - KOSMOS</title>
 <link type="text/css" rel="stylesheet" href="style.css" />
 </head>
@@ -112,11 +113,11 @@ else{
 		<input name="usermsg" type="text" id="usermsg" size="63" placeholder="Напишите сообщение...">
 		<input name="submitmsg" type="submit" id="submitmsg" value="Отправить">
 	</form>
-
-	<form method="POST" action="post.php" id="upload-container">
+ <!-- ОБРАБОТКА ОТПРАВКИ ФАЙЛА -->
+	<form method="POST" action="post.php" id="upload-container" enctype="multipart/form-data">
 		<div>
 			<span>Вложения:</span>
-			<input id="file-input" class="input-file" type="file" name="file" multiple>
+			<input id="file-input" class="input-file" type="file" name="filename">
 			<!-- <span>или перетащите его сюда</span> -->
 		</div>
 	</form>		
@@ -129,29 +130,20 @@ else{
 // jQuery Document
 $(document).ready(function(){
 	//If user submits the form
-	$('#file-input').change(function() {
-     let files = this.files;
-     sendFiles(files);
-	});
+	// $('#file-input').change(function() {
+    //  let files = this.files;
+    //  sendFiles(files);
+	// });
 
-	function sendFiles(files) {
-		let maxFileSize = 5242880;
-		let Data = new FormData();
-		$(files).each(function(index, file) {
-			if ((file.size <= maxFileSize) && ((file.type == 'image/png') || (file.type == 'image/jpeg'))) {
-				Data.append('images[]', file);
-			}
-		});
-		$.ajax({
-				url: dropZone.attr('action'),
-				type: dropZone.attr('method'),
-				data: Data,
-				contentType: false,
-				processData: false,
-				success: function(data) {
-					alert ('Файлы были успешно загружены!');
-				}
-			});
+	// function sendFiles(files) {
+	// 	let maxFileSize = 5242880;
+	// 	let Data = new FormData();
+	// 	$(files).each(function(index, file) {
+	// 		if ((file.size <= maxFileSize) && ((file.type == 'image/png') || (file.type == 'image/jpeg'))) {
+	// 			Data.append('images[]', file);
+	// 		}
+	// 	});
+		
 	};	
 	$("#submitmsg").click(function(){	
 		var clientmsg = $("#usermsg").val();
