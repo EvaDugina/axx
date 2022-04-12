@@ -1,4 +1,7 @@
 <?php
+require_once("common.php");
+require_once("dbqueries.php");
+require_once("../settings.php");
 session_start();
 
 if(isset($_GET['logout'])){	
