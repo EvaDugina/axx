@@ -96,7 +96,7 @@ function select_task_assignment($task_id, $student_id, $dbconnect) {
                                         $full_name = pg_fetch_all($result);
                                         ?>
                                         <div class="p-3 popover-header">
-                                            <a href="./d.php"><?php echo $disciplines[$key]['short_name']; ?></a><br>
+                                            <a href="../task4students.html"><?php echo $disciplines[$key]['short_name']; ?></a><br>
                                         </div>
                                         <a><?php echo $full_name[0]['name']; ?></a>
                                         <?php if ($count_tasks == 0) { ?>
