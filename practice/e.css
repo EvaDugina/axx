@@ -1,21 +1,55 @@
+p{
+    font-size: 2em;
+}
+
 progress{
     height: 10;
     width: 100%;
     border-radius: 0ch;
     padding-bottom: 0%;
-    color: #1266F1;
-} 
+}
 
+progress::-webkit-progress-bar {
+    background-color: #eeeeee;
+}
 
+progress::-webkit-progress-value {
+    background-color: #039603 !important;
+}
 
+.col-3{
+    padding-right: 5px;
+    padding-left: 5px;
+    column-gap: 15px;
+    height: 230px;
+}
 
+.popover-message-message-stud{
+    box-shadow: 0 0 26px rgb(221 221 221 / 84%);
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    text-align: center;
+    border-radius: 15px;
+    height: 100%;
+}
 
+.popover-body{
+    height: 100%;
+}
 
+.d-flex-justify-content-start{
+    margin-top: 35px;
+}
 
+.d-flex-justify-content-between{
+    margin-top: 35px;
+}
 
-
-
-
+.row .h2{
+    text-align: center;
+}
 
 
 

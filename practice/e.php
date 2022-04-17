@@ -51,6 +51,9 @@ function select_task_assignment($task_id, $student_id, $dbconnect) {
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
         />
+        <style>
+            
+        </style>
     </head>
     <body>
         <main class="justify-content-start">
@@ -58,7 +61,7 @@ function select_task_assignment($task_id, $student_id, $dbconnect) {
                 array_multisort(array_column($disciplines, 'semester'), SORT_DESC, $disciplines);
                 $now_semester = $disciplines[0]['semester']; // first semster in database after sort function
             ?>
-            <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
+            <h2 class="row" style="margin-top: 30px; margin-left: 50px; text-align: center;"> <?php echo $now_semester; ?> семестр</h2><br>
             <div class="container">
                 <div class="row g-5 container-fluid">
                     <?php 
@@ -72,7 +75,7 @@ function select_task_assignment($task_id, $student_id, $dbconnect) {
                                     <div class="row g-5 container-fluid">
                             <?php } ?>
                             <div class="col-3" >
-                                <div class="popover message message-stud" role="listitem">
+                                <div class="popover-message-message-stud" role="listitem">
                                     <div class="popover-arrow"></div>
                                     <div class="popover-body">
                                         <?php 
@@ -100,16 +103,16 @@ function select_task_assignment($task_id, $student_id, $dbconnect) {
                                         </div>
                                         <a><?php echo $full_name[0]['name']; ?></a>
                                         <?php if ($count_tasks == 0) { ?>
-                                            <div class="d-flex justify-content-start" style="margin-top: 60px;">
+                                            <div class="d-flex-justify-content-start">
                                                 <span>В текущей дисциплине пока нет заданий</span>
                                             </div>
                                         <?php }
                                         else {?>
-                                            <div class="d-flex justify-content-between" style="margin-top: 50px;">
+                                            <div class="d-flex-justify-content-between">
                                                 <span>Выполнено</span>
                                                 <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                             </div>
-                                            <progress class="progress-bar" value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> >
+                                            <progress value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
                                         <?php } ?>
                                     </div>
                                 </div>
