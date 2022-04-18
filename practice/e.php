@@ -4,6 +4,7 @@ require_once("../common.php");
 require_once("../dbqueries.php");
 require_once("../settings.php");
 
+
 // в ax_page disc_id у эргономики должно быть -4;
 
 show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpageSt.php'));
@@ -23,7 +24,7 @@ function full_name($discipline_id, $dbconnect) {
     return pg_query($dbconnect, $query);
 }
 
-function select_task_assignment($task_id, $student_id, $dbconnect) {
+function select_task_assignments($task_id, $student_id, $dbconnect) {
     $query = "select ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark from ax_assignment 
     inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id 
     where ax_assignment_student.student_user_id = ". $student_id ." and ax_assignment.task_id = ". $task_id ." LIMIT 1;";
@@ -85,7 +86,7 @@ function select_task_assignment($task_id, $student_id, $dbconnect) {
                                             $i = 0;
                                             while ($row_task = pg_fetch_assoc($result_tasks)) {
                                                 $count_tasks++; 
-                                                $result_assignment = select_task_assignment($row_task['id'], $_SESSION['hash'], $dbconnect);
+                                                $result_assignment = select_task_assignments($row_task['id'], $_SESSION['hash'], $dbconnect);
                                                 if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
                                                     $row_task_assignment = pg_fetch_assoc($result_assignment);
                                                     if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
