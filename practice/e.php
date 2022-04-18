@@ -4,9 +4,14 @@ require_once("../common.php");
 require_once("../dbqueries.php");
 require_once("../settings.php");
 
+<<<<<<< HEAD
 
 // в ax_page disc_id у эргономики должно быть -4;
 
+=======
+// в ax_page disc_id у эргономики должно быть -4;
+
+>>>>>>> 346b46f37bfa5dccf026175c00cf390a47736d52
 show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpageSt.php'));
 
 $result = pg_query($dbconnect, 'select id, short_name, disc_id, semester from ax_page');
@@ -24,7 +29,11 @@ function full_name($discipline_id, $dbconnect) {
     return pg_query($dbconnect, $query);
 }
 
+<<<<<<< HEAD
 function select_task_assignments($task_id, $student_id, $dbconnect) {
+=======
+function select_task_assignment($task_id, $student_id, $dbconnect) {
+>>>>>>> 346b46f37bfa5dccf026175c00cf390a47736d52
     $query = "select ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark from ax_assignment 
     inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id 
     where ax_assignment_student.student_user_id = ". $student_id ." and ax_assignment.task_id = ". $task_id ." LIMIT 1;";
@@ -52,6 +61,9 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
         />
+        <style>
+            
+        </style>
     </head>
     <body>
         <main class="justify-content-start">
@@ -59,7 +71,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                 array_multisort(array_column($disciplines, 'semester'), SORT_DESC, $disciplines);
                 $now_semester = $disciplines[0]['semester']; // first semster in database after sort function
             ?>
-            <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
+            <h2 class="row" style="margin-top: 30px; margin-left: 50px; text-align: center;"> <?php echo $now_semester; ?> семестр</h2><br>
             <div class="container">
                 <div class="row g-5 container-fluid">
                     <?php 
@@ -73,7 +85,11 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                     <div class="row g-5 container-fluid">
                             <?php } ?>
                             <div class="col-3" >
+<<<<<<< HEAD
                                 <div class="popover message message-stud" role="listitem">
+=======
+                                <div class="popover-message-message-stud" role="listitem">
+>>>>>>> 346b46f37bfa5dccf026175c00cf390a47736d52
                                     <div class="popover-arrow"></div>
                                     <div class="popover-body">
                                         <?php 
@@ -86,7 +102,11 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                             $i = 0;
                                             while ($row_task = pg_fetch_assoc($result_tasks)) {
                                                 $count_tasks++; 
+<<<<<<< HEAD
                                                 $result_assignment = select_task_assignments($row_task['id'], $_SESSION['hash'], $dbconnect);
+=======
+                                                $result_assignment = select_task_assignment($row_task['id'], $_SESSION['hash'], $dbconnect);
+>>>>>>> 346b46f37bfa5dccf026175c00cf390a47736d52
                                                 if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
                                                     $row_task_assignment = pg_fetch_assoc($result_assignment);
                                                     if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
@@ -97,20 +117,36 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                         $full_name = pg_fetch_all($result);
                                         ?>
                                         <div class="p-3 popover-header">
+<<<<<<< HEAD
                                             <a href="../task4students.html"><?php echo $disciplines[$key]['short_name']; ?></a><br>
                                         </div>
                                         <a><?php echo $full_name[0]['name']; ?></a>
                                         <?php if ($count_tasks == 0) { ?>
                                             <div class="d-flex justify-content-start" style="margin-top: 60px;">
+=======
+                                            <a href="./d.php"><?php echo $disciplines[$key]['short_name']; ?></a><br>
+                                        </div>
+                                        <a><?php echo $full_name[0]['name']; ?></a>
+                                        <?php if ($count_tasks == 0) { ?>
+                                            <div class="d-flex-justify-content-start">
+>>>>>>> 346b46f37bfa5dccf026175c00cf390a47736d52
                                                 <span>В текущей дисциплине пока нет заданий</span>
                                             </div>
                                         <?php }
                                         else {?>
+<<<<<<< HEAD
                                             <div class="d-flex justify-content-between" style="margin-top: 50px;">
                                                 <span>Выполнено</span>
                                                 <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                             </div>
                                             <progress class="progress-bar" value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> >
+=======
+                                            <div class="d-flex-justify-content-between">
+                                                <span>Выполнено</span>
+                                                <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
+                                            </div>
+                                            <progress value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
+>>>>>>> 346b46f37bfa5dccf026175c00cf390a47736d52
                                         <?php } ?>
                                     </div>
                                 </div>
