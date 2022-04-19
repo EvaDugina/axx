@@ -1,5 +1,23 @@
 <?php
+require_once("../common.php");
+require_once("../dbqueries.php");
+require_once("../settings.php");
 
+
+
+
+
+
+show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpageSt.php'));
+
+
+
+
+
+
+
+
+////////////////////////////////////////////OLD VERSIONS////////////////////////////
 
 
 session_start();
@@ -129,22 +147,8 @@ else{
 
 // jQuery Document
 $(document).ready(function(){
+	
 	//If user submits the form
-	// $('#file-input').change(function() {
-    //  let files = this.files;
-    //  sendFiles(files);
-	// });
-
-	// function sendFiles(files) {
-	// 	let maxFileSize = 5242880;
-	// 	let Data = new FormData();
-	// 	$(files).each(function(index, file) {
-	// 		if ((file.size <= maxFileSize) && ((file.type == 'image/png') || (file.type == 'image/jpeg'))) {
-	// 			Data.append('images[]', file);
-	// 		}
-	// 	});
-		
-	};	
 	$("#submitmsg").click(function(){	
 		var clientmsg = $("#usermsg").val();
 		$.post("post.php", {text: clientmsg});				
