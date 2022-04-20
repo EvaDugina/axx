@@ -178,7 +178,7 @@
         <div class="popover message <?=$message_style?>" role="listitem">
           <div class="popover-arrow"></div>
           <div class="p-3 popover-header">
-            <h6 style="margin-bottom: 0px;" title="Переписка с: <?=$message['fio']?>, <?=$message['grp']. "\nЗадание: " . $message['task']?>">
+            <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
               <?=$message['fio']. '<br>'?></h6>
             <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=$time_date_output?></p>
           </div>

@@ -3,7 +3,7 @@
 require_once("common.php");
 require_once("dbqueries.php");
 
-  show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
+show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
 
 $result2 = pg_query($dbconnect, 'select year, short_name,semester,name, status,disc_id, ax_page.id from (ax_page inner join discipline ON ax_page.disc_id = discipline.id) ORDER BY year DESC');
 

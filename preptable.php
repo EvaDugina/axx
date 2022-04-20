@@ -53,13 +53,7 @@ if (!$result || pg_num_rows($result) < 1) {
   exit;
 } else {
   $row = pg_fetch_row($result);
-  show_header(
-    'Посылки по дисциплине',
-    array(
-      $row[1]  => 'preptasks.php?page=' . $page_id
-      //, 'Посылки по дисциплине' => 'prep_table.php?page='.$page_id
-    )
-  );
+  show_header('Посылки по дисциплине', array($row[1]  => 'preptasks.php?page=' . $page_id));
 }
 
 if ($scripts) echo $scripts;
