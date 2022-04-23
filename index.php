@@ -74,7 +74,7 @@ if(isset($_POST['enter'])){
                 <a href=""><img src="images/profile.png"></a>
                 <div id="menu">
 				
-					<p class="logout"><a id="exit" href="#">Sing Out</a></p>
+					<p class="logout"><a id="exit" href="#">Sign Out</a></p>
 					<div style="clear:both"></div>
 				</div>	
             </div>
