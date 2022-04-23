@@ -4,8 +4,9 @@ require_once("dbqueries.php");
 require_once("settings.php");
 
 
-
-
+$query = select_all_disciplines();
+$result = pg_query($dbconnect, $query);
+$disciplines = pg_fetch_all($result);
 
 
 show_header('Чат', array('Чат' => 'mainpageSt.php'));
@@ -17,7 +18,7 @@ show_header('Чат', array('Чат' => 'mainpageSt.php'));
 
 
 
-////////////////////////////////////////////OLD VERSIONS////////////////////////////
+//////////////////////////////OLD VERSIONS////////////////////////////
 
 
 
@@ -26,7 +27,7 @@ if(isset($_GET['logout'])){
 	
 	//Simple exit message
 	$fp = fopen("log.html", 'a');
-	fwrite($fp, "<div class='msgln'><i>User ". $_SESSION['name'] ." has left the chat session.</i><br></div>");
+	fwrite($fp, "<div class='msgln'><i>User ". $_SESSION['username'] ." has left the chat session.</i><br></div>");
 	fclose($fp);
 	
 	session_destroy();
@@ -37,18 +38,16 @@ function loginForm(){
 	echo'
 	<div id="loginform">
 	<form action="index.php" method="post">
-		<p>Please enter your name to continue:</p>
-		<label for="name">Name:</label>
-		<input type="text" name="name" id="name" />
-		<input type="submit" name="enter" id="enter" value="Enter" />
+		<p>Please login in to continue</p>
+
 	</form>
 	</div>
 	';
 }
 
 if(isset($_POST['enter'])){
-	if($_POST['name'] != ""){
-		$_SESSION['name'] = stripslashes(htmlspecialchars($_POST['name']));
+	if($_POST['username'] != ""){
+		$_SESSION['login'] = stripslashes(htmlspecialchars($_POST['username']));
 	}
 	else{
 		echo '<span class="error">Please type in a name</span>';
@@ -74,7 +73,7 @@ if(isset($_POST['enter'])){
                 <a href=""><img src="images/bell.png"></a>
                 <a href=""><img src="images/profile.png"></a>
                 <div id="menu">
-					<p class="welcome"><b><?php echo $_SESSION['name']; ?></b>,&nbsp; </p>
+				
 					<p class="logout"><a id="exit" href="#">Sing Out</a></p>
 					<div style="clear:both"></div>
 				</div>	
@@ -109,7 +108,7 @@ if(isset($_POST['enter'])){
             </section>
             <section>
                 <?php
-if(!isset($_SESSION['name'])){
+if(!isset($_SESSION['login'])){
 	loginForm();
 }
 else{
@@ -163,7 +162,15 @@ $(document).ready(function(){
 			url: "log.html",
 			cache: false,
 			success: function(html){		
-				$("#chatbox").html(html); //Insert chat log into the #chatbox div				
+				$("#chatbox").html(html); //Insert chat log into the #chatbox div
+		
+   
+            // for ($m = 0; $m < count($messages); $m++) { // list all messages
+            //   if ($messages[$m]['mtype'] != null)
+            //     show_message($messages[$m]);
+            // }
+       
+ 				
 				var newscrollHeight = $("#chatbox").attr("scrollHeight") - 20;
 				if(newscrollHeight > oldscrollHeight){
 					$("#chatbox").animate({ scrollTop: newscrollHeight }, 'normal'); //Autoscroll to bottom of div
