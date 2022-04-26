@@ -16,7 +16,7 @@ body {
     border: 1px #000 solid;
 }
 
-/* header */
+/* header
 
 #base-header {
     padding: 15px 60px 15px 15px;
@@ -52,12 +52,12 @@ body {
 .user-data img {
     height: 30px;
     margin-right: 3px;
-}
+} */
 
 /* main */
 
 .task-block {
-    padding: 0 15px 25px 15px;
+    padding: 25px 15px 25px 15px;
     display: flex;
     flex-flow: wrap;
     justify-content: space-between;

@@ -65,7 +65,7 @@ if(isset($_POST['enter'])){
 
 <body>
 <div class="base-container">
-        <header id="base-header">
+        <!-- <header id="base-header">
             <div class="return-back">
                 <a href="" class="return-button">🠔</a> <span>Введение в разработку ПО</span>
             </div>
@@ -79,7 +79,7 @@ if(isset($_POST['enter'])){
 				</div>	
             </div>
             <div class="clear"></div>
-        </header>
+        </header> -->
         <main>
             <section class="task-block">
                 <h2 class="title-2">Задание #3. Работа с файлами</h2>
@@ -121,7 +121,9 @@ else{
 		fclose($handle);
 		
 		echo $contents;
+
 	}
+}
 	?></div>
 	
 
@@ -190,9 +192,7 @@ $(document).ready(function(){
 	
 
 </script>
-<?php
-}
-?>
+<p class="logout"><a id="exit" href="#">Sign Out</a></p><!--временный костыль -->
             </section>
 
         </main>
