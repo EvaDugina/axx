@@ -34,7 +34,7 @@
 		echo '<nav aria-label="breadcrumb">';
 		echo '<ol class="breadcrumb">';
 		foreach($breadcrumbs as $name => $link) {
-			echo '<li class="breadcrumb-item">';
+			echo '<li class="breadcrumb-item" style="font-size: 1.10rem;">';
 			echo '<a href="'.$link.'">'.$name.'</a>';
 			echo '</li>';
 		}

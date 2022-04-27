@@ -6,7 +6,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 
-$id = 0;
+$page_id = 0;
 $discipline_name = "";
 $disc_id = 0;
 $semester = "";
@@ -64,7 +64,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	exit;
 }
 
-show_header('Задания по дисциплине', array());
+show_header('Задания по дисциплине', array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtask.php?page=' . $page_id));
 
 
 ?>
