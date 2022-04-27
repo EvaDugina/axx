@@ -212,7 +212,7 @@ if ($scripts) echo $scripts;
       </div>
 
       <div class="col-4">
-        <div class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
+        <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
           <h5>История сообщений</h5>
           <div id="list-messages-id">
             <?php
@@ -289,12 +289,17 @@ if ($scripts) echo $scripts;
 
 <!-- Custom scripts -->
 <script>
-  const areaSelectCourse = document.querySelector('#selectCourse');
+  const areaSelectCourse = 
   areaSelectCourse.addEventListener(`change`, (e) => {
     const value = document.getElementById("selectCourse").value;
     document.location.href = 'preptable.php?page=' + value;
     //log(`option desc`, desc);
   });
+</script>
+
+<script>
+  const elem = document.querySelector('#selectCourse');
+  elem.scrollTo({ bottom: 100, left: 0, behavior: 'smooth'});
 </script>
 
 <script type="text/javascript">
