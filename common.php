@@ -107,8 +107,20 @@
 
       }
       else {
-        
+        // Подсчёт количества невыполненных заданий
+        $count_succes_tasks = 0;
+        $count_tasks = 0;
+
+        $query_student_disciplines = select_all_disciplines();
+        $result_student_disciplines = pg_query($dbconnect, $query_student_disciplines);
+
+        while ($row_discipline = pg_fetch_assoc($result_student_disciplines)) {
+          // сформировать запрос для не выполненных заданий со их названиями
+        }
+
       }
+
+    }
 ?>
             <!-- Icons -->
             <ul class="navbar-nav d-flex flex-row me-1">
