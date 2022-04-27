@@ -30,7 +30,7 @@
 			return;
 		
 		echo '<ul class="navbar-nav me-auto mb-2 mb-lg-0">';
-		echo '<div class="container-fluid">';
+		echo '<div class="container-fluid" style="border-left: 1px solid;">';
 		echo '<nav aria-label="breadcrumb">';
 		echo '<ol class="breadcrumb">';
 		foreach($breadcrumbs as $name => $link) {
@@ -44,6 +44,7 @@
 		echo '</ul>';
 	}
 
+  // ПОЛУЧИТЬ 
 	function show_header($page_title = '', $breadcrumbs = array())
 	{
 ?>
@@ -54,7 +55,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>536 Акселератор - <?=$page_title?></title>
+    <title>536 Акселератор - список заданий<?=$page_title?></title>
     <!-- MDB icon -->
     <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
     <!-- Font Awesome -->
@@ -97,8 +98,17 @@
 <?php
 		show_breadcrumbs($breadcrumbs);
     if (count($breadcrumbs) < 1) echo '</div>';
-    
     if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
+
+      // Подгрузка уведомления для разных групп пользователей
+      $au = new auth_ssh();
+      if ($au->isAdmin());
+      else if ($au->isTeacher()) {
+
+      }
+      else {
+        
+      }
 ?>
             <!-- Icons -->
             <ul class="navbar-nav d-flex flex-row me-1">

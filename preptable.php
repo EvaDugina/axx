@@ -189,25 +189,6 @@ if ($scripts) echo $scripts;
                 </tbody>
               </table>
             </div>
-          <?php
-          
-          ?>
-
-          <?php
-          /*
-  $query = select_page_students_grouped($page_id);
-  $result2 = pg_query($dbconnect, $query);
-  while($row2 = pg_fetch_assoc($result2))
-  {
-    echo '<div class="form-check">';
-    echo '  <input class="form-check-input" type="checkbox" name="students[]" value="'.$row2['id'].'" id="flexCheck'.$row2['id'].'">';
-    echo '  <label class="form-check-label" for="flexCheck'.$row2['id'].'">'.$row2['fio'].', группа '.$row2['grp'].', вариант №'.$row2['var'].'</label>';
-    echo '</div>';
-  }
-*/
-          ?>
-
-
         </div>
       </div>
 
@@ -289,17 +270,11 @@ if ($scripts) echo $scripts;
 
 <!-- Custom scripts -->
 <script>
-  const areaSelectCourse = 
-  areaSelectCourse.addEventListener(`change`, (e) => {
+  const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
     const value = document.getElementById("selectCourse").value;
     document.location.href = 'preptable.php?page=' + value;
     //log(`option desc`, desc);
   });
-</script>
-
-<script>
-  const elem = document.querySelector('#selectCourse');
-  elem.scrollTo({ bottom: 100, left: 0, behavior: 'smooth'});
 </script>
 
 <script type="text/javascript">

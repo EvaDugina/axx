@@ -64,7 +64,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	exit;
 }
 
-show_header('Задания по дисциплине', array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtask.php?page=' . $page_id));
+show_header('Задания по дисциплине', array($page['short_name'] => 'studtask.php?page=' . $page_id));
 
 
 ?>
@@ -75,7 +75,7 @@ show_header('Задания по дисциплине', array('Дэшборд с
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<meta http-equiv="x-ua-compatible" content="ie=edge" />
-	<title>536 Акселератор - список заданий</title>
+	<title>536 Акселератор</title>
 	<!-- MDB icon -->
 	<link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
 	<!-- Font Awesome -->
