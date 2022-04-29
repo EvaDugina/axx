@@ -360,5 +360,4 @@ if ($scripts) echo $scripts; ?>
 
 <!-- End your project here-->
 <?php
-show_footer();
-?>
+show_footer(); ?>
