@@ -53,13 +53,14 @@ if (!$result || pg_num_rows($result) < 1) {
   exit;
 } else {
   $row = pg_fetch_row($result);
-  show_header('Посылки по дисциплине', array($row[1]  => 'preptasks.php?page=' . $page_id));
+  show_header('Посылки по дисциплине', array('Дэшборд преподавателя' => 'mainpage.php', $row[1]  => 'preptable.php?page=' . $page_id));
 }
 
-if ($scripts) echo $scripts;
-?>
+if ($scripts) echo $scripts; ?>
+
 <!-- MDB -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
+
 <!-- jQuery -->
 <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
 
