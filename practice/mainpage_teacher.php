@@ -22,7 +22,7 @@ function full_name($discipline_id, $dbconnect) {
 <html> 
 	<head>
 		<title>Дашборд преподавателя</title>
-		<link rel="stylesheet" href="./e.css">
+		<link rel="stylesheet" href="./main.css">
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 		<meta http-equiv="x-ua-compatible" content="ie=edge" />
@@ -44,7 +44,7 @@ function full_name($discipline_id, $dbconnect) {
 		</style>
 	</head>
 	<body>
-		<main class="justify-content-start">
+		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
 				array_multisort(array_column($disciplines, 'year'), SORT_DESC, $disciplines);
 				$now_year = $disciplines[0]['year']; // first year in database after sort function
@@ -80,7 +80,7 @@ function full_name($discipline_id, $dbconnect) {
 										$full_name = pg_fetch_all($result);
 										?>
 										<div class="p-3 popover-header">
-											<a href="../preptasks.php?page=<?php echo $page_id; ?>"><?php echo $disciplines[$key]['short_name']; ?></a><br>
+											<a href="../preptable.php?page=<?php echo $page_id; ?>"><?php echo $disciplines[$key]['short_name']; ?></a><br>
 										</div>
 										<div class="d-flex justify-content-between" style="margin-top: 30px;">
 											<span>Сообщение</span>

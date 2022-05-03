@@ -56,7 +56,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
         </style>
     </head>
     <body>
-        <main class="justify-content-start">
+        <main class="justify-content-start" style="margin-bottom: 30px;">
             <?php
                 array_multisort(array_column($disciplines, 'semester'), SORT_DESC, $disciplines);
                 $now_semester = $disciplines[0]['semester']; // first semster in database after sort function
