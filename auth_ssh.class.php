@@ -44,6 +44,16 @@ class auth_ssh
     }
     
 //----------------------------------------------------------------------------------------------
+
+function isTeacher($hash = '') {
+    if (array_key_exists('role', $_SESSION)) {
+        return ($_SESSION['role'] == 2);
+    }
+    else
+        return false;
+}
+
+//----------------------------------------------------------------------------------------------
     
     function isAdmin($hash = '')
     {
@@ -57,10 +67,8 @@ class auth_ssh
     
 //----------------------------------------------------------------------------------------------
     
-    function isAdminOrPrep($hash = '')
-    {
-        if (array_key_exists('role', $_SESSION))
-        {
+    function isAdminOrPrep($hash = '') {
+        if (array_key_exists('role', $_SESSION)) {
             return (($_SESSION['role'] == 1) || ($_SESSION['role'] == 2));
         }
         else

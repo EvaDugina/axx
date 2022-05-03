@@ -3,7 +3,7 @@
 require_once("common.php");
 require_once("dbqueries.php");
 
-  show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
+show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
 
 $result2 = pg_query($dbconnect, 'select year, short_name,semester,name, status,disc_id, ax_page.id from (ax_page inner join discipline ON ax_page.disc_id = discipline.id) ORDER BY year DESC');
 
@@ -28,7 +28,7 @@ foreach($result_years as $key => $item) { ?>
                                         <button type="button" class="btn btn-link"><i class="fas fa-pencil-alt"></i></button>
                                         </a>
                                 </div>
-                                <a class="d-flex justify-content-md-center" href="<?='preptasks.php?page='. $itm['id']?>"><?=$itm['short_name']?></a>
+                                <a class="d-flex justify-content-md-center" href="<?='preptable.php?page='. $itm['id']?>"><?=$itm['short_name']?></a>
                                 <div class="border-top border-dark d-flex justify-content-between">
                                         <span>Сообщение</span>
                                         <span class="justify-content-md-center"><button class="btn btn-link btn-sm" style="width: 55px"><i class="fas fa-bell fa-lg"></i><span class="badge rounded-pill badge-notification bg-danger">4</span></button></span>

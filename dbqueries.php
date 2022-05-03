@@ -134,7 +134,7 @@
     left join ax_message_attachment on m1.id = ax_message_attachment.message_id
     inner join students_to_groups on s1.id = students_to_groups.student_id
     inner join groups on groups.id = students_to_groups.group_id
-    where ax_task.page_id = ". $page_id ." order by mtime desc, mid desc";
+    where ax_task.page_id = ". $page_id ." order by mid DESC";
     }
 
     // отправка ответа на сообщение
