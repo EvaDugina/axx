@@ -67,12 +67,12 @@ function show_head($page_title = ''){ ?>
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
 
+    <!-- extra -->
+    <link rel="stylesheet" href="css/accelerator.css" /> 
+
     <!-- MDB -->
     <link rel="stylesheet" href="css/mdb.min.css" />
     <script type="text/javascript" src="js/mdb.min.js"></script>
-
-    <!-- extra -->
-    <link rel="stylesheet" href="css/accelerator.css" /> 
 
     <!-- jQuery -->
     <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
@@ -84,7 +84,7 @@ function show_head($page_title = ''){ ?>
 
 
 <?php 
-function show_only_header($breadcrumbs = array()){?>
+function show_only_header($page_title = '', $breadcrumbs = array()){?>
 
   <header>
     <!-- Navbar -->
@@ -126,7 +126,7 @@ function show_only_header($breadcrumbs = array()){?>
               $count_succes_tasks = 0;
               $count_tasks = 0;
 
-              //$query_student_disciplines = select_all_disciplines();
+              $query_student_disciplines = select_all_disciplines();
               //$result_student_disciplines = pg_query($dbconnect, $query_student_disciplines);
 
               //while ($row_discipline = pg_fetch_assoc($result_student_disciplines)) {
@@ -138,45 +138,146 @@ function show_only_header($breadcrumbs = array()){?>
 
           } ?>
 
-          <!-- Icons -->
-          <ul class="navbar-nav d-flex flex-row me-1">
-            <!-- Notifications -->
-            <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-bell fa-lg"></i>
-              <span class="badge rounded-pill badge-notification bg-danger">4</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
-              <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 4. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-              <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 3. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-              <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 2. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
-              <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 1. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+          <?php 
+          if ($page_title != "Вход в систему"){ ?>
+            <!-- Icons -->
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Notifications -->
+              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell fa-lg"></i>
+                <span class="badge rounded-pill badge-notification bg-danger">4</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 4. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 3. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 2. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+                <li><a class="dropdown-item" href="#">Введение в РПО 21 - Руслан Одегов<br>Задание 1. Классы<button class="" type="button" style="float:right;line-height:12px;"><i class="fas fa-times"></i></button></a></li>
+              </ul>
             </ul>
-          </ul>
 
-          <ul class="navbar-nav d-flex flex-row me-1">
-            <!-- Avatar -->
-            <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-              <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-              <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
-              <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
-              <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Avatar -->
+              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
+                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
+                <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
+                <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
+              </ul>
             </ul>
-          </ul>
-          
-        <?php 
-        if (count($breadcrumbs) >= 1) echo '</div>'; ?>
-      
+          <?php } 
+
+          if (count($breadcrumbs) >= 1) echo '</div>'; ?>
+
+
       </div>
     </nav>
   </header>
 
 <?php
-}?>
-
+} ?>
 
 <?php
+function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
+     
+  <header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-warning navbar-light">
+      <!-- Container wrapper -->
+      <div class="container-fluid">
+        <!-- Navbar brand -->
+        <a class="navbar-brand" href="index.php"><b>536 Акселератор</b></a>
+
+        <!-- Toggle button -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-mdb-toggle="collapse"
+          data-mdb-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Collapsible wrapper -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+          <?php
+          show_breadcrumbs($breadcrumbs);
+          if (count($breadcrumbs) < 1) echo '</div>';
+          if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
+
+            // Подгрузка уведомления для разных групп пользователей
+            $au = new auth_ssh();
+            $array_undone_tasks = array();
+            if ($au->isAdmin());
+            else if ($au->isTeacher()) {
+
+            }
+            else {
+              // Подсчёт количества невыполненных заданий
+              $query_student_disciplines = select_all_disciplines();
+              $result_student_disciplines = pg_query($dbconnect, $query_student_disciplines);
+
+              // TODO: сделать так, чтобы уведомления были разных цветов (в зависимости от типа уведомления)
+              $query_undone_tasks = select_notify_undone_tasks($_SESSION['hash']);
+              $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
+              $array_undone_tasks = pg_fetch_all($result_undone_tasks);
+            }
+
+          } ?>
+
+          <?php 
+          if ($page_title != "Вход в систему"){ ?>
+            <!-- Icons -->
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Notifications -->
+              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell fa-lg"></i>
+                <span class="badge rounded-pill badge-notification bg-danger"><?php echo count($array_undone_tasks);?></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
+                <?php
+                foreach ($array_undone_tasks as $undone_task) { ?>
+                  <li><a class="dropdown-item" href="#">
+                    <?php echo $undone_task['short_name'];?><br><?php echo $undone_task['title'];?>
+                    <button class="" type="button" style="float:right;line-height:12px;">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </a></li>
+                <?php }?>
+              </ul>
+            </ul>
+
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Avatar -->
+              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
+                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
+                <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
+                <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
+              </ul>
+            </ul>
+            <?php } 
+
+            if (count($breadcrumbs) >= 1) echo '</div>'; ?>
+
+
+      </div>
+    </nav>
+  </header>
+
+<?php
+} ?>
+  
+
+
+<?php // TODO: ИЗМЕНИТЬ НА РАБОТУ С ФУНКЦИЕЙ show_header_2
 function show_header($page_title = '', $breadcrumbs = array()) { ?>
 
 <!DOCTYPE html>
@@ -188,7 +289,7 @@ show_head($page_title); ?>
 <body style="overflow-x: hidden;">
 
   <?php
-  show_only_header($breadcrumbs); ?>
+  show_only_header($page_title, $breadcrumbs); ?>
 
 <?php
 }?>
