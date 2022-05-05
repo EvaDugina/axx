@@ -88,7 +88,7 @@ show_header('Задания по дисциплине', array());
 </head>
 
 <body>
-
+	
 	<main class="container-fluid overflow-hidden">
 		<div class="pt-5 px-4">
 			<div class="row">
@@ -135,7 +135,7 @@ show_header('Задания по дисциплине', array());
 									}
 									?>
 									
-									<div class="list-group-item list-group-item-action d-flex justify-content-between bd-highlight mb-3" onclick="window.location='<?='taskchat.php?id='. $row_task['id'] . '&page=' . $page_id?>';"
+									<div class="list-group-item list-group-item-action d-flex justify-content-between bd-highlight mb-3" onclick="window.location='<?='taskchat.php?task_id='. $row_task['id'] . '&page_id=' . $page_id?>';"
 									style="cursor: pointer; margin-top: 10px 0; border-width: 1px; padding: 0px; padding-right: 0px; border-radius: 5px;"
 									id="studtasks-elem-<?php echo $i + 1; ?>" data-mdb-toggle="list" href="<?='taskchat.php?id='. $row_task['id']?>" role="tab" aria-controls="list-<?php echo $i + 1; ?>">
 										<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $row_task['title']; ?></p>
