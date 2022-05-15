@@ -109,13 +109,25 @@
     }
 
     // получение уведомлений для студента по невыполненным заданиям
-    function select_notify_undone_tasks($student_id){
-        return "SELECT ax_page.short_name, ax_task.title, ax_assignment.status_code FROM ax_task
+    function select_notify_for_student($student_id){
+        return "SELECT ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code FROM ax_task
             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
             INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-            WHERE ax_assignment_student.student_user_id =". $student_id . 
-            " AND ax_page.status = 1 AND ax_assignment.status_code = 2;
+            WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 
+            AND (ax_assignment.status_code = 2 OR ax_assignment.status_code = 3 OR ax_assignment.status_code = 5);
+        ";
+    }
+
+    function select_notify_for_teacher($teacher_id){
+        return "SELECT ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+            ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status_code = 5;
         ";
     }
     

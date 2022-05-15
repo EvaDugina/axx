@@ -8,8 +8,7 @@ $pageurl = explode('/', $_SERVER['REQUEST_URI']);
 $pageurl = $pageurl[count($pageurl) - 1];
 $_SESSION['username'] = '';
 
-if ($pageurl != 'login.php')
-{
+if ($pageurl != 'login.php') {
   include_once('auth_ssh.class.php');
   $au = new auth_ssh();  
   if (!$au->loggedIn()) {
@@ -36,7 +35,7 @@ function show_breadcrumbs(&$breadcrumbs)
   echo '<nav aria-label="breadcrumb">';
   echo '<ol class="breadcrumb">';
   foreach($breadcrumbs as $name => $link) {
-    echo '<li class="" style="font-size: 1.10rem; padding-left: 20px; padding-right: 30px; border-left: 1px solid;">';
+    echo '<li class="" style="font-size: 1.10rem; padding-left: 20px; padding-right: 20px; border-left: 1px solid;">';
     echo '<a class="text-reset" href="'.$link.'">'.$name.'</a>';
     echo '</li>';
   }
@@ -55,7 +54,7 @@ function show_head($page_title = ''){ ?>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-    <title>536 Акселератор - список заданий<?=$page_title?></title>
+    <title>536 Акселератор - <?=$page_title?></title>
 
     <!-- MDB icon -->
     <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
@@ -208,45 +207,57 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
           <?php
           show_breadcrumbs($breadcrumbs);
           if (count($breadcrumbs) < 1) echo '</div>';
-          if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
 
-            // Подгрузка уведомления для разных групп пользователей
-            $au = new auth_ssh();
-            $array_undone_tasks = array();
-            if ($au->isAdmin());
-            else if ($au->isTeacher()) {
+          if ($page_title != "Вход в систему"){ 
 
-            }
-            else {
-              // Подсчёт количества невыполненных заданий
-              $query_student_disciplines = select_all_disciplines();
-              $result_student_disciplines = pg_query($dbconnect, $query_student_disciplines);
+            if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
 
-              // TODO: сделать так, чтобы уведомления были разных цветов (в зависимости от типа уведомления)
-              $query_undone_tasks = select_notify_undone_tasks($_SESSION['hash']);
-              $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
-              $array_undone_tasks = pg_fetch_all($result_undone_tasks);
-            }
+              // Подгрузка уведомления для разных групп пользователей
+              $au = new auth_ssh();
+              $array_notify = array();
+              if ($au->isAdmin());
+              else if ($au->isTeacher()) {
+                // Подсчёт количества невыполненных заданий
+                $query_student_disciplines = select_all_disciplines();
+                $result_student_disciplines = pg_query($dbconnect, $query_student_disciplines);
+                
+                $query_undone_tasks = select_notify_for_teacher($_SESSION['hash']);
+                $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
+                $array_notify = pg_fetch_all($result_undone_tasks);
+              }
+              else {
+                // Подсчёт количества невыполненных заданий
+                $query_student_disciplines = select_all_disciplines();
+                $result_student_disciplines = pg_query($dbconnect, $query_student_disciplines);
 
-          } ?>
+                $query_undone_tasks = select_notify_for_student($_SESSION['hash']);
+                $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
+                $array_notify = pg_fetch_all($result_undone_tasks);
+              }
 
-          <?php 
-          if ($page_title != "Вход в систему"){ ?>
+            } ?>
+
             <!-- Icons -->
             <ul class="navbar-nav d-flex flex-row me-1">
               <!-- Notifications -->
               <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell fa-lg"></i>
-                <span class="badge rounded-pill badge-notification bg-danger"><?php echo count($array_undone_tasks);?></span>
+                <span class="badge rounded-pill badge-notification bg-danger"><?php echo count($array_notify);?></span>
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1">
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                 <?php
-                foreach ($array_undone_tasks as $undone_task) { ?>
-                  <li><a class="dropdown-item" href="#">
-                    <?php echo $undone_task['short_name'];?><br><?php echo $undone_task['title'];?>
-                    <button class="" type="button" style="float:right;line-height:12px;">
-                      <i class="fas fa-times"></i>
-                    </button>
+                foreach ($array_notify as $notify) { ?>
+                  <li><a class="dropdown-item" 
+                    <?php 
+                    if($notify['status_code'] == 2) echo 'style="color: red;"';
+                    else if($notify['status_code'] == 3) echo 'style="color: green;"';?> 
+                    href="studtasks.php?page=<?php echo $notify['page_id'];?>">
+                    <?php 
+                    if ($au->isTeacher()) {
+                      echo $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")";?><br><?php echo $notify['title'];
+                    } else {
+                      echo $notify['short_name'];?><br><?php echo $notify['title']; 
+                    }?>
                   </a></li>
                 <?php }?>
               </ul>
@@ -258,14 +269,14 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
                 <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
                 <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2">
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
                 <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
                 <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
               </ul>
             </ul>
-            <?php } 
+          <?php } 
 
-            if (count($breadcrumbs) >= 1) echo '</div>'; ?>
+          if (count($breadcrumbs) >= 1) echo '</div>'; ?>
 
 
       </div>
