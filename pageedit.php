@@ -185,7 +185,8 @@
 		</div>
 		
 		<div class="row align-items-center m-3">
-			<div class="col-2 row justify-content-left"></div>
+
+			<div class="col-2 row justify-content-left"></div> 
 			
 			<div class="col-2">
 				<div class="btn-group shadow-0">
