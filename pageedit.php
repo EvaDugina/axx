@@ -195,6 +195,7 @@
 							foreach($groups as $page_group){
 								echo "<option>".$page_group['name']."</option>";
 							}
+							echo "<option> Нет учебной группы </option>";
 						?>
 					  </select>
 				</div>
@@ -210,10 +211,10 @@
 		<div class="row align-items-left m-3" style="height: 40px;">
 			<div class="col-2 row justify-content-left">Оформление</div>
 			<div class="col-10">
-				<button type="button" class="btn btn-outline-primary mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+				<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
 				  Синий
 				</button>
-				<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+				<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px; margin-right: 0.5rem!important;">
 				  Фиолетовый
 				</button>
 				<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark" style="width:120px;">
@@ -299,14 +300,20 @@
 			let element = document.createElement("div");
 
 			element.classList.add("col-2");
-			element.innerText = name;
+
+			let text = document.createElement("span");
+			text.classList.add("badge", "badge-primary", "text-wrap");
+			text.setAttribute("style", "padding: 10px 10px; font-size: 15px; margin-right: 10px;");
+			text.innerText = name;
 			
 			let button = document.createElement("button");
 			button.classList.add("btn-close");
 
 			button.setAttribute("aria-label","Close");
 			button.setAttribute("type","button");
+			button.setAttribute("style", "font-size: 10px;")
 			
+			element.append(text);
 			element.append(button);
 			parent.append(element);
 			

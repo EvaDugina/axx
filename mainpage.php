@@ -55,7 +55,7 @@ function full_name($discipline_id, $dbconnect) {
 					<?php 
 						foreach($disciplines as $key => $massiv) {
 							if ($now_year != $disciplines[$key]['year']) { ?>
-								<div class="col-2 align-self-center popover-message-message-stud" style=" padding: 30px; margin-left: 24px;">
+								<div class="col-2 align-self-center popover-message-message-stud">
 									<button type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></button><br>
 									<a href="pageedit.php?add-page">Добавить новый предмет</a>
 								</div>
@@ -66,7 +66,7 @@ function full_name($discipline_id, $dbconnect) {
 								<div class="container">
 									<div class="row g-5 container-fluid">
 							<?php } ?>
-							<div class="col-3" style="height: 180px;" >
+							<div class="col-3">
 								<div class="popover-message-message-stud" role="listitem">
 									<div class="popover-body">
 										<div class="d-flex justify-content-end">
@@ -90,7 +90,7 @@ function full_name($discipline_id, $dbconnect) {
 								</div>
 							</div>
 						<?php } ?>
-						<div class="col-2 align-self-center popover-message-message-stud" style="padding: 30px; margin-left: 24px">
+						<div class="col-2 align-self-center popover-message-message-stud">
 									<button type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></button><br>
 									<a href="pageedit.php?add-page">Добавить новый предмет</a>
 								</div>

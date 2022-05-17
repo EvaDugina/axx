@@ -74,7 +74,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                 <div class="container">
                                     <div class="row g-5 container-fluid">
                             <?php } ?>
-                            <div class="col-3" >
+                            <div class="col-3" style="height: 230px;">
                                 <div class="popover-message-message-stud" role="listitem">
                                     <div class="popover-arrow"></div>
                                     <div class="popover-body">
@@ -105,13 +105,13 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                         <div class="d-flex align-items-start flex-column" style="height: 140px;">
                                             <div class="mb-auto"><a><?php echo $full_name[0]['name']; ?></a></div>
                                         <?php if ($count_tasks == 0) { ?>
-                                            <div class="popover-footer">
+                                            <div class="popover-footer text-muted">
                                                     <span>В текущей дисциплине пока нет заданий</span>
                                             </div>
                                         </div>
                                         <?php }
                                         else {?>
-                                            <div class="d-flex-justify-content-between">
+                                            <div class="d-flex justify-content-between text-muted" style="width: 100%">
                                                 <span>Выполнено</span>
                                                 <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                             </div>
