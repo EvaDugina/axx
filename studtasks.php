@@ -6,7 +6,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 
-$id = 0;
+$page_id = 0;
 $discipline_name = "";
 $disc_id = 0;
 $semester = "";
@@ -63,10 +63,6 @@ if (array_key_exists('page', $_REQUEST)) {
 	http_response_code(400);
 	exit;
 }
-
-show_header('Задания по дисциплине', array());
-
-
 ?>
 
 <html lang="en">
@@ -75,7 +71,7 @@ show_header('Задания по дисциплине', array());
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<meta http-equiv="x-ua-compatible" content="ie=edge" />
-	<title>536 Акселератор - список заданий</title>
+	<title>536 Акселератор</title>
 	<!-- MDB icon -->
 	<link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
 	<!-- Font Awesome -->
@@ -87,8 +83,12 @@ show_header('Задания по дисциплине', array());
 	<link rel="stylesheet" href="css/rdt.css" />
 </head>
 
-<body>
-	
+<?php 
+show_header_2($dbconnect, 'Задания по дисциплине', 
+		array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtask.php?page=' . $page_id)); ?>
+
+<body style="overflow-x: hidden;">
+
 	<main class="container-fluid overflow-hidden">
 		<div class="pt-5 px-4">
 			<div class="row">

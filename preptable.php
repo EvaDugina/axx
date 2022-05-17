@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="en">
+
 <?php
 require_once("common.php");
 require_once("dbqueries.php");
@@ -10,7 +13,8 @@ $disciplines = pg_fetch_all($result);
 // получение параметров запроса
 $user_id = -5; // TODO: get current user id
 $page_id = 0;
-if (array_key_exists('page', $_REQUEST))
+$au = new auth_ssh();
+if (array_key_exists('page', $_REQUEST) && ($au->isTeacher() || $au->isAdmin()))
   $page_id = $_REQUEST['page'];
 else {
   echo "Некорректное обращение";
@@ -53,19 +57,15 @@ if (!$result || pg_num_rows($result) < 1) {
   exit;
 } else {
   $row = pg_fetch_row($result);
-  show_header(
-    'Посылки по дисциплине',
-    array(
-      $row[1]  => 'preptasks.php?page=' . $page_id
-      //, 'Посылки по дисциплине' => 'prep_table.php?page='.$page_id
-    )
-  );
+  show_head($row[1]);
+  show_header_2($dbconnect, 'Посылки по дисциплине', array('Дэшборд преподавателя' => 'mainpage.php', $row[1]  => 'preptable.php?page=' . $page_id));
 }
 
-if ($scripts) echo $scripts;
-?>
+if ($scripts) echo $scripts; ?>
+
 <!-- MDB -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
+
 <!-- jQuery -->
 <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
 
@@ -123,7 +123,7 @@ if ($scripts) echo $scripts;
             $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
           ?>
             <div>
-              <table class="table table-status" id="table-status-id">
+              <table class="table table-status" id="table-status-id" style="text-align: center;">
                 <thead>
                   <tr class="table-row-header" style="text-align:center;">
                     <th scope="col" colspan="1">Студенты и группы</th>
@@ -195,30 +195,11 @@ if ($scripts) echo $scripts;
                 </tbody>
               </table>
             </div>
-          <?php
-          
-          ?>
-
-          <?php
-          /*
-  $query = select_page_students_grouped($page_id);
-  $result2 = pg_query($dbconnect, $query);
-  while($row2 = pg_fetch_assoc($result2))
-  {
-    echo '<div class="form-check">';
-    echo '  <input class="form-check-input" type="checkbox" name="students[]" value="'.$row2['id'].'" id="flexCheck'.$row2['id'].'">';
-    echo '  <label class="form-check-label" for="flexCheck'.$row2['id'].'">'.$row2['fio'].', группа '.$row2['grp'].', вариант №'.$row2['var'].'</label>';
-    echo '</div>';
-  }
-*/
-          ?>
-
-
         </div>
       </div>
 
       <div class="col-4">
-        <div class="p-3 border bg-light" style="overflow-y: scroll; max-height: 48%;">
+        <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
           <h5>История сообщений</h5>
           <div id="list-messages-id">
             <?php
@@ -295,8 +276,7 @@ if ($scripts) echo $scripts;
 
 <!-- Custom scripts -->
 <script>
-  const areaSelectCourse = document.querySelector('#selectCourse');
-  areaSelectCourse.addEventListener(`change`, (e) => {
+  const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
     const value = document.getElementById("selectCourse").value;
     document.location.href = 'preptable.php?page=' + value;
     //log(`option desc`, desc);
@@ -385,5 +365,4 @@ if ($scripts) echo $scripts;
 
 <!-- End your project here-->
 <?php
-show_footer();
-?>
+show_footer(); ?>

@@ -16,7 +16,9 @@
     {
         return 'select first_name || \' \' || middle_name fio from students where id = '.$id;
     }
+
     
+
     // СТРАНИЦЫ
     function select_active_pages(){
         return 'SELECT ax_page.disc_id, ax_page.year, ax_page.semester FROM ax_page WHERE status = 1;';
@@ -43,8 +45,8 @@
                 ' where ax_page_group.page_id = '. $page_id.
                 ' order by grp, fio';
     }
-
-    // группы для страницы
+    
+    // группы для страницах
     function select_page_groups($page_id)
     {
         return 'select groups.id id, groups.name grp'.
@@ -81,8 +83,7 @@
     }
 
     // - получение всех заданий по странице дисциплины
-    function select_page_tasks($page_id, $status)
-    {
+    function select_page_tasks($page_id, $status) {
         return "SELECT * FROM ax_task WHERE page_id = " . $page_id . ' and status = '. $status .' ORDER BY id';
     }
     
@@ -106,35 +107,59 @@
                 ' where ax_task.id = '.$task_id.' and ax_task_file.type = 0 '.
 				' order by id';
     }
+
+    // получение уведомлений для студента по невыполненным заданиям
+    function select_notify_for_student($student_id){
+        return "SELECT ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 
+            AND (ax_assignment.status_code = 2 OR ax_assignment.status_code = 3 OR ax_assignment.status_code = 5);
+        ";
+    }
+
+    function select_notify_for_teacher($teacher_id){
+        return "SELECT ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+            ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status_code = 5;
+        ";
+    }
     
     // получение сообщений для таблицы посылок
-    function select_page_messages($page_id)
-    {
+    function select_page_messages($page_id) {
         return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
-        ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
-        ax_message_attachment.id fid, 
-    case when ax_assignment.mark is not null then ax_assignment.mark
-    when ax_assignment.status_code in (0, 1) then 'X'
-    when ax_assignment.status_code in (4) then '-'
-    when m1.sender_user_type = 0 then '?' 
-    when m1.sender_user_type = 1 then '!'
-    else null end val, ax_task.title task, ax_task.max_mark max_mark, 
-    ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, 
-    ax_assignment.status_text astext, to_char(m1.date_time, 'DD-MM-YYYY HH24:MI:SS') mtime, 
-    m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.full_text mreply, 
-    s2.middle_name || ' ' || s2.first_name mfio, s2.login mlogin, ax_message_attachment.file_name as mfile, 
-    ax_message_attachment.download_url as murl FROM ax_task 
-    inner join ax_assignment on ax_task.id = ax_assignment.task_id and ax_assignment.status_code in (2,3,4)
-    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
-    inner join students s1 on s1.id = ax_assignment_student.student_user_id 
-    left join ax_message m1 on ax_assignment.id = m1.assignment_id 
-    and (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) and m1.status in (0,1)
-    left join ax_message m2 on m1.reply_to_id = m2.id
-    left join students s2 on s2.id = m1.sender_user_id
-    left join ax_message_attachment on m1.id = ax_message_attachment.message_id
-    inner join students_to_groups on s1.id = students_to_groups.student_id
-    inner join groups on groups.id = students_to_groups.group_id
-    where ax_task.page_id = ". $page_id ." order by mtime desc, mid desc";
+            ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
+            ax_message_attachment.id fid, 
+            case when ax_assignment.mark is not null then ax_assignment.mark
+            when ax_assignment.status_code in (0, 1) then 'X'
+            when ax_assignment.status_code in (4) then '-'
+            when m1.sender_user_type = 0 then '?' 
+            when m1.sender_user_type = 1 then '!'
+            else null end val, ax_task.title task, ax_task.max_mark max_mark, 
+            ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, 
+            ax_assignment.status_text astext, to_char(m1.date_time, 'DD-MM-YYYY HH24:MI:SS') mtime, 
+            m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.full_text mreply, 
+            s2.middle_name || ' ' || s2.first_name mfio, s2.login mlogin, ax_message_attachment.file_name as mfile, 
+            ax_message_attachment.download_url as murl FROM ax_task 
+
+            inner join ax_assignment on ax_task.id = ax_assignment.task_id and ax_assignment.status_code in (2,3,4)
+            inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
+            inner join students s1 on s1.id = ax_assignment_student.student_user_id 
+            left join ax_message m1 on ax_assignment.id = m1.assignment_id 
+            and (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) and m1.status in (0,1)
+            left join ax_message m2 on m1.reply_to_id = m2.id
+            left join students s2 on s2.id = m1.sender_user_id
+            left join ax_message_attachment on m1.id = ax_message_attachment.message_id
+            inner join students_to_groups on s1.id = students_to_groups.student_id
+            inner join groups on groups.id = students_to_groups.group_id
+            where ax_task.page_id = ". $page_id ." order by mid DESC
+        ";
     }
 
     // отправка ответа на сообщение
@@ -166,6 +191,9 @@
         return $array_out;
     }
 
+
+
+
    //
     function select_task($task_id)
     {
@@ -174,12 +202,22 @@
 
     // Название дисциплины
     function select_all_disciplines() {
-    return 'SELECT * FROM discipline';
+        return 'SELECT * FROM discipline';
     }
 
+    // Страница всех дисциплин
+    function select_all_discipline_page() {
+        return 'SELECT * FROM ax_page';
+    }
+    
     // Страница дисциплины
     function select_discipline_page($id) {
-    return 'SELECT * FROM ax_page where id ='.$id;
+        return 'SELECT * FROM ax_page where id ='.$id;
+    }
+
+    // Страницы дисциплин для конкретного студента
+    function select_discipline_page_by_semester($semester) {
+        return 'SELECT * FROM ax_page where semester <='. $semester;
     }
 
     // Все года и семестры
@@ -194,28 +232,27 @@
     }
 
     // Изменение страницы дисциплины
-    function update_discipline($discipline)
-    {
-    $timestamp = convert_timestamp_from_string($discipline['timestamp']);
-    $short_name = pg_escape_string($discipline['short_name']);
-    $id = pg_escape_string($discipline['id']);
-    $disc_id = pg_escape_string($discipline['disc_id']);
-    $year = pg_escape_string($timestamp['year']);
-    $semester = pg_escape_string($timestamp['semester']);
+    function update_discipline($discipline) {
+        $timestamp = convert_timestamp_from_string($discipline['timestamp']);
+        $short_name = pg_escape_string($discipline['short_name']);
+        $id = pg_escape_string($discipline['id']);
+        $disc_id = pg_escape_string($discipline['disc_id']);
+        $year = pg_escape_string($timestamp['year']);
+        $semester = pg_escape_string($timestamp['semester']);
 
-    return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester' where id ='$id'";
+        return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester' where id ='$id'";
     }
 
-        function insert_discipline($discipline) {
-$timestamp = convert_timestamp_from_string($discipline['timestamp']);
-$short_name = pg_escape_string($discipline['short_name']);
-$id = pg_escape_string($discipline['id']);
-$disc_id = pg_escape_string($discipline['disc_id']);
-$year = pg_escape_string($timestamp['year']);
-$semester = pg_escape_string($timestamp['semester']);
+    function insert_discipline($discipline) {
+        $timestamp = convert_timestamp_from_string($discipline['timestamp']);
+        $short_name = pg_escape_string($discipline['short_name']);
+        $id = pg_escape_string($discipline['id']);
+        $disc_id = pg_escape_string($discipline['disc_id']);
+        $year = pg_escape_string($timestamp['year']);
+        $semester = pg_escape_string($timestamp['semester']);
 
-return "INSERT INTO ax_page (disc_id, short_name, year, semester) VALUES ('$disc_id', '$short_name', '$year', '$semester') returning id";
-}
+        return "INSERT INTO ax_page (disc_id, short_name, year, semester) VALUES ('$disc_id', '$short_name', '$year', '$semester') returning id";
+    }
 
     function prep_ax_prep_page($id, $first_name, $middle_name)
     {
