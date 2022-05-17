@@ -10,6 +10,20 @@ if (!isset($_GET['task']) || !isset($_GET['page']) || !isset($_SESSION['hash']))
 
 $task_id = $_GET['task'];
 $page_id = $_GET['page'];
+$user_id = $_SESSION['hash'];
+
+//для каждого задания для каждого пользователя assignment_id уникальный 
+//(для Задание 3. Классификация языка и грамматики (task_id = -14) и пользователя ivan assignment_id = -22)
+//Напрашивается проблема - в бд может не быть записи для каждого пользователя для каждой страницы
+$assignment_id = '';
+$query = "select ax_assignment.id from ax_assignment
+	inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
+	where ax_assignment_student.student_user_id = $user_id and ax_assignment.task_id = $task_id;";
+$result = pg_query($dbconnect, $query);
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$assignment_id = $row['id'];
+}
 
 $query = select_all_disciplines();
 $result = pg_query($dbconnect, $query);
@@ -32,9 +46,8 @@ $task_status_code = '';
 $task_status_texts = ['недоступно для просмотра', 'недоступно для выполнения', 'активно', 'выполнено', 'отменено', 'ожидает проверки'];
 $task_status_text = '';
 $task_mark = '';
-// $_SESSION['hash'] is a user id
-if (isset($task_id) && isset($_SESSION['hash'])) {
-	$query = select_task_assignment($task_id, $_SESSION['hash']);
+if (isset($task_id) && isset($user_id)) {
+	$query = select_task_assignment($task_id, $user_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
 	if ($row) {
@@ -71,6 +84,32 @@ function show_task_requirements_links() {
         echo "<a href=\"$link_value\" target=\"_blank\" class=\"task-desc-wrapper-a\"><i class=\"fa-solid fa-file\"></i>$link_text</a><br>";
     }
 }
+
+//вытягивание сообщений из бд
+//для каждого задания для каждого пользователя assignment_id уникальный 
+//(для Задание 3. Классификация языка и грамматики (task_id = -14) и пользователя ivan assignment_id = -22)
+function select_chat_messages($user_id) {
+	global $dbconnect, $task_id, $assignment_id;
+	$query = "select ax_message.date_time, ax_message.full_text, students.first_name, students.middle_name 
+		from ax_message
+		inner join ax_assignment on ax_message.assignment_id = ax_assignment.id
+		inner join students on ax_message.sender_user_id = students.id
+		where ax_message.assignment_id = $assignment_id order by date_time";
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+	$row = pg_fetch_assoc($result);
+	$ret = array();
+	while ($row) {
+		$message_time = explode(" ", $row['date_time']);
+		$date = explode("-", $message_time[0]);
+		$time = explode(":", $message_time[1]);
+		$date_time = $date[2] .".". $date[1] .".". $date[0] ." ". $time[0] .":". $time[1];
+		$username = $row['first_name'] . ' ' . $row['middle_name'];
+		$ret[] = array('date_time' => $date_time, 'full_text' => $row['full_text'], 'username' => $username);
+		$row = pg_fetch_assoc($result);
+	}
+	return $ret;
+}
+
 
 show_header('Чат', array($discipline_name => 'studtasks.php?page='. $page_id));
 ?>
@@ -110,12 +149,27 @@ show_header('Чат', array($discipline_name => 'studtasks.php?page='. $page_id)
     <div class="chat-wrapper">
 		<div id="chat-box">
 			<?php
-			if (file_exists("log.html") && filesize("log.html") > 0) {
-				$handle = fopen("log.html", "r");
-				$contents = fread($handle, filesize("log.html"));
-				fclose($handle);
-				echo $contents;
-			}?>
+			// if (file_exists("log.html") && filesize("log.html") > 0) {
+			// 	$handle = fopen("log.html", "r");
+			// 	$contents = fread($handle, filesize("log.html"));
+			// 	fclose($handle);
+			// 	echo $contents;}
+			//работа с бд ---->
+			$user_messages = select_chat_messages($user_id);
+			foreach ($user_messages as $v) {
+				echo '
+				<div class="chat-box-message">
+					<div class="chat-box-message-wrapper">
+						<b>' . $v['username'] . '</b><br>'
+						. stripslashes(htmlspecialchars($v['full_text'])) . '
+					</div>
+					<div class="chat-box-message-date">
+						' . $v['date_time'] . '
+					</div>
+				</div>
+				';
+			}
+			?>
 		</div>
 		<form action="" method="POST" class="message-form">
 			<span>Сообщение:</span>
@@ -141,25 +195,25 @@ show_header('Чат', array($discipline_name => 'studtasks.php?page='. $page_id)
 		});
 		
 		//Load the file containing the chat log
-		function loadLog() {		
-			var oldscrollHeight = $("#chat-box").attr("scrollHeight") - 20;
-			$.ajax ({
-				url: "log.html",
-				cache: false,
-				success: function(html) {		
-					$("#chat-box").html(html); //Insert chat log into the #chat-box
-				// for ($m = 0; $m < count($messages); $m++) { // list all messages
-				//   if ($messages[$m]['mtype'] != null)
-				//     show_message($messages[$m]);
-				// }
-					var newscrollHeight = $("#chat-box").attr("scrollHeight") - 20;
-					if(newscrollHeight > oldscrollHeight) {
-						$("#chat-box").animate({ scrollTop: newscrollHeight }, 'normal'); //Autoscroll to bottom of div
-					}				
-				},
-			});
-		}
-		setInterval (loadLog, 2000);	//Reload file every 2 seconds
+		// function loadLog() {		
+		// 	var oldscrollHeight = $("#chat-box").attr("scrollHeight") - 20;
+		// 	$.ajax ({
+		// 		url: "log.html",
+		// 		cache: false,
+		// 		success: function(html) {		
+		// 			$("#chat-box").html(html); //Insert chat log into the #chat-box
+		// 		// for ($m = 0; $m < count($messages); $m++) { // list all messages
+		// 		//   if ($messages[$m]['mtype'] != null)
+		// 		//     show_message($messages[$m]);
+		// 		// }
+		// 			var newscrollHeight = $("#chat-box").attr("scrollHeight") - 20;
+		// 			if(newscrollHeight > oldscrollHeight) {
+		// 				$("#chat-box").animate({ scrollTop: newscrollHeight }, 'normal'); //Autoscroll to bottom of div
+		// 			}				
+		// 		},
+		// 	});
+		// }
+		setInterval (select_chat_messages($user_id), 2000);	//Reload ax_messages every 2 seconds
 	});
 	</script>
 </main>
