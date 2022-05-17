@@ -63,10 +63,6 @@ if (array_key_exists('page', $_REQUEST)) {
 	http_response_code(400);
 	exit;
 }
-
-show_header('Задания по дисциплине', array($page['short_name'] => 'studtask.php?page=' . $page_id));
-
-
 ?>
 
 <html lang="en">
@@ -87,7 +83,11 @@ show_header('Задания по дисциплине', array($page['short_name'
 	<link rel="stylesheet" href="css/rdt.css" />
 </head>
 
-<body>
+<?php 
+show_header_2($dbconnect, 'Задания по дисциплине', 
+		array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtask.php?page=' . $page_id)); ?>
+
+<body style="overflow-x: hidden;">
 
 	<main class="container-fluid overflow-hidden">
 		<div class="pt-5 px-4">

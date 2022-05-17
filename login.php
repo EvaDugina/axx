@@ -13,13 +13,18 @@
 	else 
     $page_addr = '';
 						
-	show_header('Вход в систему', array());
+	show_header('Вход в систему', array('Вход в систему' => 'login.php'));
 ?>
     <main class="pt-2">
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
           <div class="col-3">
             <h2>Вход в систему</h2>
+
+            <?php if (isset($_GET['error']) && $_GET['error'] == 1) { ?>
+              <h2>ОШИБКА ВХОДА!</h2>
+            <?php }?>
+
             <form class="text-nowrap" method="post" action="auth.php">
               <input type="hidden" name="action" value="login" />
               <div class="form-outline m-3">
