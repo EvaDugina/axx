@@ -12,33 +12,26 @@ $task_id = $_GET['task'];
 $page_id = $_GET['page'];
 $user_id = $_SESSION['hash'];
 
-//для каждого задания для каждого пользователя assignment_id уникальный 
-//(для Задание 3. Классификация языка и грамматики (task_id = -14) и пользователя ivan assignment_id = -22)
-//Напрашивается проблема - в бд может не быть записи для каждого пользователя для каждой страницы
-$assignment_id = '';
-$query = "select ax_assignment.id from ax_assignment
-	inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
-	where ax_assignment_student.student_user_id = $user_id and ax_assignment.task_id = $task_id;";
+$query = select_task_assignment_id($user_id, $task_id);
 $result = pg_query($dbconnect, $query);
 $row = pg_fetch_assoc($result);
 if ($row) {
 	$assignment_id = $row['id'];
 }
 
-// $query = select_all_disciplines();
-// $result = pg_query($dbconnect, $query);
-// $disciplines = pg_fetch_all($result);
+if (!isset($assignment_id)) {
+	echo '<p style="color:#f00">У страницы нет assignment_id в таблице</p>';
+    exit;
+}
 
 $task_title = '';
 $task_description = '';
-if (isset($task_id)) {
-	$query = "select title, description from ax_task where id = $task_id;";
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$row = pg_fetch_assoc($result);
-	if ($row) {
-		$task_title = $row['title'];
-		$task_description = $row['description'];
-	}
+$query = select_task($task_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$task_title = $row['title'];
+	$task_description = $row['description'];
 }
 
 $task_finish_limit = '';
@@ -46,31 +39,27 @@ $task_status_code = '';
 $task_status_texts = ['недоступно для просмотра', 'недоступно для выполнения', 'активно', 'выполнено', 'отменено', 'ожидает проверки'];
 $task_status_text = '';
 $task_mark = '';
-if (isset($task_id) && isset($user_id)) {
-	$query = select_task_assignment($task_id, $user_id);
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$row = pg_fetch_assoc($result);
-	if ($row) {
-		$time_date = explode(" ", $row['finish_limit']);
-        $date = explode("-", $time_date[0]);
-        $time = explode(":", $time_date[1]);
-        $task_finish_limit = $date[2] .".". $date[1] .".". $date[0] ." ". $time[0] .":". $time[1];
-		$task_status_code = $row['status_code'];
-		$task_mark = $row['mark'];
-	}
+$query = select_task_assignment($task_id, $user_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$time_date = explode(" ", $row['finish_limit']);
+    $date = explode("-", $time_date[0]);
+    $time = explode(":", $time_date[1]);
+    $task_finish_limit = $date[2] .".". $date[1] .".". $date[0] ." ". $time[0] .":". $time[1];
+	$task_status_code = $row['status_code'];
+	$task_mark = $row['mark'];
 }
 if ($task_status_code != '') {
 	$task_status_text = $task_status_texts[$task_status_code];
 }
 
 $discipline_short_name = '';
-if ($page_id) {
-	$query = "select short_name from ax_page where id = $page_id";
-	$result = pg_query($dbconnect, $query);
-	$row = pg_fetch_assoc($result);
-	if ($row) {
-		$discipline_short_name = $row['short_name'];
-	}
+$query = select_disc_short_name($page_id);
+$result = pg_query($dbconnect, $query);
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$discipline_short_name = $row['short_name'];
 }
 
 // Сюда добавлять ссылки для раздела "Требования к выполнению и результату"
@@ -85,39 +74,31 @@ function show_task_requirements_links() {
     }
 }
 
-//вытягивание сообщений из бд
-//для каждого задания для каждого пользователя assignment_id уникальный 
-//(для Задание 3. Классификация языка и грамматики (task_id = -14) и пользователя ivan assignment_id = -22)
+// Если в ax_assignment status_code = 3, значит задание проверено и в ax_message есть сообщение от препода со статусом 2, в котором он ставит оценку
 $task_finish_date_time = '';
-//Если в ax_assignment status_code = 3, значит задание проверено и в ax_message есть сообщение от препода со статусом 2, в котором он ставит оценку
-function select_chat_messages() {
+
+// Возвращает двумерный массив сообщений для текущей страницы по ax_assignment
+function get_messages() {
 	global $dbconnect, $assignment_id, $task_finish_date_time;
-	$query = "SELECT ax_message.type, ax_message.date_time, ax_message.full_text, students.first_name, students.middle_name
-		from ax_message inner join ax_assignment on ax_message.assignment_id = ax_assignment.id
-		inner join students on ax_message.sender_user_id = students.id
-		where ax_message.assignment_id = $assignment_id order by date_time";
+	$query = select_messages($assignment_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
 	$ret = array();
 	while ($row) {
+		$username = $row['first_name'] . ' ' . $row['middle_name'];
 		$message_time = explode(" ", $row['date_time']);
 		$date = explode("-", $message_time[0]);
 		$time = explode(":", $message_time[1]);
 		$date_time = $date[2] .".". $date[1] .".". $date[0] ." ". $time[0] .":". $time[1];
-		$username = $row['first_name'] . ' ' . $row['middle_name'];
-		$ret[] = array('date_time' => $date_time, 'full_text' => $row['full_text'], 'username' => $username);
+		$ret[] = array('username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time);
 
 		if ($row['type'] == 2) { $task_finish_date_time = $date_time; }
 		$row = pg_fetch_assoc($result);
 	}
-	// foreach ($ret as $row) {
-	// 	foreach ($row as $k => $v) {
-	// 		echo "$k => $v<br>";
-	// 	}
-	// }
 	return $ret;
 }
-$user_messages = select_chat_messages();
+
+$user_messages = get_messages();
 ?>
 
 <!DOCTYPE html>
@@ -169,16 +150,16 @@ $user_messages = select_chat_messages();
 				// 	$contents = fread($handle, filesize("log.html"));
 				// 	fclose($handle);
 				// 	echo $contents;}
-				//работа с бд ---->
-				foreach ($user_messages as $v) {
+				// Вывод сообщений на страницу
+				foreach ($user_messages as $m) {
 					echo '
 					<div class="chat-box-message">
 						<div class="chat-box-message-wrapper">
-							<b>' . $v['username'] . '</b><br>'
-							. stripslashes(htmlspecialchars($v['full_text'])) . '
+							<b>' . $m['username'] . '</b><br>'
+							. stripslashes(htmlspecialchars($m['full_text'])) . '
 						</div>
 						<div class="chat-box-message-date">
-							' . $v['date_time'] . '
+							' . $m['date_time'] . '
 						</div>
 					</div>
 					';
@@ -233,3 +214,22 @@ $user_messages = select_chat_messages();
 	</main>
 </body>
 </html>
+
+<?php
+/* Select запросы, надо в dbqueries.php, но пока тут лежат */
+function select_task_assignment_id($user_id, $task_id) {
+    return "SELECT ax_assignment.id from ax_assignment
+	    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
+	    where ax_assignment_student.student_user_id = $user_id and ax_assignment.task_id = $task_id;";
+}
+
+function select_disc_short_name($page_id) {
+    return "SELECT short_name from ax_page where id = $page_id";
+}
+
+function select_messages($assignment_id) {
+    return "SELECT students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time 
+        from ax_message 
+        inner join students on ax_message.sender_user_id = students.id
+        where ax_message.assignment_id = $assignment_id order by date_time";
+}
