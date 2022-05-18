@@ -17,7 +17,7 @@ if (array_key_exists('action', $_POST)) {
 					exit;
 				} 
 
-				if ($au->isAdmin())
+				if ($au->isAdmin() || $au->isTeacher())
 					header('Location:mainpage.php');
 				else 
 					header('Location:mainpage_student.php');

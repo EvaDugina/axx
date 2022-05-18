@@ -15,6 +15,14 @@ $short_name = "";
 $actual_teachers = [];
 $page_groups = [];
 
+// защита от случайного перехода
+$au = new auth_ssh();
+if ($au->isTeacher()) {
+	echo "Некорректное обращение";
+	http_response_code(400);
+	exit;
+}
+
 if (array_key_exists('page', $_REQUEST)) {
 	$page_id = $_REQUEST['page'];
 
@@ -85,7 +93,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 <?php 
 show_header_2($dbconnect, 'Задания по дисциплине', 
-		array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtask.php?page=' . $page_id)); ?>
+		array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtasks.php?page=' . $page_id)); ?>
 
 <body style="overflow-x: hidden;">
 
