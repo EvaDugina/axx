@@ -63,6 +63,7 @@ function show_head($page_title = ''){ ?>
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
     <!-- Google Fonts Roboto -->
     <link rel="stylesheet"
@@ -244,12 +245,14 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
                   <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>> 
                     <a <?php 
                       if($au->isTeacher()){ echo 'style="color: black;"';?>
-                        href="studtasks.php?page=<?php echo $notify['page_id'];?>" > <?php
+                        href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id=<?php echo $_SESSION['hash'];?>" > 
+                      <?php
                       } else if ($au->isAdmin());
                       else {  
                         if($notify['status_code'] == 2) echo 'style="color: red;"';
-                        else if($notify['status_code'] == 3) echo 'style="color: green;"';?> 
-                        href="studtasks.php?page=<?php echo $notify['page_id'];?>" > <?php
+                        else if($notify['status_code'] == 3) echo 'style="color: green;"';
+                        else echo 'style="color: black;"';?>
+                        href="studtasks.php?page=<?php echo $notify['page_id'];?>" > <?php // TODO: дать ссылку на чат
                       } ?>
 
                       <?php 
