@@ -1,7 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+
 <?php
 require_once("common.php");
 require_once("dbqueries.php");
 $scripts = null;
+
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isTeacher() && !$au->isAdmin()) {
+	echo "Некорректное обращение";
+	http_response_code(400);
+	exit;
+}
 
 $query = select_all_disciplines();
 $result = pg_query($dbconnect, $query);
@@ -10,7 +21,8 @@ $disciplines = pg_fetch_all($result);
 // получение параметров запроса
 $user_id = -5; // TODO: get current user id
 $page_id = 0;
-if (array_key_exists('page', $_REQUEST))
+$au = new auth_ssh();
+if (array_key_exists('page', $_REQUEST) && ($au->isTeacher() || $au->isAdmin()))
   $page_id = $_REQUEST['page'];
 else {
   echo "Некорректное обращение";
@@ -53,7 +65,8 @@ if (!$result || pg_num_rows($result) < 1) {
   exit;
 } else {
   $row = pg_fetch_row($result);
-  show_header('Посылки по дисциплине', array('Дэшборд преподавателя' => 'mainpage.php', $row[1]  => 'preptable.php?page=' . $page_id));
+  show_head($row[1]);
+  show_header_2($dbconnect, 'Посылки по дисциплине', array('Дэшборд преподавателя' => 'mainpage.php', $row[1]  => 'preptable.php?page=' . $page_id));
 }
 
 if ($scripts) echo $scripts; ?>
@@ -118,7 +131,7 @@ if ($scripts) echo $scripts; ?>
             $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
           ?>
             <div>
-              <table class="table table-status" id="table-status-id">
+              <table class="table table-status" id="table-status-id" style="text-align: center;">
                 <thead>
                   <tr class="table-row-header" style="text-align:center;">
                     <th scope="col" colspan="1">Студенты и группы</th>

@@ -7,18 +7,17 @@ $loggedIn = false;
 
 $au = new auth_ssh();
 
-if (array_key_exists('action', $_POST))
-{
-	switch($_POST['action'])
-	{
+if (array_key_exists('action', $_POST)) {
+	switch($_POST['action']) {
 			case 'login':
 				$loggedIn = $au->login($_POST['login'], $_POST['password'], $_SERVER['HTTP_REFERER']);
 				if(!$loggedIn) {
-					http_response_code(401);
+					
+					header('Location:login.php'); 
 					exit;
 				} 
 
-				if ($au->isAdmin())
+				if ($au->isAdmin() || $au->isTeacher())
 					header('Location:mainpage.php');
 				else 
 					header('Location:mainpage_student.php');
@@ -35,8 +34,7 @@ if (array_key_exists('action', $_POST))
 			break;
 	}
 }
-else
-{
+else {
 	http_response_code(401);
 	exit;
 }
