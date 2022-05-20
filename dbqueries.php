@@ -101,7 +101,7 @@
 
     // получение количества уведомлений по каждой странице предмета для преподавательского дэшборда
     function select_notify_by_page($page_id){
-        return "SELECT ax_task.id FROM ax_task
+        return "SELECT COUNT(*) FROM ax_task
             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
             WHERE ax_page.id = $page_id AND ax_assignment.status_code = 5;

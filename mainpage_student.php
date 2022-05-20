@@ -66,11 +66,11 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
             <div class="container">
                 <div class="row g-5 container-fluid">
                     <?php 
-                        foreach($disciplines as $key => $massiv) {
-                            if ($now_semester != $disciplines[$key]['semester']) { ?>
+                        foreach($disciplines as $discipline) {
+                            if ($now_semester != $discipline['semester']) { ?>
                                 </div>
                                 </div>
-                                <?php $now_semester = $disciplines[$key]['semester'];?>
+                                <?php $now_semester = $discipline['semester'];?>
                                 <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
                                 <div class="container">
                                     <div class="row g-5 container-fluid">
@@ -82,7 +82,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                         <?php 
                                         $count_succes_tasks = 0;
                                         $count_tasks = 0;
-                                        $query_tasks = select_page_tasks($disciplines[$key]['id'], 1);
+                                        $query_tasks = select_page_tasks($discipline['id'], 1);
                                         $result_tasks = pg_query($dbconnect, $query_tasks);
                                         if (!$result_tasks || pg_num_rows($result_tasks) < 1);
                                          else {
@@ -96,12 +96,12 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                                 }
                                             }
                                         }
-                                        $result = full_name($disciplines[$key]['disc_id'], $dbconnect);
+                                        $result = full_name($discipline['disc_id'], $dbconnect);
                                         $full_name = pg_fetch_all($result);
                                         ?>
                                         <div class="p-3 popover-header">
-                                            <?php $page_id = $disciplines[$key]['id']; ?>
-                                            <a href="studtasks.php?page=<?php echo $page_id; ?>"><?php echo $disciplines[$key]['short_name']; ?></a><br>
+                                            <?php $page_id = $discipline['id']; ?>
+                                            <a href="studtasks.php?page=<?php echo $page_id; ?>"><?php echo $discipline['short_name']; ?></a><br>
                                         </div>
                                         <div class="d-flex align-items-start flex-column" style="height: 140px;">
                                             <div class="mb-auto"><a><?php echo $full_name[0]['name']; ?></a></div>
