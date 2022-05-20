@@ -55,6 +55,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
             
         </style>
     </head>
+
     <body>
         <main class="justify-content-start" style="margin-bottom: 30px;">
             <?php
@@ -106,7 +107,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                             <div class="mb-auto"><a><?php echo $full_name[0]['name']; ?></a></div>
                                         <?php if ($count_tasks == 0) { ?>
                                             <div class="popover-footer text-muted">
-                                                    <span>В текущей дисциплине пока нет заданий</span>
+                                                    <span>Задания временно отсутствуют</span>
                                             </div>
                                         </div>
                                         <?php }
@@ -115,7 +116,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                                 <span>Выполнено</span>
                                                 <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                             </div>
-                                            <progress value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
+                                            <progress class="progress-bar" style="border-width: 0px;" value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
                                         </div>
                                         <?php } ?>
                                     </div>
