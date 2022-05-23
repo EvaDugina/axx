@@ -6,6 +6,14 @@ require_once("common.php");
 require_once("dbqueries.php");
 $scripts = null;
 
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isTeacher() && !$au->isAdmin()) {
+	echo "Некорректное обращение";
+	http_response_code(400);
+	exit;
+}
+
 $query = select_all_disciplines();
 $result = pg_query($dbconnect, $query);
 $disciplines = pg_fetch_all($result);

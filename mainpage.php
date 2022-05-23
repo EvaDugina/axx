@@ -53,15 +53,19 @@ function full_name($discipline_id, $dbconnect) {
 			<div class="container">
 				<div class="row g-5 container-fluid">
 					<?php 
-						foreach($disciplines as $key => $massiv) {
-							if ($now_year != $disciplines[$key]['year']) { ?>
+						foreach($disciplines as $discipline) {
+							$query_notify = select_notify_by_page($discipline['id']);
+                                        		$result_notify = pg_query($dbconnect, $query_notify);
+							$notify_count = pg_fetch_assoc($result_notify);
+
+							if ($now_year != $discipline['year']) { ?>
 								<div class="col-2 align-self-center popover-message-message-stud">
 									<button type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></button><br>
 									<a href="pageedit.php?add-page">Добавить новый предмет</a>
 								</div>
 								</div>
 								</div>
-								<?php $now_year = $disciplines[$key]['year'];?>
+								<?php $now_year = $discipline['year'];?>
 								<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_year; ?> год </h2><br>
 								<div class="container">
 									<div class="row g-5 container-fluid">
@@ -70,21 +74,24 @@ function full_name($discipline_id, $dbconnect) {
 								<div class="popover-message-message-stud" role="listitem">
 									<div class="popover-body">
 										<div class="d-flex justify-content-end">
-											<?php $page_id = $disciplines[$key]['id']; ?>   
+											<?php $page_id = $discipline['id']; ?>   
 											<a href="pageedit.php?page=<?php echo $page_id; ?>">   
 											<button type="button" class="btn btn-link"><i class="fas fa-pencil-alt"></i></button>
 											</a>
 										</div>
 										<?php 
-										$result = full_name($disciplines[$key]['disc_id'], $dbconnect);
+										$result = full_name($discipline['disc_id'], $dbconnect);
 										$full_name = pg_fetch_all($result);
 										?>
 										<div class="p-3 popover-header">
-											<a href="preptable.php?page=<?php echo $page_id; ?>"><?php echo $disciplines[$key]['short_name']; ?></a><br>
+											<a href="preptable.php?page=<?php echo $page_id; ?>"><?php echo $discipline['short_name']; ?></a><br>
 										</div>
 										<div class="d-flex justify-content-between" style="margin-top: 30px;">
 											<span>Сообщение</span>
-											<button class="btn btn-link btn-sm" style="width: 55px"><i class="fas fa-bell fa-lg"></i><span class="badge rounded-pill badge-notification bg-danger">4</span></button>
+											<button class="btn btn-link btn-sm" style="width: 55px"><i class="fas fa-bell fa-lg"></i><span 
+												<?php if($notify_count['count'] > 0){?> class="badge rounded-pill badge-notification bg-danger"><?php } 
+												else { ?> class="badge rounded-pill badge-notification" style="background-color: green;"><?php } echo $notify_count['count'];?></span>
+											</button>
 										</div>
 									</div>
 								</div>
