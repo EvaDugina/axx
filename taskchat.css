@@ -169,7 +169,8 @@ b {
 }
 
 .chat-box-message {
-    width: 100%;
+    float: left;
+    min-width: 400px;
     max-width: 600px;
     margin: 10px 0;
 }
@@ -185,7 +186,7 @@ b {
     font-size: 14px;
 }
 
-.message-form {
+.message-input-wrapper {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
@@ -241,4 +242,17 @@ common media
     .task-desc-wrapper > div {
         flex-direction: column;
     }
+}
+
+
+/* ///////////////////////////////////////
+common
+/////////////////////////////////////// */
+
+.float-right {
+    float: right;
+}
+
+.clear {
+    clear: both;
 }
