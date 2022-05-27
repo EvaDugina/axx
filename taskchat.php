@@ -59,7 +59,7 @@ if ($row) {
 	$task_mark = $row['mark'];
 }
 
-$task_status_texts = ['недоступно для просмотра', 'недоступно для выполнения', 'активно', 'выполнено', 'отменено', 'ожидает проверки'];
+$task_status_texts = ['Недоступно для просмотра', 'Недоступно для выполнения', 'Активно', 'Выполнено', 'Отменено', 'Ожидает проверки'];
 $task_status_text = '';
 if ($task_status_code != '') {
 	$task_status_text = $task_status_texts[$task_status_code];
@@ -73,7 +73,7 @@ if ($row) {
 	$discipline_short_name = $row['short_name'];
 }
 
-// Сюда добавлять ссылки для раздела "Требования к выполнению и результату"
+// TODO: реализовать добавление ссылок для раздела "Требования к выполнению и результату" через БД
 $task_requirements_links = [
 	'Гайдлайн по оформлению программного кода.pdf' => 'https://vega.fcyb.mirea.ru/',
 	'Инструкция по подготовке кода к автотестам.pdf' => 'https://vega.fcyb.mirea.ru/'
@@ -107,7 +107,27 @@ if ($row) {
 <!-- Font Awesome -->
 <script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 
-<body>
+<script type="text/javascript">
+	// TODO Отмечать каждое непрочитанное сообщение прочитанным
+	function lastReadedMessage() {
+
+	}
+	function scrollToLastReadMessage() {
+		var div = $("#chat-box");
+
+		// получение последнего, прочитанного элемента
+		var message = $("#message-" + 12);
+
+		div.scrollTop(div.prop('scrollHeight'));
+	}
+
+	function scrollDown(){
+		var div = $("#chat-box");
+		div.scrollTop(div.prop('scrollHeight'));
+	}
+</script>
+
+<body onload="scrollDown();">
 	<?php show_header_2($dbconnect, 'Чат c перподавателем', 
 		array('Дэшборд студента' => 'mainpage_student.php', $discipline_short_name => 'studtasks.php?page=' . $page_id, $task_title => '')); ?>
 
@@ -125,16 +145,15 @@ if ($row) {
 				</div>
 				<div class="task-status-wrapper">
 					<div>
-						<div style="display:flex; align-items:center">
-							<div class="check-mark" style="<?= $task_status_code == 3 ? 'background:#0f0' : '' ?>">
-								<i class="fa-solid fa-check"></i>
-							</div>
-							<b><?= $task_status_text ?></b>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="flexCheckDisabled" 
+								<?php if ($task_status_code == 3) echo 'checked'; ?> disabled>
+							<label><?= $task_status_text ?></label>
 						</div>
 						<?php  
 						if ($task_status_code == 3) {
-							echo "<br><br> $task_finish_date_time <br>
-							Оценка: <b>$task_mark</b>";
+							if ($task_finish_date_time ) echo "<br> $task_finish_date_time <br>";
+							echo "Оценка: <b>$task_mark</b>";
 						}?>
 					</div>
 					<a href="https://vega.fcyb.mirea.ru/" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
@@ -143,6 +162,7 @@ if ($row) {
 		</div>
 
 		<div class="chat-wrapper">
+
 			<div id="chat-box">
 				<!-- Вывод сообщений на страницу -->
 			</div>
@@ -166,7 +186,13 @@ if ($row) {
 		function loadChatLog() {
 			$('#chat-box').load('message_requires.php #content', {assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
 		}
+
+		function markUnreaded() {
+			$('#chat-box').load('message_requires.php #content', {});
+		}
+
 		$(document).ready(function() {
+
 			// Отправка сообщения (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
@@ -176,10 +202,11 @@ if ($row) {
 				$("#user-message").val("");
 				return false;
 			});
+
 			loadChatLog();
 			setInterval(loadChatLog, 2500);
 		});
-		
+
 	</script>
 </body>
 

@@ -1,7 +1,7 @@
 <?php
 require_once("settings.php");
 
-// Если юзер написал сообщение, то добавляем его в бд и отправляем обновленный лог чата
+// Если юзер написал сообщение, то добавляем его в БД и отправляем обновленный лог чата
 if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
     $assignment_id = $_POST['assignment_id'];
     $user_id = $_POST['user_id'];
@@ -19,6 +19,10 @@ else if (isset($_POST['assignment_id'], $_POST['user_id'])) {
     echo '<div id="content">';
     show_messages(get_messages());
     echo '</div>';
+} 
+
+else if (isset($_POST['id_last_message'])) {
+	markUnreaded();
 }
 
 
@@ -36,10 +40,10 @@ function get_messages() {
 		$time = explode(":", $message_time[1]);
 		$date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
 		$attachments = get_message_attachments($row['message_id']);
-		$ret[] = array('username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
+		$ret[] = array('id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
             'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments);
         
-        $row = pg_fetch_assoc($result);
+        	$row = pg_fetch_assoc($result);
 	}
 	return $ret;
 }
@@ -77,35 +81,41 @@ function get_message_attachments($message_id) {
 // Выводит сообщения на страницу
 function show_messages($messages) {
 	global $user_id;
+	$i=0;
 	foreach ($messages as $m) {
-		$float_class = $m['sender_user_id'] == $user_id ? 'float-right' : '';
-		echo '
-		<div class="chat-box-message ' . $float_class . '">
+		$float_class = $m['sender_user_id'] == $user_id ? 'float-right' : ''; ?>
+		<div id="message-<?=$i?>-<?=$m['id']?>" class="chat-box-message <?=$float_class?>">
 			<div class="chat-box-message-wrapper">
-				<b>' . $m['username'] . '</b><br>'
-			. stripslashes(htmlspecialchars($m['full_text'])) . '
+				<b><?=$m['username']?></b><br>
+				<?=stripslashes(htmlspecialchars($m['full_text'])) ?>
 				<br>
-		';
-		foreach ($m['attachments'] as $ma) {
-			echo '<a href="' . $ma['download_url'] . '" class="task-desc-wrapper-a" target="_blank">' 
-                . '<i class="fa-solid fa-file"></i>' . $ma['file_name'] . '</a><br>';
-		}
-		echo '
+
+				<?php
+				foreach ($m['attachments'] as $ma) {?>
+					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank">
+                				<i class="fa-solid fa-file"></i><?=$ma['file_name']?></a><br>';
+				<?php }?>
 			</div>
 			<div class="chat-box-message-date">
-				' . $m['date_time'] . '
+				<?=$m['date_time']?>
 			</div>
 		</div>
 		<div class="clear"></div>
-		';
+	<?php
+	$i++;
 	}
-}
+}?>
 
+<?php
+// Отметить в БД все просмотренные сообщения
+function markUnreaded(){
 
+}?>
+
+<?php
 // Копии функций с запросами в БД, когда перенесу свои запросы в dbquires.php, их удалю и сделаю require_once(dbquires.php)
-
 function select_messages($assignment_id) {
-    return "SELECT students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
+    return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
         ax_message.sender_user_id, ax_message.id as \"message_id\"
         from ax_message
         inner join students on ax_message.sender_user_id = students.id
