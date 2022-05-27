@@ -12,14 +12,24 @@ $task_id = $_GET['task'];
 $page_id = $_GET['page'];
 $user_id = $_SESSION['hash'];
 
-$query = select_task_assignment_id($user_id, $task_id);
-$result = pg_query($dbconnect, $query);
-$row = pg_fetch_assoc($result);
-if ($row) {
-	$assignment_id = $row['id'];
+$au = new auth_ssh();
+
+if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
+	// Если на страницу чата зашёл преподаватель
+	$student_id = $_GET['id_student'];
+} else {
+	// Если на страницу чата зашёл студент
+	$student_id = $user_id;
 }
 
-if (!isset($assignment_id)) {
+$query = select_task_assignment_id($student_id, $task_id);
+	$result = pg_query($dbconnect, $query);
+	$row = pg_fetch_assoc($result);
+
+
+if ($row) {
+	$assignment_id = $row['id'];
+} else {
 	echo '<p style="color:#f00">У страницы нет assignment_id в таблице</p>';
 	exit;
 }
@@ -37,7 +47,7 @@ if ($row) {
 $task_finish_limit = '';
 $task_status_code = '';
 $task_mark = '';
-$query = select_task_assignment($task_id, $user_id);
+$query = select_task_assignment($task_id, $student_id);
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $row = pg_fetch_assoc($result);
 if ($row) {

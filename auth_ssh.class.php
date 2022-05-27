@@ -67,7 +67,7 @@ function isTeacher($hash = '') {
     
 //----------------------------------------------------------------------------------------------
     
-    function isAdminOrPrep($hash = '') {
+    function isAdminOrTeacher($hash = '') {
         if (array_key_exists('role', $_SESSION)) {
             return (($_SESSION['role'] == 1) || ($_SESSION['role'] == 2));
         }
