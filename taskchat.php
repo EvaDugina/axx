@@ -1,218 +1,240 @@
 <?php
 require_once("common.php");
 require_once("dbqueries.php");
-require_once("utilities.php");
+require_once("settings.php");
 
-// получение параметров запроса
-$page_id = 0;
-$task_id = 0;
-$discipline_name = "";
-if (array_key_exists('page', $_REQUEST) && array_key_exists('id', $_REQUEST)) {
-	$page_id = $_REQUEST['page'];
-    $task_id = $_REQUEST['id'];
-
-	$query = select_discipline_page($page_id);
-	$result = pg_query($dbconnect, $query);
-	$page = pg_fetch_all($result)[0];
-
-	$query = select_all_disciplines();
-	$result = pg_query($dbconnect, $query);
-	$disciplines = pg_fetch_all($result);
-
-	foreach ($disciplines as $key => $discipline) {
-		if ($discipline['id'] == $page['disc_id']){
-			$discipline_name = $discipline['name'];
-			$discipline_name = strtoupper((string) "$discipline_name");
-			break;
-		}
-	}
-
-    $query_task = select_task($task_id);
-	$result_task = pg_query($dbconnect, $query_task);
-    $row_task = pg_fetch_assoc($result_task);
-
-} else {
-	$page_id = 0;
-	echo "Некорректное обращение";
-	http_response_code(400);
+if (!isset($_GET['task']) || !isset($_GET['page']) || !isset($_SESSION['hash'])) {
+	echo '<p style="color:#f00">Некорректное обращение</p>';
 	exit;
 }
-						
-	show_header('Задания по дисциплине', array());
+
+$task_id = $_GET['task'];
+$page_id = $_GET['page'];
+$user_id = $_SESSION['hash'];
+
+$au = new auth_ssh();
+
+if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
+	// Если на страницу чата зашёл преподаватель
+	$student_id = $_GET['id_student'];
+} else {
+	// Если на страницу чата зашёл студент
+	$student_id = $user_id;
+}
+
+$query = select_task_assignment_id($student_id, $task_id);
+	$result = pg_query($dbconnect, $query);
+	$row = pg_fetch_assoc($result);
+
+
+if ($row) {
+	$assignment_id = $row['id'];
+} else {
+	echo '<p style="color:#f00">У страницы нет assignment_id в таблице</p>';
+	exit;
+}
+
+$task_title = '';
+$task_description = '';
+$query = select_task($task_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$task_title = $row['title'];
+	$task_description = $row['description'];
+}
+
+$task_finish_limit = '';
+$task_status_code = '';
+$task_mark = '';
+$query = select_task_assignment($task_id, $student_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$time_date = explode(" ", $row['finish_limit']);
+	$date = explode("-", $time_date[0]);
+	$time = explode(":", $time_date[1]);
+	$task_finish_limit = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
+	$task_status_code = $row['status_code'];
+	$task_mark = $row['mark'];
+}
+
+$task_status_texts = ['Недоступно для просмотра', 'Недоступно для выполнения', 'Активно', 'Выполнено', 'Отменено', 'Ожидает проверки'];
+$task_status_text = '';
+if ($task_status_code != '') {
+	$task_status_text = $task_status_texts[$task_status_code];
+}
+
+$discipline_short_name = '';
+$query = select_disc_short_name($page_id);
+$result = pg_query($dbconnect, $query);
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$discipline_short_name = $row['short_name'];
+}
+
+// TODO: реализовать добавление ссылок для раздела "Требования к выполнению и результату" через БД
+$task_requirements_links = [
+	'Гайдлайн по оформлению программного кода.pdf' => 'https://vega.fcyb.mirea.ru/',
+	'Инструкция по подготовке кода к автотестам.pdf' => 'https://vega.fcyb.mirea.ru/'
+];
+function show_task_requirements_links() {
+	global $task_requirements_links;
+	foreach ($task_requirements_links as $link_text => $link_value) {
+		echo "<a href=\"$link_value\" target=\"_blank\" class=\"task-desc-wrapper-a\"><i class=\"fa-solid fa-file\"></i>$link_text</a><br>";
+	}
+}
+
+$task_finish_date_time = '';
+$query = "SELECT date_time from ax_message where assignment_id = $assignment_id and type = 2";
+$result = pg_query($dbconnect, $query);
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$message_time = explode(" ", $row['date_time']);
+	$date = explode("-", $message_time[0]);
+	$time = explode(":", $message_time[1]);
+	$task_finish_date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>536 Акселератор - Посылки по дисциплине</title>
-    <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-    <!-- Google Fonts Roboto -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-    />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-    <!-- extra -->
-    <link rel="stylesheet" href="css/accelerator.css" />
-  </head>
+<?php show_head('Чат с преподавателем'); ?>
+<link rel="stylesheet" href="taskchat.css">
+<!-- jquery -->
+<script src="js/jquery-3.5.1.min.js"></script>
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 
+<script type="text/javascript">
+	// TODO Отмечать каждое непрочитанное сообщение прочитанным
+	function lastReadedMessage() {
 
-  <body>
+	}
+	function scrollToLastReadMessage() {
+		var div = $("#chat-box");
 
+		// получение последнего, прочитанного элемента
+		var message = $("#message-" + 12);
 
-    <main class="pt-2 p-2">
-        <div style="display: flex; align-items: flex-start;">
-    	    <button type="button" class="btn" onclick="window.location='<?='studtasks.php?page=' . $page_id?>';"><i class="fas fa-arrow-left"></i></button>
-    	    <span class="ms-2" style="align-self: center; font-size:larger;"><?php echo $discipline_name; ?></span>
-        </div>
+		div.scrollTop(div.prop('scrollHeight'));
+	}
 
-        <br>
+	function scrollDown(){
+		var div = $("#chat-box");
+		div.scrollTop(div.prop('scrollHeight'));
+	}
+</script>
 
-    	<h1><?php echo $row_task['title']; ?></h1>
-    	<div class="row">
-	    	<div class="col-md-6" style="margin-left: 10px;">
-	    			<button type="button" class="btn" style="display: block; margin-left: auto;"><i class="fas fa-pencil-alt"></i></button>
-		    		<p>Разработать программу для чтения файла с диска, выбора нечетных строк и сохранения их в новый файл.<br>Новый файл должен получить то же самое имя.</p>
-		    		<p>Требования к результату:</p>
-		    		<a href="URL">Гайдлайн по оформлению программного кода.pdf</a><br>
-		    		<a href="URL">Инструкция по подготовке к автотестам.pdf</a><br>
-		    		<span>Срок выполнения: 18.04.2021 23:59<button type="button" class="btn float-right" style="display:block; margin-left: auto;">Скачать задание</button></span>
-	    	</div>
-	    	<div class="col-md-5 float-right">
-	    		<span>выполнено</span><br>
-	    		<span class="time-right">21.10.2021 17:34</span>
-	    		<br>
-	    		<button type="button" class="btn" style="display:block; margin-top: 170px;">Онлайн-редактор кода</button>
-	    	</div>
-	    </div><br>
-      
-	    <div class="chat-history">
-        <h2>Чат по заданию</h2>
-	    	  <div class="m-b-0">
-                        <div class="clearfix col-md-6">
-                            <div class="fio">
-                                <span class="message-data-time">Сергей Иванов</span>
-                            </div>
-                            <div class="message other-message float-right"> А до какога нужно сдать? </div>
-                            <div class="message-data">18.04.2021 17:17</div>
-                        </div>
-                        <div class="row">
-							<div class="col-md-6"></div>
-							<div class="col-md-6">
-                            <div class="fio">
-                                <span class="message-data-time">Иван Сергеевич</span>
-                            </div>
-                            <div class="message other-message float-left">До вечера</div>
-                            <div class="message-data">19.04.2021 09:08</div>
-							</div>
-                        </div>
-                        <div class="clearfix">
-                            <div class="fio">
-                                <span class="message-data-time">Сергей Иванов</span>
-                            </div>
-                            <div class="message other-message float-right">Я болел у меня справка</div>
-                            <a href="URL">Малява для серго последняя.psd</a>
-							<br>
-                        </div>
-                        <div class="clearfix">
-                            <div class="fio">
-                                <span class="message-data-time">Сергей Иванов</span>
-                            </div>
-                            <div class="message other-message float-right">Ппроверьте пожалуйсто очень надо</div>
-                            <div>
-                            	<button type="button" class="btn">Просмотр версии</button>
-                            </div>
-							<div class="message-data">20.09.2021 12:49</div>
-							<br>
-                            <div>
-                            	<div class="compile row">
-                            		<span class="col-2">Компиляция</span>
-                            		<span class="col-2">Успешно</span>
-                            		<span class="col-2"><a href="URL">вывод компилятора</a></span>
-                            	</div>
-                            	<div class="compile row">
-                            	    <span class="col-2">Функциональный тест 1</span>
-                            		<span class="col-2">Успешно</span>
-                            		<span class="col-2"><a href="URL">вывод консоли</a></span>
-                            	</div>
-                            	<div class="compile row">                            	   
-                            		<span class="col-2">Функциональный тест 2</span>
-                            		<span class="col-2">Неудачно</span>
-                            		<span class="col-2"><a href="URL">вывод консоли</a></span>
-                            	</div>
-                            	<div class="compile row">                            	   
-                            		<span class="col-2">Нагрузочный тест</span>
-                            		<span class="col-2">Неудачно</span>
-                            		<span class="col-2"><a href="URL">вывод консоли</a></span>
-                            	</div>
-                            </div>
-                            <div class="message-data">02.11.2021 20:04</div>
-                        </div>
-                        <div class="row">
-							<div class="col-md-6"></div>
-							<div class="col-md-6">
-                            <div class="fio">
-                                <span class="message-data-time">Аннна Иоанновна</span>
-                            </div>
-                            <div class="message other-message float-right">Содержание выходного файла не
-                            	соответствует заданию
-                            </div>
-                            <div>Оценка: 3</div>
-                            <div class="message-data">04.11.2021 19:18</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-message clearfix">
-                    <div class="input-group mb-1">
-                        <span>Сообщение:
-                            </span>
-                        <input type="text" style="margin-left: 10px;" class="form-control" placeholder="Введите текст"></input>
-        
-                    <button type="button" class="btn" style="margin-left: 10px;">
-                            Отправить
-                        </button>
-	    </div>
+<body onload="scrollDown();">
+	<?php show_header_2($dbconnect, 'Чат c перподавателем', 
+		array('Дэшборд студента' => 'mainpage_student.php', $discipline_short_name => 'studtasks.php?page=' . $page_id, $task_title => '')); ?>
 
-
-
-
-        <div class = "uploadFile" style="margin-top: 10px;">
-            <span> Вложения: 
-                <button type="button" class="btn">
-                    Добавить файл ...
-                </button>
-            </span>
-        </div><br>
-        <!--div class="container"!-->
-            <div class="row">
-            <div class="col-md-1">Оценка:</div>
-                <div class="col-md-1"><input type="text" style="margin-left: 10px;" class="form-control" placeholder="Введите текст"></input>
-                </div>
-                <div class="col-md-1"><button type="button" class="btn">
-                            Отправить
-                        </button>
-                    </div>
-                <div class="col-md-1"><button type="button" class="btn">
-                            Отправить
-                    </button>
-                </div>
-                <div class="col-md-1"><button type="button" class="btn">
-                        Отправить
-                    </button>
-                </div>
+	<main>
+		<div class="task-wrapper">
+			<h2><?= $task_title ?></h2>
+			<div>
+				<div class="task-desc-wrapper">
+					<p><?= $task_description ?></p>
+					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_requirements_links(); ?></p>
+					<div>
+						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
+						<a href="https://vega.fcyb.mirea.ru/" class="task-download-button" target="_blank"><i class="fa-solid fa-file-arrow-down"></i><span>Скачать задание</span></a>
+					</div>
 				</div>
-        <!--/div!-->
-        </div>
-    
-    </main>
-  </body>
+				<div class="task-status-wrapper">
+					<div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="flexCheckDisabled" 
+								<?php if ($task_status_code == 3) echo 'checked'; ?> disabled>
+							<label><?= $task_status_text ?></label>
+						</div>
+						<?php  
+						if ($task_status_code == 3) {
+							if ($task_finish_date_time ) echo "<br> $task_finish_date_time <br>";
+							echo "Оценка: <b>$task_mark</b>";
+						}?>
+					</div>
+					<a href="https://vega.fcyb.mirea.ru/" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="chat-wrapper">
+
+			<div id="chat-box">
+				<!-- Вывод сообщений на страницу -->
+			</div>
+
+			<form action="message_requires.php" method="POST" enctype="multipart/form-data">
+				<div class="message-input-wrapper">
+					<span>Сообщение:</span>
+					<input type="text" name="user-message" id="user-message" placeholder="Напишите сообщение...">
+					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
+				</div>
+				<div class="file-input-wrapper">
+					<span>Вложения:</span>
+					<input type="file" name="user-files" id="user-files">
+				</div>
+			</form>
+		</div>
+	</main>
+	
+	<script type="text/javascript">
+		// Обновление лога чата
+		function loadChatLog() {
+			$('#chat-box').load('message_requires.php #content', {assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
+		}
+
+		function markUnreaded() {
+			$('#chat-box').load('message_requires.php #content', {});
+		}
+
+		$(document).ready(function() {
+
+			// Отправка сообщения (с моментальным обновлением лога чата)
+			$("#submit-message").click(function() {
+				var userMessage = $("#user-message").val();
+				if ($.trim(userMessage) == '') { return false; }
+				$('#chat-box').load('message_requires.php #content', 
+					{message_text: userMessage, assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
+				$("#user-message").val("");
+				return false;
+			});
+
+			loadChatLog();
+			setInterval(loadChatLog, 2500);
+		});
+
+	</script>
+</body>
+
 </html>
 
+<?php
+/* Select запросы, надо в dbqueries.php, но пока тут лежат */
+
+function select_task_assignment_id($user_id, $task_id) {
+	return "SELECT ax_assignment.id from ax_assignment
+	    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
+	    where ax_assignment_student.student_user_id = $user_id and ax_assignment.task_id = $task_id;";
+}
+
+function select_disc_short_name($page_id) {
+	return "SELECT short_name from ax_page where id = $page_id";
+}
+
+function select_messages($assignment_id) {
+	return "SELECT students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
+		ax_message.sender_user_id, ax_message.id as \"message_id\"
+        from ax_message 
+        inner join students on ax_message.sender_user_id = students.id
+        where ax_message.assignment_id = $assignment_id order by date_time";
+}
+
+function select_message_attachment($message_id) {
+	return "SELECT ax_message_attachment.file_name, ax_message_attachment.download_url, ax_message_attachment.full_text from ax_message_attachment
+	inner join ax_message on ax_message.id = ax_message_attachment.message_id
+	where ax_message_attachment.message_id = $message_id";
+}

@@ -143,7 +143,7 @@ show_header_2($dbconnect, 'Задания по дисциплине',
 									}
 									?>
 									
-									<div class="list-group-item list-group-item-action d-flex justify-content-between bd-highlight mb-3" onclick="window.location='<?='taskchat.php?id='. $row_task['id'] . '&page=' . $page_id?>';"
+									<div class="list-group-item list-group-item-action d-flex justify-content-between bd-highlight mb-3" onclick="window.location='<?='taskchat.php?task='. $row_task['id'] . '&page=' . $page_id?>';"
 									style="cursor: pointer; margin-top: 10px 0; border-width: 1px; padding: 0px; padding-right: 0px; border-radius: 5px;"
 									id="studtasks-elem-<?php echo $i + 1; ?>" data-mdb-toggle="list" href="<?='taskchat.php?id='. $row_task['id']?>" role="tab" aria-controls="list-<?php echo $i + 1; ?>">
 										<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $row_task['title']; ?></p>
