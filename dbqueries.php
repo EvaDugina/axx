@@ -12,9 +12,40 @@
         return 'select to_timestamp(\''.$datetime.'\', \'YYYY-MM-DD HH24:MI:SS\')';
     }
 
-    function get_user_name($id)
-    {
-        return 'select first_name || \' \' || middle_name fio from students where id = '.$id;
+    function get_user_name($id) {
+        return "SELECT first_name || ' ' || middle_name fio from students where id = $id;
+        ";
+    }
+
+    function update_user_email($id, $email) {
+        return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
+            VALUES ('$id', '$email', null, 'TRUE')
+            ON CONFLICT (user_id) DO UPDATE
+            SET email = '$email';
+        ";
+    }
+
+    function update_user_notify_type($id, $notify_type){
+        if($notify_type=="on") $notify_type = 1;
+        else $notify_type = 0;
+        return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
+            VALUES ('$id', null, '$notify_type', 'TRUE')
+            ON CONFLICT (user_id) DO UPDATE 
+            SET notification_type = $notify_type;
+        ";
+    }
+
+
+
+    function get_user_info($id){
+        return "SELECT first_name || ' ' || middle_name || ' ' || last_name as fio, 
+            groups.name as group_name, ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
+            FROM students
+            INNER JOIN students_to_groups ON students_to_groups.student_id =  students.id
+            INNER JOIN groups ON groups.id = students_to_groups.group_id
+            LEFT JOIN ax_settings ON ax_settings.user_id = students.id
+            WHERE students.id = $id;
+        ";
     }
 
     
@@ -150,6 +181,7 @@
         return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
             ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
             ax_message_attachment.id fid, 
+
             case when ax_assignment.mark is not null then ax_assignment.mark
             when ax_assignment.status_code in (0, 1) then 'X'
             when ax_assignment.status_code in (4) then '-'

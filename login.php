@@ -13,8 +13,10 @@
 	else 
     $page_addr = '';
 						
-	show_header('Вход в систему', array('Вход в систему' => 'login.php'));
+  show_head();
+  show_header_2($dbconnect, 'Вход в систему', array('Вход в систему' => 'login.php'));
 ?>
+  <body style="overflow-x: hidden;">
     <main class="pt-2">
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
