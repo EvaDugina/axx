@@ -108,7 +108,7 @@ if ($row) {
 <script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 
 <script type="text/javascript">
-	// TODO Отмечать каждое непрочитанное сообщение прочитанным
+	// должна возвращать (id?) последнего сообщения
 	function lastReadedMessage() {
 
 	}
@@ -121,7 +121,7 @@ if ($row) {
 		div.scrollTop(div.prop('scrollHeight'));
 	}
 
-	function scrollDown(){
+	function scrollDown() {
 		var div = $("#chat-box");
 		div.scrollTop(div.prop('scrollHeight'));
 	}
@@ -156,7 +156,7 @@ if ($row) {
 							echo "Оценка: <b>$task_mark</b>";
 						}?>
 					</div>
-					<a href="https://vega.fcyb.mirea.ru/" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
+					<a href="editor.php?assignment=<?=$assignment_id?>" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
 				</div>
 			</div>
 		</div>
@@ -175,7 +175,7 @@ if ($row) {
 				</div>
 				<div class="file-input-wrapper">
 					<span>Вложения:</span>
-					<input type="file" name="user-files" id="user-files">
+					<input type="file" multiple name="user-files" id="user-files">
 				</div>
 			</form>
 		</div>
@@ -187,16 +187,13 @@ if ($row) {
 			$('#chat-box').load('message_requires.php #content', {assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
 		}
 
-		function markUnreaded() {
-			$('#chat-box').load('message_requires.php #content', {});
-		}
-
 		$(document).ready(function() {
 
 			// Отправка сообщения (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
 				if ($.trim(userMessage) == '') { return false; }
+				var userFiles = $('#user-files').val();
 				$('#chat-box').load('message_requires.php #content', 
 					{message_text: userMessage, assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
 				$("#user-message").val("");
@@ -226,9 +223,9 @@ function select_disc_short_name($page_id) {
 }
 
 function select_messages($assignment_id) {
-	return "SELECT students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
-		ax_message.sender_user_id, ax_message.id as \"message_id\"
-        from ax_message 
+    return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
+        ax_message.sender_user_type, ax_message.sender_user_id, ax_message.id as \"message_id\", ax_message.status
+        from ax_message
         inner join students on ax_message.sender_user_id = students.id
         where ax_message.assignment_id = $assignment_id order by date_time";
 }
