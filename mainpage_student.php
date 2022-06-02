@@ -6,17 +6,13 @@ require_once("settings.php");
 
 // в ax_page disc_id у эргономики должно быть -4;
 
-show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpageSt.php'));
+//show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpage_student.php'));
+
 
 $result = pg_query($dbconnect, 'select id, short_name, disc_id, semester from ax_page');
 $disciplines=pg_fetch_all($result);
 $result1=pg_query($dbconnect, 'select count(id) from ax_page');
 $disc_count=pg_fetch_all($result1);
-
-/*function task_count($discipline_id, $dbconnect) {
-    $query = 'select count(page_id) from ax_task where page_id =' .$discipline_id;
-    return pg_query($dbconnect, $query);
-}*/
 
 function full_name($discipline_id, $dbconnect) {
     $query = 'SELECT name from discipline where id =' .$discipline_id;
@@ -31,12 +27,13 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
 <html> 
     <head>
         <title>Дашборд студента</title>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
         <link rel="stylesheet" href="css/main.css">
         <!-- MDB -->
         <link rel="stylesheet" href="css/mdb.min.css" />
@@ -49,12 +46,12 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
         <!-- Google Fonts Roboto -->
         <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-        />
-        <style>
-            
-        </style>
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
     </head>
+
+    <?php
+    show_head($pge_title='');
+     show_header_2($dbconnect, 'Дэшборд студента', array('Дэшборд студента' => 'mainpage_student.php')); ?>
 
     <body>
         <main class="justify-content-start" style="margin-bottom: 30px;">
@@ -116,7 +113,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                                 <span>Выполнено</span>
                                                 <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                             </div>
-                                            <progress class="progress-bar" style="border-width: 0px;" value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
+                                            <progress class="progress-bar bg-info" style="border-width: 0px; height: 15px;" value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
                                         </div>
                                         <?php } ?>
                                     </div>

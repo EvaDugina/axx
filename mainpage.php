@@ -1,12 +1,12 @@
 <?php 
-
 require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
 // в ax_page disc_id у эргономики должно быть -4;
 
-show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpageSt.php'));
+//show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
+//show_header_2($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
 
 $result = pg_query($dbconnect, 'select id, short_name, disc_id, year from ax_page');
 $disciplines=pg_fetch_all($result);
@@ -39,10 +39,11 @@ function full_name($discipline_id, $dbconnect) {
 			rel="stylesheet"
 			href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
 		/>
-		<style>
-			
-		</style>
 	</head>
+
+	<?php 
+	show_head($page_titile='');
+	show_header_2($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php')); ?>
 	<body>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
@@ -60,7 +61,7 @@ function full_name($discipline_id, $dbconnect) {
 
 							if ($now_year != $discipline['year']) { ?>
 								<div class="col-2 align-self-center popover-message-message-stud">
-									<button type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></button><br>
+									<a href="pageedit.php?add-page" type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></a><br>
 									<a href="pageedit.php?add-page">Добавить новый предмет</a>
 								</div>
 								</div>
@@ -98,9 +99,9 @@ function full_name($discipline_id, $dbconnect) {
 							</div>
 						<?php } ?>
 						<div class="col-2 align-self-center popover-message-message-stud">
-									<button type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></button><br>
-									<a href="pageedit.php?add-page">Добавить новый предмет</a>
-								</div>
+							<a href="pageedit.php?add-page" type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></a><br>
+							<a href="pageedit.php?add-page">Добавить новый предмет</a>
+						</div>
 		</main>
 	</body>
 </html>
