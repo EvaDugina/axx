@@ -110,22 +110,6 @@ b {
     padding: 5px 0;
 }
 
-.check-mark {
-    display: inline-grid;
-    justify-items: center;
-    align-items: center;
-    width: 30px;
-    height: 30px;
-    border: 2px solid #000;
-    border-radius: 5px;
-    background: #ada8a8;
-    margin-right: 7px;
-}
-.check-mark i {
-    color: #fff;
-    font-size: 20px;
-}
-
 .code-redactor-button {
     display: inline-flex;
     align-items: center;
@@ -255,4 +239,8 @@ common
 
 .clear {
     clear: both;
+}
+
+.border-color-blue {
+    border-color: #5151d688;
 }

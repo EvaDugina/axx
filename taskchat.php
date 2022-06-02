@@ -73,6 +73,7 @@ if ($row) {
 	$discipline_short_name = $row['short_name'];
 }
 
+// TODO длинное сообщение без пробелов ломает все, несколько пробелов схлопываются в один в сообщение, кавычки ломают все
 // TODO: реализовать добавление ссылок для раздела "Требования к выполнению и результату" через БД
 $task_requirements_links = [
 	'Гайдлайн по оформлению программного кода.pdf' => 'https://vega.fcyb.mirea.ru/',
@@ -108,7 +109,7 @@ if ($row) {
 <script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 
 <script type="text/javascript">
-	// TODO Отмечать каждое непрочитанное сообщение прочитанным
+	// должна возвращать (id?) последнего сообщения
 	function lastReadedMessage() {
 
 	}
@@ -121,7 +122,7 @@ if ($row) {
 		div.scrollTop(div.prop('scrollHeight'));
 	}
 
-	function scrollDown(){
+	function scrollDown() {
 		var div = $("#chat-box");
 		div.scrollTop(div.prop('scrollHeight'));
 	}
@@ -156,7 +157,7 @@ if ($row) {
 							echo "Оценка: <b>$task_mark</b>";
 						}?>
 					</div>
-					<a href="https://vega.fcyb.mirea.ru/" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
+					<a href="editor.php?assignment=<?=$assignment_id?>" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
 				</div>
 			</div>
 		</div>
@@ -174,37 +175,55 @@ if ($row) {
 					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
 				</div>
 				<div class="file-input-wrapper">
+					<input type="hidden" name="MAX_FILE_SIZE" value="50000">
 					<span>Вложения:</span>
-					<input type="file" name="user-files" id="user-files">
+					<input type="file" name="user_files[]" id="user-files" multiple>
 				</div>
 			</form>
 		</div>
 	</main>
 	
 	<script type="text/javascript">
-		// Обновление лога чата
 		function loadChatLog() {
-			$('#chat-box').load('message_requires.php #content', {assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
-		}
-
-		function markUnreaded() {
-			$('#chat-box').load('message_requires.php #content', {});
+			$('#chat-box').load('message_requires.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>});
 		}
 
 		$(document).ready(function() {
 
-			// Отправка сообщения (с моментальным обновлением лога чата)
+			// Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
-				if ($.trim(userMessage) == '') { return false; }
-				$('#chat-box').load('message_requires.php #content', 
-					{message_text: userMessage, assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
+				var userFiles = $("#user-files");
+				if ($.trim(userMessage) == '' && userFiles.val() == '') { return false; }
+				var formData = new FormData();
+				formData.append('message_text', userMessage);
+				formData.append('assignment_id', <?=$assignment_id?>);
+				formData.append('user_id', <?=$user_id?>);
+				formData.append('MAX_FILE_SIZE', 50000);
+				$.each(userFiles[0].files, function(key, input) {
+					formData.append('files[]', input);
+				});
+ 
+				$.ajax({
+					type: "POST",
+					url: 'message_requires.php #content',
+					cache: false,
+					contentType: false,
+					processData: false,
+					data: formData,
+					dataType : 'html',
+					success: function(response){
+						$("#chat-box").html(response);
+					}
+				});
 				$("#user-message").val("");
+				$("#user-files").val("");
 				return false;
 			});
 
+			// Обновление лога чата раз в 3 секунды
 			loadChatLog();
-			setInterval(loadChatLog, 2500);
+			setInterval(loadChatLog, 3000);
 		});
 
 	</script>
@@ -226,9 +245,9 @@ function select_disc_short_name($page_id) {
 }
 
 function select_messages($assignment_id) {
-	return "SELECT students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
-		ax_message.sender_user_id, ax_message.id as \"message_id\"
-        from ax_message 
+    return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
+        ax_message.sender_user_type, ax_message.sender_user_id, ax_message.id as \"message_id\", ax_message.status
+        from ax_message
         inner join students on ax_message.sender_user_id = students.id
         where ax_message.assignment_id = $assignment_id order by date_time";
 }
