@@ -2,7 +2,7 @@
 require_once("settings.php");
 
 // Находим user_type (0 - студент, 1 - преподаватель)
-if ($_POST['user_id']) {
+if (isset($_POST['user_id'])) {
 	$query = "SELECT role from students where id = {$_POST['user_id']}";
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
@@ -14,7 +14,25 @@ if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
     $assignment_id = $_POST['assignment_id'];
     $user_id = $_POST['user_id'];
     $full_text = $_POST['message_text'];
-    set_message(0, $full_text, 0);
+    $message_id = set_message(0, $full_text);
+	// TODO не отправляются некоторые файлы
+	// TODO Всякие кавычки ломают код (на 29 строчке)
+	if (isset($_FILES['files'])) {
+		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {
+			// Перемещаем файл пользователя из временной директории сервера в директорию 'upload_files'
+			// Сохраняем файл в БД и удаляем из директории 'upload_files'
+			$file_name = basename($_FILES['files']['name'][$i]);
+			$files_dir = 'upload_files/';
+			$file_path = $files_dir . $file_name;
+			if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
+				$file_full_text = file_get_contents($file_path);
+				$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name', '$file_full_text')";
+				pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+				unlink($file_path);
+			}
+		}
+	}
+	// Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
     echo '<div id="content">';
     show_messages(get_messages());
     echo '</div>';
@@ -39,7 +57,7 @@ function get_messages() {
 	$ret = array();
 	while ($row) {
 		// Отмечаем сообщения собеседника прочитанными
-		// Если у любого препода прогрузились непрочитанные сообщения от любого студента или наоборот, то сообщения отмечаются прочитанными
+		// Если у любого препода/студента прогрузилась страница с непрочитанными сообщениями от любого студента/препода, то сообщения отмечаются прочитанными в БД. 
 		$unreaded = false;
 		if ($row['status'] == 0 && $user_type == $row['sender_user_type']) {
 			$unreaded = true;
@@ -61,19 +79,23 @@ function get_messages() {
 		$ret[] = array('id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
             'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments, 'unreaded' => $unreaded);
         
-        	$row = pg_fetch_assoc($result);
+        $row = pg_fetch_assoc($result);
 	}
 	return $ret;
 }
 
 // Делает запись сообщения и вложений в БД
 // type: 0 - переговоры, 2 - оценка
+// Возвращает id добавленного сообщения
 function set_message($type, $full_text) {
 	global $dbconnect, $assignment_id, $user_id, $user_type;
 
 	$query = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
-		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', null, 0)";
-	pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', null, 0);
+		SELECT currval('ax_message_id_seq') as \"id\";";
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+	$row = pg_fetch_assoc($result);
+	return $row['id'];
 }
 
 // Возвращает двумерный массив вложений для сообщения по message_id
@@ -84,7 +106,7 @@ function get_message_attachments($message_id) {
 	$row = pg_fetch_assoc($result);
 	$ret = array();
 	while ($row) {
-		$ret[] = array('file_name' => $row['file_name'], 'download_url' => $row['download_url'], 'full_text' => $row['full_text']);
+		$ret[] = array('id' => $row['id'], 'file_name' => $row['file_name'], 'download_url' => $row['download_url']);
 		$row = pg_fetch_assoc($result);
 	}
 	return $ret;
@@ -93,7 +115,8 @@ function get_message_attachments($message_id) {
 // Выводит сообщения на страницу
 function show_messages($messages) {
 	global $user_id;
-	$i=0;
+	// TODO это для скролла
+	$i = 0;
 	foreach ($messages as $m) {
 		// Прижимаем сообщения текущего пользователя к правой части экрана
 		$float_class = $m['sender_user_id'] == $user_id ? 'float-right' : ''; 
@@ -103,13 +126,17 @@ function show_messages($messages) {
 		<div id="message-<?=$i?>-<?=$m['id']?>" class="chat-box-message <?=$float_class?>">
 			<div class="chat-box-message-wrapper <?=$border_color_class?>">
 				<b><?=$m['username']?></b><br>
-				<?=stripslashes(htmlspecialchars($m['full_text'])) ?>
-				<br>
-
 				<?php
-				foreach ($m['attachments'] as $ma) {?>
+				if ($m['full_text'] != '') {
+					echo stripslashes(htmlspecialchars($m['full_text'])) . "<br>";
+				}
+				foreach ($m['attachments'] as $ma) {
+					if ($ma['download_url'] == null) {
+						$ma['download_url'] = 'download_file.php?attachment_id=' . $ma['id'];
+					}?>
 					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank">
-                				<i class="fa-solid fa-file"></i><?=$ma['file_name']?></a><br>
+                		<i class="fa-solid fa-file"></i><?=$ma['file_name']?>
+					</a><br>
 				<?php }?>
 			</div>
 			<div class="chat-box-message-date">
@@ -133,7 +160,7 @@ function select_messages($assignment_id) {
 }
 
 function select_message_attachment($message_id) {
-	return "SELECT ax_message_attachment.file_name, ax_message_attachment.download_url, ax_message_attachment.full_text from ax_message_attachment
+	return "SELECT ax_message_attachment.id, ax_message_attachment.file_name, ax_message_attachment.download_url from ax_message_attachment
 	inner join ax_message on ax_message.id = ax_message_attachment.message_id
 	where ax_message_attachment.message_id = $message_id";
 }

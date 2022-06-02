@@ -73,6 +73,7 @@ if ($row) {
 	$discipline_short_name = $row['short_name'];
 }
 
+// TODO длинное сообщение без пробелов ломает все, несколько пробелов схлопываются в один в сообщение, кавычки ломают все
 // TODO: реализовать добавление ссылок для раздела "Требования к выполнению и результату" через БД
 $task_requirements_links = [
 	'Гайдлайн по оформлению программного кода.pdf' => 'https://vega.fcyb.mirea.ru/',
@@ -174,34 +175,55 @@ if ($row) {
 					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
 				</div>
 				<div class="file-input-wrapper">
+					<input type="hidden" name="MAX_FILE_SIZE" value="50000">
 					<span>Вложения:</span>
-					<input type="file" multiple name="user-files" id="user-files">
+					<input type="file" name="user_files[]" id="user-files" multiple>
 				</div>
 			</form>
 		</div>
 	</main>
 	
 	<script type="text/javascript">
-		// Обновление лога чата
 		function loadChatLog() {
-			$('#chat-box').load('message_requires.php #content', {assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
+			$('#chat-box').load('message_requires.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>});
 		}
 
 		$(document).ready(function() {
 
-			// Отправка сообщения (с моментальным обновлением лога чата)
+			// Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
-				if ($.trim(userMessage) == '') { return false; }
-				var userFiles = $('#user-files').val();
-				$('#chat-box').load('message_requires.php #content', 
-					{message_text: userMessage, assignment_id: <?= $assignment_id ?>, user_id: <?= $user_id ?>});
+				var userFiles = $("#user-files");
+				if ($.trim(userMessage) == '' && userFiles.val() == '') { return false; }
+				var formData = new FormData();
+				formData.append('message_text', userMessage);
+				formData.append('assignment_id', <?=$assignment_id?>);
+				formData.append('user_id', <?=$user_id?>);
+				formData.append('MAX_FILE_SIZE', 50000);
+				$.each(userFiles[0].files, function(key, input) {
+					formData.append('files[]', input);
+				});
+ 
+				$.ajax({
+					type: "POST",
+					url: 'message_requires.php #content',
+					cache: false,
+					contentType: false,
+					processData: false,
+					data: formData,
+					dataType : 'html',
+					success: function(response){
+						$("#chat-box").html(response);
+					}
+				});
 				$("#user-message").val("");
+				$("#user-files").val("");
 				return false;
 			});
 
+			// Обновление лога чата раз в 3 секунды
 			loadChatLog();
-			setInterval(loadChatLog, 2500);
+			setInterval(loadChatLog, 3000);
 		});
 
 	</script>
