@@ -22,11 +22,17 @@ if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
 	$student_id = $user_id;
 }
 
+$discipline_short_name = '';
+$query = select_disc_short_name($page_id);
+$result = pg_query($dbconnect, $query);
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$discipline_short_name = $row['short_name'];
+}
+
 $query = select_task_assignment_id($student_id, $task_id);
-	$result = pg_query($dbconnect, $query);
-	$row = pg_fetch_assoc($result);
-
-
+$result = pg_query($dbconnect, $query);
+$row = pg_fetch_assoc($result);
 if ($row) {
 	$assignment_id = $row['id'];
 } else {
@@ -65,24 +71,30 @@ if ($task_status_code != '') {
 	$task_status_text = $task_status_texts[$task_status_code];
 }
 
-$discipline_short_name = '';
-$query = select_disc_short_name($page_id);
-$result = pg_query($dbconnect, $query);
-$row = pg_fetch_assoc($result);
-if ($row) {
-	$discipline_short_name = $row['short_name'];
+// $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
+$query = "SELECT id, type, file_name, download_url from ax_task_file where task_id = $task_id";
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$task_files = [];
+for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+	// Если текст файла лежит в БД
+	if ($row['download_url'] == null) {
+		$row['download_url'] = 'download_file.php?task_file_id=' . $row['id'];
+	}
+	// Если файл лежит на сервере
+	else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
+		$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
+	}
+	$task_files[] = ['type' => $row['type'], 'file_name' => $row['file_name'], 'download_url' => $row['download_url']];
 }
 
-// TODO длинное сообщение без пробелов ломает все, несколько пробелов схлопываются в один в сообщение, кавычки ломают все
-// TODO: реализовать добавление ссылок для раздела "Требования к выполнению и результату" через БД
-$task_requirements_links = [
-	'Гайдлайн по оформлению программного кода.pdf' => 'https://vega.fcyb.mirea.ru/',
-	'Инструкция по подготовке кода к автотестам.pdf' => 'https://vega.fcyb.mirea.ru/'
-];
-function show_task_requirements_links() {
-	global $task_requirements_links;
-	foreach ($task_requirements_links as $link_text => $link_value) {
-		echo "<a href=\"$link_value\" target=\"_blank\" class=\"task-desc-wrapper-a\"><i class=\"fa-solid fa-file\"></i>$link_text</a><br>";
+// Выводит прикрепленные к странице с заданием файлы
+function show_task_files() {
+	global $task_files;
+	foreach ($task_files as $f) {
+		echo '<a href="' . $f['download_url'] . '" target="_blank" class="task-desc-wrapper-a"><i class="fa-solid fa-file"></i>' . $f['file_name'] . '</a> <br>';
+	}
+	if (count($task_files) == 0) {
+		echo 'Файлы временно не доступны<br>';
 	}
 }
 
@@ -108,27 +120,7 @@ if ($row) {
 <!-- Font Awesome -->
 <script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 
-<script type="text/javascript">
-	// должна возвращать (id?) последнего сообщения
-	function lastReadedMessage() {
-
-	}
-	function scrollToLastReadMessage() {
-		var div = $("#chat-box");
-
-		// получение последнего, прочитанного элемента
-		var message = $("#message-" + 12);
-
-		div.scrollTop(div.prop('scrollHeight'));
-	}
-
-	function scrollDown() {
-		var div = $("#chat-box");
-		div.scrollTop(div.prop('scrollHeight'));
-	}
-</script>
-
-<body onload="scrollDown();">
+<body>
 	<?php show_header_2($dbconnect, 'Чат c перподавателем', 
 		array('Дэшборд студента' => 'mainpage_student.php', $discipline_short_name => 'studtasks.php?page=' . $page_id, $task_title => '')); ?>
 
@@ -138,10 +130,10 @@ if ($row) {
 			<div>
 				<div class="task-desc-wrapper">
 					<p><?= $task_description ?></p>
-					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_requirements_links(); ?></p>
+					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_files(); ?></p>
 					<div>
 						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
-						<a href="https://vega.fcyb.mirea.ru/" class="task-download-button" target="_blank"><i class="fa-solid fa-file-arrow-down"></i><span>Скачать задание</span></a>
+						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" class="task-download-button" target="_blank"><i class="fa-solid fa-file-arrow-down"></i><span>Скачать задание</span></a>
 					</div>
 				</div>
 				<div class="task-status-wrapper">
@@ -170,26 +162,50 @@ if ($row) {
 
 			<form action="message_requires.php" method="POST" enctype="multipart/form-data">
 				<div class="message-input-wrapper">
-					<span>Сообщение:</span>
+					<div class="file-input-wrapper">
+						<input type="hidden" name="MAX_FILE_SIZE" value="50000">
+						<input type="file" name="user_files[]" id="user-files" multiple>
+						<label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
+					</div>
 					<input type="text" name="user-message" id="user-message" placeholder="Напишите сообщение...">
 					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
-				</div>
-				<div class="file-input-wrapper">
-					<input type="hidden" name="MAX_FILE_SIZE" value="50000">
-					<span>Вложения:</span>
-					<input type="file" name="user_files[]" id="user-files" multiple>
 				</div>
 			</form>
 		</div>
 	</main>
 	
 	<script type="text/javascript">
-		function loadChatLog() {
-			$('#chat-box').load('message_requires.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>});
+		
+		// После первой загрузки скролим страницу вниз
+		$('body, html').scrollTop($('body, html').prop('scrollHeight'));
+
+		// Показывает количество прикрепленных для отправки файлов
+		$('#user-files').on('change', function() {
+			$('#files-count').html(this.files.length);
+		});
+
+		/*
+		Открываем страницу - страница скролится вниз, чат скролится до последнего непрочитанного сообщения
+		Отправляем сообщение - чат скролится вниз
+		Приходит сообщение от собеседника - ???
+		*/
+
+		// Обновляет лог чата из БД
+		function loadChatLog($first_scroll = false) {
+			$('#chat-box').load('message_requires.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
+				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
+				if ($first_scroll) {
+					if ($('#new-messages').length == 0) {
+						$('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+					}
+					else {
+						$('#chat-box').scrollTop($('#new-messages').offset().top - $('#chat-box').offset().top - 10);
+					}
+				}	
+			})
 		}
 
 		$(document).ready(function() {
-
 			// Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
@@ -212,20 +228,24 @@ if ($row) {
 					processData: false,
 					data: formData,
 					dataType : 'html',
-					success: function(response){
+					success: function(response) {
 						$("#chat-box").html(response);
+					},
+					complete: function() {
+						// Скролим чат вниз после отправки сообщения
+						$('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
 					}
 				});
 				$("#user-message").val("");
 				$("#user-files").val("");
+				$('#files-count').html('');
 				return false;
 			});
-
-			// Обновление лога чата раз в 3 секунды
-			loadChatLog();
-			setInterval(loadChatLog, 3000);
+			// Первое обновление лога чата
+			loadChatLog(true);
+			// Обновление лога чата раз в 5 секунд
+			setInterval(loadChatLog, 5000);
 		});
-
 	</script>
 </body>
 
