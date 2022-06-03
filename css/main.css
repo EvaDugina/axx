@@ -8,7 +8,7 @@ progress{
     border-radius: 0ch;
     padding-bottom: 0%;
     background: #eeeeee;
-    color: #039603;
+    color:dodgerblue;
 }
 
 /* For Firefox */
@@ -22,7 +22,7 @@ progress::-webkit-progress-bar {
 }
 
 progress::-webkit-progress-value {
-    background: #039603 !important;
+    background: dodgerblue !important;
 }
 
 /*.col-3{

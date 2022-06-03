@@ -66,31 +66,42 @@
 		#echo "<pre>";
 		#var_dump(json_decode($page_groups_json));
 		#echo "</pre>";
-		show_header('Добавление/редактирование дисциплины', 
-			array('Дисциплины' => 'mainpage_student.php')
-		);
+		//show_head($page_title='');
 	?>
 
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>536 Акселератор - Добавление/редактирование дисциплины</title>
+
+    <title>536 Акселератор - <?=$page_title?></title>
+
     <!-- MDB icon -->
     <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-    <!-- Font Awesome -->
+
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
     <!-- Google Fonts Roboto -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-    />
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
+
+    <!-- extra -->
+    <link rel="stylesheet" href="css/accelerator.css" /> 
+
     <!-- MDB -->
+    <link rel="stylesheet" href="css/mdb.min.css" />
+</head>
 
+	<body>
 
-    <main class="pt-2">
-	<form class="container-fluid overflow-hidden" action="page_edit.php" name="page_edit" id="page_edit" method = "post">	
+	<?php
+	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Дисциплины' => 'mainpage.php')); ?>
+
+    <main class="pt-2" aria-hidden="true">
+	<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 
 		<div class="row gy-5">
 			<div class="col-12">
 				<?php
@@ -154,13 +165,9 @@
 			</div>
 		</div>
 		
-		<div class="row align-items-center m-3" id="teachers_container">
-			<div class="col-2 row justify-content-left">Преподаватели</div>
-		</div>
-		
 		<div class="row align-items-center m-3">
-			<div class="col-2 row justify-content-left"></div>
-			
+			<div class="col-2 row justify-content-left">Преподаватели</div>
+
 			<div class="col-2">
 				<div class="btn-group shadow-0">
 					  <select class="form-select" id = "select_teacher">
@@ -180,14 +187,13 @@
 			</div>
 		</div>
 		
-		<div class="row align-items-center m-3" id = "groups_container">
-			<div class="col-2 row justify-content-left">Учебные группы</div>
+		<div class="row align-items-center m-3" id="teachers_container">
+			<div class="col-2 row justify-content-left"></div>
 		</div>
 		
 		<div class="row align-items-center m-3">
+			<div class="col-2 row justify-content-left">Учебные группы</div>
 
-			<div class="col-2 row justify-content-left"></div> 
-			
 			<div class="col-2">
 				<div class="btn-group shadow-0">
 					  <select class="form-select" name = "page_group" id = "select_groups">
@@ -208,20 +214,25 @@
 			</div>
 		</div>
 		
+		<div class="row align-items-center m-3" id = "groups_container">
+			<div class="col-2 row justify-content-left"></div> 
+		</div>
+			
+		
 		<div class="row align-items-left m-3" style="height: 40px;">
 			<div class="col-2 row justify-content-left">Оформление</div>
 			<div class="col-10">
-				<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+				<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px; margin-right: 2!important;">
 				  Синий
 				</button>
-				<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px; margin-right: 0.5rem!important;">
+				<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px;">
 				  Фиолетовый
 				</button>
 				<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark" style="width:120px;">
 				  Зеленый 
 				</button>
-				<button type="button" class="btn btn-outline-danger mx-2" data-mdb-ripple-color="dark" style="width:120px;">
-				  Красный
+				<button type="button" class="btn btn-outline-dark mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+				  Чёрный
 				</button>
 				<button type="button" class="btn btn-outline-warning mx-2" data-mdb-ripple-color="dark" style="width:120px;">
 				  Желтый
@@ -230,15 +241,43 @@
 		</div>
 		
 		<div class="row align-items-center mx-2" style="height: 40px;">
-			<div class="col-2 row justify-content-left">
-				<button type="submit" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+			<div class="col-md-2 row justify-content-left">
+				<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
 					Сохранить
 				</button>
 			</div>
-		</div>
 
-	</form>	
+			<div class="col-md-3 offset-md-5">
+				<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
+    		 		Удалить дисциплину
+    			</button>
+			</div>
+			
+			<!-- <div class="col-md-3 offset-md-5">
+				<button type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    		 		Удалить дисциплину
+    			</button>
+   			</div>
+			Модальное окно
+			 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false" aria-modal="true">
+  				<div class="modal-dialog">
+    				<div class="modal-content">
+    					<div class="modal-header">
+        					<h5 class="modal-title" id="staticBackdropLabel">Удаление дисциплины</h5>
+        					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      					</div>
+      					<div class="modal-body">Вы действительно хотите удалить дисциплину?</div>
+      					<div class="modal-footer">
+        					<button type="submit" name="action" value="delete" class="btn btn-secondary">Да</button>
+        					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
+      					</div>
+    				</div>
+ 				</div>
+			</div> -->
+		</div>
+	</form> 	
     </main>
+	</body>
     <!-- End your project here-->
 
     <!-- MDB -->
