@@ -20,8 +20,8 @@ show_head(); ?>
 <body>
         <?php
         $au = new auth_ssh();
-        show_header_2($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Дэшборд преподавателя' => 'mainpage.php') 
-                : array('Дэшборд студента' => 'mainpage_student.php')); ?>
+        show_header_2($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Дэшборд преподавателя' => 'mainpage.php', 'Профиль' => 'profile.php') 
+                : array('Дэшборд студента' => 'mainpage_student.php', 'Профиль' => 'profile.php')); ?>
 	<main style="max-width: 1000px; width:100%; margin: 0 auto;">
 		<div class="pt-5 px-4">
 			<div class="row">

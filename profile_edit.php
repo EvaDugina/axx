@@ -22,6 +22,6 @@ if (isset($_POST['checkbox_notify'])){
         var_dump($result);
 }
 
-//header('Location: profile.php');
+header('Location: profile.php');
 ?>
 
