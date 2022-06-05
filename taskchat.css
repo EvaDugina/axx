@@ -173,7 +173,7 @@ b {
 
 .message-input-wrapper {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 10px;
 }
 
@@ -184,11 +184,14 @@ b {
     padding: 5px 0 5px 3px;
     border: 1px solid #00000020;
     border-radius: 5px;
+    resize: none;
+    height: 37.6px;
     
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     font-weight: 300;
 }
+
 
 #submit-message {
     background: #fff;
@@ -286,4 +289,9 @@ common
 
 .background-color-blue {
     background-color: #d9f4fa7b;
+}
+
+.pretty-text {
+    white-space: pre-line;
+    word-wrap: break-word;
 }

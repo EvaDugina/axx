@@ -162,16 +162,14 @@ function show_messages($messages) {
 		}
 		?>
 		<div id="message-<?=$m['id']?>" class="chat-box-message <?=$float_class?>">
-			<div class="chat-box-message-wrapper <?=$background_color_class?>">
-				<b><?=$m['username']?></b><br>
-				<?php
+			<div class="chat-box-message-wrapper pretty-text <?=$background_color_class?>"
+				><b><?=$m['username']?></b>
+				<?php 
 				if ($m['full_text'] != '') {
 					echo stripslashes(htmlspecialchars($m['full_text'])) . "<br>";
 				}
 				foreach ($m['attachments'] as $ma) {?>
-					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank">
-                		<i class="fa-solid fa-file"></i><?=$ma['file_name']?>
-					</a><br>
+					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank"><i class="fa-solid fa-file"></i><?=$ma['file_name']?></a>
 				<?php }?>
 			</div>
 			<div class="chat-box-message-date">

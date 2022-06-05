@@ -167,7 +167,8 @@ if ($row) {
 						<input type="file" name="user_files[]" id="user-files" multiple>
 						<label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
 					</div>
-					<input type="text" name="user-message" id="user-message" placeholder="Напишите сообщение...">
+					<textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+					<!-- <input type="text" name="user-message" id="user-message" placeholder="Напишите сообщение..."> -->
 					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
 				</div>
 			</form>
@@ -178,6 +179,16 @@ if ($row) {
 		
 		// После первой загрузки скролим страницу вниз
 		$('body, html').scrollTop($('body, html').prop('scrollHeight'));
+
+		$('#user-message').on('input', function() {
+   		 	if ($(this).val() != '') {
+				$(this).css('height', '88.8px');
+				$('body, html').scrollTop($('body, html').prop('scrollHeight'));
+			}
+			else {
+				$(this).css('height', '37.6px');
+			}
+		});
 
 		// Показывает количество прикрепленных для отправки файлов
 		$('#user-files').on('change', function() {
@@ -237,6 +248,7 @@ if ($row) {
 					}
 				});
 				$("#user-message").val("");
+				$("#user-message").css('height', '37.6px');
 				$("#user-files").val("");
 				$('#files-count').html('');
 				return false;
