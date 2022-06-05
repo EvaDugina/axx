@@ -1,6 +1,14 @@
 <?php
 require_once("settings.php");
 
+// Генерация префикса для уникальности названий файлов, которые хранятся на сервере
+function rand_prefix() {
+    return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
+}
+function delete_prefix($str) {
+	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
 // Находим user_type (0 - студент, 1 - преподаватель)
 if (isset($_POST['user_id'])) {
 	$query = "SELECT role from students where id = {$_POST['user_id']}";
@@ -15,23 +23,40 @@ if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
     $user_id = $_POST['user_id'];
     $full_text = $_POST['message_text'];
     $message_id = set_message(0, $full_text);
-	// TODO не отправляются некоторые файлы
-	// TODO Всякие кавычки ломают код (на 29 строчке)
+
+	// Обработка вложений к сообщению
 	if (isset($_FILES['files'])) {
-		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {
-			// Перемещаем файл пользователя из временной директории сервера в директорию 'upload_files'
-			// Сохраняем файл в БД и удаляем из директории 'upload_files'
-			$file_name = basename($_FILES['files']['name'][$i]);
-			$files_dir = 'upload_files/';
-			$file_path = $files_dir . $file_name;
+		// Файлы с этими расширениями надо хранить на сервере
+		$store_on_server = ['jpeg', 'jpg', 'png', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'gzip', 'exe'];
+		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {					
+			$file_name = rand_prefix() . basename($_FILES['files']['name'][$i]);
+			$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
+			$file_dir = 'upload_files/';
+			$file_path = $file_dir . $file_name;
+
+			// Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
 			if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
-				$file_full_text = file_get_contents($file_path);
-				$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name', '$file_full_text')";
-				pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-				unlink($file_path);
+				// Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+				if (in_array($file_ext, $store_on_server)) {
+					$query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
+					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+				}
+
+				// Если файлы такого расширения не надо хранить на сервере, пытаемся сохранить его в БД и удаляем с сервера
+				else {
+					$file_name_without_prefix = delete_prefix($file_name);
+					$file_full_text = file_get_contents($file_path);
+					$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name_without_prefix', '$file_full_text')";
+					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+					unlink($file_path);
+				}
+			}
+			else {
+				exit("Ошибка загрузки файла");
 			}
 		}
 	}
+
 	// Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
     echo '<div id="content">';
     show_messages(get_messages());
@@ -116,9 +141,9 @@ function get_message_attachments($message_id) {
 		}
 		// Если файл лежит на сервере
 		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
+			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
 		}
-		$ret[] = ['id' => $row['id'], 'file_name' => $row['file_name'], 'download_url' => $row['download_url']];
+		$ret[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
 	}
 	return $ret;
 }
@@ -126,7 +151,6 @@ function get_message_attachments($message_id) {
 // Выводит сообщения на страницу
 function show_messages($messages) {
 	global $user_id;
-	// TODO это для скролла
 	foreach ($messages as $m) {
 		// Прижимаем сообщения текущего пользователя к правой части экрана
 		$float_class = $m['sender_user_id'] == $user_id ? 'float-right' : ''; 

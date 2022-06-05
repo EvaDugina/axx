@@ -1,7 +1,13 @@
 <?php
 require_once('settings.php'); 
 
-ob_end_clean();
+function delete_prefix($str) {
+	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
+if (ob_get_level()) {
+    ob_end_clean();
+}
 
 // Скачивание архива всех файлов к странице с заданием
 if (isset($_GET['download_task_files'])) {
@@ -30,8 +36,11 @@ if (isset($_GET['download_task_files'])) {
         exit("Архива не существует");
     }
     // Даем пользователю скачать архив и удаляем его с сервера
+    header('Content-Description: File Transfer');
     header('Content-type: application/zip');
     header('Content-Disposition: attachment; filename=' . basename($file_path));
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . filesize($file_path));
 
     readfile($file_path);
     unlink($file_path);
@@ -78,13 +87,40 @@ else if (isset($_GET['attachment_id']) || isset($_GET['task_file_id'])) {
 // Скачивание файла с сервера по file_path
 else if (isset($_GET['file_path'])) {
     $file_path = $_GET['file_path'];
+	$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', basename($file_path)));
     if (!file_exists($file_path)) {
         exit("Файл не существует");
     }
+
+    $mime_type = '';
+    switch( $file_ext) {
+        case "jpeg":
+        case "jpg": $mime_type="image/jpg"; break;
+        case "png": $mime_type="image/png"; break;
+        case "gif": $mime_type="image/gif"; break;
+        case "doc": $mime_type="application/msword"; break;
+        case "docx": $mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; break;
+        case "xls": $mime_type="application/vnd.ms-excel"; break;
+        case "xlsx": $mime_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; break;
+        case "ppt": $mime_type="application/vnd.ms-powerpoint"; break;
+        case "pptx": $mime_type="application/vnd.openxmlformats-officedocument.presentationml.presentation"; break;
+        case "pdf": $mime_type="application/pdf"; break;
+        case "zip": $mime_type="application/zip"; break;
+        case "7z": $mime_type="application/x-7z-compressed"; break;
+        case "rar": $mime_type="application/vnd.rar"; break;
+        case "gzip": $mime_type="application/gzip"; break;
+        case "exe": $mime_type="application/octet-stream"; break;
+        default: $mime_type="application/force-download";
+    }
+
     // Даем пользователю скачать файл
+    $file_name = basename($file_path);
+    if (isset($_GET['with_prefix'])) {
+        $file_name = delete_prefix($file_name);
+    }
     header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename=' . basename($file_path));
+    header('Content-Type: ' . $mime_type);
+    header('Content-Disposition: attachment; filename=' . $file_name);
     header('Content-Transfer-Encoding: binary');
     header('Content-Length: ' . filesize($file_path));
     

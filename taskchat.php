@@ -163,7 +163,7 @@ if ($row) {
 			<form action="message_requires.php" method="POST" enctype="multipart/form-data">
 				<div class="message-input-wrapper">
 					<div class="file-input-wrapper">
-						<input type="hidden" name="MAX_FILE_SIZE" value="50000">
+						<input type="hidden" name="MAX_FILE_SIZE" value="5242880"> <!-- 5mb максимальный размер файла -->
 						<input type="file" name="user_files[]" id="user-files" multiple>
 						<label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
 					</div>
@@ -187,7 +187,7 @@ if ($row) {
 		/*
 		Открываем страницу - страница скролится вниз, чат скролится до последнего непрочитанного сообщения
 		Отправляем сообщение - чат скролится вниз
-		Приходит сообщение от собеседника - ???
+		Приходит сообщение от собеседника - появляется плашка "Новые сообщения"
 		*/
 
 		// Обновляет лог чата из БД
