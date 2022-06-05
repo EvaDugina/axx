@@ -46,6 +46,7 @@ if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
 				else {
 					$file_name_without_prefix = delete_prefix($file_name);
 					$file_full_text = file_get_contents($file_path);
+					$file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
 					$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name_without_prefix', '$file_full_text')";
 					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 					unlink($file_path);
@@ -78,6 +79,7 @@ else if (isset($_POST['assignment_id'], $_POST['user_id'])) {
 function set_message($type, $full_text) {
 	global $dbconnect, $assignment_id, $user_id, $user_type;
 
+	$full_text = preg_replace('#\'#', '\'\'', $full_text);
 	$query = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
 		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', null, 0);
 		SELECT currval('ax_message_id_seq') as \"id\";";
