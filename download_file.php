@@ -1,26 +1,129 @@
 <?php
 require_once('settings.php'); 
 
-ob_end_clean();
- 
-// Получаем GET-методом attachment_id из taskchat.php
-// Достаем название и полный текст файла по attachment_id
-$query = "SELECT file_name, full_text from ax_message_attachment where id = {$_GET['attachment_id']}";
-$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-$row = pg_fetch_assoc($result);
+function delete_prefix($str) {
+	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
 
-// Создаем файл в папке сервера 'upload_files'
-$file_dir = 'upload_files/';
-$file_path = $file_dir . $row['file_name'];
-file_put_contents($file_path, $row['full_text']);
+if (ob_get_level()) {
+    ob_end_clean();
+}
 
-// Даем пользователю скачать файл и удаляем его с сервера
-header('Content-Description: File Transfer');
-header('Content-Type: application/octet-stream');
-header('Content-Disposition: attachment; filename=' . basename($file_path));
-header('Content-Transfer-Encoding: binary');
-header('Content-Length: ' . filesize($file_path));
- 
-readfile($file_path);
-unlink($file_path);
-exit();
+// Скачивание архива всех файлов к странице с заданием
+if (isset($_GET['download_task_files'])) {
+    $query = "SELECT file_name, download_url, full_text from ax_task_file where task_id = {$_GET['task_id']}";
+    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+    $zip = new ZipArchive();
+    $file_dir = 'upload_files/';
+    $file_path = $file_dir . time() . '.zip';
+    if ($zip->open($file_path, ZipArchive::CREATE) !== TRUE) {
+        exit("Невозможно открыть <$file_path>");
+    }
+
+    for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+        // Если текст файла лежит в БД
+		if ($row['download_url'] == null) {
+			$zip->addFromString($row['file_name'], $row['full_text']);
+		}
+		// Если файл лежит на сервере
+		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
+			$zip->addFile($row['download_url'], $row['file_name']);
+		}
+    }
+    $zip->close();
+    if (!file_exists($file_path)) {
+        exit("Архива не существует");
+    }
+    // Даем пользователю скачать архив и удаляем его с сервера
+    header('Content-Description: File Transfer');
+    header('Content-type: application/zip');
+    header('Content-Disposition: attachment; filename=' . basename($file_path));
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . filesize($file_path));
+
+    readfile($file_path);
+    unlink($file_path);
+    exit();
+}
+
+else if (isset($_GET['attachment_id']) || isset($_GET['task_file_id'])) {
+
+    // Скачивание файла из БД по attachment_id из ax_message_attachment
+    if (isset($_GET['attachment_id'])) {
+        // Достаем название и полный текст файла по attachment_id
+        $query = "SELECT file_name, full_text from ax_message_attachment where id = {$_GET['attachment_id']}";
+        $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        $row = pg_fetch_assoc($result);
+    }
+
+    // Скачивание файла из БД по task_file_id из ax_task_file
+    else if (isset($_GET['task_file_id'])) {
+        // Достаем название и полный текст файла по task_file_id
+        $query = "SELECT file_name, full_text from ax_task_file where id = {$_GET['task_file_id']}";
+        $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        $row = pg_fetch_assoc($result);
+    }
+
+    if (!$row) { exit("Файл не существует"); }
+
+    // Создаем файл в папке сервера 'upload_files'
+    $file_dir = 'upload_files/';
+    $file_path = $file_dir . $row['file_name'];
+    file_put_contents($file_path, $row['full_text']);
+
+    // Даем пользователю скачать файл и удаляем его с сервера
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename=' . basename($file_path));
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . filesize($file_path));
+    
+    readfile($file_path);
+    unlink($file_path);
+    exit();
+}
+
+// Скачивание файла с сервера по file_path
+else if (isset($_GET['file_path'])) {
+    $file_path = $_GET['file_path'];
+	$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', basename($file_path)));
+    if (!file_exists($file_path)) {
+        exit("Файл не существует");
+    }
+
+    $mime_type = '';
+    switch( $file_ext) {
+        case "jpeg":
+        case "jpg": $mime_type="image/jpg"; break;
+        case "png": $mime_type="image/png"; break;
+        case "gif": $mime_type="image/gif"; break;
+        case "doc": $mime_type="application/msword"; break;
+        case "docx": $mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; break;
+        case "xls": $mime_type="application/vnd.ms-excel"; break;
+        case "xlsx": $mime_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; break;
+        case "ppt": $mime_type="application/vnd.ms-powerpoint"; break;
+        case "pptx": $mime_type="application/vnd.openxmlformats-officedocument.presentationml.presentation"; break;
+        case "pdf": $mime_type="application/pdf"; break;
+        case "zip": $mime_type="application/zip"; break;
+        case "7z": $mime_type="application/x-7z-compressed"; break;
+        case "rar": $mime_type="application/vnd.rar"; break;
+        case "gzip": $mime_type="application/gzip"; break;
+        case "exe": $mime_type="application/octet-stream"; break;
+        default: $mime_type="application/force-download";
+    }
+
+    // Даем пользователю скачать файл
+    $file_name = basename($file_path);
+    if (isset($_GET['with_prefix'])) {
+        $file_name = delete_prefix($file_name);
+    }
+    header('Content-Description: File Transfer');
+    header('Content-Type: ' . $mime_type);
+    header('Content-Disposition: attachment; filename=' . $file_name);
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . filesize($file_path));
+    
+    readfile($file_path);
+    exit();
+}

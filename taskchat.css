@@ -139,15 +139,16 @@ b {
 
 .chat-wrapper {
     width: 100%;
-    padding: 20px 0;
+    padding-top: 20px;
+    padding-bottom: 5px;
 }
 
 #chat-box {
     border: 1px solid #00000020;
     border-radius: 5px;
     padding: 10px;
-    margin-bottom: 10px;
-    height: 500px;
+    margin-bottom: 15px;
+    height: 600px;
     width: 100%;
     overflow-y: auto;
 }
@@ -172,7 +173,7 @@ b {
 
 .message-input-wrapper {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 10px;
 }
 
@@ -180,20 +181,23 @@ b {
     flex-grow: 1;
     margin-left: 5px;
     margin-right: 5px;
-    padding: 3px 0 3px 3px;
+    padding: 5px 0 5px 3px;
     border: 1px solid #00000020;
     border-radius: 5px;
+    resize: none;
+    height: 37.6px;
     
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     font-weight: 300;
 }
 
+
 #submit-message {
     background: #fff;
     border: 1px solid #00000020;
     border-radius: 5px;
-    padding: 3px 15px;
+    padding: 5px 15px;
     transition: all 0.2s ease;
 
     font-family: Arial, Helvetica, sans-serif;
@@ -202,6 +206,48 @@ b {
 }
 #submit-message:hover {
     background: #fffbfb;
+}
+
+.file-input-wrapper {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    height: 33.6px;
+}
+
+#user-files {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    position: absolute;
+    z-index: -10;
+}
+
+.file-input-wrapper label {
+    display: inline-block;
+    position: relative;
+    padding: 0 8px 0 5px;
+    transition: all 0.1s ease;
+    
+    font-weight: 300;
+    font-size: 23px;
+    color: #4f4f4fc6;
+}
+.file-input-wrapper label:hover {
+    cursor: pointer;
+    color: #4f4f4f;
+}
+
+#files-count {
+    display: inline-block;
+    position: absolute;
+    bottom: -4px;
+    right: 0px;
+
+    font-weight: 700;
+    color: #2e73e3;
+    font-size: 14px;
 }
 
 
@@ -241,6 +287,11 @@ common
     clear: both;
 }
 
-.border-color-blue {
-    border-color: #5151d688;
+.background-color-blue {
+    background-color: #d9f4fa7b;
+}
+
+.pretty-text {
+    white-space: pre-line;
+    word-wrap: break-word;
 }

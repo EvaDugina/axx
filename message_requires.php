@@ -1,6 +1,14 @@
 <?php
 require_once("settings.php");
 
+// Генерация префикса для уникальности названий файлов, которые хранятся на сервере
+function rand_prefix() {
+    return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
+}
+function delete_prefix($str) {
+	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
 // Находим user_type (0 - студент, 1 - преподаватель)
 if (isset($_POST['user_id'])) {
 	$query = "SELECT role from students where id = {$_POST['user_id']}";
@@ -15,23 +23,41 @@ if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
     $user_id = $_POST['user_id'];
     $full_text = $_POST['message_text'];
     $message_id = set_message(0, $full_text);
-	// TODO не отправляются некоторые файлы
-	// TODO Всякие кавычки ломают код (на 29 строчке)
+
+	// Обработка вложений к сообщению
 	if (isset($_FILES['files'])) {
-		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {
-			// Перемещаем файл пользователя из временной директории сервера в директорию 'upload_files'
-			// Сохраняем файл в БД и удаляем из директории 'upload_files'
-			$file_name = basename($_FILES['files']['name'][$i]);
-			$files_dir = 'upload_files/';
-			$file_path = $files_dir . $file_name;
+		// Файлы с этими расширениями надо хранить на сервере
+		$store_on_server = ['jpeg', 'jpg', 'png', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'gzip', 'exe'];
+		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {					
+			$file_name = rand_prefix() . basename($_FILES['files']['name'][$i]);
+			$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
+			$file_dir = 'upload_files/';
+			$file_path = $file_dir . $file_name;
+
+			// Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
 			if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
-				$file_full_text = file_get_contents($file_path);
-				$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name', '$file_full_text')";
-				pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-				unlink($file_path);
+				// Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+				if (in_array($file_ext, $store_on_server)) {
+					$query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
+					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+				}
+
+				// Если файлы такого расширения не надо хранить на сервере, пытаемся сохранить его в БД и удаляем с сервера
+				else {
+					$file_name_without_prefix = delete_prefix($file_name);
+					$file_full_text = file_get_contents($file_path);
+					$file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+					$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name_without_prefix', '$file_full_text')";
+					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+					unlink($file_path);
+				}
+			}
+			else {
+				exit("Ошибка загрузки файла");
 			}
 		}
 	}
+
 	// Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
     echo '<div id="content">';
     show_messages(get_messages());
@@ -47,22 +73,43 @@ else if (isset($_POST['assignment_id'], $_POST['user_id'])) {
     echo '</div>';
 }
 
+// Делает запись сообщения и вложений в БД
+// type: 0 - переговоры, 2 - оценка
+// Возвращает id добавленного сообщения
+function set_message($type, $full_text) {
+	global $dbconnect, $assignment_id, $user_id, $user_type;
+
+	$full_text = preg_replace('#\'#', '\'\'', $full_text);
+	$query = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
+		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', null, 0);
+		SELECT currval('ax_message_id_seq') as \"id\";";
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+	$row = pg_fetch_assoc($result);
+	return $row['id'];
+}
 
 // Возвращает двумерный массив сообщений для текущей страницы по ax_assignment
 function get_messages() {
 	global $dbconnect, $assignment_id, $user_type, $user_id;
 	$query = select_messages($assignment_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$row = pg_fetch_assoc($result);
-	$ret = array();
-	while ($row) {
+	
+	$ret = [];
+	$is_first_new = false; // false, пока for не обрабатывал новых сообщений от собеседника
+	for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
 		// Отмечаем сообщения собеседника прочитанными
 		// Если у любого препода/студента прогрузилась страница с непрочитанными сообщениями от любого студента/препода, то сообщения отмечаются прочитанными в БД. 
-		$unreaded = false;
+		
+		$unreaded = false; // наши сообщения, которые не прочитал собеседник
+		$first_new = false; // true, если это первое новое сообщение от собеседника
 		if ($row['status'] == 0 && $user_type == $row['sender_user_type']) {
 			$unreaded = true;
 		}
 		if ($row['status'] == 0 && $user_type != $row['sender_user_type']) {
+			if (!$is_first_new) {
+				$first_new = true;
+				$is_first_new = true;
+			}
 			$query = "UPDATE ax_message set status = 1 where id = {$row['message_id']}";
 			pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
@@ -76,26 +123,10 @@ function get_messages() {
 		$time = explode(":", $message_time[1]);
 		$date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
 		$attachments = get_message_attachments($row['message_id']);
-		$ret[] = array('id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
-            'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments, 'unreaded' => $unreaded);
-        
-        $row = pg_fetch_assoc($result);
+		$ret[] = ['id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
+            'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments, 'unreaded' => $unreaded, 'first_new' => $first_new];
 	}
 	return $ret;
-}
-
-// Делает запись сообщения и вложений в БД
-// type: 0 - переговоры, 2 - оценка
-// Возвращает id добавленного сообщения
-function set_message($type, $full_text) {
-	global $dbconnect, $assignment_id, $user_id, $user_type;
-
-	$query = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
-		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', null, 0);
-		SELECT currval('ax_message_id_seq') as \"id\";";
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$row = pg_fetch_assoc($result);
-	return $row['id'];
 }
 
 // Возвращает двумерный массив вложений для сообщения по message_id
@@ -103,11 +134,18 @@ function get_message_attachments($message_id) {
 	global $dbconnect;
 	$query = select_message_attachment($message_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$row = pg_fetch_assoc($result);
-	$ret = array();
-	while ($row) {
-		$ret[] = array('id' => $row['id'], 'file_name' => $row['file_name'], 'download_url' => $row['download_url']);
-		$row = pg_fetch_assoc($result);
+	
+	$ret = [];
+	for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+		// Если текст файла лежит в БД
+		if ($row['download_url'] == null) {
+			$row['download_url'] = 'download_file.php?attachment_id=' . $row['id'];
+		}
+		// Если файл лежит на сервере
+		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
+			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
+		}
+		$ret[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
 	}
 	return $ret;
 }
@@ -115,28 +153,25 @@ function get_message_attachments($message_id) {
 // Выводит сообщения на страницу
 function show_messages($messages) {
 	global $user_id;
-	// TODO это для скролла
-	$i = 0;
 	foreach ($messages as $m) {
 		// Прижимаем сообщения текущего пользователя к правой части экрана
 		$float_class = $m['sender_user_id'] == $user_id ? 'float-right' : ''; 
 		// Если студент написал сообщение, то у всех студентов сообщение подсвечивается синим, 
 		// пока один из преподов его не прочитает(прочитать = прогрузить страницу с чатом). И наоборот
-		$border_color_class = $m['unreaded'] ? 'border-color-blue' : ''; ?>
-		<div id="message-<?=$i?>-<?=$m['id']?>" class="chat-box-message <?=$float_class?>">
-			<div class="chat-box-message-wrapper <?=$border_color_class?>">
-				<b><?=$m['username']?></b><br>
-				<?php
+		$background_color_class = $m['unreaded'] ? 'background-color-blue' : '';
+		if ($m['first_new']) {
+			echo '<div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>';
+		}
+		?>
+		<div id="message-<?=$m['id']?>" class="chat-box-message <?=$float_class?>">
+			<div class="chat-box-message-wrapper pretty-text <?=$background_color_class?>"
+				><b><?=$m['username']?></b>
+				<?php 
 				if ($m['full_text'] != '') {
 					echo stripslashes(htmlspecialchars($m['full_text'])) . "<br>";
 				}
-				foreach ($m['attachments'] as $ma) {
-					if ($ma['download_url'] == null) {
-						$ma['download_url'] = 'download_file.php?attachment_id=' . $ma['id'];
-					}?>
-					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank">
-                		<i class="fa-solid fa-file"></i><?=$ma['file_name']?>
-					</a><br>
+				foreach ($m['attachments'] as $ma) {?>
+					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank"><i class="fa-solid fa-file"></i><?=$ma['file_name']?></a>
 				<?php }?>
 			</div>
 			<div class="chat-box-message-date">
@@ -144,9 +179,7 @@ function show_messages($messages) {
 			</div>
 		</div>
 		<div class="clear"></div>
-	<?php
-	$i++;
-	}
+	<?php }
 }?>
 
 <?php
