@@ -21,13 +21,13 @@ if (isset($_POST['user_id'])) {
 if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
     $assignment_id = $_POST['assignment_id'];
     $user_id = $_POST['user_id'];
-    $full_text = $_POST['message_text'];
+    $full_text = rtrim($_POST['message_text']);
     $message_id = set_message(0, $full_text);
 
 	// Обработка вложений к сообщению
 	if (isset($_FILES['files'])) {
-		// Файлы с этими расширениями надо хранить на сервере
-		$store_on_server = ['jpeg', 'jpg', 'png', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'zip', 'rar', '7z', 'gzip', 'exe'];
+		// Файлы с этими расширениями надо хранить в БД
+		$store_in_db = ['txt', 'cpp', 'h', 'c', 'hpp']; // TODO для Вани: Добавить сюда еще типы файлов
 		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {					
 			$file_name = rand_prefix() . basename($_FILES['files']['name'][$i]);
 			$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
@@ -37,12 +37,12 @@ if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
 			// Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
 			if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
 				// Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-				if (in_array($file_ext, $store_on_server)) {
+				if (!in_array($file_ext, $store_in_db)) {
 					$query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
 					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 				}
 
-				// Если файлы такого расширения не надо хранить на сервере, пытаемся сохранить его в БД и удаляем с сервера
+				// Если файлы такого расширения надо хранить в ДБ, добавляем в БД полный текст файла
 				else {
 					$file_name_without_prefix = delete_prefix($file_name);
 					$file_full_text = file_get_contents($file_path);

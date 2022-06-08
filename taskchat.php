@@ -163,12 +163,10 @@ if ($row) {
 			<form action="message_requires.php" method="POST" enctype="multipart/form-data">
 				<div class="message-input-wrapper">
 					<div class="file-input-wrapper">
-						<input type="hidden" name="MAX_FILE_SIZE" value="5242880"> <!-- 5mb максимальный размер файла -->
 						<input type="file" name="user_files[]" id="user-files" multiple>
 						<label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
 					</div>
 					<textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
-					<!-- <input type="text" name="user-message" id="user-message" placeholder="Напишите сообщение..."> -->
 					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
 				</div>
 			</form>
@@ -195,7 +193,7 @@ if ($row) {
 			$('#files-count').html(this.files.length);
 		});
 
-		/*
+		/* Логика скрола на странице
 		Открываем страницу - страница скролится вниз, чат скролится до последнего непрочитанного сообщения
 		Отправляем сообщение - чат скролится вниз
 		Приходит сообщение от собеседника - появляется плашка "Новые сообщения"
@@ -226,7 +224,7 @@ if ($row) {
 				formData.append('message_text', userMessage);
 				formData.append('assignment_id', <?=$assignment_id?>);
 				formData.append('user_id', <?=$user_id?>);
-				formData.append('MAX_FILE_SIZE', 50000);
+				formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
 				$.each(userFiles[0].files, function(key, input) {
 					formData.append('files[]', input);
 				});

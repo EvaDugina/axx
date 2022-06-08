@@ -98,6 +98,7 @@ else if (isset($_GET['file_path'])) {
         case "jpg": $mime_type="image/jpg"; break;
         case "png": $mime_type="image/png"; break;
         case "gif": $mime_type="image/gif"; break;
+        case "txt": $mime_type="text/plain"; break;
         case "doc": $mime_type="application/msword"; break;
         case "docx": $mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; break;
         case "xls": $mime_type="application/vnd.ms-excel"; break;
