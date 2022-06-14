@@ -58,9 +58,15 @@ $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . 
 $row = pg_fetch_assoc($result);
 if ($row) {
 	$time_date = explode(" ", $row['finish_limit']);
-	$date = explode("-", $time_date[0]);
-	$time = explode(":", $time_date[1]);
-	$task_finish_limit = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
+	$task_finish_limit = "";
+	if (count($time_date) >= 1 && $time_date[0]) {
+		$date = explode("-", $time_date[0]);
+		$task_finish_limit = $date[2] . "." . $date[1] . "." . $date[0];
+	}
+	if (count($time_date) > 1 && $time_date[1]) {
+		$time = explode(":", $time_date[1]);
+		$task_finish_limit .= " " . $time[0] . ":" . $time[1];
+	}
 	$task_status_code = $row['status_code'];
 	$task_mark = $row['mark'];
 }
