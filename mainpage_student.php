@@ -78,21 +78,22 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                     <div class="popover-body">
                                         <?php 
                                         $count_succes_tasks = 0;
-                                        $count_tasks = 0;
+                                        $count_unsucces_tasks = 0;
                                         $query_tasks = select_page_tasks($discipline['id'], 1);
                                         $result_tasks = pg_query($dbconnect, $query_tasks);
                                         if (!$result_tasks || pg_num_rows($result_tasks) < 1);
-                                         else {
+                                        else {
                                             $i = 0;
                                             while ($row_task = pg_fetch_assoc($result_tasks)) {
-                                                $count_tasks++; 
                                                 $result_assignment = select_task_assignments($row_task['id'], $_SESSION['hash'], $dbconnect);
                                                 if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
                                                     $row_task_assignment = pg_fetch_assoc($result_assignment);
                                                     if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
+                                                    if($row_task_assignment['status_code'] == 2 || $row_task_assignment['status_code'] == 5) $count_unsucces_tasks++;
                                                 }
                                             }
                                         }
+                                        $count_tasks = $count_succes_tasks + $count_unsucces_tasks;
                                         $result = full_name($discipline['disc_id'], $dbconnect);
                                         $full_name = pg_fetch_all($result);
                                         ?>

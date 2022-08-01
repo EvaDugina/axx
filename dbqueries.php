@@ -145,7 +145,7 @@
 
     // - получение статуса и времени отправки ответа студента
     function select_task_assignment($task_id, $student_id) {
-        return "SELECT ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark FROM ax_assignment 
+        return "SELECT ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_assignment.status_text FROM ax_assignment 
         INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
         WHERE ax_assignment_student.student_user_id = ". $student_id ." AND ax_assignment.task_id = ". $task_id ." LIMIT 1;";
     }
