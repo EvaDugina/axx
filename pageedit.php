@@ -98,7 +98,7 @@
 	<body>
 
 	<?php
-	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Дисциплины' => 'mainpage.php')); ?>
+	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Редактор дисциплин' => 'mainpage.php')); ?>
 
     <main class="pt-2" aria-hidden="true">
 	<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 

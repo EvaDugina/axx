@@ -95,7 +95,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 <?php 
 show_header_2($dbconnect, 'Задания по дисциплине', 
-		array('Дэшборд студента' => 'mainpage_student.php', $page['short_name'] => 'studtasks.php?page=' . $page_id)); ?>
+		array($page['short_name'] => 'studtasks.php?page=' . $page_id)); ?>
 
 <body style="overflow-x: hidden;">
 

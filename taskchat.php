@@ -128,7 +128,7 @@ if ($row) {
 
 <body>
 	<?php show_header_2($dbconnect, 'Чат c перподавателем', 
-		array('Дэшборд студента' => 'mainpage_student.php', $discipline_short_name => 'studtasks.php?page=' . $page_id, $task_title => '')); ?>
+		array($discipline_short_name => 'studtasks.php?page=' . $page_id, $task_title => '')); ?>
 
 	<main>
 		<div class="task-wrapper">
