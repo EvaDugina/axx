@@ -4,28 +4,10 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
-// в ax_page disc_id у эргономики должно быть -4;
-
-//show_header('Дэшборд студента', array('Дэшборд студента' => 'mainpage_student.php'));
-
-
 $result = pg_query($dbconnect, 'select id, short_name, disc_id, semester from ax_page');
 $disciplines=pg_fetch_all($result);
 $result1=pg_query($dbconnect, 'select count(id) from ax_page');
-$disc_count=pg_fetch_all($result1);
-
-function full_name($discipline_id, $dbconnect) {
-    $query = 'SELECT name from discipline where id =' .$discipline_id;
-    return pg_query($dbconnect, $query);
-}
-
-function select_task_assignments($task_id, $student_id, $dbconnect) {
-    $query = "SELECT ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark from ax_assignment 
-    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id 
-    where ax_assignment_student.student_user_id = ". $student_id ." and ax_assignment.task_id = ". $task_id ." LIMIT 1;";
-    return pg_query($dbconnect, $query);
-}
-?>
+$disc_count=pg_fetch_all($result1); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +33,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
 
     <?php
     show_head($pge_title='');
-     show_header_2($dbconnect, 'Дэшборд студента', array('Дэшборд студента' => 'mainpage_student.php')); ?>
+    show_header_2($dbconnect, 'Дэшборд студента', array('Дэшборд студента' => 'mainpage_student.php')); ?>
 
     <body>
         <main class="justify-content-start" style="margin-bottom: 30px;">
@@ -85,7 +67,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                         else {
                                             $i = 0;
                                             while ($row_task = pg_fetch_assoc($result_tasks)) {
-                                                $result_assignment = select_task_assignments($row_task['id'], $_SESSION['hash'], $dbconnect);
+                                                $result_assignment = pg_query($dbconnect, select_task_assignment($row_task['id'], $_SESSION['hash']));
                                                 if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
                                                     $row_task_assignment = pg_fetch_assoc($result_assignment);
                                                     if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
@@ -94,7 +76,7 @@ function select_task_assignments($task_id, $student_id, $dbconnect) {
                                             }
                                         }
                                         $count_tasks = $count_succes_tasks + $count_unsucces_tasks;
-                                        $result = full_name($discipline['disc_id'], $dbconnect);
+                                        $result = pg_query($dbconnect, select_discipline_name($discipline['disc_id']));
                                         $full_name = pg_fetch_all($result);
                                         ?>
                                         <div class="p-3 popover-header">

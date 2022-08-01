@@ -130,7 +130,7 @@ INSERT INTO ax_page_prep(id, prep_user_id, page_id) VALUES
 (-19, -5, -14);
 
 
-CREATE TABLE ax_page_group (		-- группы, обучающиеся по этой дисциплине (странице)
+CREATE TABLE ax_page_group (		-- группы, обучающихся по этой дисциплине (странице)
 	id serial,
 	page_id integer,	-- --> ax_page
 	group_id integer,	-- --> groups
