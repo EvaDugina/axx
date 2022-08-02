@@ -3,7 +3,7 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
-if (!isset($_GET['task']) || !isset($_GET['page']) || !isset($_SESSION['hash'])) {
+if (!isset($_GET['task']) || !isset($_GET['page'])) {
 	echo '<p style="color:#f00">Некорректное обращение</p>';
 	exit;
 }
@@ -11,16 +11,6 @@ if (!isset($_GET['task']) || !isset($_GET['page']) || !isset($_SESSION['hash']))
 $task_id = $_GET['task'];
 $page_id = $_GET['page'];
 $user_id = $_SESSION['hash'];
-
-$au = new auth_ssh();
-
-if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
-	// Если на страницу чата зашёл преподаватель
-	$student_id = $_GET['id_student'];
-} else {
-	// Если на страницу чата зашёл студент
-	$student_id = $user_id;
-}
 
 $discipline_short_name = '';
 $query = select_disc_short_name($page_id);
@@ -30,7 +20,18 @@ if ($row) {
 	$discipline_short_name = $row['short_name'];
 }
 
-$query = select_task_assignment_id($student_id, $task_id);
+$au = new auth_ssh();
+
+if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
+	// Если на страницу чата зашёл преподаватель
+	$student_id = $_GET['id_student'];
+
+} else {
+	// Если на страницу чата зашёл студент
+	$student_id = $user_id;
+}
+
+$query = select_task_assignment_student_id($student_id, $task_id);
 $result = pg_query($dbconnect, $query);
 $row = pg_fetch_assoc($result);
 if ($row) {
@@ -270,10 +271,10 @@ if ($row) {
 <?php
 /* Select запросы, надо в dbqueries.php, но пока тут лежат */
 
-function select_task_assignment_id($user_id, $task_id) {
+function select_task_assignment_student_id($student_id, $task_id) {
 	return "SELECT ax_assignment.id from ax_assignment
 	    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
-	    where ax_assignment_student.student_user_id = $user_id and ax_assignment.task_id = $task_id;";
+	    where ax_assignment_student.student_user_id = $student_id and ax_assignment.task_id = $task_id;";
 }
 
 function select_disc_short_name($page_id) {

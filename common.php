@@ -151,7 +151,7 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
                   <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>> 
                     <a <?php 
                       if($au->isTeacher()){ echo 'style="color: black;"';?>
-                        href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id=<?php echo $_SESSION['hash'];?>" > 
+                        href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
                       <?php
                       } else if ($au->isAdmin());
                       else {  

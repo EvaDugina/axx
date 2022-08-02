@@ -139,13 +139,28 @@
     }
 
     // получение количества уведомлений по каждой странице предмета для преподавательского дэшборда
-    function select_notify_by_page($page_id){
+    function select_notify_count_by_page($page_id){
         return "SELECT COUNT(*) FROM ax_task
             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
             WHERE ax_page.id = $page_id AND ax_assignment.status_code = 5;
         ";
     }
+
+    // получение уведомлений по каждой странице предмета для преподавательского дэшборда
+    function select_notify_by_page($teacher_id, $page_id){
+        return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+            ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status_code = 5 AND ax_page.id = $page_id;
+        ";
+    }
+
+
     
     
 
@@ -170,13 +185,13 @@
     // - получение студентов, которым назначено задание
     function select_assigned_students($task_id)
     {
-        return 'SELECT students.middle_name || \' \' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, \'DD-MM-YYYY HH24:MI:SS\') ts '.
-              ' FROM ax_task '.
-              ' INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id '.
-              ' INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id '.
-              ' INNER JOIN students ON students.id = ax_assignment_student.student_user_id '.
-              ' WHERE ax_task.id = '.$task_id.
-              ' ORDER BY ax_assignment.id';
+        return "SELECT students.middle_name || ' ' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, \'DD-MM-YYYY HH24:MI:SS\') ts 
+              FROM ax_task 
+              INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id 
+              INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
+              INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
+              WHERE ax_task.id = '$task_id'
+              ORDER BY ax_assignment.id";
     }
     
     // получение файлов к заданию
@@ -262,7 +277,7 @@
     }
 
     function select_page_students($page_id) {
-        return "SELECT students.middle_name || \' \' || students.first_name fio, students.id id
+        return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id
                 FROM ax_page_group 
 	            INNER JOIN students_to_groups ON ax_page_group.group_id = students_to_groups.group_id
 	            INNER JOIN students ON students_to_groups.student_id = students.id
@@ -271,7 +286,7 @@
     }
 
     function select_page_students_grouped($page_id) {
-        return "SELECT students.middle_name || \' \' || students.first_name fio, students.id id, ax_student_page_info.variant_num vnum, ax_student_page_info.variant_comment vtext, groups.name grp, groups.id gid
+        return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id, ax_student_page_info.variant_num vnum, ax_student_page_info.variant_comment vtext, groups.name grp, groups.id gid
                 FROM ax_page_group
 	            INNER JOIN students_to_groups ON ax_page_group.group_id = students_to_groups.group_id
 	            INNER JOIN students ON students_to_groups.student_id = students.id
