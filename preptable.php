@@ -71,13 +71,11 @@ if (!$result || pg_num_rows($result) < 1) {
 
 if ($scripts) echo $scripts; ?>
 
-<!-- MDB -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-
-<!-- jQuery -->
-<script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
-
 <main class="pt-2">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
   <div class="container-fluid overflow-hidden">
     <div class="row gy-5">
       <div class="col-8">
@@ -130,85 +128,91 @@ if ($scripts) echo $scripts; ?>
             $result = pg_query($dbconnect, $query);
             $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
           ?>
-            <div>
-              <table class="table table-status" id="table-status-id" style="text-align: center;">
-                <thead>
-                  <tr class="table-row-header" style="text-align:center;">
-                    <th scope="col" colspan="1">Студенты и группы</th>
-                    <th scope="col" colspan="<?= count($tasks) + 1 ?>">Задания</th>
-                  </tr>
-                  <tr>
-                    <th scope="col" colspan="1"> </th>
-                    <th scope="col" data-mdb-toggle="tooltip" title="Номер варианта">#</th>
-                    <?php
-                    for ($t = 0; $t < count($tasks); $t++) {
-                    ?>
-                      <td scope="col" data-mdb-toggle="tooltip" title="<?= $tasks[$t]['title'] ?>"><?= $t + 1 ?></td>
-                    <?php
-                    }
-                    ?>
-                  </tr>
-                </thead>
-                <tbody>
+
+          
+        <div>
+            <table class="table table-status" id="table-status-id" style="text-align: center;">
+              <thead>
+                <tr class="table-row-header" style="text-align:center;">
+                  <th scope="col" colspan="1">Студенты и группы</th>
+                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">Задания</th>
+                </tr>
+                <tr>
+                  <th scope="col" colspan="1"> </th>
+                  <th scope="col" data-mdb-toggle="tooltip" title="Номер варианта">#</th>
                   <?php
-                  for ($s = 0; $s < count($students); $s++) {
-                    if ($group != $students[$s]['grp']) {
-                      $group = $students[$s]['grp'];
+                  for ($t = 0; $t < count($tasks); $t++) {
                   ?>
-                      <tr class="table-row-header">
-                        <th scope="row" colspan="1"><?= $group ?></th>
-                        <th colspan="1"> </th>
-                        <td colspan="<?= count($tasks) ?>"> </td>
-                      </tr>
-                    <?php
-                    }
-                    ?>
-                    <tr>
-                      <th scope="row" data-group="<?= $students[$s]['grp'] ?>"><?= $s + 1 ?>. <?= $students[$s]['fio'] ?></th>
-                      <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?= $students[$s]['vtext'] ?>"><?= $students[$s]['vnum'] ?></th>
-                      <?php
-                      for ($t = 0; $t < count($tasks); $t++) { // tasks cycle
-                        $task_message = null;
-                        for ($m = 0; $m < count($messages); $m++) { // search for last student+task message
-                          if ($messages[$m]['tid'] == $tasks[$t]['id'] && $messages[$m]['sid'] == $students[$s]['id']) {
-                            $task_message = $messages[$m];
-                            break;
-                          }
-                        }
-                        if ($task_message == null || $task_message['amark'] == null && $task_message['mtime'] == null) { // no assignment or no answer
-                      ?>
-                          <td tabindex="-1"> </td>
-                        <?php
-                        } else if ($task_message['mtime'] != null && $task_message['amark'] == null && $task_message['mfile'] != null) { // have message without mark and with file, can answer
-                        ?>
-                          <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<a target='_blank' href='<?= $task_message['murl'] ?>'>FILE: <?= $task_message['mfile'] ?></a><br/> <?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?= $task_message['val'] ?></td>
-                        <?php
-                        } else if ($task_message['mtime'] != null && $task_message['amark'] == null) { // have message without mark, can answer
-                        ?>
-                          <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?= $task_message['val'] ?></td>
-                        <?php
-                        } else if ($task_message['amark'] != null) { // have mark, not need to answer
-                        ?>
-                          <td tabindex="0" onclick="showPopover(this)" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<?= $task_message['mtext'] ?>"><?= $task_message['val'] ?></td>
-                        <?php
-                        }
-                        ?>
-                      <?php
-                      } // $tasks cycle
-                      ?>
+                    <td scope="col" data-mdb-toggle="tooltip" title="<?= $tasks[$t]['title'] ?>"><?= $t + 1 ?></td>
+                  <?php
+                  }
+                  ?>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                for ($s = 0; $s < count($students); $s++) {
+                  if ($group != $students[$s]['grp']) {
+                    $group = $students[$s]['grp'];
+                ?>
+                    <tr class="table-row-header">
+                      <th scope="row" colspan="1"><?= $group ?></th>
+                      <th colspan="1"> </th>
+                      <td colspan="<?= count($tasks) ?>"> </td>
                     </tr>
                   <?php
-                  } // students cycle
+                  }
                   ?>
-                </tbody>
-              </table>
-            </div>
+                  <tr>
+                    <th scope="row" data-group="<?= $students[$s]['grp'] ?>"><?= $s + 1 ?>. <?= $students[$s]['fio'] ?></th>
+                    <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?= $students[$s]['vtext'] ?>"><?= $students[$s]['vnum'] ?></th>
+                    <?php
+                    for ($t = 0; $t < count($tasks); $t++) { // tasks cycle
+                      $task_message = null;
+                      for ($m = 0; $m < count($messages); $m++) { // search for last student+task message
+                        if ($messages[$m]['tid'] == $tasks[$t]['id'] && $messages[$m]['sid'] == $students[$s]['id']) {
+                          $task_message = $messages[$m];
+                          break;
+                        }
+                      }
+                      if ($task_message == null || $task_message['amark'] == null && $task_message['mtime'] == null) { // no assignment or no answer
+                    ?>
+                        <td tabindex="-1"> </td>
+                      <?php
+                      } else if ($task_message['mtime'] != null && $task_message['amark'] == null && $task_message['mfile'] != null) { // have message without mark and with file, can answer
+                      ?>
+                        <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<a target='_blank' href='<?= $task_message['murl'] ?>'>FILE: <?= $task_message['mfile'] ?></a><br/> <?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?= $task_message['val'] ?></td>
+                      <?php
+                      } else if ($task_message['mtime'] != null && $task_message['amark'] == null) { // have message without mark, can answer
+                      ?>
+                        <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?= $task_message['val'] ?></td>
+                      <?php
+                      } else if ($task_message['amark'] != null) { // have mark, not need to answer
+                      ?>
+                        <td tabindex="0" onclick="showPopover(this)" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<?= $task_message['mtext'] ?>"><?= $task_message['val'] ?></td>
+                      <?php
+                      }
+                      ?>
+                    <?php
+                    } // $tasks cycle
+                    ?>
+                  </tr>
+                <?php
+                } // students cycle
+                ?>
+              </tbody>
+            </table>
+          </div>
+        
+       
+
+            
         </div>
       </div>
 
       <div class="col-4">
         <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
-          <h5>История сообщений</h5>
+          <h5>История посылок и оценок</h5>
           <div id="list-messages-id">
             <?php
             for ($m = 0; $m < count($messages); $m++) { // list all messages
@@ -217,9 +221,11 @@ if ($scripts) echo $scripts; ?>
             }
             ?>
           </div>
-          <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div>-->
+          <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div> -->
         </div>
       </div>
+
+    </div>
 
 </main>
 
@@ -289,6 +295,15 @@ if ($scripts) echo $scripts; ?>
     document.location.href = 'preptable.php?page=' + value;
     //log(`option desc`, desc);
   });
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  //Инициализация всплывающей панели для
+  //элементов веб-страницы, имеющих атрибут
+  //data-toggle="popover"
+  $('.dropdown-toggle').dropdown();
+});
 </script>
 
 <script type="text/javascript">

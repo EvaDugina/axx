@@ -156,7 +156,10 @@ if ($row) {
 							echo "Оценка: <b>$task_mark</b>";
 						}?>
 					</div>
-					<a href="editor.php?assignment=<?=$assignment_id?>" class="code-redactor-button" target="_blank"><i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
+					<div style="display: flex; flex-flow: column wrap;">
+						<a href="editor.php?assignment=<?=$assignment_id?>" class="code-redactor-button" target="_blank" style="margin-top: 10px;">
+							<i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
+					</div>
 				</div>
 			</div>
 		</div>

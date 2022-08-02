@@ -370,7 +370,7 @@ INSERT INTO public.ax_autotest_results(id, commit_id, order_num, test_name, test
 CREATE TABLE ax_message	(		-- сообщение в диалоге по заданию
 	id serial,
 	assignment_id integer,	-- --> ax_assignment
-	type integer, 		-- тип сообщения (0 - переговоры (в т. ч. с приложениями), 1 - коммит, 2 - оценка)
+	type integer, 		-- тип сообщения (0 - обычное сообщение (в т. ч. с приложениями), 1 - коммит, 2 - оценка, 3 - для проверки)
 	sender_user_type integer,-- тип отправителя (0 - студент, 1 - преподаватель)
 	sender_user_id integer, -- --> students
 	date_time timestamp with time zone,

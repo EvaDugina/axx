@@ -384,7 +384,7 @@
             LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
             INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
             INNER JOIN groups ON groups.id = students_to_groups.group_id
-            WHERE ax_task.page_id = ". $page_id ." ORDER BY mid DESC
+            WHERE ax_task.page_id = '$page_id' ORDER BY mid DESC
         ";
     }
 

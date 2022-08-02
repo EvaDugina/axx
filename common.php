@@ -71,7 +71,7 @@ function show_head($page_title = ''){ ?>
 
     <!-- extra -->
     <link rel="stylesheet" href="css/accelerator.css" /> 
-
+    
     <!-- MDB -->
     <link rel="stylesheet" href="css/mdb.min.css" />
     <script type="text/javascript" src="js/mdb.min.js"></script>
