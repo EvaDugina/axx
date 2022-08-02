@@ -26,7 +26,7 @@ if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
 	// Если на страницу чата зашёл преподаватель
 	$student_id = $_GET['id_student'];
 
-} else {
+} else if ($au->loggedIn()){
 	// Если на страницу чата зашёл студент
 	$student_id = $user_id;
 }

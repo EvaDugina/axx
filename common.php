@@ -158,7 +158,7 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
                         if($notify['status_code'] == 2) echo 'style="color: red;"';
                         else if($notify['status_code'] == 3) echo 'style="color: green;"';
                         else echo 'style="color: black;"';?>
-                        href="studtasks.php?page=<?php echo $notify['page_id'];?>" > <?php // TODO: дать ссылку на чат
+                        href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>" > <?php // TODO: дать ссылку на чат
                       } ?>
 
                       <?php 

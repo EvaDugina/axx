@@ -10,8 +10,7 @@ class auth_ssh
         
         $result = pg_query("SELECT * FROM students WHERE login='$lg'");
         $found = pg_fetch_assoc($result);
-        if($found)
-        {
+        if($found) {
             $_SESSION['login'] = $login;
             $_SESSION['role'] = $found['role'];
             $_SESSION['hash'] = $found['id'];
@@ -33,10 +32,8 @@ class auth_ssh
     
 //----------------------------------------------------------------------------------------------
     
-    function loggedIn($hash = "")
-    {
-        if (array_key_exists('login', $_SESSION))
-        {
+    function loggedIn($hash = "") {
+        if (array_key_exists('login', $_SESSION)) {
             return $_SESSION['login'];
         }
         else
