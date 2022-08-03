@@ -125,7 +125,13 @@ if ($scripts) echo $scripts; ?>
             $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
           ?>
 
-          
+          <?php 
+          if (!$students || !$tasks ) {?>
+            <div class="pt-3">
+              <h5>Ошибка получения данных</h5>
+            </div>
+          <?php } else {?>
+
           <div>
             <table class="table table-status" id="table-status-id" style="text-align: center;">
               <thead>
@@ -200,86 +206,89 @@ if ($scripts) echo $scripts; ?>
             </table>
           </div>
 
+          <?php } ?>
+
           <?php
           $query = select_notify_by_page($_SESSION['hash'], $page_id);
           $result = pg_query($dbconnect, $query);
-					$array_notify = pg_fetch_all($result); ?>
+					$array_notify = pg_fetch_all($result);
 
+          if ($students && $tasks) {?>
           
-          <ul class="accordion list-group" style="margin-bottom: 60px;">
-            <?php
-            // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
-            foreach ($students as $student) { 
-              $array_messages_count = array();
-              for($i = 0; $i < count($tasks); $i++){
-                $query = select_count_unreaded_messages_by_task($_SESSION['hash'], $tasks[$i]['id']);
+            <ul class="accordion list-group" style="margin-bottom: 60px;">
+              <?php
+              // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
+              foreach ($students as $student) { 
+                $array_messages_count = array();
+                for($i = 0; $i < count($tasks); $i++){
+                  $query = select_count_unreaded_messages_by_task($_SESSION['hash'], $tasks[$i]['id']);
+                  $result = pg_query($dbconnect, $query);
+                  array_push($array_messages_count, pg_fetch_assoc($result));
+                }
+                $sum_message_count = array_sum($array_messages_count);
+
+                $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
                 $result = pg_query($dbconnect, $query);
-                array_push($array_messages_count, pg_fetch_assoc($result));
-              }
-              $sum_message_count = array_sum($array_messages_count);
+                $array_student_tasks = pg_fetch_all($result); 
+                ?>
 
-              $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
-              $result = pg_query($dbconnect, $query);
-					    $array_student_tasks = pg_fetch_all($result); 
-              ?>
-
-              <div class="student-item">
-                <li class="list-group-item" href="javascript:void(0);">
-                  <a class="toggle-accordion" href="javascript:void(0);" style="color: black;">
-                    <div class="row" href="javascript:void(0);">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <?= $student['fio']?>
-                          <span class="badge badge-primary badge-pill" 
-                            <?php if(in_array($student['id'], array_column($array_notify, 'student_user_id'))) {?> 
-                            style="background: red; color: white;" <?php }?>><?=$sum_message_count 
-                            + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']))?>
-                          </span>
-                      </div>
-                    </div> 
-                  </a>
-                </li>
-                <div class="inner-accordion" style="display: none;">
-                  <?php $i=0;
-                  foreach ($array_student_tasks as $task) {?>
-                    <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
-                      <li class="list-group-item" >
-                        <div class="row">
-                          <div class="d-flex justify-content-between align-items-center">
-                            <?=$task['title']?>
-                            <span class="badge badge-primary badge-pill"
-                              <?php if(in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?> 
-                              style="background: red; color: white;" <?php }?>><?php echo $array_messages_count[$i]['count'] 
-                              + in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))?>
+                <div class="student-item">
+                  <li class="list-group-item" href="javascript:void(0);">
+                    <a class="toggle-accordion" href="javascript:void(0);" style="color: black;">
+                      <div class="row" href="javascript:void(0);">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <strong><?= $student['fio']?></strong>
+                            <span class="badge badge-primary badge-pill" 
+                              <?php if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) {?> 
+                                style="background: red; color: white;"> <?php echo $sum_message_count 
+                                + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
+                              } else {?> ><?=$sum_message_count?> <?php }?>
                             </span>
-                          </div>
                         </div>
-                      </li> 
-                    </a>  
-                  <?php $i++; }?>
+                      </div> 
+                    </a>
+                  </li>
+                  <div class="inner-accordion" style="display: none;">
+                    <?php $i=0;
+                    foreach ($array_student_tasks as $task) {?>
+                      <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
+                        <li class="list-group-item" >
+                          <div class="row">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <?=$task['title']?>
+                              <span class="badge badge-primary badge-pill"
+                                <?php if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?> 
+                                  style="background: red; color: white;"> <?php echo $array_messages_count[$i]['count'] + 1; 
+                                } else {?> ><?=$array_messages_count[$i]['count']?> <?php }?>
+                              </span>
+                            </div>
+                          </div>
+                        </li> 
+                      </a>  
+                    <?php $i++; }?>
+                  </div>
                 </div>
-              </div>
-            <?php }?>            
-          </ul>
-             
+              <?php }?>            
+            </ul>
+          <?php } ?>
         </div>
       </div>
 
-
-
-      <div class="col-4">
-        <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
-          <h5>История посылок и оценок</h5>
-          <div id="list-messages-id">
-            <?php
-            for ($m = 0; $m < count($messages); $m++) { // list all messages
-              if ($messages[$m]['mtype'] != null)
-                show_message($messages[$m]);
-            }
-            ?>
+      <?php if ($messages && count($messages) > 0) {?>
+        <div class="col-4">
+          <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
+            <h5>История посылок и оценок</h5>
+            <div id="list-messages-id">
+              <?php
+              for ($m = 0; $m < count($messages); $m++) { // list all messages
+                if ($messages[$m]['mtype'] != null)
+                  show_message($messages[$m]);
+              } ?>
+            </div>
+            <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div> -->
           </div>
-          <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div> -->
         </div>
-      </div>
+      <?php }?>
 
     </div>
 
