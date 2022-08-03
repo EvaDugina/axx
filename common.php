@@ -326,7 +326,7 @@ function show_footer() { ?>
   
 <?php 
 function show_message($message) {
-  if ($message == null || $message['mtype'] == null) return;
+  if ($message == null || $message['mtype'] == null || $message['type'] < 2) return;
     $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
     $message_text = $message['mtext'];
     if ($message['mfile'] != null) { // have file attachment

@@ -147,9 +147,19 @@
         ";
     }
 
+    function select_notify_count_by_student($page_id, $student_id){
+        return "SELECT COUNT(*) FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            WHERE ax_page.id = $page_id AND ax_assignment.status_code = 5 AND student.id='$student_id';
+        ";
+    }
+
     // получение уведомлений по каждой странице предмета для преподавательского дэшборда
     function select_notify_by_page($teacher_id, $page_id){
-        return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+        return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
             ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
@@ -157,6 +167,42 @@
             INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
             INNER JOIN students ON students.id = ax_assignment_student.student_user_id
             WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status_code = 5 AND ax_page.id = $page_id;
+        ";
+    }
+
+    // получений уведомлений по каждому непрочитанному сообщению и непроверенному заданию
+    function select_message_notify_by_page($teacher_id, $page_id){
+        return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_assignment.status_code, 
+            ax_assignment_student.student_user_id FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status_code = 5 AND ax_page.id = $page_id;
+        ";
+    }
+
+    function select_message_count_by_page_for_teacher($page_id){
+        return "SELECT ax_task.id as task_id, students.id as student_id, COUNT(*) FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            INNER JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+            INNER JOIN ax_message_delivery ON ax_message_delivery.message_id = ax_message.id  
+            WHERE ax_page.id = $page_id AND ax_message_delivery.read = FALSE;
+        ";
+    }
+
+    function select_count_unreaded_messages_by_task($student_id, $task_id){
+        return "SELECT COUNT(*) FROM ax_message
+            INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
+            INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+            INNER JOIN ax_message_delivery ON ax_message_delivery.message_id = ax_message.id  
+            WHERE ax_message_delivery.read = FALSE AND students.id = '$student_id' AND ax_task.id = '$task_id';
         ";
     }
 
@@ -179,7 +225,15 @@
 
     // - получение всех заданий по странице дисциплины
     function select_page_tasks($page_id, $status) {
-        return "SELECT * FROM ax_task WHERE page_id = " . $page_id . ' AND status = '. $status .' ORDER BY id';
+        return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' ORDER BY id";
+    }
+
+    function select_page_tasks_with_assignment($page_id, $status, $student_id) {
+        return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id FROM ax_task 
+        INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
+        INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
+        INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
+        WHERE page_id = '$page_id' AND status = '$status' AND students.id = '$student_id' ORDER BY id";
     }
     
     // - получение студентов, которым назначено задание
@@ -361,7 +415,7 @@
     function select_page_messages($page_id) {
         return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
             ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
-            ax_message_attachment.id fid, 
+            ax_message_attachment.id fid, m1.type,
             case WHEN ax_assignment.mark is not null then ax_assignment.mark
             WHEN ax_assignment.status_code in (0, 1) then 'X'
             WHEN ax_assignment.status_code in (4) then '-'

@@ -14,13 +14,10 @@ if (!$au->isTeacher() && !$au->isAdmin()) {
 	exit;
 }
 
-$query = select_all_disciplines();
-$result = pg_query($dbconnect, $query);
-$disciplines = pg_fetch_all($result);
-
 // получение параметров запроса
 $user_id = -5; // TODO: get current user id
 $page_id = 0;
+
 $au = new auth_ssh();
 if (array_key_exists('page', $_REQUEST) && ($au->isTeacher() || $au->isAdmin()))
   $page_id = $_REQUEST['page'];
@@ -52,13 +49,10 @@ if (array_key_exists('message', $_REQUEST) && array_key_exists('text', $_REQUEST
 
 // TODO: check prep access rights to page
 
-$query = select_page_names(1);
-$result = pg_query($dbconnect, $query);
-$page_names = pg_fetch_all($result);
-
 $query = select_page_name($page_id, 1);
 $result = pg_query($dbconnect, $query);
 $row = [];
+
 if (!$result || pg_num_rows($result) < 1) {
   echo 'Неверно указана дисциплина';
   http_response_code(400);
@@ -78,6 +72,7 @@ if ($scripts) echo $scripts; ?>
   <div class="container-fluid overflow-hidden">
     <div class="row gy-5">
       <div class="col-8">
+
         <div class="pt-3">
 
           <h2 class="text-nowrap">
@@ -85,8 +80,11 @@ if ($scripts) echo $scripts; ?>
           </h2>
           <div style="padding-top:10px; padding-bottom:10px; ">
             <select class="form-select" aria-label=".form-select" name="select-discipline" id="selectCourse">
-
               <?php $i = 1;
+              $query = select_page_names(1);
+              $result = pg_query($dbconnect, $query);
+              $page_names = pg_fetch_all($result);
+
               foreach ($page_names as $page_name) {
                 if ($row[0] == $page_name['id'])
                   echo '<option selected value="' . $page_name['id'] . '">' . $page_name['names'] . '</option>';
@@ -94,7 +92,6 @@ if ($scripts) echo $scripts; ?>
                   echo '<option value="' . $page_name['id'] . '">' . $page_name['names'] . '</option>';
                 $i++;
               } ?>
-
             </select>
           </div>
 
@@ -129,7 +126,7 @@ if ($scripts) echo $scripts; ?>
           ?>
 
           
-        <div>
+          <div>
             <table class="table table-status" id="table-status-id" style="text-align: center;">
               <thead>
                 <tr class="table-row-header" style="text-align:center;">
@@ -202,9 +199,72 @@ if ($scripts) echo $scripts; ?>
               </tbody>
             </table>
           </div>
+
+          <?php
+          $query = select_notify_by_page($_SESSION['hash'], $page_id);
+          $result = pg_query($dbconnect, $query);
+					$array_notify = pg_fetch_all($result); ?>
+
+          
+          <ul class="accordion list-group" style="margin-bottom: 60px;">
+            <?php
+            // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
+            foreach ($students as $student) { 
+              $array_messages_count = array();
+              for($i = 0; $i < count($tasks); $i++){
+                $query = select_count_unreaded_messages_by_task($_SESSION['hash'], $tasks[$i]['id']);
+                $result = pg_query($dbconnect, $query);
+                array_push($array_messages_count, pg_fetch_assoc($result));
+              }
+              $sum_message_count = array_sum($array_messages_count);
+
+              $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
+              $result = pg_query($dbconnect, $query);
+					    $array_student_tasks = pg_fetch_all($result); 
+              ?>
+
+              <div class="student-item">
+                <li class="list-group-item" href="javascript:void(0);">
+                  <a class="toggle-accordion" href="javascript:void(0);" style="color: black;">
+                    <div class="row" href="javascript:void(0);">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <?= $student['fio']?>
+                          <span class="badge badge-primary badge-pill" 
+                            <?php if(in_array($student['id'], array_column($array_notify, 'student_user_id'))) {?> 
+                            style="background: red; color: white;" <?php }?>><?=$sum_message_count 
+                            + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']))?>
+                          </span>
+                      </div>
+                    </div> 
+                  </a>
+                </li>
+                <div class="inner-accordion" style="display: none;">
+                  <?php $i=0;
+                  foreach ($array_student_tasks as $task) {?>
+                    <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
+                      <li class="list-group-item" >
+                        <div class="row">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <?=$task['title']?>
+                            <span class="badge badge-primary badge-pill"
+                              <?php if(in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?> 
+                              style="background: red; color: white;" <?php }?>><?php echo $array_messages_count[$i]['count'] 
+                              + in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))?>
+                            </span>
+                          </div>
+                        </div>
+                      </li> 
+                    </a>  
+                  <?php $i++; }?>
+                </div>
+              </div>
+            <?php }?>            
+          </ul>
              
         </div>
       </div>
+
+
 
       <div class="col-4">
         <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; max-height: calc(100vh - 80px);">
@@ -308,6 +368,24 @@ if ($scripts) echo $scripts; ?>
     //$("#table-status-id>a").click(function(sender){alert(sender)});
     //console.log( "ready!" );
   });
+
+  $('.toggle-accordion').click(function(e) {
+  	e.preventDefault();
+  
+    var $this = $(this);
+    var $parentEl = $(this).parent();
+    var $pparentEl = $parentEl.parent();
+  
+    if ($parentEl.next().hasClass('show')) {
+        $parentEl.next().removeClass('show');
+        $parentEl.next().slideUp(350);
+    } else {
+        $parentEl.parent().parent().find('div .inner-accordion').removeClass('show');
+        $parentEl.parent().parent().find('div .inner-accordion').slideUp(350);
+        $parentEl.next().toggleClass('show');
+        $parentEl.next().slideToggle(350);
+    }
+});
 
   function filterTable(value) {
     if (value.trim() === '') {
