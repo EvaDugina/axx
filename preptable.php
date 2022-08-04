@@ -220,12 +220,13 @@ if ($scripts) echo $scripts; ?>
               // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
               foreach ($students as $student) { 
                 $array_messages_count = array();
+                $sum_message_count = 0;
                 for($i = 0; $i < count($tasks); $i++){
-                  $query = select_count_unreaded_messages_by_task($_SESSION['hash'], $tasks[$i]['id']);
+                  $query = select_count_unreaded_messages_by_task($student['id'], $tasks[$i]['id']);
                   $result = pg_query($dbconnect, $query);
                   array_push($array_messages_count, pg_fetch_assoc($result));
+                  $sum_message_count += $array_messages_count[$i]['count'];
                 }
-                $sum_message_count = array_sum($array_messages_count);
 
                 $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
                 $result = pg_query($dbconnect, $query);

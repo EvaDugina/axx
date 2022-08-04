@@ -199,10 +199,8 @@
         return "SELECT COUNT(*) FROM ax_message
             INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
             INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
-            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
-            INNER JOIN ax_message_delivery ON ax_message_delivery.message_id = ax_message.id  
-            WHERE ax_message_delivery.read = FALSE AND students.id = '$student_id' AND ax_task.id = '$task_id';
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
+            WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = '$student_id' AND ax_task.id = '$task_id';
         ";
     }
 
