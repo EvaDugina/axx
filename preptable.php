@@ -235,7 +235,7 @@ if ($scripts) echo $scripts; ?>
                 $array_messages_count = array();
                 $sum_message_count = 0;
                 for($i = 0; $i < count($tasks); $i++){
-                  $query = select_count_unreaded_messages_by_task($student['id'], $tasks[$i]['id']);
+                  $query = select_count_unreaded_messages_by_task_for_teacher($student['id'], $tasks[$i]['id']);
                   $result = pg_query($dbconnect, $query);
                   array_push($array_messages_count, pg_fetch_assoc($result));
                   $sum_message_count += $array_messages_count[$i]['count'];

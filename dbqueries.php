@@ -116,7 +116,7 @@
 
     // получение уведомлений для студента по невыполненным заданиям
     function select_notify_for_student_header($student_id){
-        return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code FROM ax_task
+        return "SELECT ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code FROM ax_task
             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
             INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
@@ -174,7 +174,7 @@
         ";
     }
 
-    function select_count_unreaded_messages_by_task($student_id, $task_id){
+    function select_count_unreaded_messages_by_task_for_teacher($student_id, $task_id){
         return "SELECT COUNT(*) FROM ax_message
             INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
             INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
@@ -183,6 +183,17 @@
             AND ax_message.sender_user_type != 1;
         ";
     }
+
+    function select_count_unreaded_messages_by_task_for_student($student_id, $task_id){
+        return "SELECT COUNT(*) FROM ax_message
+            INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
+            INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
+            WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = '$student_id' AND ax_task.id = '$task_id'
+            AND ax_message.sender_user_type != 0;
+        ";
+    }
+
 
 
     

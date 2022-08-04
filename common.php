@@ -148,21 +148,21 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                 <?php $i=0;
                 foreach ($array_notify as $notify) { $i++; 
-                  $query = select_count_unreaded_messages_by_task($notify['student_user_id'], $notify['task_id']);
+                  if($au->isTeacher()){
+                    $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
+                  } else {
+                    $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
+                  }
                   $result = pg_query($query);
-                  $count_unreaded_messages_by_notify = pg_fetch_assoc($result);
-                  ?>
+                  $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
                   <a <?php 
                   if($au->isTeacher()){ echo 'style="color: black;"';?>
                     href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
                   <?php
                   } else if ($au->isAdmin());
-                  else {  
-                    if($notify['status_code'] == 2) echo 'style="color: red;"';
-                    else if($notify['status_code'] == 3) echo 'style="color: green;"';
-                    else echo 'style="color: black;"';?>
-                    href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>" > <?php // TODO: дать ссылку на чат
-                  } ?>
+                  else {?> 
+                    href="taskchat.php?task=<?=$notify['task_id']?>&page=<?=$notify['page_id'];?>" > 
+                  <?php } ?>
                       <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
                         <div class="d-flex justify-content-between align-items-center">
                           <div style="margin-right: 10px;">
@@ -174,9 +174,11 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
                             }?>
                           </div>
                           <span class="badge badge-primary badge-pill"
-                            <?php if($notify['status_code'] == 5) {?> style="background: red; color: white;"> 
+                            <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> style="background: red; color: white;"> 
                               <?php echo $count_unreaded_messages_by_notify['count'] + 1; 
-                            } else {?> ><?=$count_unreaded_messages_by_notify['count']?> <?php }?>
+                            } else {
+                              echo ">". $count_unreaded_messages_by_notify['count'];
+                            }?>
                           </span>
                         </div>
                       </li>
