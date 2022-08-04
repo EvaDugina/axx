@@ -147,28 +147,40 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                 <?php $i=0;
-                foreach ($array_notify as $notify) { $i++; ?>
-                  <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>> 
-                    <a <?php 
-                      if($au->isTeacher()){ echo 'style="color: black;"';?>
-                        href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
-                      <?php
-                      } else if ($au->isAdmin());
-                      else {  
-                        if($notify['status_code'] == 2) echo 'style="color: red;"';
-                        else if($notify['status_code'] == 3) echo 'style="color: green;"';
-                        else echo 'style="color: black;"';?>
-                        href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>" > <?php // TODO: дать ссылку на чат
-                      } ?>
-
-                      <?php 
-                      if ($au->isTeacher()) {
-                        echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?><br><?php echo $notify['title'];
-                      } else {
-                        echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
-                      }?>
-                    </a>
-                  </li>
+                foreach ($array_notify as $notify) { $i++; 
+                  $query = select_count_unreaded_messages_by_task($notify['student_user_id'], $notify['task_id']);
+                  $result = pg_query($query);
+                  $count_unreaded_messages_by_notify = pg_fetch_assoc($result);
+                  ?>
+                  <a <?php 
+                  if($au->isTeacher()){ echo 'style="color: black;"';?>
+                    href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
+                  <?php
+                  } else if ($au->isAdmin());
+                  else {  
+                    if($notify['status_code'] == 2) echo 'style="color: red;"';
+                    else if($notify['status_code'] == 3) echo 'style="color: green;"';
+                    else echo 'style="color: black;"';?>
+                    href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>" > <?php // TODO: дать ссылку на чат
+                  } ?>
+                      <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div style="margin-right: 10px;">
+                            <?php if ($au->isTeacher()) {
+                              echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
+                              <br><?php echo $notify['title'];
+                            } else {
+                              echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
+                            }?>
+                          </div>
+                          <span class="badge badge-primary badge-pill"
+                            <?php if($notify['status_code'] == 5) {?> style="background: red; color: white;"> 
+                              <?php echo $count_unreaded_messages_by_notify['count'] + 1; 
+                            } else {?> ><?=$count_unreaded_messages_by_notify['count']?> <?php }?>
+                          </span>
+                        </div>
+                      </li>
+                  </a>
                 <?php }?>
               </ul>
             </ul>
