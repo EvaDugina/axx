@@ -248,7 +248,7 @@ if ($scripts) echo $scripts; ?>
 
                 <div class="student-item">
                   <li class="list-group-item" href="javascript:void(0);">
-                    <a class="toggle-accordion" href="javascript:void(0);" style="color: black;">
+                    <a id="<?= $student['fio']?>" class="toggle-accordion" href="javascript:void(0);" style="color: black;">
                       <div class="row" href="javascript:void(0);">
                         <div class="d-flex justify-content-between align-items-center">
                           <strong><?= $student['fio']?></strong>
@@ -289,8 +289,8 @@ if ($scripts) echo $scripts; ?>
       </div>
 
       <?php if ($messages && count($messages) > 0) {?>
-        <div class="col-4">
-          <div id="list-messages" class="p-3 border bg-light" style="overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);">
+        <div class="col-4 bg-light">
+          <div id="list-messages" class="p-3 bg-light" style="overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);">
             <h5>История посылок и оценок</h5>
             <div id="list-messages-id">
               <?php
@@ -307,6 +307,8 @@ if ($scripts) echo $scripts; ?>
     </div>
 
 </main>
+
+
 
 <!-- Modal dialog answer -->
 <div class="modal fade" id="dialogAnswer" tabindex="-1" aria-labelledby="dialogAnswerLabel" aria-hidden="true">
@@ -333,6 +335,8 @@ if ($scripts) echo $scripts; ?>
     </div>
   </form>
 </div>
+
+
 
 <!-- Modal dialog mark -->
 <div class="modal fade" id="dialogMark" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
@@ -382,6 +386,33 @@ if ($scripts) echo $scripts; ?>
 </script>
 
 <script type="text/javascript">
+  $('.toggle-accordion').click(function(e) {
+  	e.preventDefault();
+
+    console.log('Нажатие на элемент: ' + $(this).attr("id"));
+  
+    var $this = $(this);
+    var $parentEl = $(this).parent();
+  
+    if ($parentEl.next().hasClass('show')) {
+        console.log('Закрытие себя');
+        $parentEl.next().removeClass('show');
+        $parentEl.next().slideUp();
+    } else {
+        console.log('Закрытие всех остальных элементов');
+        $parentEl.parent().parent().find('div .inner-accordion').removeClass('show');
+        $parentEl.parent().parent().find('div .inner-accordion').slideUp();
+        // Исправление ошибки связанной с работой ф-ции find, которая не успевает отработать до открытия себя
+        if (!$parentEl.next().hasClass('show')) {
+          console.log('Открытие себя');
+          $parentEl.next().toggleClass('show');
+          $parentEl.next().slideToggle();
+        }
+    }
+  });
+</script>
+
+<script type="text/javascript">
   $(function() {
     //$('[data-toggle="tooltip"]').tooltip();
     //$('[data-toggle="popover"]').popover();      
@@ -391,24 +422,6 @@ if ($scripts) echo $scripts; ?>
     //$("#table-status-id>a").click(function(sender){alert(sender)});
     //console.log( "ready!" );
   });
-
-  $('.toggle-accordion').click(function(e) {
-  	e.preventDefault();
-  
-    var $this = $(this);
-    var $parentEl = $(this).parent();
-    var $pparentEl = $parentEl.parent();
-  
-    if ($parentEl.next().hasClass('show')) {
-        $parentEl.next().removeClass('show');
-        $parentEl.next().slideUp(350);
-    } else {
-        $parentEl.parent().parent().find('div .inner-accordion').removeClass('show');
-        $parentEl.parent().parent().find('div .inner-accordion').slideUp(350);
-        $parentEl.next().toggleClass('show');
-        $parentEl.next().slideToggle(350);
-    }
-});
 
   function filterTable(value) {
     if (value.trim() === '') {
