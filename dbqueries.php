@@ -206,7 +206,8 @@
     }
 
     function select_page_tasks_with_assignment($page_id, $status, $student_id) {
-        return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id FROM ax_task 
+        return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id, 
+        ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_assignment.status_text FROM ax_task 
         INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
         INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
         INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
@@ -324,7 +325,7 @@
 	            INNER JOIN groups ON groups.id = students_to_groups.group_id
 	            LEFT JOIN ax_student_page_info ON ax_student_page_info.student_user_id = students.id AND ax_student_page_info.page_id=ax_page_group.page_id
                 WHERE ax_page_group.page_id = '$page_id'
-                ORDER BY grp, fio";
+                ORDER BY grp, fio;";
     }
 
 
@@ -415,7 +416,7 @@
             LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
             INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
             INNER JOIN groups ON groups.id = students_to_groups.group_id
-            WHERE ax_task.page_id = '$page_id' ORDER BY mid DESC;
+            WHERE ax_task.page_id = '$page_id' AND (m1.type = 0 OR m1.type = 2) ORDER BY mid DESC;
         ";
     }
 
