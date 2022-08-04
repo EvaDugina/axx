@@ -171,9 +171,9 @@ if ($scripts) echo $scripts; ?>
                     <?php
                     for ($t = 0; $t < count($tasks); $t++) { // tasks cycle
                       $task_message = null;
-                      for ($m = 0; $m < count($messages); $m++) { // search for last student+task message
-                        if ($messages[$m]['tid'] == $tasks[$t]['id'] && $messages[$m]['sid'] == $students[$s]['id']) {
-                          $task_message = $messages[$m];
+                      foreach ($messages as $message) { // search for last student+task message
+                        if ($message['tid'] == $tasks[$t]['id'] && $message['sid'] == $students[$s]['id']) {
+                          $task_message = $message;
                           break;
                         }
                       }
@@ -183,7 +183,10 @@ if ($scripts) echo $scripts; ?>
                       <?php
                       } else if ($task_message['mtime'] != null && $task_message['amark'] == null && $task_message['mfile'] != null) { // have message without mark and with file, can answer
                       ?>
-                        <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" data-mdb-content="<a target='_blank' href='<?= $task_message['murl'] ?>'>FILE: <?= $task_message['mfile'] ?></a><br/> <?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>"><?= $task_message['val'] ?></td>
+                        <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" 
+                        title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" 
+                        data-mdb-content="<a target='_blank' href='<?= $task_message['murl'] ?>'>FILE: <?= $task_message['mfile'] ?></a><br/> <?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>">
+                        <?= $task_message['val'] ?></td>
                       <?php
                       } else if ($task_message['mtime'] != null && $task_message['amark'] == null) { // have message without mark, can answer
                       ?>
@@ -209,7 +212,7 @@ if ($scripts) echo $scripts; ?>
           <?php } ?>
 
           <?php
-          $query = select_notify_by_page($_SESSION['hash'], $page_id);
+          $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
           $result = pg_query($dbconnect, $query);
 					$array_notify = pg_fetch_all($result);
 

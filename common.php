@@ -126,12 +126,12 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
               $array_notify = array();
               if ($au->isAdmin());
               else if ($au->isTeacher()) {
-                $query_undone_tasks = select_notify_for_teacher($_SESSION['hash']);
+                $query_undone_tasks = select_notify_for_teacher_header($_SESSION['hash']);
                 $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
                 $array_notify = pg_fetch_all($result_undone_tasks);
               }
               else {
-                $query_undone_tasks = select_notify_for_student($_SESSION['hash']);
+                $query_undone_tasks = select_notify_for_student_header($_SESSION['hash']);
                 $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
                 $array_notify = pg_fetch_all($result_undone_tasks);
               }

@@ -55,11 +55,11 @@ function full_name($discipline_id, $dbconnect) {
 				<div class="row g-5 container-fluid">
 					<?php 
 						foreach($pages as $page) {
-							$query = select_notify_count_by_page($page['id']);
+							$query = select_notify_count_by_page_for_mainpage($page['id']);
                                         		$result = pg_query($dbconnect, $query);
 							$notify_count = pg_fetch_assoc($result);
 
-							$query = select_notify_by_page($_SESSION['hash'], $page['id']);
+							$query = select_notify_by_page_for_mainpage($_SESSION['hash'], $page['id']);
                                         		$result = pg_query($dbconnect, $query);
 							$array_notify = pg_fetch_all($result);
 
