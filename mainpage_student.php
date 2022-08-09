@@ -12,24 +12,6 @@ $disc_count=pg_fetch_all($result1); ?>
 <!DOCTYPE html>
 <html lang="en">
 <html> 
-    <head>
-        <title>Дашборд студента</title>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <link rel="stylesheet" href="css/main.css">
-        <!-- MDB -->
-        <link rel="stylesheet" href="css/mdb.min.css" />
-        <!-- extra -->
-        <link rel="stylesheet" href="css/accelerator.css" />
-        <!-- MDB icon -->
-        <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-        <!-- Google Fonts Roboto -->
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
-    </head>
 
     <?php
     show_head($pge_title='');
@@ -45,64 +27,81 @@ $disc_count=pg_fetch_all($result1); ?>
             <div class="container">
                 <div class="row g-5 container-fluid">
                     <?php 
-                        foreach($disciplines as $discipline) {
-                            if ($now_semester != $discipline['semester']) { ?>
-                                </div>
-                                </div>
-                                <?php $now_semester = $discipline['semester'];?>
-                                <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>
-                                <div class="container">
-                                    <div class="row g-5 container-fluid">
-                            <?php } ?>
-                            <div class="col-3" style="height: 230px;">
-                                <div class="popover-message-message-stud" role="listitem">
-                                    <div class="popover-arrow"></div>
-                                    <div class="popover-body">
-                                        <?php 
-                                        $count_succes_tasks = 0;
-                                        $count_unsucces_tasks = 0;
-                                        $query_tasks = select_page_tasks($discipline['id'], 1);
-                                        $result_tasks = pg_query($dbconnect, $query_tasks);
-                                        if (!$result_tasks || pg_num_rows($result_tasks) < 1);
-                                        else {
-                                            $i = 0;
-                                            while ($row_task = pg_fetch_assoc($result_tasks)) {
-                                                $result_assignment = pg_query($dbconnect, select_task_assignment($row_task['id'], $_SESSION['hash']));
-                                                if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
-                                                    $row_task_assignment = pg_fetch_assoc($result_assignment);
-                                                    if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
-                                                    if($row_task_assignment['status_code'] == 2 || $row_task_assignment['status_code'] == 5) $count_unsucces_tasks++;
-                                                }
-                                            }
-                                        }
-                                        $count_tasks = $count_succes_tasks + $count_unsucces_tasks;
-                                        $result = pg_query($dbconnect, select_discipline_name($discipline['disc_id']));
-                                        $full_name = pg_fetch_all($result);
-                                        ?>
-                                        <div class="p-3 popover-header">
-                                            <?php $page_id = $discipline['id']; ?>
-                                            <a href="studtasks.php?page=<?php echo $page_id; ?>"><?php echo $discipline['short_name']; ?></a><br>
-                                        </div>
-                                        <div class="d-flex align-items-start flex-column" style="height: 140px;">
-                                            <div class="mb-auto"><a><?php echo $full_name[0]['name']; ?></a></div>
-                                        <?php if ($count_tasks == 0) { ?>
-                                            <div class="popover-footer text-muted">
-                                                    <span>Задания временно отсутствуют</span>
-                                            </div>
-                                        </div>
-                                        <?php }
-                                        else {?>
-                                            <div class="d-flex justify-content-between text-muted" style="width: 100%">
-                                                <span>Выполнено</span>
-                                                <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
-                                            </div>
-                                            <progress class="progress-bar bg-info" style="border-width: 0px; height: 15px;" value=<?php echo $count_succes_tasks; ?> max=<?php echo $count_tasks; ?> ></progress>
-                                        </div>
-                                        <?php } ?>
+                    foreach($disciplines as $discipline) {
+                        $page_id = $discipline['id'];
+                        if ($now_semester != $discipline['semester']) { ?>
+                </div>
+            </div>
+                            <?php $now_semester = $discipline['semester'];?>
+            <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?=$now_semester?> семестр</h2><br>
+            <div class="container">
+                <div class="row g-5 container-fluid">
+                        <?php } ?>
+                            
+                    <div class="col-3">
+                        <div class="card" style="border-radius: 0px 0px 10px 10px;">
+                            <?php 
+                            $count_succes_tasks = 0;
+                            $count_unsucces_tasks = 0;
+                            $query_tasks = select_page_tasks($discipline['id'], 1);
+                            $result_tasks = pg_query($dbconnect, $query_tasks);
+                            if (!$result_tasks || pg_num_rows($result_tasks) < 1);
+                            else {
+                                $i = 0;
+                                while ($row_task = pg_fetch_assoc($result_tasks)) {
+                                    $result_assignment = pg_query($dbconnect, select_task_assignment($row_task['id'], $_SESSION['hash']));
+                                    if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
+                                        $row_task_assignment = pg_fetch_assoc($result_assignment);
+                                        if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
+                                        if($row_task_assignment['status_code'] == 2 || $row_task_assignment['status_code'] == 5) $count_unsucces_tasks++;
+                                    }
+                                }
+                            }
+                            $count_tasks = $count_succes_tasks + $count_unsucces_tasks;
+                            $result = pg_query($dbconnect, select_discipline_name($discipline['disc_id']));
+                            $full_name = pg_fetch_all($result);
+                            ?>
+                            <div style="position: relative;">
+                                <img class="card-img-top" src="src/images/informatic.jpg" alt="ИНФОРМАТИКА" 
+                                onclick="window.location='studtasks.php?page=<?=$page_id?>'">
+                                <div class="card_image_content">
+                                    <div class="p-2" style="text-align: left;">
+                                        <a style="color: white; font-weight: bold;" href="studtasks.php?page=<?php echo $page_id; ?>"><?php echo $discipline['short_name']; ?></a>
+                                        <br><a><?php echo $full_name[0]['name']; ?></a>
                                     </div>
                                 </div>
                             </div>
-                        <?php } ?>
+                            <div class="card-body">
+                            <?php if ($count_tasks == 0) { ?>
+                                <div class="popover-footer text-muted">
+                                    <span>Задания временно отсутствуют</span>
+                                </div>
+                            <?php } else {?>
+                                <div class="d-flex justify-content-between text-muted" style="width: 100%">
+                                    <span>Выполнено</span>
+                                    <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
+                                </div>
+                                <div class="progress" style="width: 100%; height: 1px; border-radius: 5px; margin-bottom: 5px;">
+                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%;" 
+                                    aria-valuenow="<?=$count_succes_tasks?>" aria-valuemin="0" aria-valuemax="<?=$count_tasks?>">
+                                    </div>
+                                </div>
+                                <div class="progress" style="width: 100%; height: 20px; border-radius: 5px;">
+                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%;" 
+                                    aria-valuenow="<?=$count_succes_tasks?>" aria-valuemin="0" aria-valuemax="<?=$count_tasks?>">
+                                        <?=round($count_succes_tasks/$count_tasks*100, 0)?>%
+                                    </div>
+                                </div>
+                            <?php } ?>
+                            </div>
+                            
+                        </div>
+                    </div>
+                                        
+                <?php } ?>
+                </div>
+            </div>
+
         </main>
     </body>
 </html>

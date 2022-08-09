@@ -65,3 +65,15 @@
 .error{ 
     color: red; 
 }
+
+.card_image_content {
+    width: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+    bottom: 0%; 
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+    color: #c9c9c9; 
+}
