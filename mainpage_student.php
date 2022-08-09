@@ -39,7 +39,7 @@ $disc_count=pg_fetch_all($result1); ?>
                         <?php } ?>
                             
                     <div class="col-3">
-                        <div class="card" style="border-radius: 0px 0px 10px 10px;">
+                        <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px;" >
                             <?php 
                             $count_succes_tasks = 0;
                             $count_unsucces_tasks = 0;
@@ -61,9 +61,11 @@ $disc_count=pg_fetch_all($result1); ?>
                             $result = pg_query($dbconnect, select_discipline_name($discipline['disc_id']));
                             $full_name = pg_fetch_all($result);
                             ?>
-                            <div style="position: relative;">
-                                <img class="card-img-top" src="src/images/informatic.jpg" alt="ИНФОРМАТИКА" 
-                                onclick="window.location='studtasks.php?page=<?=$page_id?>'">
+                            <div data-mdb-ripple-color="light" style="position: relative; cursor: pointer;" onmouseenter="mouse_card_navigation(event)" 
+                            onclick="window.location='studtasks.php?page=<?=$page_id?>'">
+                                <div class="bg-image hover-overlay hover-zoom ripple">
+                                    <img src="src/images/informatic.jpg" alt="ИНФОРМАТИКА">
+                                </div>
                                 <div class="card_image_content">
                                     <div class="p-2" style="text-align: left;">
                                         <a style="color: white; font-weight: bold;" href="studtasks.php?page=<?php echo $page_id; ?>"><?php echo $discipline['short_name']; ?></a>
@@ -101,7 +103,10 @@ $disc_count=pg_fetch_all($result1); ?>
                 <?php } ?>
                 </div>
             </div>
-
         </main>
+
     </body>
+
+    
+
 </html>
