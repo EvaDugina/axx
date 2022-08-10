@@ -5,6 +5,20 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
+// защита от случайного перехода
+$au = new auth_ssh();
+if ($au->isTeacher()) {
+	echo "Некорректное обращение";
+	http_response_code(400);
+	exit;
+}
+
+// Обработка некорректного перехода между страницами
+if (!isset($_GET['page']) || !is_numeric($_GET['page'])){
+	header('Location:mainpage_student.php');
+  	exit;
+}
+
 
 $page_id = 0;
 $discipline_name = "";
@@ -14,14 +28,6 @@ $short_name = "";
 
 $actual_teachers = [];
 $page_groups = [];
-
-// защита от случайного перехода
-$au = new auth_ssh();
-if ($au->isTeacher()) {
-	echo "Некорректное обращение";
-	http_response_code(400);
-	exit;
-}
 
 if (array_key_exists('page', $_REQUEST)) {
 	$page_id = $_REQUEST['page'];
@@ -67,13 +73,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	}
 	$count_tasks = $count_unsucces_tasks + $count_succes_tasks;
 
-} else {
-	$page_id = 0;
-	echo "Некорректное обращение";
-	http_response_code(400);
-	exit;
-}
-?>
+}?>
 
 <html lang="en">
 

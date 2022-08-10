@@ -13,6 +13,12 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	header('Location:login.php');
 }
 
+// Обработка некорректного перехода между страницами
+if (!isset($_GET['page']) && !array_key_exists('add-page', $_REQUEST) || !is_numeric($_GET['page'])){
+	header('Location:mainpage.php');
+	exit;
+}
+
 $id = 0;
 $name = "";
 $disc_id = 0;
@@ -81,7 +87,7 @@ if (array_key_exists('page', $_REQUEST)) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-    <title>536 Акселератор - <?=$page_title?></title>
+    <title>536 Акселератор - Редактирование/Добавление дисциплин</title>
 
     <!-- MDB icon -->
     <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
@@ -104,7 +110,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	<body>
 
 	<?php
-	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Редактор дисциплин' => 'mainpage.php')); ?>
+	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Редактор дисциплин' => $_SERVER['REQUEST_URI'])); ?>
 
     <main class="pt-2" aria-hidden="true">
 	<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 

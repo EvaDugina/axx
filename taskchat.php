@@ -3,9 +3,10 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
-if (!isset($_GET['task']) || !isset($_GET['page'])) {
-	echo '<p style="color:#f00">Некорректное обращение</p>';
-	exit;
+// Обработка некорректного перехода между страницами
+if (!isset($_GET['task']) || !isset($_GET['page']) || !is_numeric($_GET['task']) || !is_numeric($_GET['page'])){
+	header('Location:index.php');
+  	exit;
 }
 
 $task_id = $_GET['task'];

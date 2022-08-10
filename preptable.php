@@ -13,18 +13,18 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	header('Location:login.php');
 }
 
+// Обработка некорректного перехода между страницами
+if (!isset($_GET['page']) || !is_numeric($_GET['page'])){
+	header('Location:mainpage.php');
+  exit;
+}
+
 // получение параметров запроса
 $user_id = -5; // TODO: get current user id
 $page_id = 0;
 
-$au = new auth_ssh();
-if (array_key_exists('page', $_REQUEST) && ($au->isTeacher() || $au->isAdmin()))
+if (array_key_exists('page', $_REQUEST))
   $page_id = $_REQUEST['page'];
-else {
-  echo "Некорректное обращение";
-  http_response_code(400);
-  exit;
-}
 
 if (isset($_POST['select-discipline'])) {
   $page_id = $_POST['select-discipline'];
