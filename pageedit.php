@@ -1,73 +1,79 @@
 <!DOCTYPE html>
 
-	<?php
-		
-		require_once("common.php");
-		require_once("dbqueries.php");
-		require_once("utilities.php");
-		
-		
-		$id = 0;
-		$name = "";
-		$disc_id = 0;
-		$semester = "";
-		$short_name = "";
+<?php
 
-		$actual_teachers = [];
-		$page_groups = [];
-		
-		$query = select_all_disciplines();
-		$result = pg_query($dbconnect, $query);
-		$disciplines = pg_fetch_all($result);
-		
-		$query = select_discipline_timestamps();
-		$result = pg_query($dbconnect, $query);
-		$timestamps = pg_fetch_all($result);
+require_once("common.php");
+require_once("dbqueries.php");
+require_once("utilities.php");
 
-		$query = select_discipline_years();
-		$result = pg_query($dbconnect, $query);
-		$years = pg_fetch_all($result);
-		
-		$query = select_teacher_name();
-		$result = pg_query($dbconnect, $query);
-		$teachers = pg_fetch_all($result);
-		
-		$query = select_groups();
-		$result = pg_query($dbconnect, $query);
-		$groups = pg_fetch_all($result);
-		
-		if (array_key_exists('page', $_REQUEST)) {
-			$page_id = $_REQUEST['page'];
-			
-			$query = select_discipline_page($page_id);
-			$result = pg_query($dbconnect, $query);
-			$page = pg_fetch_all($result)[0];
-			$disc_id = $page['disc_id'];
-			
-			foreach($disciplines as $key => $discipline){
-				if($discipline['id'] == $page['disc_id'])
-					$name = $discipline['name'];
-			}
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isAdmin() && !$au->isTeacher()){
+	$au->logout();
+	header('Location:login.php');
+}
 
-			$semester = $page['year']."/".convert_sem_from_id($page['semester']);
-			$short_name = $page['short_name'];
+$id = 0;
+$name = "";
+$disc_id = 0;
+$semester = "";
+$short_name = "";
 
-			$query = select_page_prep_name($page_id);
-			$result = pg_query($dbconnect, $query);
-			$actual_teachers = pg_fetch_all($result);
+$actual_teachers = [];
+$page_groups = [];
 
-			$query = select_discipline_groups($page_id);
-			$result = pg_query($dbconnect, $query);
-			$page_groups = pg_fetch_all($result);
-		} else {
-			$page_id = 0;
-		}
-		
-		#echo "<pre>";
-		#var_dump(json_decode($page_groups_json));
-		#echo "</pre>";
-		//show_head($page_title='');
-	?>
+$query = select_all_disciplines();
+$result = pg_query($dbconnect, $query);
+$disciplines = pg_fetch_all($result);
+
+$query = select_discipline_timestamps();
+$result = pg_query($dbconnect, $query);
+$timestamps = pg_fetch_all($result);
+
+$query = select_discipline_years();
+$result = pg_query($dbconnect, $query);
+$years = pg_fetch_all($result);
+
+$query = select_teacher_name();
+$result = pg_query($dbconnect, $query);
+$teachers = pg_fetch_all($result);
+
+$query = select_groups();
+$result = pg_query($dbconnect, $query);
+$groups = pg_fetch_all($result);
+
+if (array_key_exists('page', $_REQUEST)) {
+	$page_id = $_REQUEST['page'];
+	
+	$query = select_discipline_page($page_id);
+	$result = pg_query($dbconnect, $query);
+	$page = pg_fetch_all($result)[0];
+	$disc_id = $page['disc_id'];
+	
+	foreach($disciplines as $key => $discipline){
+		if($discipline['id'] == $page['disc_id'])
+			$name = $discipline['name'];
+	}
+
+	$semester = $page['year']."/".convert_sem_from_id($page['semester']);
+	$short_name = $page['short_name'];
+
+	$query = select_page_prep_name($page_id);
+	$result = pg_query($dbconnect, $query);
+	$actual_teachers = pg_fetch_all($result);
+
+	$query = select_discipline_groups($page_id);
+	$result = pg_query($dbconnect, $query);
+	$page_groups = pg_fetch_all($result);
+} else {
+	$page_id = 0;
+}
+
+#echo "<pre>";
+#var_dump(json_decode($page_groups_json));
+#echo "</pre>";
+//show_head($page_title='');
+?>
 
 <html lang="en">
 <head>

@@ -3,10 +3,12 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
-// в ax_page disc_id у эргономики должно быть -4;
-
-//show_header('Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
-//show_header_2($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php'));
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isAdmin() && !$au->isTeacher()){
+	$au->logout();
+	header('Location:login.php');
+}
 
 $result = pg_query($dbconnect, 'select id, short_name, disc_id, year from ax_page');
 $pages=pg_fetch_all($result);

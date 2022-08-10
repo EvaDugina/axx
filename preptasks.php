@@ -1,36 +1,44 @@
 <?php
-	require_once("common.php");
-	require_once("dbqueries.php");
+require_once("common.php");
+require_once("dbqueries.php");
 
-	// получение параметров запроса
-	$page_id = 0;
-	if (array_key_exists('page', $_REQUEST))
-		$page_id = $_REQUEST['page'];
-	else {
-		echo "Некорректное обращение";
-		http_response_code(400);
-		exit;
-	}
-						
-	show_header('Задания по дисциплине', 
-				array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
-						'Задания по дисциплине' => 'preptasks.php?page='.$page_id
-					)
-				);
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isAdmin() && !$au->isTeacher()){
+	$au->logout();
+	header('Location:login.php');
+}
+
+// получение параметров запроса
+$page_id = 0;
+if (array_key_exists('page', $_REQUEST))
+  $page_id = $_REQUEST['page'];
+else {
+  echo "Некорректное обращение";
+  http_response_code(400);
+  exit;
+}
+          
+show_header('Задания по дисциплине', 
+      array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
+          'Задания по дисциплине' => 'preptasks.php?page='.$page_id
+        )
+      );
 ?>
-    <script src="js/jquery-3.5.1.min.js"></script>
-    <main class="pt-2">
-      <div class="container-fluid overflow-hidden">
-        <div class="row gy-5">
-          <div class="col-8">
-            <div class="pt-3">
 
-              <h2 class="text-nowrap">
-                <form id="addTask" method="post" action="taskedit.php">
-                  <input type="hidden" name="page" value="<?=$page_id?>" />
-                  Задания по дисциплине<button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;"><i class="fas fa-plus-square fa-lg"></i> Новое задание</button>
-                </form>
-              </h2>
+<script src="js/jquery-3.5.1.min.js"></script>
+<main class="pt-2">
+  <div class="container-fluid overflow-hidden">
+    <div class="row gy-5">
+      <div class="col-8">
+        <div class="pt-3">
+
+          <h2 class="text-nowrap">
+            <form id="addTask" method="post" action="taskedit.php">
+              <input type="hidden" name="page" value="<?=$page_id?>" />
+              Задания по дисциплине<button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;"><i class="fas fa-plus-square fa-lg"></i> Новое задание</button>
+            </form>
+          </h2>
               
 <?php
 	$query = select_page_tasks($page_id, 1);

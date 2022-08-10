@@ -12,7 +12,6 @@ if (array_key_exists('action', $_POST)) {
 			case 'login':
 				$loggedIn = $au->login($_POST['login'], $_POST['password'], $_SERVER['HTTP_REFERER']);
 				if(!$loggedIn) {
-					
 					header('Location:login.php'); 
 					exit;
 				} 

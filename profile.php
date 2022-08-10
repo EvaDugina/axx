@@ -8,8 +8,6 @@ require_once("utilities.php");
 $query = get_user_info($_SESSION['hash']);
 $result = pg_query($dbconnect, $query);
 $student_info = pg_fetch_assoc($result);
-
-
 ?>
 
 <html lang="en">

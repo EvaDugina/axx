@@ -20,30 +20,45 @@
     <main class="pt-2">
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
-          <div class="col-3">
-            <h2>Вход в систему</h2>
+          <div class="col-4"></div>
+          <div class="col-4 pt-4">
+            <div class="pt-1 px-3" style="border: 1px solid #dee2e6; border-radius: 5px;">
+              <h2 class="my-2">Авторизация</h2>
+              <?php if (isset($_GET['error']) && $_GET['error'] == 1) { ?>
+                <h2>ОШИБКА ВХОДА!</h2>
+              <?php }?>
 
-            <?php if (isset($_GET['error']) && $_GET['error'] == 1) { ?>
-              <h2>ОШИБКА ВХОДА!</h2>
-            <?php }?>
+              <form class="text-nowrap form-horizontal" method="post" action="auth.php">
+                <input type="hidden" name="action" value="login" />
+                
+                  <div class="form-outline my-3">
+                    <input type="text" id="login" name="login" class="form-control" />
+                    <label class="form-label" for="login">Логин</label>
+                  </div>
+                
+                  <div class="form-outline my-3">
+                    <input type="password" id="pass" name="password" class="form-control" />
+                    <label class="form-label" for="pass">Пароль</label>
+                  </div>
 
-            <form class="text-nowrap" method="post" action="auth.php">
-              <input type="hidden" name="action" value="login" />
-              <div class="form-outline m-3">
-                <input type="text" id="login" name="login" class="form-control" />
-                <label class="form-label" for="login">Логин</label>
-              </div>
-              <div class="form-outline m-3">
-                <input type="password" id="pass" name="password" class="form-control" />
-                <label class="form-label" for="pass">Пароль</label>
-              </div>
-              <button type="submit" class="btn my-2 mx-3"><i class="fas fa-signin-alt fa-lg"></i> Войти</button>
-            </form>    
+                  <strong><p id="error-authorization" class="error" style="display: none;">Ошибка: Неверный Логин или Пароль</p></strong>
+                  <strong><p id="error-field-filled" class="error" style="display: none;">Ошибка: Незаполненные поля!</p></strong>
+                
+                  <button type="submit" class="btn my-2 col-3">
+                    <i class="fas fa-signin-alt fa-lg"></i>Войти
+                  </button>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>
     </main>
-    <!-- End your project here-->
+    
+    <script type="text/javascript">
+      
+    </script>
+
 <?php
 	show_footer();
 ?>

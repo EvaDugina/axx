@@ -1,43 +1,50 @@
 <!DOCTYPE html>
 
 <?php
-	require_once("common.php");
-	require_once("dbqueries.php");
-	
-	// получение параметров запроса
-	$page_id = 0;
-	if (array_key_exists('page', $_REQUEST))
-		$page_id = $_REQUEST['page'];
-	else {
-		echo "Некорректное обращение";
-		http_response_code(400);
-		exit;
-	}
-	
-	$query = select_task($page_id);
-	$result = pg_query($dbconnect, $query);
-	$task = pg_fetch_assoc($result);
-	
-	if (!$result)
-	  echo 'Ошибка';
-  
-	$query = select_task_file(2, $page_id);
-	$result = pg_query($dbconnect, $query);
-	$test = pg_fetch_all($result);
-	
-	$query = select_task_file(3, $page_id);
-	$result = pg_query($dbconnect, $query);
-	$test_of_test = pg_fetch_all($result);
-	
-	#echo "<pre>";
-	#var_dump($task);
-	#echo "</pre>";
-  
-  	show_header('Задания по дисциплине', 
-		array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
-				'Задания по дисциплине' => 'preptasks.php?page='.$page_id
-			)
-		);
+require_once("common.php");
+require_once("dbqueries.php");
+
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isAdmin() && !$au->isTeacher()){
+	$au->logout();
+	header('Location:login.php');
+}
+
+// получение параметров запроса
+$page_id = 0;
+if (array_key_exists('page', $_REQUEST))
+	$page_id = $_REQUEST['page'];
+else {
+	echo "Некорректное обращение";
+	http_response_code(400);
+	exit;
+}
+
+$query = select_task($page_id);
+$result = pg_query($dbconnect, $query);
+$task = pg_fetch_assoc($result);
+
+if (!$result)
+	echo 'Ошибка';
+
+$query = select_task_file(2, $page_id);
+$result = pg_query($dbconnect, $query);
+$test = pg_fetch_all($result);
+
+$query = select_task_file(3, $page_id);
+$result = pg_query($dbconnect, $query);
+$test_of_test = pg_fetch_all($result);
+
+#echo "<pre>";
+#var_dump($task);
+#echo "</pre>";
+
+show_header('Задания по дисциплине', 
+	array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
+			'Задания по дисциплине' => 'preptasks.php?page='.$page_id
+		)
+	);
 ?>
 
 

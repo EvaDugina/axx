@@ -3,6 +3,13 @@
 require_once("common.php");
 require_once("dbqueries.php");
 
+// защита от случайного перехода
+$au = new auth_ssh();
+if (!$au->isAdmin() && !$au->isTeacher()){
+	$au->logout();
+	header('Location:login.php');
+}
+
 if (!array_key_exists('page', $_REQUEST))
 {
     echo "Некорректное обращение";

@@ -8,10 +8,9 @@ $scripts = null;
 
 // защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isTeacher() && !$au->isAdmin()) {
-	echo "Некорректное обращение";
-	http_response_code(400);
-	exit;
+if (!$au->isAdmin() && !$au->isTeacher()){
+	$au->logout();
+	header('Location:login.php');
 }
 
 // получение параметров запроса
