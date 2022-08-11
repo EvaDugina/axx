@@ -61,10 +61,11 @@ $disc_count=pg_fetch_all($result1); ?>
                             $result = pg_query($dbconnect, select_discipline_name($discipline['disc_id']));
                             $full_name = pg_fetch_all($result);
                             ?>
-                            <div data-mdb-ripple-color="light" style="position: relative; cursor: pointer;" onmouseenter="mouse_card_navigation(event)" 
+                            <div data-mdb-ripple-color="light" style="position: relative; cursor: pointer;" 
                             onclick="window.location='studtasks.php?page=<?=$page_id?>'">
-                                <div class="bg-image hover-overlay hover-zoom ripple">
+                                <div class="bg-image hover-overlay hover-zoom">
                                     <img src="src/images/informatic.jpg" alt="ИНФОРМАТИКА" style="transition: all .1s linear;">
+                                    <div class="mask" style="background-color: rgba(57, 192, 237, 0.05); transition: all .1s linear;"></div>
                                 </div>
                                 <div class="card_image_content">
                                     <div class="p-2" style="text-align: left;">
