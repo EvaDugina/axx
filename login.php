@@ -13,7 +13,7 @@
 	else 
     $page_addr = '';
 						
-  show_head();
+  show_head("Страница Авторизации");
   show_header_2($dbconnect, 'Вход в систему', array('Вход в систему' => 'login.php'));
 ?>
   <body style="overflow-x: hidden;">

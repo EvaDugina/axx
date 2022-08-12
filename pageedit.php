@@ -14,7 +14,7 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 }
 
 // Обработка некорректного перехода между страницами
-if (!isset($_GET['page']) && !array_key_exists('add-page', $_REQUEST) || !is_numeric($_GET['page'])){
+if ((!isset($_GET['page']) || !is_numeric($_GET['page'])) && !array_key_exists('add-page', $_REQUEST)){
 	header('Location:mainpage.php');
 	exit;
 }

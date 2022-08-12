@@ -58,7 +58,7 @@ if (!$result || pg_num_rows($result) < 1) {
   exit;
 } else {
   $row = pg_fetch_row($result);
-  show_head($row[1]);
+  show_head("Посылки по дисциплине: " . $row[1]);
   show_header_2($dbconnect, 'Посылки по дисциплине', array($row[1]  => 'preptable.php?page=' . $page_id));
 }
 
@@ -226,63 +226,67 @@ if ($scripts) echo $scripts; ?>
 					$array_notify = pg_fetch_all($result);
 
           if ($students && $tasks) {?>
-          
-            <ul class="accordion list-group" style="margin-bottom: 60px;">
-              <?php
-              // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
-              foreach ($students as $student) { 
-                $array_messages_count = array();
-                $sum_message_count = 0;
-                for($i = 0; $i < count($tasks); $i++){
-                  $query = select_count_unreaded_messages_by_task_for_teacher($student['id'], $tasks[$i]['id']);
+
+            <div class="my-4 pt-2">
+              <h4 class="mx-3" style="color: black; font-style:normal;">История сообщений</h4>
+              <ul class="accordion list-group" style="margin-bottom: 40px;">
+                <?php
+                // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
+                foreach ($students as $key => $student) { 
+                  $array_messages_count = array();
+                  $sum_message_count = 0;
+                  for($i = 0; $i < count($tasks); $i++){
+                    $query = select_count_unreaded_messages_by_task_for_teacher($student['id'], $tasks[$i]['id']);
+                    $result = pg_query($dbconnect, $query);
+                    array_push($array_messages_count, pg_fetch_assoc($result));
+                    $sum_message_count += $array_messages_count[$i]['count'];
+                  }
+
+                  $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
                   $result = pg_query($dbconnect, $query);
-                  array_push($array_messages_count, pg_fetch_assoc($result));
-                  $sum_message_count += $array_messages_count[$i]['count'];
-                }
+                  $array_student_tasks = pg_fetch_all($result); 
+                  ?>
 
-                $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
-                $result = pg_query($dbconnect, $query);
-                $array_student_tasks = pg_fetch_all($result); 
-                ?>
-
-                <div class="student-item">
-                  <li class="list-group-item" href="javascript:void(0);">
-                    <a id="<?= $student['fio']?>" class="toggle-accordion" href="javascript:void(0);" style="color: black;">
-                      <div class="row" href="javascript:void(0);">
+                  <div class="student-item">
+                    <li id="<?=$key+1?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
+                      <div class="row">
                         <div class="d-flex justify-content-between align-items-center">
-                          <strong><?= $student['fio']?></strong>
-                            <span class="badge badge-primary badge-pill" 
-                              <?php if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) {?> 
-                                style="background: red; color: white;"> <?php echo $sum_message_count 
-                                + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
-                              } else {?> ><?=$sum_message_count?> <?php }?>
-                            </span>
+                          <div>
+                            <!--<i id="icon-down-right-<?=$key+1?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
+                            <strong><?= $student['fio']?></strong>
+                          </div>
+                          <span class="badge badge-primary badge-pill" 
+                            <?php if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) {?> 
+                              style="color: white; background: #dc3545;"> <?php echo $sum_message_count 
+                              + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
+                            } else {?> ><?=$sum_message_count?> <?php }?>
+                          </span>
                         </div>
                       </div> 
-                    </a>
-                  </li>
-                  <div class="inner-accordion" style="display: none;">
-                    <?php $i=0;
-                    foreach ($array_student_tasks as $task) {?>
-                      <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
-                        <li class="list-group-item" >
-                          <div class="row">
-                            <div class="d-flex justify-content-between align-items-center">
-                              <?=$task['title']?>
-                              <span class="badge badge-primary badge-pill"
-                                <?php if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?> 
-                                  style="background: red; color: white;"> <?php echo $array_messages_count[$i]['count'] + 1; 
-                                } else {?> ><?=$array_messages_count[$i]['count']?> <?php }?>
-                              </span>
+                    </li>
+                    <div class="inner-accordion noselect" style="display: none;">
+                      <?php $i=0;
+                      foreach ($array_student_tasks as $task) {?>
+                        <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
+                          <li class="list-group-item" >
+                            <div class="row">
+                              <div class="d-flex justify-content-between align-items-center">
+                                &nbsp;&nbsp;&nbsp;<?=$task['title']?>
+                                <span class="badge badge-primary badge-pill"
+                                <?php if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?>
+                                  style="color: white; background: #dc3545;"><?php echo $array_messages_count[$i]['count'] + 1; 
+                                  } else {?> ><?=$array_messages_count[$i]['count']?> <?php }?>
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </li> 
-                      </a>  
-                    <?php $i++; }?>
+                          </li> 
+                        </a>  
+                      <?php $i++; }?>
+                    </div>
                   </div>
-                </div>
-              <?php }?>            
-            </ul>
+                <?php }?>            
+              </ul>
+            </div>
           <?php } ?>
         </div>
       </div>
@@ -388,25 +392,34 @@ if ($scripts) echo $scripts; ?>
   $('.toggle-accordion').click(function(e) {
   	e.preventDefault();
 
-    console.log('Нажатие на элемент: ' + $(this).attr("id"));
+    console.log('Нажатие на элемент: ' + $(this).attr("class"));
   
     var $this = $(this);
-    var $parentEl = $(this).parent();
+    //var $id_icon = "icon-down-right-" + $(this).attr("id");
+    //var $i = document.getElementById($id_icon);
+
+    //console.log($id_icon);
+    //console.log('Поиск: ' + $i.nodeName);
   
-    if ($parentEl.next().hasClass('show')) {
+    if ($this.next().hasClass('show')) {
         console.log('Закрытие себя');
-        $parentEl.next().removeClass('show');
-        $parentEl.next().slideUp();
+        //$i.classList.remove('fa-caret-down');
+        //$i.classList.add('fa-caret-right');
+        $this.next().removeClass('show');
+        $this.next().slideUp();
+
     } else {
         console.log('Закрытие всех остальных элементов');
-        $parentEl.parent().parent().find('div .inner-accordion').removeClass('show');
-        $parentEl.parent().parent().find('div .inner-accordion').slideUp();
-        // Исправление ошибки связанной с работой ф-ции find, которая не успевает отработать до открытия себя
-        if (!$parentEl.next().hasClass('show')) {
-          console.log('Открытие себя');
-          $parentEl.next().toggleClass('show');
-          $parentEl.next().slideToggle();
-        }
+        $this.parent().parent().find('div .inner-accordion').removeClass('show');
+        //$this.parent().parent().find('div .inner-accordion').firstElementChild.firstElementChild.firstElementChild.firstElementChild.removeClass('fa-caret-down');
+        $this.parent().parent().find('div .inner-accordion').slideUp();
+        
+        console.log('Открытие себя');
+        $this.next().toggleClass('show');
+        //$i.classList.remove('fa-caret-right');
+        //$i.classList.add('fa-caret-down');
+        $this.next().slideToggle();
+        
     }
   });
 </script>
