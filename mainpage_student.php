@@ -64,7 +64,7 @@ $disc_count=pg_fetch_all($result1); ?>
                             <div data-mdb-ripple-color="light" style="position: relative; cursor: pointer;" 
                             onclick="window.location='studtasks.php?page=<?=$page_id?>'">
                                 <div class="bg-image hover-overlay hover-zoom">
-                                    <img src="src/images/informatic.jpg" alt="ИНФОРМАТИКА" style="transition: all .1s linear;">
+                                    <img src="src/img/informatic.jpg" alt="ИНФОРМАТИКА" style="transition: all .1s linear;">
                                     <div class="mask" style="background-color: rgba(57, 192, 237, 0.05); transition: all .1s linear;"></div>
                                 </div>
                                 <div class="card_image_content">

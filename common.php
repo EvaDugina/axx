@@ -59,25 +59,21 @@ function show_head($page_title = ''){ ?>
     <title>536 Акселератор - <?=$page_title?></title>
 
     <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="src/img/mdb-favicon.ico" type="image/x-icon" />
 
     <!-- Fonts & Icons -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
-    <!-- Google Fonts Roboto -->
-    <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
+    <link rel="stylesheet" type="text/css" href="src/fonts-icons/all.css"/>
+    <link rel="stylesheet" href="src/fonts-icons/font-awesome.min.css"/>
 
-    <!-- extra -->
+    <!-- Extra -->
     <link rel="stylesheet" href="css/accelerator.css" /> 
     
     <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
+    <link rel="stylesheet" href="css/mdb/mdb.min.css" />
     <script type="text/javascript" src="js/mdb.min.js"></script>
 
     <!-- jQuery -->
-    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery/jquery-3.5.1.min.js"></script>
 
   </head>
 

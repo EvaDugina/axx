@@ -82,34 +82,10 @@ if (array_key_exists('page', $_REQUEST)) {
 ?>
 
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-
-    <title>536 Акселератор - Редактирование/Добавление дисциплин</title>
-
-    <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-
-    <!-- Fonts & Icons -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
-    <!-- Google Fonts Roboto -->
-    <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
-
-    <!-- extra -->
-    <link rel="stylesheet" href="css/accelerator.css" /> 
-
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-</head>
-
 	<body>
 
 	<?php
+	show_head("Редактирование/Добавление дисциплин");
 	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Редактор дисциплин' => $_SERVER['REQUEST_URI'])); ?>
 
     <main class="pt-2" aria-hidden="true">
