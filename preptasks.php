@@ -9,15 +9,18 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	header('Location:login.php');
 }
 
+// Обработка некорректного перехода между страницами
+if ((!isset($_GET['page']) || !is_numeric($_GET['page']))){
+	header('Location:mainpage.php');
+	exit;
+}
+
 // получение параметров запроса
 $page_id = 0;
 if (array_key_exists('page', $_REQUEST))
   $page_id = $_REQUEST['page'];
-else {
-  echo "Некорректное обращение";
-  http_response_code(400);
-  exit;
-}
+
+
           
 show_header('Задания по дисциплине', 
       array(	'Введение в разработку ПО 2021' => 'preptasks.php?page='.$page_id, 
@@ -27,6 +30,7 @@ show_header('Задания по дисциплине',
 ?>
 
 <script src="js/jquery-3.5.1.min.js"></script>
+
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
     <div class="row gy-5">
@@ -34,7 +38,7 @@ show_header('Задания по дисциплине',
         <div class="pt-3">
 
           <h2 class="text-nowrap">
-            <form id="addTask" method="post" action="taskedit.php">
+            <form id="addTask" method="get" action="taskedit.php">
               <input type="hidden" name="page" value="<?=$page_id?>" />
               Задания по дисциплине<button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;"><i class="fas fa-plus-square fa-lg"></i> Новое задание</button>
             </form>
@@ -111,7 +115,7 @@ show_header('Задания по дисциплине',
 				            	</td>
                       <td class="text-nowrap">
 <!--
-                        <form  class="text-nowrap" method="post" action="preptasks_edit.php" name="delete1Form" id="delete1Form">
+                        <form  class="text-nowrap" method="get" action="preptasks_edit.php" name="delete1Form" id="delete1Form">
                           <input type="hidden" name="action" value="delete" />
                           <input type="hidden" name="page" value="<?=$page_id?>" />
                           <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
@@ -119,7 +123,7 @@ show_header('Задания по дисциплине',
                           <button type="button" class="btn btn-sm px-3" disabled><i class="fas fa-download fa-lg"></i></button>
                         </form>
 -->
-                        <form  class="text-nowrap" method="post" action="taskedit.php" name="editForm" id="editForm">
+                        <form  class="text-nowrap" method="get" action="taskedit.php" name="editForm" id="editForm">
                           <input type="hidden" name="page" value="<?=$page_id?>" />
                           <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
                           <button type="submit" class="btn btn-sm px-3"><i class="fas fa-pen fa-lg"></i></button>&nbsp;
@@ -178,7 +182,7 @@ show_header('Задания по дисциплине',
 						<?=$row['title']?>
 					          </td>
                     <td class="text-nowrap">
-                      <form class="text-nowrap" method="post" action="preptasks_edit.php" name="recover1Form" id="recover1Form">
+                      <form class="text-nowrap" method="get" action="preptasks_edit.php" name="recover1Form" id="recover1Form">
                         <input type="hidden" name="action" value="recover" />
                         <input type="hidden" name="page" value="<?=$page_id?>" />
                         <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
@@ -200,7 +204,7 @@ show_header('Задания по дисциплине',
           <div class="col-4">
             <div class="p-3 border bg-light">
               <h6>Массовые операции</h6>
-              <form method="post" action="preptasks_edit.php" name="linkFileForm" id="linkFileForm" enctype="multipart/form-data" >
+              <form method="get" action="preptasks_edit.php" name="linkFileForm" id="linkFileForm" enctype="multipart/form-data" >
                 <input type="hidden" name="action" value="linkFile" />
                 <input type="hidden" name="page" value="<?=$page_id?>" />
                 <input type="hidden" name="tasknum" id="tasknum" value="" />
@@ -213,7 +217,7 @@ show_header('Задания по дисциплине',
                     onChange="$(linkFileForm).trigger('submit')" />
                 </div>
               </form>
-              <form method="post" action="preptasks_edit.php" name="assignForm" id="assignForm" enctype="multipart/form-data" >
+              <form method="get" action="preptasks_edit.php" name="assignForm" id="assignForm" enctype="multipart/form-data" >
                 <input type="hidden" name="action" value="assign" />
                 <input type="hidden" name="page" value="<?=$page_id?>" />
                 <input type="hidden" name="tasknum" id="tasknum" value="" />
@@ -282,7 +286,7 @@ show_header('Задания по дисциплине',
               </div>
               <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
               <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-ban fa-lg"></i> Перенести в архив</button></div>
-              <form method="post" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
+              <form method="get" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
                 <input type="hidden" name="action" value="delete" />
                 <input type="hidden" name="page" value="<?=$page_id?>" />
                 <input type="hidden" name="tasknum" id="tasknum" value="" />

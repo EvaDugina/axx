@@ -202,7 +202,7 @@
 // ДЕЙСТВИЯ С ЗАДАНИЯМИ
 
     function select_task($task_id) {
-        return 'SELECT type, title, description FROM ax_task WHERE id ='.$task_id;
+        return "SELECT * FROM ax_task WHERE id ='$task_id'";
     }
 
     // - получение статуса и времени отправки ответа студента
@@ -227,9 +227,8 @@
     }
     
     // - получение студентов, которым назначено задание
-    function select_assigned_students($task_id)
-    {
-        return "SELECT students.middle_name || ' ' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, \'DD-MM-YYYY HH24:MI:SS\') ts 
+    function select_assigned_students($task_id) {
+        return "SELECT students.middle_name || ' ' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts 
               FROM ax_task 
               INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id 
               INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
