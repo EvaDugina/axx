@@ -124,7 +124,7 @@ if ($row) {
 <?php show_head('Чат с преподавателем'); ?>
 <link rel="stylesheet" href="taskchat.css">
 <!-- jquery -->
-<script src="js/jquery-3.5.1.min.js"></script>
+<script src="js/jquery/jquery-3.5.1.min.js"></script>
 <!-- Font Awesome -->
 <script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 

@@ -22,29 +22,11 @@ function full_name($discipline_id, $dbconnect) {
 ?>
 
 <html> 
-	<head>
-		<title>Дашборд преподавателя</title>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-		<meta http-equiv="x-ua-compatible" content="ie=edge" />
-		<link rel="stylesheet" href="css/main.css">
-		<!-- MDB -->
-		<link rel="stylesheet" href="css/mdb.min.css" />
-		<!-- extra -->
-		<link rel="stylesheet" href="css/accelerator.css" />
-		<!-- MDB icon -->
-		<link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-		<!-- Font Awesome -->
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
-		<!-- Google Fonts Roboto -->
-		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-		/>
-	</head>
+	
+	<link rel="stylesheet" href="css/main.css">
 
 	<?php 
-	show_head($page_titile='');
+	show_head("Дашборд преподавателя");
 	show_header_2($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php')); ?>
 	<body>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
