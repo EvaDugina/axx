@@ -139,47 +139,49 @@ function show_header_2($dbconnect, $page_title = '', $breadcrumbs = array()) { ?
               <!-- Notifications -->
               <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell fa-lg"></i>
-                <span class="badge rounded-pill badge-notification" style="background: #dc3545;"><?php echo count($array_notify);?></span>
+                <span class="badge rounded-pill badge-notification" style="background: #dc3545;"><?php if($array_notify) echo count($array_notify); else echo 0;?></span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
-                <?php $i=0;
-                foreach ($array_notify as $notify) { $i++; 
-                  if($au->isTeacher()){
-                    $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
-                  } else {
-                    $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
-                  }
-                  $result = pg_query($query);
-                  $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
-                  <a <?php 
-                  if($au->isTeacher()){ echo 'style="color: black;"';?>
-                    href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
-                  <?php
-                  } else if ($au->isAdmin());
-                  else {?> 
-                    href="taskchat.php?task=<?=$notify['task_id']?>&page=<?=$notify['page_id'];?>" > 
-                  <?php } ?>
-                      <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
-                        <div class="d-flex justify-content-between align-items-center">
-                          <div style="margin-right: 10px;">
-                            <?php if ($au->isTeacher()) {
-                              echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
-                              <br><?php echo $notify['title'];
-                            } else {
-                              echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
-                            }?>
+                <?php $i = 0;
+                if ($array_notify){
+                  foreach ($array_notify as $notify) { $i++; 
+                    if($au->isTeacher()){
+                      $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
+                    } else {
+                      $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
+                    }
+                    $result = pg_query($query);
+                    $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
+                    <a <?php 
+                    if($au->isTeacher()){ echo 'style="color: black;"';?>
+                      href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
+                    <?php
+                    } else if ($au->isAdmin());
+                    else {?> 
+                      href="taskchat.php?task=<?=$notify['task_id']?>&page=<?=$notify['page_id'];?>" > 
+                    <?php } ?>
+                        <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div style="margin-right: 10px;">
+                              <?php if ($au->isTeacher()) {
+                                echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
+                                <br><?php echo $notify['title'];
+                              } else {
+                                echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
+                              }?>
+                            </div>
+                            <span class="badge badge-primary badge-pill"
+                              <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> style="background: #dc3545; color: white;"> 
+                                <?php echo $count_unreaded_messages_by_notify['count'] + 1; 
+                              } else {
+                                echo ">". $count_unreaded_messages_by_notify['count'];
+                              }?>
+                            </span>
                           </div>
-                          <span class="badge badge-primary badge-pill"
-                            <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> style="background: #dc3545; color: white;"> 
-                              <?php echo $count_unreaded_messages_by_notify['count'] + 1; 
-                            } else {
-                              echo ">". $count_unreaded_messages_by_notify['count'];
-                            }?>
-                          </span>
-                        </div>
-                      </li>
-                  </a>
-                <?php }?>
+                        </li>
+                    </a>
+                  <?php }
+                }?>
               </ul>
             </ul>
 

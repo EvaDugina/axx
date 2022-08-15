@@ -49,7 +49,7 @@ $disc_count=pg_fetch_all($result1); ?>
                             else {
                                 $i = 0;
                                 while ($row_task = pg_fetch_assoc($result_tasks)) {
-                                    $result_assignment = pg_query($dbconnect, select_task_assignment($row_task['id'], $_SESSION['hash']));
+                                    $result_assignment = pg_query($dbconnect, select_task_assignment_with_limit($row_task['id'], $_SESSION['hash']));
                                     if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
                                         $row_task_assignment = pg_fetch_assoc($result_assignment);
                                         if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;

@@ -65,8 +65,11 @@
     }
 
     // Страница предмета
-    function select_discipline_page($id) {
-        return "SELECT * FROM ax_page WHERE id =". $id;
+    function select_discipline_page($page_id) {
+        return "SELECT *, discipline.name AS disc_name FROM ax_page 
+                INNER JOIN discipline ON discipline.id = ax_page.disc_id 
+                WHERE ax_page.id = '$page_id';
+        ";
     }
 
     // Страницы дисциплин для конкретного студента
@@ -116,26 +119,32 @@
 
     // получение уведомлений для студента по невыполненным заданиям
     function select_notify_for_student_header($student_id){
-        return "SELECT ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code FROM ax_task
-            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
-            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-            WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 
-            AND (ax_assignment.status_code = 2 OR ax_assignment.status_code = 3);
+        return "SELECT ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+                    teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.full_text FROM ax_task
+                INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+                INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+                INNER JOIN students teachers ON teachers.id = ax_page_prep.prep_user_id
+                INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+                INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+                INNER JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+                WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 AND ax_message.sender_user_type != 0 
+                AND ax_message.status = 0;
         ";
     }
 
     // получение уведомлений для преподавателя по непроверенным заданиям
     function select_notify_for_teacher_header($teacher_id){
         return "SELECT ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
-            ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment_student.student_user_id, 
-            students.middle_name, students.first_name FROM ax_task
-            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
-            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
-            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-            INNER JOIN students ON students.id = ax_assignment_student.student_user_id
-            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status_code = 5;
+                    ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment_student.student_user_id,
+                    s1.middle_name, s1.first_name FROM ax_task
+                INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+                INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+                INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+                INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+                INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
+                LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+                LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
+                WHERE ax_page_prep.prep_user_id = $teacher_id AND (ax_message.sender_user_type != 1 AND ax_message.status = 0) OR ax_assignment.status_code = 5;
         ";
     }
 
@@ -206,10 +215,17 @@
     }
 
     // - получение статуса и времени отправки ответа студента
-    function select_task_assignment($task_id, $student_id) {
+    function select_task_assignment_with_limit($task_id, $student_id) {
         return "SELECT ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_assignment.status_text FROM ax_assignment 
             INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
             WHERE ax_assignment_student.student_user_id = ". $student_id ." AND ax_assignment.task_id = ". $task_id ." LIMIT 1;";
+    }
+
+    function select_task_assignment_student_id($student_id, $task_id) {
+        return "SELECT ax_assignment.id FROM ax_assignment
+                INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id
+                WHERE ax_assignment_student.student_user_id = $student_id AND ax_assignment.task_id = $task_id;
+        ";
     }
 
     // - получение всех заданий по странице дисциплины
@@ -238,8 +254,7 @@
     }
     
     // получение файлов к заданию
-    function select_task_files($task_id)
-    {
+    function select_task_files($task_id) {
         return 'SELECT ax_task_file.* '.
                 ' FROM ax_task INNER JOIN ax_task_file ON ax_task.id = ax_task_file.task_id '.
                 ' WHERE ax_task.id = '.$task_id.' AND ax_task_file.type = 0 '.
@@ -286,6 +301,14 @@
     function select_discipline_name($disc_id){
         return "SELECT name FROM discipline WHERE id =". $disc_id;
     }
+
+    function select_discipline_name_by_page($page_id) {
+        return "SELECT discipline.name from discipline 
+                INNER JOIN ax_page ON ax_page.disc_id = discipline.id
+                WHERE ax_page.id = '$page_id';
+        ";
+    }
+
     
 
     

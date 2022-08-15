@@ -62,7 +62,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	else {
 		$i = 0;
 		while ($row_task = pg_fetch_assoc($result_tasks)) {
-			$query_assignment = select_task_assignment($row_task['id'], $_SESSION['hash']);
+			$query_assignment = select_task_assignment_with_limit($row_task['id'], $_SESSION['hash']);
 			$result_assignment = pg_query($dbconnect, $query_assignment);
 			if ($result_assignment && pg_num_rows($result_assignment) >= 1) { 
 				$row_task_assignment = pg_fetch_assoc($result_assignment);
@@ -80,7 +80,7 @@ if (array_key_exists('page', $_REQUEST)) {
 <?php 
 show_head("Страница предмета ". $page['short_name']);
 show_header_2($dbconnect, 'Задания по дисциплине', 
-		array($page['short_name'] => 'studtasks.php?page=' . $page_id)); ?>
+		array($page['disc_name'] => 'studtasks.php?page=' . $page_id)); ?>
 
 <body style="overflow-x: hidden;">
 
@@ -111,7 +111,7 @@ show_header_2($dbconnect, 'Задания по дисциплине',
 							else {
 								$i = 0;
 								while ($row_task = pg_fetch_assoc($result_tasks)) { 
-									$query_assignment = select_task_assignment($row_task['id'], $_SESSION['hash']);
+									$query_assignment = select_task_assignment_with_limit($row_task['id'], $_SESSION['hash']);
 									$result_assignment = pg_query($dbconnect, $query_assignment);
 									$row_assignment = pg_fetch_assoc($result_assignment);
 

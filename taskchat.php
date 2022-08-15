@@ -13,16 +13,11 @@ $task_id = $_GET['task'];
 $page_id = $_GET['page'];
 $user_id = $_SESSION['hash'];
 
-$discipline_short_name = '';
-$query = select_disc_short_name($page_id);
+$query = select_discipline_name_by_page($page_id, 1);
 $result = pg_query($dbconnect, $query);
-$row = pg_fetch_assoc($result);
-if ($row) {
-	$discipline_short_name = $row['short_name'];
-}
+$page_name = pg_fetch_assoc($result);
 
 $au = new auth_ssh();
-
 if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
 	// Если на страницу чата зашёл преподаватель
 	$student_id = $_GET['id_student'];
@@ -55,7 +50,7 @@ if ($row) {
 $task_finish_limit = '';
 $task_status_code = '';
 $task_mark = '';
-$query = select_task_assignment($task_id, $student_id);
+$query = select_task_assignment_with_limit($task_id, $student_id);
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $row = pg_fetch_assoc($result);
 if ($row) {
@@ -129,8 +124,14 @@ if ($row) {
 <script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
 
 <body>
-	<?php show_header_2($dbconnect, 'Чат c перподавателем', 
-		array($discipline_short_name => 'studtasks.php?page=' . $page_id, $task_title => '')); ?>
+	<?php 
+	if ($au->isTeacher()) 
+		show_header_2($dbconnect, 'Чат c перподавателем', 
+			array('Посылки по дисциплине: ' . $page_name['name'] => 'preptable.php?page=' . $page_id, $task_title => '')); 
+	else 
+		show_header_2($dbconnect, 'Чат c перподавателем', 
+			array($page_name['name'] => 'studtasks.php?page=' . $page_id, $task_title => '')); 
+	?>
 
 	<main>
 		<div class="task-wrapper">
@@ -274,16 +275,6 @@ if ($row) {
 
 <?php
 /* Select запросы, надо в dbqueries.php, но пока тут лежат */
-
-function select_task_assignment_student_id($student_id, $task_id) {
-	return "SELECT ax_assignment.id from ax_assignment
-	    inner join ax_assignment_student on ax_assignment.id = ax_assignment_student.assignment_id
-	    where ax_assignment_student.student_user_id = $student_id and ax_assignment.task_id = $task_id;";
-}
-
-function select_disc_short_name($page_id) {
-	return "SELECT short_name from ax_page where id = $page_id";
-}
 
 function select_messages($assignment_id) {
     return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
