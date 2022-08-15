@@ -144,7 +144,7 @@
                 INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
                 LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
                 LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
-                WHERE ax_page_prep.prep_user_id = $teacher_id AND (ax_message.sender_user_type != 1 AND ax_message.status = 0) OR ax_assignment.status_code = 5;
+                WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 1 AND ax_message.status = 0;
         ";
     }
 
