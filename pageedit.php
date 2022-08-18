@@ -85,191 +85,189 @@ if (array_key_exists('page', $_REQUEST)) {
 	<body>
 
 	<?php
-	show_head("Редактирование/Добавление дисциплин");
-	show_header_2($dbconnect, 'Добавление/редактирование дисциплины', array('Редактор дисциплин' => $_SERVER['REQUEST_URI'])); ?>
+	show_head("Добавление/Редактирование дисциплин");
+	show_header_2($dbconnect, 'Добавление/Редактирование дисциплины', array('Редактор дисциплин' => $_SERVER['REQUEST_URI'])); ?>
 
-    <main class="pt-2" aria-hidden="true">
-	<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 
-		<div class="row gy-5">
-			<div class="col-12">
-				<?php
-				if ($page_id == 0)
-					echo '<h2>Добавление дисциплины</h2>';
-				else 
-					echo '<h2>Редактирование дисциплины</h2>';
-				?>
-			</div>
-		</div>
-		<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
-		
-		<div class="row align-items-center m-3" style="height: 40px;">
-			<div class="col-2 row justify-content-left">Полное название</div>
-			<div class="col-4">
-				<div class="btn-group shadow-0">
-				  <select class="form-select" name = "disc_id">
-					<option selected value="<?=$disc_id?>">
-						<?=$name?>
-					</option>
-					<?php
-						foreach($disciplines as $discipline){
-							if($discipline['name'] == $name)
-								continue;
-							echo "<option value=".$discipline['id'].">".$discipline['name']."</option>";
-						}
-					?>
-				  </select>
-				</div>
-			</div>
-		</div>
-		
-		<div class="row align-items-center m-3" style="height: 40px;">
-			<div class="col-2 row justify-content-left">Семестр</div>
-			<div class="col-4">
-				<div class="btn-group shadow-0">
-					  <select class="form-select" name = "timestamp">           
-						<option selected>
-							<?=$semester?>
-						</option>
+		<main class="pt-2" aria-hidden="true">
+			<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 
+				<div class="row gy-5">
+					<div class="col-12">
 						<?php
-
-							foreach($years as $year){
-								if ($year['year'] != $page['year'] or $page['semester']%2 != 1)
-									echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
-								if ($year['year'] != $page['year'] or $page['semester']%2 != 0)
-									echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
-							}
+						if ($page_id == 0)
+							echo '<h2>Добавление предмета</h2>';
+						else 
+							echo '<h2>Редактирование предмета</h2>';
 						?>
-					  </select>
+					</div>
 				</div>
-			</div>
-		</div>
-		
-		<div class="row align-items-center m-3">
-			<div class="col-2 row justify-content-left">Краткое название</div>
-			<div class="col-2">
-				<div class="form-outline" style="width:250px;">
-					<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
+				<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
+				
+				<div class="row align-items-center m-3" style="height: 40px;">
+					<div class="col-2 row justify-content-left">Полное название дисциплины:</div>
+					<div class="col-4">
+						<div class="btn-group shadow-0">
+						<select class="form-select" name = "disc_id">
+							<option selected value="<?=$disc_id?>">
+								<?=$name?>
+							</option>
+							<?php
+								foreach($disciplines as $discipline){
+									if($discipline['name'] == $name)
+										continue;
+									echo "<option value=".$discipline['id'].">".$discipline['name']."</option>";
+								}
+							?>
+						</select>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
-		
-		<div class="row align-items-center m-3">
-			<div class="col-2 row justify-content-left">Преподаватели</div>
+				
+				<div class="row align-items-center m-3" style="height: 40px;">
+					<div class="col-2 row justify-content-left">Семестр</div>
+					<div class="col-4">
+						<div class="btn-group shadow-0">
+							<select class="form-select" name = "timestamp">           
+								<option selected>
+									<?=$semester?>
+								</option>
+								<?php
 
-			<div class="col-2">
-				<div class="btn-group shadow-0">
-					  <select class="form-select" id = "select_teacher">
-						<?php
-							foreach($teachers as $teacher){
-								echo "<option>".$teacher['first_name'].' '.$teacher['middle_name']."</option>";
-							}
-						?>
-					  </select>
+									foreach($years as $year){
+										if ($year['year'] != $page['year'] or $page['semester']%2 != 1)
+											echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
+										if ($year['year'] != $page['year'] or $page['semester']%2 != 0)
+											echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
+									}
+								?>
+							</select>
+						</div>
+					</div>
 				</div>
-			</div>
-		
-			<div class="col-1">
-				<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id = "add_teachers">
-				  Добавить 
-				</button>
-			</div>
-		</div>
-		
-		<div class="row align-items-center m-3" id="teachers_container">
-			<div class="col-2 row justify-content-left"></div>
-		</div>
-		
-		<div class="row align-items-center m-3">
-			<div class="col-2 row justify-content-left">Учебные группы</div>
-
-			<div class="col-2">
-				<div class="btn-group shadow-0">
-					  <select class="form-select" name = "page_group" id = "select_groups">
-						<?php
-							foreach($groups as $page_group){
-								echo "<option>".$page_group['name']."</option>";
-							}
-							echo "<option> Нет учебной группы </option>";
-						?>
-					  </select>
+				
+				<div class="row align-items-center m-3">
+					<div class="col-2 row justify-content-left">Краткое название предмета</div>
+					<div class="col-2">
+						<div class="form-outline" style="width:250px;">
+							<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
+						</div>
+					</div>
 				</div>
-			</div>
-		
-			<div class="col-1">
-				<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id = "add_groups">
-				  Добавить 
-				</button>
-			</div>
-		</div>
-		
-		<div class="row align-items-center m-3" id = "groups_container">
-			<div class="col-2 row justify-content-left"></div> 
-		</div>
-			
-		
-		<div class="row align-items-left m-3" style="height: 40px;">
-			<div class="col-2 row justify-content-left">Оформление</div>
-			<div class="col-10">
-				<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px; margin-right: 2!important;">
-				  Синий
-				</button>
-				<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px;">
-				  Фиолетовый
-				</button>
-				<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark" style="width:120px;">
-				  Зеленый 
-				</button>
-				<button type="button" class="btn btn-outline-dark mx-2" data-mdb-ripple-color="dark" style="width:120px;">
-				  Чёрный
-				</button>
-				<button type="button" class="btn btn-outline-warning mx-2" data-mdb-ripple-color="dark" style="width:120px;">
-				  Желтый
-				</button>
-			</div>
-		</div>
-		
-		<div class="row align-items-center mx-2" style="height: 40px;">
-			<div class="col-md-2 row justify-content-left">
-				<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
-					Сохранить
-				</button>
-			</div>
+				
+				<div class="row align-items-center m-3">
+					<div class="col-2 row justify-content-left">Преподаватели</div>
 
-			<div class="col-md-3 offset-md-5">
-				<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
-    		 		Удалить дисциплину
-    			</button>
-			</div>
-			
-			<!-- <div class="col-md-3 offset-md-5">
-				<button type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-    		 		Удалить дисциплину
-    			</button>
-   			</div>
-			Модальное окно
-			 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false" aria-modal="true">
-  				<div class="modal-dialog">
-    				<div class="modal-content">
-    					<div class="modal-header">
-        					<h5 class="modal-title" id="staticBackdropLabel">Удаление дисциплины</h5>
-        					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      					</div>
-      					<div class="modal-body">Вы действительно хотите удалить дисциплину?</div>
-      					<div class="modal-footer">
-        					<button type="submit" name="action" value="delete" class="btn btn-secondary">Да</button>
-        					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
-      					</div>
-    				</div>
- 				</div>
-			</div> -->
-		</div>
-	</form> 	
-    </main>
+					<div class="col-2">
+						<div class="btn-group shadow-0">
+							<select class="form-select" id = "select_teacher">
+								<?php
+									foreach($teachers as $teacher){
+										echo "<option>".$teacher['first_name'].' '.$teacher['middle_name']."</option>";
+									}
+								?>
+							</select>
+						</div>
+					</div>
+				
+					<div class="col-1">
+						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id = "add_teachers">
+						Добавить 
+						</button>
+					</div>
+				</div>
+				
+				<div class="row align-items-center m-3" id="teachers_container">
+					<div class="col-2 row justify-content-left"></div>
+				</div>
+				
+				<div class="row align-items-center m-3">
+					<div class="col-2 row justify-content-left">Учебные группы</div>
+
+					<div class="col-2">
+						<div class="btn-group shadow-0">
+							<select class="form-select" name = "page_group" id = "select_groups">
+								<?php
+									foreach($groups as $page_group){
+										echo "<option>".$page_group['name']."</option>";
+									}
+									echo "<option> Нет учебной группы </option>";
+								?>
+							</select>
+						</div>
+					</div>
+				
+					<div class="col-1">
+						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id = "add_groups">
+						Добавить 
+						</button>
+					</div>
+				</div>
+				
+				<div class="row align-items-center m-3" id = "groups_container">
+					<div class="col-2 row justify-content-left"></div> 
+				</div>
+					
+				
+				<div class="row align-items-left m-3" style="height: 40px;">
+					<div class="col-2 row justify-content-left">Оформление</div>
+					<div class="col-10">
+						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px; margin-right: 2!important;">
+						Синий
+						</button>
+						<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						Фиолетовый
+						</button>
+						<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						Зеленый 
+						</button>
+						<button type="button" class="btn btn-outline-dark mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						Чёрный
+						</button>
+						<button type="button" class="btn btn-outline-warning mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						Желтый
+						</button>
+					</div>
+				</div>
+				
+				<div class="row align-items-center mx-2" style="height: 40px;">
+					<div class="col-md-2 row justify-content-left">
+						<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+							Сохранить
+						</button>
+					</div>
+
+					<div class="col-md-3 offset-md-5">
+						<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
+						Удалить дисциплину
+					</button>
+					</div>
+					
+					<!-- <div class="col-md-3 offset-md-5">
+						<button type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+						Удалить дисциплину
+					</button>
+					</div>
+					Модальное окно
+					<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false" aria-modal="true">
+						<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="staticBackdropLabel">Удаление дисциплины</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+							</div>
+							<div class="modal-body">Вы действительно хотите удалить дисциплину?</div>
+							<div class="modal-footer">
+								<button type="submit" name="action" value="delete" class="btn btn-secondary">Да</button>
+								<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
+							</div>
+						</div>
+						</div>
+					</div> -->
+				</div>
+			</form> 	
+		</main>
 	</body>
     <!-- End your project here-->
 
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
     <script type="text/javascript">
 
@@ -362,5 +360,5 @@ if (array_key_exists('page', $_REQUEST)) {
 
 	
 	</script>
-  </body>
+
 </html>

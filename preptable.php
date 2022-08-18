@@ -48,7 +48,7 @@ if (array_key_exists('message', $_REQUEST) && array_key_exists('text', $_REQUEST
 
 // TODO: check prep access rights to page
 
-$query = select_page_name($page_id, 1);
+$query = select_page_name($page_id);
 $result = pg_query($dbconnect, $query);
 $row = [];
 
@@ -125,7 +125,7 @@ if ($scripts) echo $scripts; ?>
           ?>
 
           <?php 
-          if (!$students || !$tasks ) {?>
+          if (!$students || !$tasks || !$messages) {?>
             <div class="pt-3">
               <h5>Ошибка получения данных</h5>
             </div>
@@ -371,8 +371,6 @@ if ($scripts) echo $scripts; ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
   integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
 
 <!-- Custom scripts -->
 <script>

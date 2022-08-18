@@ -28,7 +28,7 @@ function full_name($discipline_id, $dbconnect) {
 	<?php 
 	show_head("Дашборд преподавателя");
 	show_header_2($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php')); ?>
-	<body>
+  <body>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
 				array_multisort(array_column($pages, 'year'), SORT_DESC, $pages);
@@ -62,10 +62,17 @@ function full_name($discipline_id, $dbconnect) {
 							<div class="col-3">
 								<div class="popover-message-message-stud" role="listitem">
 									<div class="popover-body">
-										<div class="d-flex justify-content-end">
+										<div class="d-flex justify-content-between">
 											<?php $page_id = $page['id']; ?>   
 											<a href="pageedit.php?page=<?php echo $page_id; ?>">   
-											<button type="button" class="btn btn-link"><i class="fas fa-pencil-alt"></i></button>
+                        <button type="button" class="btn btn-link">
+                          <i class="fas fa-pencil-alt"></i>
+                        </button>
+											</a>
+                      <a href="preptasks.php?page=<?php echo $page_id; ?>">   
+                        <button type="button" class="btn btn-link">
+                          <i class="fa-solid fa-file-pen"></i>
+                        </button>
 											</a>
 										</div>
 										<?php 
@@ -76,7 +83,7 @@ function full_name($discipline_id, $dbconnect) {
 											<a href="preptable.php?page=<?php echo $page_id; ?>"><?php echo $page['short_name']; ?></a><br>
 										</div>
 										<div class="d-flex justify-content-between" style="margin-top: 30px;">
-											<span>Сообщение</span>
+											<span>Посылки студентов</span>
 											<button class="btn btn-link btn-sm" style="width: 55px" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
 												<i class="fas fa-bell fa-lg"></i><span <?php if ($notify_count['count'] > 0) {?> 
 													class="badge rounded-pill badge-notification bg-danger"><?php } 

@@ -91,3 +91,16 @@
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Opera and Firefox */
 }
+
+.error-input {
+  width  : 100%;
+  padding: 0;
+  color: white;
+  background-color: #dc3545!important;
+  border-radius: 0 0 5px 5px;
+  box-sizing: border-box;
+}
+
+.error-input.active {
+  padding: 0.3em;
+}

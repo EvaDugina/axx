@@ -51,11 +51,11 @@
     }
 
     // - получение названия дисциплины + предмета
-    function select_page_name($page_id, $status) {
+    function select_page_name($page_id) {
         // p.id as pid, d.id as did, d.name as dname, p.short_name as pname
         return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS name
                 FROM ax_page p INNER JOIN discipline d ON d.id = p.disc_id
-                WHERE p.id=" . $page_id . " AND p.status=" . $status;
+                WHERE p.id='$page_id' ";
     }
 
     function select_page_names($status) {
@@ -233,6 +233,11 @@
         return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' ORDER BY id";
     }
 
+    // - получение всех заданий по странице дисциплины
+    function select_count_page_tasks($page_id) {
+      return "SELECT COUNT(*) FROM ax_task WHERE page_id = '$page_id'";
+  }
+
     function select_page_tasks_with_assignment($page_id, $status, $student_id) {
         return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id, 
         ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_assignment.status_text FROM ax_task 
@@ -262,8 +267,39 @@
     }
 
     // обновление задания
-    function update_task($id, $type, $title, $description) {
+    function update_ax_task($id, $type, $title, $description) {
         return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' WHERE id = '$id'";
+    }
+
+    function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $status=1){
+        return "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
+                VALUES ('$page_id', '$type', '$title', '$description', $max_mark, '$status');
+        ";
+
+    }
+
+    function update_ax_assignment_finish_limit($assignment_id, $finish_limit=null) {
+      return "UPDATE ax_assignment SET finish_limit = '$finish_limit' 
+              WHERE id = '$assignment_id';
+      ";
+    }
+
+    function update_ax_assignment_by_id ($assignment_id, $finish_limit=null, $variant=null, $status_code=-1, $delay=-1, $status_text=null, $mark=null){  
+      $query = "UPDATE ax_assignment SET ";
+      if ($finish_limit)
+        $query .= "finish_limit = '$finish_limit'";
+      if ($variant)
+        $query .= ", variant_comment = '$variant'";
+      if ($status_code != -1)
+        $query .= ", status_code = '$status_code'";
+      if ($delay != -1)
+        $query .= ", delay = '$delay'";
+      if ($status_text)
+        $query .= ", status_text = '$status_text'";
+      if ($mark)
+        $query .= ", mark='$mark'";
+      $query .= "WHERE id = '$assignment_id';";
+      return $query;
     }
 
 
@@ -387,6 +423,18 @@
 
         return "INSERT INTO ax_page_prep(id, prep_user_id, page_id)
             VALUES(default, (SELECT id FROM students WHERE first_name = '$first_name' AND middle_name = '$middle_name'),'$id')";
+    }
+
+
+// ДЕЙСТВИЯ СО СТУДЕНТАМИ
+
+    function select_students_by_group_by_page($page_id){
+      return "SELECT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name  FROM groups g
+              INNER JOIN ax_page_group ON g.id = ax_page_group.group_id 
+              INNER JOIN students_to_groups ON g.id = students_to_groups.group_id
+              INNER JOIN students s ON s.id = students_to_groups.student_id
+              WHERE page_id ='$page_id' ORDER BY g.id, fi;
+      ";
     }
 
 

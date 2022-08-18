@@ -181,7 +181,7 @@ INSERT INTO ax_color_theme(id, font_color, bg_color, dark) VALUES
 CREATE TABLE ax_task (			-- задания по дисциплинам
 	id serial,
 	page_id integer,	-- --> ax_page
-	type integer,		-- (0 - файлы, 1 - программирование)
+	type integer,		-- (0 - обычное, 1 - программирование)
 	title text,		-- название 
 	description text,	-- постановка задачи
 	max_mark text,		-- максимальный балл
