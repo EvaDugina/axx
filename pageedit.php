@@ -85,8 +85,8 @@ if (array_key_exists('page', $_REQUEST)) {
 	<body>
 
 	<?php
-	show_head("Добавление/Редактирование дисциплин");
-	show_header_2($dbconnect, 'Добавление/Редактирование дисциплины', array('Редактор дисциплин' => $_SERVER['REQUEST_URI'])); ?>
+	show_head("Добавление/Редактирование предмета");
+	show_header_2($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); ?>
 
 		<main class="pt-2" aria-hidden="true">
 			<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 
@@ -147,7 +147,7 @@ if (array_key_exists('page', $_REQUEST)) {
 				<div class="row align-items-center m-3">
 					<div class="col-2 row justify-content-left">Краткое название предмета</div>
 					<div class="col-2">
-						<div class="form-outline" style="width:250px;">
+						<div>
 							<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
 						</div>
 					</div>
