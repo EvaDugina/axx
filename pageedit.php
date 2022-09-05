@@ -210,19 +210,19 @@ if (array_key_exists('page', $_REQUEST)) {
 				<div class="row align-items-left m-3" style="height: 40px;">
 					<div class="col-2 row justify-content-left">Оформление</div>
 					<div class="col-10">
-						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px; margin-right: 2!important;">
+						<button type="button" class="btn btn-outline-primary me-2" data-mdb-ripple-color="dark">
 						Синий
 						</button>
-						<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark">
 						Фиолетовый
 						</button>
-						<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark">
 						Зеленый 
 						</button>
-						<button type="button" class="btn btn-outline-dark mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						<button type="button" class="btn btn-outline-dark mx-2" data-mdb-ripple-color="dark">
 						Чёрный
 						</button>
-						<button type="button" class="btn btn-outline-warning mx-2" data-mdb-ripple-color="dark" style="width:120px;">
+						<button type="button" class="btn btn-outline-warning mx-2" data-mdb-ripple-color="dark">
 						Желтый
 						</button>
 					</div>
@@ -235,33 +235,15 @@ if (array_key_exists('page', $_REQUEST)) {
 						</button>
 					</div>
 
-					<div class="col-md-3 offset-md-5">
-						<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
-						Удалить дисциплину
-					</button>
-					</div>
+					<?php if ($page_id != 0) {?>
+						<div class="col-md-3 offset-md-5">
+							<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
+								Удалить дисциплину
+							</button>
+						</div>
+					<?php }?>
 					
-					<!-- <div class="col-md-3 offset-md-5">
-						<button type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-						Удалить дисциплину
-					</button>
-					</div>
-					Модальное окно
-					<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false" aria-modal="true">
-						<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title" id="staticBackdropLabel">Удаление дисциплины</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-							</div>
-							<div class="modal-body">Вы действительно хотите удалить дисциплину?</div>
-							<div class="modal-footer">
-								<button type="submit" name="action" value="delete" class="btn btn-secondary">Да</button>
-								<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
-							</div>
-						</div>
-						</div>
-					</div> -->
+
 				</div>
 			</form> 	
 		</main>
