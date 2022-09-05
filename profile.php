@@ -40,8 +40,6 @@ show_head(); ?>
             <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" 
                     <?php if($student_info['notification_type']==1) echo "checked"; ?>> <span class="font-weight-normal">
                       Получать уведомления на почту</span> </p>
-            
-            <p> <span class="font-weight-bold">ТЕМА: </span> <span class="font-weight-normal"><?=$student_info['monaco_dark']?></span> </p>
 
             <button type="submit" class="btn btn-primary">CОХРАНИТЬ</button>
                   
