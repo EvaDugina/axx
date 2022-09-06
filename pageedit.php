@@ -102,10 +102,19 @@ if (array_key_exists('page', $_REQUEST)) {
 						?>
 					</div>
 				</div>
+
+
 				<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
+
+				<div class="row align-items-center m-3">
+					<div class="col-3 row justify-content-left">Краткое название предмета:</div>
+					<div class="col-2">
+						<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name"/>
+					</div>
+				</div>
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
-					<div class="col-2 row justify-content-left">Полное название дисциплины:</div>
+					<div class="col-3 row justify-content-left">Полное название дисциплины:</div>
 					<div class="col-4">
 						<div class="btn-group shadow-0">
 						<select class="form-select" name = "disc_id">
@@ -123,9 +132,10 @@ if (array_key_exists('page', $_REQUEST)) {
 						</div>
 					</div>
 				</div>
+
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
-					<div class="col-2 row justify-content-left">Семестр</div>
+					<div class="col-3 row justify-content-left">Семестр:</div>
 					<div class="col-4">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="timestamp">           
@@ -146,19 +156,16 @@ if (array_key_exists('page', $_REQUEST)) {
 						</div>
 					</div>
 				</div>
-				
-				<div class="row align-items-center m-3">
-					<div class="col-2 row justify-content-left">Краткое название предмета</div>
-					<div class="col-2">
-						<div>
-							<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name"/>
-						</div>
-					</div>
-				</div>
-				
-				<div class="row align-items-center m-3">
-					<div class="col-2 row justify-content-left">Преподаватели</div>
 
+				
+				<div class="row align-items-center m-3">
+					<div class="col-2 row justify-content-left">Преподаватели:</div>
+
+					<div class="col-1">
+						<button id="add_teachers" type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+							Добавить 
+						</button>
+					</div>
 					<div class="col-2">
 						<div class="btn-group shadow-0">
 							<select class="form-select" id = "select_teacher">
@@ -171,20 +178,21 @@ if (array_key_exists('page', $_REQUEST)) {
 						</div>
 					</div>
 				
-					<div class="col-1">
-						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id = "add_teachers">
-						Добавить 
-						</button>
-					</div>
-				</div>
-				
-				<div class="row align-items-center m-3" id="teachers_container">
-					<div class="col-2 row justify-content-left"></div>
 				</div>
 				
 				<div class="row align-items-center m-3">
-					<div class="col-2 row justify-content-left">Учебные группы</div>
+					<div class="col-2 row"></div>
+					<div id="teachers_container" class="col-10" style="display: flex; flex-direction: row; justify-content: flex-start;"></div>
+				</div>
+				
+				<div class="row align-items-center m-3">
+					<div class="col-2 row justify-content-left">Учебные группы:</div>
 
+					<div class="col-1">
+						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
+							Добавить 
+						</button>
+					</div>
 					<div class="col-2">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
@@ -198,20 +206,17 @@ if (array_key_exists('page', $_REQUEST)) {
 						</div>
 					</div>
 				
-					<div class="col-1">
-						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
-						Добавить 
-						</button>
-					</div>
 				</div>
 				
-				<div class="row align-items-center m-3" id = "groups_container">
-					<div class="col-2 row justify-content-left"></div> 
+				<div class="row align-items-center m-3">
+					<div class="col-2 row"></div>
+					<div id="groups_container" class="col-10" style="display: flex; flex-direction: row; justify-content: flex-start;">
+					</div>
 				</div>
 					
 				
 				<div class="row align-items-left m-3">
-					<div class="col-2 row justify-content-left">Оформление</div>
+					<div class="col-2 row justify-content-left">Оформление:</div>
 					<div class="col-10 row container-fluid">
 						<?php 
 						$query = select_color_theme();
@@ -239,15 +244,15 @@ if (array_key_exists('page', $_REQUEST)) {
 
 				<input name="creator_id" value="<?=$_SESSION['hash']?>" style="display: none;">
 				
-				<div class="row align-items-center mx-2" style="height: 40px;">
-					<div class="col-md-2 row justify-content-left">
+				<div class="row mx-2" style="height: 40px;">
+					<div class="col-2 row justify-content-left">
 						<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
 							Сохранить
 						</button>
 					</div>
 
 					<?php if ($page_id != 0) {?>
-						<div class="col-md-3 offset-md-5">
+						<div class="col-3">
 							<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
 								Удалить дисциплину
 							</button>
@@ -319,7 +324,8 @@ if (array_key_exists('page', $_REQUEST)) {
 		function add_element(parent, name, tag, set) {
 			let element = document.createElement("div");
 
-			element.classList.add("col-2");
+			//element.classList.add("col-2");
+			element.setAttribute("style", "margin-right: 30px;");
 
 			let text = document.createElement("span");
 			text.classList.add("badge", "badge-primary", "text-wrap");
