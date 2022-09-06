@@ -189,7 +189,7 @@ if (array_key_exists('page', $_REQUEST)) {
 									foreach($groups as $page_group){
 										echo "<option>".$page_group['name']."</option>";
 									}
-									echo "<option> Нет учебной группы </option>";
+									echo "<option>Нет учебной группы</option>";
 								?>
 							</select>
 						</div>
@@ -294,8 +294,13 @@ if (array_key_exists('page', $_REQUEST)) {
 		{
 			let name = document.getElementById("select_groups").value;
 			
-			if(groups.has(name))
+			if (groups.has(name))
 				return;
+			if (groups.size != 0 && name =="Нет учебной группы"){
+				//console.log("Нет учебной группы");
+				//console.log(groups.size);
+				return;
+			}
 			
 			add_element(document.getElementById("groups_container"), name, "groups[]", groups);
 
