@@ -45,8 +45,8 @@ if (!$result || pg_num_rows($result) < 1) {
           <div class="pt-3">
 
             <div class="row">
-              <h2 class="text-nowrap col-10"> Задания по дисциплине</h2>
-              <div class="col-2">
+              <h2 class="col-9 text-nowrap"> Задания по дисциплине</h2>
+              <div class="col-3">
                 <button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;" 
                 onclick="window.location='taskedit.php?page=<?=$page_id?>';">
                   <i class="fas fa-plus-square fa-lg"></i> Новое задание

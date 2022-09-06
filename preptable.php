@@ -193,7 +193,7 @@ if ($scripts) echo $scripts; ?>
                       if ($array_student_tasks[$key]['mark'] != null) { ?>
                         <td tabindex="1"><?= $array_student_tasks[$key]['mark'] ?></td>
                       <?php // have message without mark and with file, can answer
-                      } else if ($task_message['mtime'] != null && $task_message['amark'] == null && $task_message['mfile'] != null && $array_student_tasks[$key]['status_code'] == 5) { ?>
+                      } else if ($task_message && $task_message['mtime'] != null && $task_message['amark'] == null && $task_message['mfile'] != null && $array_student_tasks[$key]['status_code'] == 5) { ?>
                         <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" 
                         title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" 
                         data-mdb-content="<a target='_blank' href='<?= $task_message['murl'] ?>'>FILE: <?= $task_message['mfile'] ?></a><br/> <?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>">
@@ -498,5 +498,5 @@ if ($scripts) echo $scripts; ?>
 </script>
 
 <!-- End your project here-->
-<?php
-show_footer(); ?>
+</body>
+</html>

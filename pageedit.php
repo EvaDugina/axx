@@ -48,6 +48,8 @@ $query = select_groups();
 $result = pg_query($dbconnect, $query);
 $groups = pg_fetch_all($result);
 
+$page = null;
+
 if (array_key_exists('page', $_REQUEST)) {
 	$page_id = $_REQUEST['page'];
 	
@@ -82,14 +84,14 @@ if (array_key_exists('page', $_REQUEST)) {
 ?>
 
 <html lang="en">
-	<body>
 
 	<?php
 	show_head("Добавление/Редактирование предмета");
 	show_header_2($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); ?>
 
+	<body>
 		<main class="pt-2" aria-hidden="true">
-			<form class="container-fluid overflow-hidden" action="page_edit.php"  id="page_edit" name="action" method = "post"> 
+			<form class="container-fluid overflow-hidden" action="pageedit_action.php"  id="pageedit_action" name="action" method = "post"> 
 				<div class="row gy-5">
 					<div class="col-12">
 						<?php
@@ -126,19 +128,20 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-2 row justify-content-left">Семестр</div>
 					<div class="col-4">
 						<div class="btn-group shadow-0">
-							<select class="form-select" name = "timestamp">           
+							<select class="form-select" name="timestamp">           
 								<option selected>
 									<?=$semester?>
 								</option>
-								<?php
-
-									foreach($years as $year){
-										if ($year['year'] != $page['year'] or $page['semester']%2 != 1)
-											echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
-										if ($year['year'] != $page['year'] or $page['semester']%2 != 0)
-											echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
+								<?php foreach($years as $year){
+									if ($page && ($year['year'] != $page['year'] or $page['semester']%2 != 1))
+										echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
+									if ($page && ($year['year'] != $page['year'] or $page['semester']%2 != 0))
+										echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
+									else {
+										echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
+										echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
 									}
-								?>
+								} ?>
 							</select>
 						</div>
 					</div>
@@ -148,7 +151,7 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-2 row justify-content-left">Краткое название предмета</div>
 					<div class="col-2">
 						<div>
-							<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name = "short_name"/>
+							<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name"/>
 						</div>
 					</div>
 				</div>
@@ -184,7 +187,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 					<div class="col-2">
 						<div class="btn-group shadow-0">
-							<select class="form-select" name = "page_group" id = "select_groups">
+							<select class="form-select" name="page_group" id="select_groups">
 								<?php
 									foreach($groups as $page_group){
 										echo "<option>".$page_group['name']."</option>";
@@ -196,7 +199,7 @@ if (array_key_exists('page', $_REQUEST)) {
 					</div>
 				
 					<div class="col-1">
-						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id = "add_groups">
+						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
 						Добавить 
 						</button>
 					</div>
@@ -207,26 +210,34 @@ if (array_key_exists('page', $_REQUEST)) {
 				</div>
 					
 				
-				<div class="row align-items-left m-3" style="height: 40px;">
+				<div class="row align-items-left m-3">
 					<div class="col-2 row justify-content-left">Оформление</div>
-					<div class="col-10">
-						<button type="button" class="btn btn-outline-primary me-2" data-mdb-ripple-color="dark">
-						Синий
-						</button>
-						<button type="button" class="btn btn-outline-secondary mx-2" data-mdb-ripple-color="dark">
-						Фиолетовый
-						</button>
-						<button type="button" class="btn btn-outline-success mx-2" data-mdb-ripple-color="dark">
-						Зеленый 
-						</button>
-						<button type="button" class="btn btn-outline-dark mx-2" data-mdb-ripple-color="dark">
-						Чёрный
-						</button>
-						<button type="button" class="btn btn-outline-warning mx-2" data-mdb-ripple-color="dark">
-						Желтый
-						</button>
+					<div class="col-10 row container-fluid">
+						<?php 
+						$query = select_color_theme();
+						$result = pg_query($dbconnect, $query);
+						$thems = pg_fetch_all($result);
+						//<?php if($key) echo "display: none;";      background-color:<?= $thema['bg_color']
+						foreach($thems as $key => $thema){ ?>
+							
+								<label class="label-theme col-2 me-3" style="padding: 0px;">
+									<div class="card theme-check-button" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
+										<div class="bg-image hover-zoom" style="border-radius: 10px;" onclick="">
+												<img src="<?=$thema['src_url']?>" style="transition: all .1s linear; min-width: 100%; max-height: 120px;">
+												<div class="mask" style="background: <?=$thema['bg_color']?>; transition: all .1s linear;"></div>
+										</div>
+									</div>
+									<input type="radio" <?php if($page_id == 0 && !$key) echo 'checked="checked"'; 
+									else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"';?> 
+										name="color_theme_id" style="display: none;" value="<?=$thema['id']?>">
+									<div class="checkmark" style="background-color:<?= $thema['bg_color']?>"></div>
+								</label>
+							
+						<?php }?>
 					</div>
 				</div>
+
+				<input name="creator_id" value="<?=$_SESSION['hash']?>" style="display: none;">
 				
 				<div class="row align-items-center mx-2" style="height: 40px;">
 					<div class="col-md-2 row justify-content-left">
@@ -278,8 +289,7 @@ if (array_key_exists('page', $_REQUEST)) {
 		add_groups_button.addEventListener('click', add_groups);
 		
 		
-		function add_teacher()
-		{
+		function add_teacher() {
 			let name = document.getElementById("select_teacher").value;
 			
 			if(teachers.has(name))
@@ -290,8 +300,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			teachers.add(name);
 		}
 		
-		function add_groups()
-		{
+		function add_groups(){
 			let name = document.getElementById("select_groups").value;
 			
 			if (groups.has(name))
@@ -307,8 +316,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			groups.add(name);
 		}
 		
-		function add_element(parent, name, tag, set)
-		{
+		function add_element(parent, name, tag, set) {
 			let element = document.createElement("div");
 
 			element.classList.add("col-2");
@@ -343,9 +351,12 @@ if (array_key_exists('page', $_REQUEST)) {
 			element.append(input);
 		}
 		
-		
+	</script>
 
-	
+	<script type="text/javascript">
+	// Скрипт выбора темы для карточек
+
+
 	</script>
 
 </html>

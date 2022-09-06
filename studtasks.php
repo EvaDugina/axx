@@ -116,7 +116,7 @@ show_header_2($dbconnect, 'Задания по дисциплине',
 									$row_assignment = pg_fetch_assoc($result_assignment);
 
 									$status = false;
-									if ($result_assignment && $row_assignment['status_code']!=0) {
+									if ($result_assignment && $row_assignment && $row_assignment['status_code']!=0) {
 										$date_finish = "";
 										$text_status = 'Ответ не загружен';
 										if ($row_assignment['finish_limit'] != null)

@@ -4,7 +4,7 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
-$result = pg_query($dbconnect, 'select id, short_name, disc_id, semester from ax_page');
+$result = pg_query($dbconnect, select_page_with_thema());
 $disciplines=pg_fetch_all($result);
 $result1=pg_query($dbconnect, 'select count(id) from ax_page');
 $disc_count=pg_fetch_all($result1); ?>
@@ -14,8 +14,8 @@ $disc_count=pg_fetch_all($result1); ?>
 <html> 
 
     <?php
-    show_head($pge_title='');
-    show_header_2($dbconnect, 'Дэшборд студента', array('Дэшборд студента' => 'mainpage_student.php')); ?>
+    show_head($pge_title='Дашборд студента');
+    show_header_2($dbconnect, 'Дашборд студента', array('Дашборд студента' => 'mainpage_student.php')); ?>
 
     <body>
         <main class="justify-content-start" style="margin-bottom: 30px;">
@@ -61,15 +61,14 @@ $disc_count=pg_fetch_all($result1); ?>
                             $result = pg_query($dbconnect, select_discipline_name($discipline['disc_id']));
                             $full_name = pg_fetch_all($result);
                             ?>
-                            <div data-mdb-ripple-color="light" style="position: relative; cursor: pointer;" 
-                            onclick="window.location='studtasks.php?page=<?=$page_id?>'">
-                                <div class="bg-image hover-overlay hover-zoom">
-                                    <img src="src/img/informatic.jpg" alt="ИНФОРМАТИКА" style="transition: all .1s linear;">
-                                    <div class="mask" style="background-color: rgba(57, 192, 237, 0.05); transition: all .1s linear;"></div>
+                            <div data-mdb-ripple-color="light" style="position: relative;">
+                                <div class="bg-image hover-zoom" style="cursor: pointer;" onclick="window.location='studtasks.php?page=<?=$page_id?>'">
+                                    <img src="<?=$discipline['src_url']?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
+                                    <div class="mask" style="background: <?=$discipline['bg_color']?>; transition: all .1s linear;"></div>
                                 </div>
                                 <div class="card_image_content">
                                     <div class="p-2" style="text-align: left;">
-                                        <a style="color: white; font-weight: bold;" href="studtasks.php?page=<?php echo $page_id; ?>"><?php echo $discipline['short_name']; ?></a>
+                                        <a style="color: white; font-weight: bold;"><?php echo $discipline['short_name']; ?></a>
                                         <br><a><?php echo $full_name[0]['name']; ?></a>
                                     </div>
                                 </div>
@@ -85,12 +84,14 @@ $disc_count=pg_fetch_all($result1); ?>
                                     <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                 </div>
                                 <div class="progress" style="width: 100%; height: 1px; border-radius: 5px; margin-bottom: 5px;">
-                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%;" 
+                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%;
+                                    background-color:<?= $discipline['bg_color']?>;" 
                                     aria-valuenow="<?=$count_succes_tasks?>" aria-valuemin="0" aria-valuemax="<?=$count_tasks?>">
                                     </div>
                                 </div>
                                 <div class="progress" style="width: 100%; height: 20px; border-radius: 5px;">
-                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%;" 
+                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%; 
+                                    background-color:<?= $discipline['bg_color']?>;" 
                                     aria-valuenow="<?=$count_succes_tasks?>" aria-valuemin="0" aria-valuemax="<?=$count_tasks?>">
                                         <?=round($count_succes_tasks/$count_tasks*100, 0)?>%
                                     </div>

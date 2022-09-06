@@ -36,7 +36,7 @@
         return "SELECT first_name || ' ' || middle_name || ' ' || last_name as fio, 
             groups.name as group_name, ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
             FROM students
-            INNER JOIN students_to_groups ON students_to_groups.student_id =  students.id
+            INNER JOIN students_to_groups ON students_to_groups.student_id = students.id
             INNER JOIN groups ON groups.id = students_to_groups.group_id
             LEFT JOIN ax_settings ON ax_settings.user_id = students.id
             WHERE students.id = $id;
@@ -64,10 +64,17 @@
                 WHERE p.status = " . $status . "ORDER BY p.semester";
     }
 
+    function select_page_with_thema(){
+        return "SELECT p.id, p.short_name, p.disc_id, p.semester, ax_ct.bg_color, ax_ct.src_url 
+                FROM ax_page p
+                LEFT JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id";
+    }
+
     // Страница предмета
     function select_discipline_page($page_id) {
-        return "SELECT *, discipline.name AS disc_name FROM ax_page 
+        return "SELECT ax_page.*, discipline.name, ax_ct.id as color_theme_id, ax_ct.bg_color AS disc_name FROM ax_page 
                 INNER JOIN discipline ON discipline.id = ax_page.disc_id 
+                LEFT JOIN ax_color_theme ax_ct ON ax_ct.id = ax_page.color_theme_id
                 WHERE ax_page.id = '$page_id';
         ";
     }
@@ -96,21 +103,25 @@
         $disc_id = pg_escape_string($discipline['disc_id']);
         $year = pg_escape_string($timestamp['year']);
         $semester = pg_escape_string($timestamp['semester']);
+        $color_theme_id = pg_escape_string($discipline['color_theme_id']);
+        $creator_id = pg_escape_string($discipline['creator_id']);
 
-        return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester' 
-            WHERE id ='$id'";
+        return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester',
+                    color_theme_id='$color_theme_id', creator_id='$creator_id'
+                WHERE id ='$id'";
     }
 
-    function insert_discipline($discipline) {
+    function insert_page($discipline) {
         $timestamp = convert_timestamp_from_string($discipline['timestamp']);
         $short_name = pg_escape_string($discipline['short_name']);
-        $id = pg_escape_string($discipline['id']);
         $disc_id = pg_escape_string($discipline['disc_id']);
         $year = pg_escape_string($timestamp['year']);
         $semester = pg_escape_string($timestamp['semester']);
+        $color_theme_id = pg_escape_string($discipline['color_theme_id']);
+        $creator_id = pg_escape_string($discipline['creator_id']);
 
-        return "INSERT INTO ax_page (disc_id, short_name, year, semester) 
-            VALUES ('$disc_id', '$short_name', '$year', '$semester') returning id";
+        return "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id) 
+            VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id') returning id";
     }
 
 
@@ -461,6 +472,10 @@
 
 // ПРОЧЕЕ
 
+    function select_color_theme(){
+        return "SELECT * FROM ax_color_theme ORDER BY id;";
+    }
+
     function pg_fetch_all_assoc($res) {
         if (PHP_VERSION_ID >= 70100) 
             return pg_fetch_all($res, PGSQL_ASSOC);
@@ -470,6 +485,7 @@
         }
         return $array_out;
     }
+    
     
     // получение сообщений для таблицы посылок
     function select_page_messages($page_id) {
