@@ -109,7 +109,7 @@ if (array_key_exists('page', $_REQUEST)) {
 				<div class="row align-items-center m-3">
 					<div class="col-3 row justify-content-left">Краткое название предмета:</div>
 					<div class="col-2">
-						<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name"/>
+						<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name" autocomplete="off"/>
 					</div>
 				</div>
 				
@@ -117,7 +117,7 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-3 row justify-content-left">Полное название дисциплины:</div>
 					<div class="col-4">
 						<div class="btn-group shadow-0">
-						<select class="form-select" name = "disc_id">
+						<select id="selectDiscipline" class="form-select" name="disc_id">
 							<option selected value="<?=$disc_id?>">
 								<?=$name?>
 							</option>
@@ -227,12 +227,13 @@ if (array_key_exists('page', $_REQUEST)) {
 							
 								<label class="label-theme col-2 me-3" style="padding: 0px;">
 									<div class="card theme-check-button" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
-										<div class="bg-image hover-zoom" style="border-radius: 10px;" onclick="">
+										<div class="bg-image hover-zoom" style="border-radius: 10px;">
 												<img src="<?=$thema['src_url']?>" style="transition: all .1s linear; min-width: 100%; max-height: 120px;">
-												<div class="mask" style="background: <?=$thema['bg_color']?>; transition: all .1s linear;"></div>
+												<div id="mask-<?=$thema['disc_id']?>" class="mask" style="background: <?=$thema['bg_color']?>; transition: all .1s linear;"></div>
 										</div>
 									</div>
-									<input type="radio" <?php if($page_id == 0 && !$key) echo 'checked="checked"'; 
+									<input id="input-<?=$thema['disc_id']?>" type="radio" class="input-thema"
+									<?php if($page_id == 0 && !$key) echo 'checked="checked"'; 
 									else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"';?> 
 										name="color_theme_id" style="display: none;" value="<?=$thema['id']?>">
 									<div class="checkmark" style="background-color:<?= $thema['bg_color']?>"></div>
@@ -337,7 +338,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 			button.setAttribute("aria-label","Close");
 			button.setAttribute("type","button");
-			button.setAttribute("style", "font-size: 10px;")
+			button.setAttribute("style", "font-size: 10px;");
 			
 			element.append(text);
 			element.append(button);
@@ -360,7 +361,21 @@ if (array_key_exists('page', $_REQUEST)) {
 	</script>
 
 	<script type="text/javascript">
-	// Скрипт выбора темы для карточек
+		// Скрипт синхронизации выбора дисциплины и оформления для предмета
+		var select = document.querySelector('#selectDiscipline');
+		select.addEventListener('click', function(){
+
+    		console.log("input-" + select.value);
+			var input = document.getElementById("input-" + select.value);
+
+			var divLabels = input.parentElement.parentElement;
+			var labelList = divLabels.children;
+			for (let i = 0; i<labelList.length; i++){
+				labelList[i].children[1].checked = false;
+			}
+
+			input.checked = true;
+		});
 
 
 	</script>
