@@ -48,9 +48,15 @@ function full_name($discipline_id, $dbconnect) {
 							$array_notify = pg_fetch_all($result);
 
 							if ($now_year != $page['year']) { ?>
-								<div class="col-2 align-self-center popover-message-message-stud">
-									<a href="pageedit.php?add-page" type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></a><br>
-									<a href="pageedit.php?add-page">Добавить новый предмет</a>
+								<div class="col-2 align-self-center popover-message-message-stud" 
+								style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?add-page'">
+									<a class="btn btn-link" href="pageedit.php?add-page" type="button" 
+									style="width: 100%; height: 100%; padding-top: 20%;">
+										<div class="row">
+											<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
+											<span class="align-self-center">Добавить новый предмет</span>
+										</div>
+									</a>
 								</div>
 								</div>
 								</div>
@@ -121,9 +127,15 @@ function full_name($discipline_id, $dbconnect) {
 								</div>
 							</div>
 						<?php } ?>
-						<div class="col-2 align-self-center popover-message-message-stud">
-							<a href="pageedit.php?add-page" type="button" class="btn btn-link"><i class="fas fa-plus-circle" style="font-size: 30px;"></i></a><br>
-							<a href="pageedit.php?add-page">Добавить новый предмет</a>
+						<div class="col-2 align-self-center popover-message-message-stud" 
+						style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?add-page'">
+							<a class="btn btn-link" href="pageedit.php?add-page" type="button" 
+							style="width: 100%; height: 100%; padding-top: 20%;">
+								<div class="row">
+									<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
+									<span class="align-self-center">Добавить новый предмет</span>
+								</div>
+							</a>
 						</div>
 		</main>
 	</body>

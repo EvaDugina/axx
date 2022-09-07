@@ -222,7 +222,7 @@ if (array_key_exists('page', $_REQUEST)) {
 						$query = select_color_theme();
 						$result = pg_query($dbconnect, $query);
 						$thems = pg_fetch_all($result);
-						//<?php if($key) echo "display: none;";      background-color:<?= $thema['bg_color']
+						
 						foreach($thems as $key => $thema){ ?>
 							
 								<label class="label-theme col-2 me-3" style="padding: 0px;">
