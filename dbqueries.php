@@ -72,7 +72,7 @@
 
     // Страница предмета
     function select_discipline_page($page_id) {
-        return "SELECT ax_page.*, discipline.name, ax_ct.id as color_theme_id, ax_ct.bg_color AS disc_name FROM ax_page 
+        return "SELECT ax_page.*, discipline.name AS disc_name, ax_ct.id as color_theme_id, ax_ct.bg_color FROM ax_page 
                 INNER JOIN discipline ON discipline.id = ax_page.disc_id 
                 LEFT JOIN ax_color_theme ax_ct ON ax_ct.id = ax_page.color_theme_id
                 WHERE ax_page.id = '$page_id';
@@ -446,6 +446,10 @@
               INNER JOIN students s ON s.id = students_to_groups.student_id
               WHERE page_id ='$page_id' ORDER BY g.id, fi;
       ";
+    }
+
+    function select_students_by_group($group_id){
+      return "";
     }
 
 

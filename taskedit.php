@@ -74,9 +74,10 @@ show_header_2($dbconnect, 'Редактор заданий',
 
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
-    <div class="row gy-5">
-      <div class="col-8">
-        <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="post">
+      
+    <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="post">
+      <div class="row gy-5">
+        <div class="col-8">
           <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
           <table class="table table-hover">
     
@@ -149,16 +150,14 @@ show_header_2($dbconnect, 'Редактор заданий',
 
             </div>
           </table>
-
           <button id="submit" type="submit" class="btn btn-outline-primary">Сохранить</button>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
-        </form>
-      </div>
+        </div>
 
-      <div class="col-4">
-        <div class="p-3" style="height: calc(100vh - 80px); max-height: calc(100vh - 80px);">
-          <form id="form-choose-executors" class="p-2 border bg-light" name="form-taskEdit" 
-          action="taskedit_action.php?page=<?=$page_id?>" method="post">
+        <div class="col-4">
+        <div class="p-3 border bg-light" style="max-height: calc(100vh - 80px);">
+          <!--<form id="form-choose-executors" class="p-2 border bg-light" name="form-taskEdit" 
+          action="taskedit_action.php?page=<?=$page_id?>" method="post">-->
             <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
 
             <div class="pt-1 pb-1">
@@ -222,14 +221,27 @@ show_header_2($dbconnect, 'Редактор заданий',
               </div>
             </section>
 
-            <div class="pt-1 pb-1">
+            <div class="p-1 border bg-light">
+              <div class="d-flex">
+                <label class="label-theme btn btn-outline-primary py-2 px-4 me-2" checked>
+                  <input type="radio" name="deligate" style="display: none;" value="deligate-by-individual">
+                    <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                </label>  
+                <label class="label-theme btn btn-outline-primary py-2 px-4">
+                  <input type="radio" name="deligate" style="display: none;" value="deligate-by-group">
+                    <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                </label>  
+              </div>
+            </div>
+
+            <!--<div class="pt-1 pb-1">
               <button id="button-executor-by-individual" type="submit" class="btn btn-outline-primary">
                 <i class="fas fa-user fa-lg" onclick="checkExecutorsChoose()"></i> Назначить индивидуально</button>
               <button id="button-executor-by-group" type="submit" class="btn btn-outline-primary" onclick="checkExecutorsChoose()">
                 <i class="fas fa-users fa-lg"></i> Назначить группе</button>
-            </div>
+            </div>-->
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
-          </form>
+          <!-- </form> -->
 
           <div class="p-1 border bg-light" >
             <div class="pt-1 pb-1">
@@ -238,9 +250,11 @@ show_header_2($dbconnect, 'Редактор заданий',
             </div>
           </div>
                 
+          </div>
         </div>
       </div>
-    </div>
+    </form>
+
   </div>
 </main>
 <!-- End your project here-->

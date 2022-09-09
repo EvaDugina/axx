@@ -88,6 +88,47 @@ if(task_select){
 }
 
 
+//СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
+
+let form_chooseExecutors = document.getElementById('form-choose-executors');
+
+let button_individual = document.getElementById('button-executor-by-individual');
+let button_group = document.getElementById('button-executor-by-group');
+
+if(form_chooseExecutors){
+  form_chooseExecutors.addEventListener('submit', function (event) {
+
+    if(!checkStudentCheckboxes()) {
+
+      let error_execution = document.getElementById('error-choose-executor');
+      error_execution.textContent = "Не выбраны пользователи";
+      error_execution.className = 'error-input active';
+
+      event.preventDefault();
+    }
+  });
+}
+
+function checkStudentCheckboxes(){
+  var accordion = $('.js-accordion');
+  const accordion_student_elems = accordion.find('.form-check');
+  for (let i = 0; i < accordion_student_elems.length; i++) {
+    //console.log(student);
+    if(accordion_student_elems[i].children[0].checked) {
+      console.log('id: ' + accordion_student_elems[i].children[0].id);
+      return true;
+    }
+  }
+  console.log("Ничего не выбрано");
+  return false;
+}
+
+// Проставить автоматические галочки на студентов
+function markStudentElements(group_id){
+  
+}
+
+
 
 // ACCORDION SCRIPT 
 
@@ -142,46 +183,3 @@ var accordion = (function(){
 $(document).ready(function(){
   accordion.init({ speed: 300, oneOpen: false });
 });
-
-
-
-//СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
-
-
-let form_chooseExecutors = document.getElementById('form-choose-executors');
-
-let button_individual = document.getElementById('button-executor-by-individual');
-let button_group = document.getElementById('button-executor-by-group');
-
-if(form_chooseExecutors){
-  form_chooseExecutors.addEventListener('submit', function (event) {
-
-    if(!checkStudentCheckboxes()) {
-
-      let error_execution = document.getElementById('error-choose-executor');
-      error_execution.textContent = "Не выбраны пользователи";
-      error_execution.className = 'error-input active';
-
-      event.preventDefault();
-    }
-  });
-}
-
-function checkStudentCheckboxes(){
-  var accordion = $('.js-accordion');
-  const accordion_student_elems = accordion.find('.form-check');
-  for (let i = 0; i < accordion_student_elems.length; i++) {
-    //console.log(student);
-    if(accordion_student_elems[i].children[0].checked) {
-      console.log('id: ' + accordion_student_elems[i].children[0].id);
-      return true;
-    }
-  }
-  console.log("Ничего не выбрано");
-  return false;
-}
-
-// Проставить автоматические галочки на студентов
-function markStudentElements(group_id){
-  
-}
