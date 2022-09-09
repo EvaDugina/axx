@@ -72,6 +72,6 @@ if (isset($_POST['action'])) {
 		break;
 
 	}
-	//header('Location: mainpage.php');
+	header('Location: mainpage.php');
 }
 ?>

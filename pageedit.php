@@ -93,7 +93,7 @@ if (array_key_exists('page', $_REQUEST)) {
 		<main class="pt-2" aria-hidden="true">
 			<form class="container-fluid overflow-hidden" action="pageedit_action.php"  id="pageedit_action" name="action" method = "post"> 
 				<div class="row gy-5">
-					<div class="col-12">
+					<div class="col-lg-12">
 						<?php
 						if ($page_id == 0)
 							echo '<h2>Добавление предмета</h2>';
@@ -107,15 +107,15 @@ if (array_key_exists('page', $_REQUEST)) {
 				<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
 
 				<div class="row align-items-center m-3">
-					<div class="col-3 row justify-content-left">Краткое название предмета:</div>
-					<div class="col-2">
+					<div class="col-lg-3 row justify-content-left">Краткое название предмета:</div>
+					<div class="col-lg-2">
 						<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name" autocomplete="off"/>
 					</div>
 				</div>
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
-					<div class="col-3 row justify-content-left">Полное название дисциплины:</div>
-					<div class="col-4">
+					<div class="col-lg-3 row justify-content-left">Полное название дисциплины:</div>
+					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
 						<select id="selectDiscipline" class="form-select" name="disc_id">
 							<option selected value="<?=$disc_id?>">
@@ -135,8 +135,8 @@ if (array_key_exists('page', $_REQUEST)) {
 
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
-					<div class="col-3 row justify-content-left">Семестр:</div>
-					<div class="col-4">
+					<div class="col-lg-3 row justify-content-left">Семестр:</div>
+					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="timestamp">           
 								<option selected>
@@ -159,14 +159,14 @@ if (array_key_exists('page', $_REQUEST)) {
 
 				
 				<div class="row align-items-center m-3">
-					<div class="col-2 row justify-content-left">Преподаватели:</div>
+					<div class="col-lg-2 row justify-content-left">Преподаватели:</div>
 
-					<div class="col-1">
+					<div class="col-lg-1">
 						<button id="add_teachers" type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
 							Добавить 
 						</button>
 					</div>
-					<div class="col-2">
+					<div class="col-lg-2">
 						<div class="btn-group shadow-0">
 							<select class="form-select" id = "select_teacher">
 								<?php
@@ -181,19 +181,19 @@ if (array_key_exists('page', $_REQUEST)) {
 				</div>
 				
 				<div class="row align-items-center m-3">
-					<div class="col-2 row"></div>
-					<div id="teachers_container" class="col-10" style="display: flex; flex-direction: row; justify-content: flex-start;"></div>
+					<div class="col-lg-2 row"></div>
+					<div id="teachers_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start;"></div>
 				</div>
 				
 				<div class="row align-items-center m-3">
-					<div class="col-2 row justify-content-left">Учебные группы:</div>
+					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
 
-					<div class="col-1">
+					<div class="col-lg-1">
 						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
 							Добавить 
 						</button>
 					</div>
-					<div class="col-2">
+					<div class="col-lg-2">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
@@ -209,15 +209,15 @@ if (array_key_exists('page', $_REQUEST)) {
 				</div>
 				
 				<div class="row align-items-center m-3">
-					<div class="col-2 row"></div>
-					<div id="groups_container" class="col-10" style="display: flex; flex-direction: row; justify-content: flex-start;">
+					<div class="col-lg-2 row"></div>
+					<div id="groups_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start;">
 					</div>
 				</div>
 					
 				
 				<div class="row align-items-left m-3">
-					<div class="col-2 row justify-content-left">Оформление:</div>
-					<div class="col-10 row container-fluid">
+					<div class="col-lg-2 row justify-content-left">Оформление:</div>
+					<div class="col-lg-10 row container-fluid">
 						<?php 
 						$query = select_color_theme();
 						$result = pg_query($dbconnect, $query);
@@ -225,7 +225,7 @@ if (array_key_exists('page', $_REQUEST)) {
 						//<?php if($key) echo "display: none;";      background-color:<?= $thema['bg_color']
 						foreach($thems as $key => $thema){ ?>
 							
-								<label class="label-theme col-2 me-3" style="padding: 0px;">
+								<label class="label-theme col-lg-2 me-3" style="padding: 0px;">
 									<div class="card theme-check-button" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
 										<div class="bg-image hover-zoom" style="border-radius: 10px;">
 												<img src="<?=$thema['src_url']?>" style="transition: all .1s linear; min-width: 100%; max-height: 120px;">
@@ -246,14 +246,14 @@ if (array_key_exists('page', $_REQUEST)) {
 				<input name="creator_id" value="<?=$_SESSION['hash']?>" style="display: none;">
 				
 				<div class="row mx-2" style="height: 40px;">
-					<div class="col-2 row justify-content-left">
-						<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+					<div class="col-lg-1 row justify-content-left">
+						<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark">
 							Сохранить
 						</button>
 					</div>
 
 					<?php if ($page_id != 0) {?>
-						<div class="col-3">
+						<div class="col-lg-3 offset-1">
 							<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
 								Удалить дисциплину
 							</button>
@@ -329,7 +329,7 @@ if (array_key_exists('page', $_REQUEST)) {
 		function add_element(parent, name, tag, set) {
 			let element = document.createElement("div");
 
-			//element.classList.add("col-2");
+			//element.classList.add("col-lg-2");
 			element.setAttribute("style", "margin-right: 30px;");
 
 			let text = document.createElement("span");
