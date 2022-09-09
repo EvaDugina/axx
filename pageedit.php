@@ -276,17 +276,21 @@ if (array_key_exists('page', $_REQUEST)) {
 		var actual_teachers_json = <?php echo json_encode($actual_teachers); ?>;
 		var page_groups_json = <?php echo json_encode($page_groups); ?>;
 		
-		actual_teachers_json.forEach(function(r){
-			let name = r.first_name + ' ' + r.middle_name;
-			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
-			teachers.add(name);
-		});
+		if(actual_teachers_json){
+      actual_teachers_json.forEach(function(r){
+        let name = r.first_name + ' ' + r.middle_name;
+        add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
+        teachers.add(name);
+      });
+    }
 		
-		page_groups_json.forEach(function(r){
-			let name = r.name;
-			add_element(document.getElementById("groups_container"), name, "groups[]", groups);
-			groups.add(name);
-		});
+    if(page_groups_json){
+      page_groups_json.forEach(function(r){
+        let name = r.name;
+        add_element(document.getElementById("groups_container"), name, "groups[]", groups);
+        groups.add(name);
+      });
+    }
 
 		let add_teachers_button = document.getElementById("add_teachers");
 		add_teachers_button.addEventListener('click', add_teacher);

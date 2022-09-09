@@ -415,12 +415,16 @@
 
     // все преподователи
     function select_teacher_name() {
-        return 'SELECT student_id, first_name, middle_name, last_name FROM students_to_groups INNER JOIN students ON students_to_groups.student_id = students.id WHERE group_id = 29';
+        return 'SELECT student_id, first_name, middle_name, last_name FROM students_to_groups 
+                INNER JOIN students ON students_to_groups.student_id = students.id 
+                WHERE group_id = 29';
     }
 
     // преподователи у конкретной дисциплины
     function select_page_prep_name($page_id) {
-        return 'SELECT first_name, middle_name FROM ax_page_prep INNER JOIN students ON students.id = ax_page_prep.prep_user_id WHERE page_id ='.$page_id;
+        return 'SELECT first_name, middle_name FROM ax_page_prep 
+                INNER JOIN students ON students.id = ax_page_prep.prep_user_id 
+                WHERE page_id ='.$page_id;
     }
 
     // удаление из таблицы дисциплины-преподователи
