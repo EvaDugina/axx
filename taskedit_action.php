@@ -52,11 +52,11 @@ if(isset($_POST['task-id'])){
   //print_r("AAAAAAAAAAAAAAAAA");
 
   if (isset($_POST['checkboxStudents']) && !empty($_POST['checkboxStudents']) && isset($_POST['task-id']) && $_POST['task-id'] != -1) {
+    $array_students_for_deligation = array();
     foreach($_POST['checkboxStudents'] as $id => $student_elem) {
         print_r($_POST['checkboxStudents']);
         if($student_elem[$id]=='g'){
-          
-          $query = select_students_by_group($student_elem[$id]);
+          $query = select_students_id_by_group($student_elem[$id]);
           $result = pg_query($dbconnect, $query);
           $array_students = pg_fetch_all($result);
         } else {
