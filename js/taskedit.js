@@ -6,6 +6,9 @@ let error_Title = document.getElementById('error-input-title');
 let textArea_Description = document.getElementById('textArea-description');
 let error_Description = document.getElementById('error-textArea-description');
 
+let inputRadio_individual = document.getElementById('input-deligate-by-individual');
+let inputRadio_group = document.getElementById('input-deligate-by-group');
+
 if(input_Title){
   input_Title.addEventListener('input', function (event) {
     // Каждый раз, когда пользователь что-то вводит,
@@ -43,13 +46,21 @@ if(textArea_Description){
 if(form_taskEdit){
   form_taskEdit.addEventListener('submit', function (event) {
 
-
     if(!input_Title.value || !textArea_Description.value) {
       // Если поля не заполнены, отображаем соответствующее сообщение об ошибке
       showError();
       // Затем предотвращаем стандартное событие отправки формы
       event.preventDefault();
     }
+
+    if(!checkStudentCheckboxes() && (inputRadio_individual.checked || inputRadio_group.checked)) {
+      let error_execution = document.getElementById('error-choose-executor');
+      error_execution.textContent = "Не выбраны пользователи";
+      error_execution.className = 'error-input active';
+
+      event.preventDefault();
+    }
+
   });
 }
 
@@ -65,6 +76,42 @@ function showError() {
 }
 
 
+// СКРИПТ ИЗМЕНЕНИЯ ЦВЕТА РАДИО-КНОПОК
+inputRadio_individual.addEventListener('click', function (event) {
+  inputRadio_group.parentElement.classList.remove('btn-primary');
+  inputRadio_group.parentElement.classList.add('btn-outline-default');
+  inputRadio_individual.parentElement.classList.add('btn-primary');
+
+});
+inputRadio_group.addEventListener('click', function (event) {
+  inputRadio_individual.parentElement.classList.remove('btn-primary');
+  inputRadio_individual.parentElement.classList.add('btn-outline-default');
+  inputRadio_group.parentElement.classList.add('btn-primary');
+});
+
+
+//СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
+function checkStudentCheckboxes(){
+  var accordion = $('.js-accordion');
+  const accordion_student_elems = accordion.find('.form-check');
+  for (let i = 0; i < accordion_student_elems.length; i++) {
+    //console.log(student);
+    if(accordion_student_elems[i].children[0].checked) {
+      console.log('id: ' + accordion_student_elems[i].children[0].id);
+      return true;
+    }
+  }
+  console.log("Ничего не выбрано");
+  return false;
+}
+
+// Проставить автоматические галочки на студентов
+function markStudentElements(group_id){
+  
+}
+
+
+// СКРИПТ ВКЛЮЧЕНИЯ / ОТКЛЮЧЕНИЯ ПОЛЕЙ КОДА ОШИБКИ И ЧЕГО_ТО ТАКОГО. НЕ ПОНЯЛ ДО КОНЦА
 let tools = document.getElementById("tools");
 let task_select = document.getElementById("task-type");
   
@@ -142,46 +189,3 @@ var accordion = (function(){
 $(document).ready(function(){
   accordion.init({ speed: 300, oneOpen: false });
 });
-
-
-
-//СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
-
-
-let form_chooseExecutors = document.getElementById('form-choose-executors');
-
-let button_individual = document.getElementById('button-executor-by-individual');
-let button_group = document.getElementById('button-executor-by-group');
-
-if(form_chooseExecutors){
-  form_chooseExecutors.addEventListener('submit', function (event) {
-
-    if(!checkStudentCheckboxes()) {
-
-      let error_execution = document.getElementById('error-choose-executor');
-      error_execution.textContent = "Не выбраны пользователи";
-      error_execution.className = 'error-input active';
-
-      event.preventDefault();
-    }
-  });
-}
-
-function checkStudentCheckboxes(){
-  var accordion = $('.js-accordion');
-  const accordion_student_elems = accordion.find('.form-check');
-  for (let i = 0; i < accordion_student_elems.length; i++) {
-    //console.log(student);
-    if(accordion_student_elems[i].children[0].checked) {
-      console.log('id: ' + accordion_student_elems[i].children[0].id);
-      return true;
-    }
-  }
-  console.log("Ничего не выбрано");
-  return false;
-}
-
-// Проставить автоматические галочки на студентов
-function markStudentElements(group_id){
-  
-}

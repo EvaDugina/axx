@@ -74,9 +74,10 @@ show_header_2($dbconnect, 'Редактор заданий',
 
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
-    <div class="row gy-5">
-      <div class="col-8">
-        <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="post">
+      
+    <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="post">
+      <div class="row gy-5">
+        <div class="col-8">
           <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
           <table class="table table-hover">
     
@@ -149,16 +150,14 @@ show_header_2($dbconnect, 'Редактор заданий',
 
             </div>
           </table>
-
           <button id="submit" type="submit" class="btn btn-outline-primary">Сохранить</button>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
-        </form>
-      </div>
+        </div>
 
-      <div class="col-4">
-        <div class="p-3" style="height: calc(100vh - 80px); max-height: calc(100vh - 80px);">
-          <form id="form-choose-executors" class="p-2 border bg-light" name="form-taskEdit" 
-          action="taskedit_action.php?page=<?=$page_id?>" method="post">
+        <div class="col-4">
+        <div class="p-3 border bg-light" style="max-height: calc(100vh - 80px);">
+          <!--<form id="form-choose-executors" class="p-2 border bg-light" name="form-taskEdit" 
+          action="taskedit_action.php?page=<?=$page_id?>" method="post">-->
             <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
 
             <div class="pt-1 pb-1">
@@ -180,7 +179,18 @@ show_header_2($dbconnect, 'Редактор заданий',
             <?php
             $query = select_students_by_group_by_page($page_id);
             $result = pg_query($dbconnect, $query);
-            $students = pg_fetch_all_assoc($result); ?>
+            $students = pg_fetch_all_assoc($result); 
+            
+            // Получение студентов, прикреплённызх к заданию
+            if ($task_id != -1){
+              $query = select_students_by_group_by_page_by_task($page_id, $task_id);
+              $result = pg_query($dbconnect, $query);
+              $students = pg_fetch_all($result);
+            } else {
+              $query = select_students_by_group_by_page($page_id);
+              $result = pg_query($dbconnect, $query);
+              $students = pg_fetch_all_assoc($result); 
+            }?>
 
             <section class="w-100 d-flex border" style="height: 50%;">
               <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
@@ -190,7 +200,15 @@ show_header_2($dbconnect, 'Редактор заданий',
                   if ($students){
                     foreach ($students as $key => $student) {
                       if($student['group_id'] != $now_group_id) {
-                        if($key > 0) {?>
+                        $flag_full_group = true;
+                        for($i=$key; $key < count($students); $i++){
+                          if($students[$i]['group_id'] != $student['group_id'])
+                            break;
+                          if($students[$i]['task_id'] != $task_id)
+                            $flag_full_group = false;
+                        }
+                        if($student['task_id'] == $task_id)
+                        if($key > 0) { ?>
                           </div>
                         </div>
                         <?php }?>
@@ -199,7 +217,7 @@ show_header_2($dbconnect, 'Редактор заданий',
                             <div class="form-check">
                               <input id="group-<?=$student['group_id']?>" class="accordion-input-item form-check-input" type="checkbox" 
                               value="g<?=$student['group_id']?>" id="flexCheck1" onclick="markStudentElements(<?=$student['group_id']?>)" 
-                              name="checkboxStudents[]">
+                              name="checkboxStudents[]" <?php if($flag_full_group) echo 'checked';?>>
                               <label class="form-check-label" for="flexCheck1"><?=$student['group_name']?></label>
                             </div>
                           </div>
@@ -208,7 +226,8 @@ show_header_2($dbconnect, 'Редактор заданий',
                       <div class="accordion__item js-accordion-item">
                         <div class="form-check">
                           <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input" 
-                          type="checkbox" value="s<?=$student['id']?>" id="" name="checkboxStudents[]">
+                          type="checkbox" value="s<?=$student['id']?>" id="" name="checkboxStudents[]" 
+                          <?php if($student['task_id'] == $task_id) echo 'checked';?>>
                           <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                         </div>
                       </div>
@@ -222,14 +241,27 @@ show_header_2($dbconnect, 'Редактор заданий',
               </div>
             </section>
 
-            <div class="pt-1 pb-1">
+            <div class="p-1 border bg-light">
+              <div class="d-flex" data-toggle="buttons">
+                <label class="btn btn-primary py-2 px-4 me-2">
+                  <input id="input-deligate-by-individual" type="radio" name="status-deligate" style="display: none;" value="by-individual">
+                    <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                </label>  
+                <label class="btn btn-outline-default py-2 px-4">
+                  <input id="input-deligate-by-group" type="radio" name="status-deligate" style="display: none;" value="by-group">
+                    <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                </label>  
+              </div>
+            </div>
+
+            <!--<div class="pt-1 pb-1">
               <button id="button-executor-by-individual" type="submit" class="btn btn-outline-primary">
                 <i class="fas fa-user fa-lg" onclick="checkExecutorsChoose()"></i> Назначить индивидуально</button>
               <button id="button-executor-by-group" type="submit" class="btn btn-outline-primary" onclick="checkExecutorsChoose()">
                 <i class="fas fa-users fa-lg"></i> Назначить группе</button>
-            </div>
+            </div>-->
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
-          </form>
+          <!-- </form> -->
 
           <div class="p-1 border bg-light" >
             <div class="pt-1 pb-1">
@@ -238,9 +270,11 @@ show_header_2($dbconnect, 'Редактор заданий',
             </div>
           </div>
                 
+          </div>
         </div>
       </div>
-    </div>
+    </form>
+
   </div>
 </main>
 <!-- End your project here-->

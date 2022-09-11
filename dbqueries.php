@@ -72,7 +72,7 @@
 
     // Страница предмета
     function select_discipline_page($page_id) {
-        return "SELECT ax_page.*, discipline.name, ax_ct.id as color_theme_id, ax_ct.bg_color AS disc_name FROM ax_page 
+        return "SELECT ax_page.*, discipline.name AS disc_name, ax_ct.id as color_theme_id, ax_ct.bg_color FROM ax_page 
                 INNER JOIN discipline ON discipline.id = ax_page.disc_id 
                 LEFT JOIN ax_color_theme ax_ct ON ax_ct.id = ax_page.color_theme_id
                 WHERE ax_page.id = '$page_id';
@@ -415,12 +415,16 @@
 
     // все преподователи
     function select_teacher_name() {
-        return 'SELECT student_id, first_name, middle_name, last_name FROM students_to_groups INNER JOIN students ON students_to_groups.student_id = students.id WHERE group_id = 29';
+        return 'SELECT student_id, first_name, middle_name, last_name FROM students_to_groups 
+                INNER JOIN students ON students_to_groups.student_id = students.id 
+                WHERE group_id = 29';
     }
 
     // преподователи у конкретной дисциплины
     function select_page_prep_name($page_id) {
-        return 'SELECT first_name, middle_name FROM ax_page_prep INNER JOIN students ON students.id = ax_page_prep.prep_user_id WHERE page_id ='.$page_id;
+        return 'SELECT first_name, middle_name FROM ax_page_prep 
+                INNER JOIN students ON students.id = ax_page_prep.prep_user_id 
+                WHERE page_id ='.$page_id;
     }
 
     // удаление из таблицы дисциплины-преподователи
@@ -440,11 +444,34 @@
 // ДЕЙСТВИЯ СО СТУДЕНТАМИ
 
     function select_students_by_group_by_page($page_id){
-      return "SELECT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name  FROM groups g
+      return "SELECT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name 
+              FROM groups g
               INNER JOIN ax_page_group ON g.id = ax_page_group.group_id 
               INNER JOIN students_to_groups ON g.id = students_to_groups.group_id
               INNER JOIN students s ON s.id = students_to_groups.student_id
               WHERE page_id ='$page_id' ORDER BY g.id, fi;
+      ";
+    }
+
+    function select_students_by_group_by_page_by_task($page_id, $task_id){
+      return "SELECT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name, 
+              CASE WHEN ax_task.id = '$task_id' THEN ax_task.id ELSE null END task_id 
+              FROM groups g
+              
+              INNER JOIN ax_page_group ON g.id = ax_page_group.group_id 
+              INNER JOIN students_to_groups ON g.id = students_to_groups.group_id
+              INNER JOIN students s ON s.id = students_to_groups.student_id
+              INNER JOIN ax_assignment_student ON ax_assignment_student.student_user_id = s.id
+              INNER JOIN ax_assignment ON ax_assignment.id = ax_assignment_student.assignment_id
+              INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+
+              WHERE ax_page_group.page_id = '$page_id' AND ax_assignment.task_id = '$task_id' ORDER BY g.id, fi;
+      ";
+    }
+
+    function select_students_id_by_group($group_id){
+      return "SELECT student_id FROM students_to_group
+              WHERE group_id = '$group_id';
       ";
     }
 
