@@ -182,32 +182,30 @@ show_header_2($dbconnect, 'Редактор заданий',
             $students = pg_fetch_all_assoc($result); 
             
             // Получение студентов, прикреплённызх к заданию
-            if ($task_id != -1){
-              $query = select_students_by_group_by_page_by_task($page_id, $task_id);
-              $result = pg_query($dbconnect, $query);
-              $students = pg_fetch_all($result);
-            } else {
-              $query = select_students_by_group_by_page($page_id);
-              $result = pg_query($dbconnect, $query);
-              $students = pg_fetch_all_assoc($result); 
-            }?>
+            $query = select_students_by_group_by_page_by_task($page_id, $task_id);
+            $result = pg_query($dbconnect, $query);
+            $all_students = pg_fetch_all_assoc($result);  ?>
 
             <section class="w-100 d-flex border" style="height: 50%;">
               <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
                 <div id="accordion-students" class="accordion js-accordion" style="overflow-y: auto; height: 100%; width: 100%;">
 
                   <?php $now_group_id = -1;
-                  if ($students){
-                    foreach ($students as $key => $student) {
+                  if ($all_students){
+                    foreach ($all_students as $key => $student) {
                       if($student['group_id'] != $now_group_id) {
+                        // Обработка полностью выбранных групп
                         $flag_full_group = true;
-                        for($i=$key; $key < count($students); $i++){
-                          if($students[$i]['group_id'] != $student['group_id'])
-                            break;
-                          if($students[$i]['task_id'] != $task_id)
-                            $flag_full_group = false;
-                        }
-                        if($student['task_id'] == $task_id)
+                        if ($task_id != -1) {
+                          for($i=$key; $i < count($students); $i++){
+                            if($students[$i]['group_id'] != $student['group_id'])
+                              break;
+                            if(isset($students[$i]['task_id']) && $students[$i]['task_id'] != $task_id)
+                              $flag_full_group = false;
+
+                          }
+                        } else
+                          $flag_full_group = false;
                         if($key > 0) { ?>
                           </div>
                         </div>
@@ -227,7 +225,7 @@ show_header_2($dbconnect, 'Редактор заданий',
                         <div class="form-check">
                           <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input" 
                           type="checkbox" value="s<?=$student['id']?>" id="" name="checkboxStudents[]" 
-                          <?php if($student['task_id'] == $task_id) echo 'checked';?>>
+                          <?php if($task_id != -1 && isset($student['task_id']) && $student['task_id'] == $task_id) echo 'checked';?>>
                           <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                         </div>
                       </div>

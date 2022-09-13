@@ -454,18 +454,21 @@
     }
 
     function select_students_by_group_by_page_by_task($page_id, $task_id){
-      return "SELECT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name, 
-              CASE WHEN ax_task.id = '$task_id' THEN ax_task.id ELSE null END task_id 
-              FROM groups g
-              
-              INNER JOIN ax_page_group ON g.id = ax_page_group.group_id 
-              INNER JOIN students_to_groups ON g.id = students_to_groups.group_id
-              INNER JOIN students s ON s.id = students_to_groups.student_id
-              INNER JOIN ax_assignment_student ON ax_assignment_student.student_user_id = s.id
-              INNER JOIN ax_assignment ON ax_assignment.id = ax_assignment_student.assignment_id
-              INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
-
-              WHERE ax_page_group.page_id = '$page_id' AND ax_assignment.task_id = '$task_id' ORDER BY g.id, fi;
+      return "SELECT a.id, a.fi, a.login, a.group_id, a.group_name, max(a.task_id) task_id
+              FROM( 
+                SELECT DISTINCT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name, 
+                CASE WHEN ax_task.id = '$task_id' THEN ax_task.id ELSE null END task_id
+                FROM groups g
+                    
+                INNER JOIN ax_page_group ON g.id = ax_page_group.group_id 
+                INNER JOIN students_to_groups ON g.id = students_to_groups.group_id
+                INNER JOIN students s ON s.id = students_to_groups.student_id
+                LEFT JOIN ax_assignment_student ON ax_assignment_student.student_user_id = s.id
+                LEFT JOIN ax_assignment ON ax_assignment.id = ax_assignment_student.assignment_id
+                LEFT JOIN ax_task ON ax_task.id = ax_assignment.task_id
+  
+                WHERE ax_page_group.page_id = '$page_id' ORDER BY g.id, fi, task_id, s.id) a
+              GROUP BY a.id, a.fi, a.login, a.group_id, a.group_name ORDER BY a.group_id, a.fi;
       ";
     }
 
