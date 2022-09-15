@@ -9,6 +9,9 @@ let error_Description = document.getElementById('error-textArea-description');
 let inputRadio_individual = document.getElementById('input-deligate-by-individual');
 let inputRadio_group = document.getElementById('input-deligate-by-group');
 
+let input_files = document.getElementById('input-files');
+
+
 if(input_Title){
   input_Title.addEventListener('input', function (event) {
     // Каждый раз, когда пользователь что-то вводит,
@@ -78,16 +81,51 @@ function showError() {
 
 // СКРИПТ ИЗМЕНЕНИЯ ЦВЕТА РАДИО-КНОПОК
 inputRadio_individual.addEventListener('click', function (event) {
-  inputRadio_group.parentElement.classList.remove('btn-primary');
-  inputRadio_group.parentElement.classList.add('btn-outline-default');
-  inputRadio_individual.parentElement.classList.add('btn-primary');
+  console.log("НАЖАТА КНОПКА: НАЗНАЧИТЬ ИНДИВИДУАЛЬНО");
+  if (inputRadio_group.parentElement.classList.contains('btn-primary')){
+    inputRadio_group.parentElement.classList.remove('btn-primary');
+    inputRadio_group.parentElement.classList.add('btn-outline-default');
+    console.log("ЭТАП 1 ЗАКОНЧЕН");
+  } 
+  if (inputRadio_individual.parentElement.classList.contains('btn-outline-default')){
+    inputRadio_individual.parentElement.classList.remove('btn-outline-default');
+    inputRadio_individual.parentElement.classList.add('btn-primary');
+    console.log("ЭТАП 2 ЗАКОНЧЕН");
+  }
 
 });
 inputRadio_group.addEventListener('click', function (event) {
-  inputRadio_individual.parentElement.classList.remove('btn-primary');
-  inputRadio_individual.parentElement.classList.add('btn-outline-default');
-  inputRadio_group.parentElement.classList.add('btn-primary');
+  console.log("НАЖАТА КНОПКА: НАЗНАЧИТЬ ПО ГРУППАМ");
+  if (inputRadio_individual.parentElement.classList.contains('btn-primary')){
+    inputRadio_individual.parentElement.classList.remove('btn-primary');
+    inputRadio_individual.parentElement.classList.add('btn-outline-default');
+    console.log("ЭТАП 1 ЗАКОНЧЕН");
+  } 
+  if (inputRadio_group.parentElement.classList.contains('btn-outline-default')){
+    inputRadio_group.parentElement.classList.remove('btn-outline-default');
+    inputRadio_group.parentElement.classList.add('btn-primary');
+    console.log("ЭТАП 2 ЗАКОНЧЕН");
+  }
 });
+
+input_files.addEventListener('click', function (event) {
+  console.log("НАЖАТА КНОПКА: ПРИЛОЖИТЬ ФАЙЛЫ");
+  if (input_files.parentElement.classList.contains('btn-primary')){
+    input_files.parentElement.classList.remove('btn-primary');
+    input_files.parentElement.classList.add('btn-outline-default');
+    console.log("ЭТАП 1 ЗАКОНЧЕН");
+  } 
+  if (input_files.parentElement.classList.contains('btn-outline-default')){
+    input_files.parentElement.classList.remove('btn-outline-default');
+    input_files.parentElement.classList.add('btn-primary');
+    console.log("ЭТАП 2 ЗАКОНЧЕН");
+  }
+});
+// Показывает количество прикрепленных для отправки файлов
+$('#input-files').on('change', function() {
+  $('#files-count').html(this.files.length);
+});
+
 
 
 //СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"

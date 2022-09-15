@@ -284,14 +284,34 @@
 
     function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $status=1){
         return "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
-                VALUES ('$page_id', '$type', '$title', '$description', $max_mark, '$status');
+                VALUES ('$page_id', '$type', '$title', '$description', $max_mark, '$status')
+                RETURNING id;
         ";
 
     }
 
+    function insert_assignment($task_id){
+        return "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, status_code, delay, status_text, mark)
+                VALUES ($task_id, null, now(), null, null, null, null, null) RETURNING id;
+        ";
+    }
+
+    function insert_assignment_student($assignment_id, $student_id){
+        return "INSERT INTO ax_assignment_student (assignment_id, student_user_id)
+                VALUES ($assignment_id, $student_id);
+        ";
+    }
+
     function update_ax_assignment_finish_limit($assignment_id, $finish_limit=null) {
-      return "UPDATE ax_assignment SET finish_limit = '$finish_limit' 
-              WHERE id = '$assignment_id';
+        date_default_timezone_set('UTC');
+        if ($finish_limit){
+            $timestamp = strtotime($finish_limit);
+            $timestamp = getdate($timestamp);
+            $timestamp = date("Y-m-d H:i:s", mktime(23, 59, 59, $timestamp['mon'],$timestamp['mday'], $timestamp['year']));
+
+        }
+        return "UPDATE ax_assignment SET finish_limit = '$timestamp' 
+                WHERE id = $assignment_id;
       ";
     }
 
@@ -362,6 +382,12 @@
 // ДЕЙСТВИЯ С ГРУППАМИ
     function select_groups(){
         return 'SELECT * FROM groups';
+    }
+
+    function select_ax_page_group($group_id){
+        return "SELECT * FROM ax_page_group 
+                WHERE group_id = $group_id;
+        ";
     }
 
     // группы у конкретной дисциплины
@@ -467,7 +493,7 @@
                 LEFT JOIN ax_assignment ON ax_assignment.id = ax_assignment_student.assignment_id
                 LEFT JOIN ax_task ON ax_task.id = ax_assignment.task_id
   
-                WHERE ax_page_group.page_id = '$page_id' ORDER BY g.id, fi, task_id, s.id) a
+                ORDER BY g.id, fi, task_id, s.id) a
               GROUP BY a.id, a.fi, a.login, a.group_id, a.group_name ORDER BY a.group_id, a.fi;
       ";
     }

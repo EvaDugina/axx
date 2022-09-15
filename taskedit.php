@@ -166,7 +166,8 @@ show_header_2($dbconnect, 'Редактор заданий',
 
             <section class="w-100 py-2 d-flex justify-content-center">
               <div class="form-outline datetimepicker w-100" style="width: 22rem">
-                <input id="datetimepickerExample" type="date" class="form-control active" name="finish-limit">
+                <input id="datetimepickerExample" type="date" class="form-control active" name="finish-limit" 
+                <?php /*if()*/?>>
                 <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Срок выполения</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -177,22 +178,18 @@ show_header_2($dbconnect, 'Редактор заданий',
             </section>
 
             <?php
-            $query = select_students_by_group_by_page($page_id);
-            $result = pg_query($dbconnect, $query);
-            $students = pg_fetch_all_assoc($result); 
-            
             // Получение студентов, прикреплённызх к заданию
             $query = select_students_by_group_by_page_by_task($page_id, $task_id);
             $result = pg_query($dbconnect, $query);
-            $all_students = pg_fetch_all_assoc($result);  ?>
+            $students = pg_fetch_all_assoc($result);  ?>
 
             <section class="w-100 d-flex border" style="height: 50%;">
               <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
                 <div id="accordion-students" class="accordion js-accordion" style="overflow-y: auto; height: 100%; width: 100%;">
 
                   <?php $now_group_id = -1;
-                  if ($all_students){
-                    foreach ($all_students as $key => $student) {
+                  if ($students){
+                    foreach ($students as $key => $student) {
                       if($student['group_id'] != $now_group_id) {
                         // Обработка полностью выбранных групп
                         $flag_full_group = true;
@@ -200,7 +197,7 @@ show_header_2($dbconnect, 'Редактор заданий',
                           for($i=$key; $i < count($students); $i++){
                             if($students[$i]['group_id'] != $student['group_id'])
                               break;
-                            if(isset($students[$i]['task_id']) && $students[$i]['task_id'] != $task_id)
+                            if($students[$i]['task_id'] != $task_id)
                               $flag_full_group = false;
 
                           }
@@ -224,7 +221,7 @@ show_header_2($dbconnect, 'Редактор заданий',
                       <div class="accordion__item js-accordion-item">
                         <div class="form-check">
                           <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input" 
-                          type="checkbox" value="s<?=$student['id']?>" id="" name="checkboxStudents[]" 
+                          type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
                           <?php if($task_id != -1 && isset($student['task_id']) && $student['task_id'] == $task_id) echo 'checked';?>>
                           <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                         </div>
@@ -241,32 +238,39 @@ show_header_2($dbconnect, 'Редактор заданий',
 
             <div class="p-1 border bg-light">
               <div class="d-flex" data-toggle="buttons">
-                <label class="btn btn-primary py-2 px-4 me-2">
-                  <input id="input-deligate-by-individual" type="radio" name="status-deligate" style="display: none;" value="by-individual">
-                    <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                <label class="btn btn-outline-default py-2 px-4 me-2">
+                  <input id="input-deligate-by-individual" type="radio" name="task-status-deligate" style="display: none;" value="by-individual">
+                    <i class="fas fa-user fa-lg"></i>&nbsp; Назначить <br> индивидуально
                 </label>  
                 <label class="btn btn-outline-default py-2 px-4">
-                  <input id="input-deligate-by-group" type="radio" name="status-deligate" style="display: none;" value="by-group">
-                    <i class="fas fa-user fa-lg"></i> Назначить индивидуально
+                  <input id="input-deligate-by-group" type="radio" name="task-status-deligate" style="display: none;" value="by-group">
+                    <i class="fas fa-users fa-lg"></i>&nbsp; Назначить <br> группе
                 </label>  
               </div>
             </div>
 
-            <!--<div class="pt-1 pb-1">
-              <button id="button-executor-by-individual" type="submit" class="btn btn-outline-primary">
-                <i class="fas fa-user fa-lg" onclick="checkExecutorsChoose()"></i> Назначить индивидуально</button>
-              <button id="button-executor-by-group" type="submit" class="btn btn-outline-primary" onclick="checkExecutorsChoose()">
-                <i class="fas fa-users fa-lg"></i> Назначить группе</button>
-            </div>-->
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
-          <!-- </form> -->
 
-          <div class="p-1 border bg-light" >
-            <div class="pt-1 pb-1">
-              <button type="button" class="btn btn-outline-primary">
-                <i class="fas fa-paperclip fa-lg"></i> Приложить файл</button>
+            <!--<form action="message_requires.php" method="POST" enctype="multipart/form-data">
+              <div class="message-input-wrapper">
+                <div class="file-input-wrapper">
+                  <input type="file" name="user_files[]" id="user-files" multiple>
+                  <label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
+                </div>
+                <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+                <button type="submit" name="submit-message" id="submit-message">Отправить</button>
+              </div>
+            </form>-->
+
+            <div class="p-1 border bg-light">
+              <div class="pt-1 pb-1">
+                <label class="btn btn-outline-default py-2 px-4">
+                  <input id="input-files" type="file" name="user_files[]" style="display: none;" multiple>
+                    <i class="fa-solid fa-paperclip"></i>
+                    <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
+                </label>  
+              </div>
             </div>
-          </div>
                 
           </div>
         </div>
@@ -281,4 +285,5 @@ show_header_2($dbconnect, 'Редактор заданий',
   <script type="text/javascript" src="js/taskedit.js"></script>
 
   </body>
+
 </html>

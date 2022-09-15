@@ -20,3 +20,5 @@ INSERT INTO public.ax_color_theme(id, disc_id, name, bg_color, src_url) VALUES
 (4, -5, 'Фиолетовый', '#6f42c1', 'src/img/purple.jpg');
 
 UPDATE ax_page SET color_theme_id = 0;
+
+GRANT USAGE, SELECT ON SEQUENCE ax_assignment_id_seq TO accelerator;
