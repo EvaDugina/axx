@@ -1,13 +1,12 @@
 <?php
 require_once("settings.php");
 
-// Генерация префикса для уникальности названий файлов, которые хранятся на сервере
-function rand_prefix() {
-    return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
+
+function insert_commit(){
+  $query = "INSERT INTO ";
 }
-function delete_prefix($str) {
-	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
-}
+
+
 
 // Находим user_type (0 - студент, 1 - преподаватель)
 if (isset($_POST['user_id'])) {
@@ -19,23 +18,28 @@ if (isset($_POST['user_id'])) {
 
 // Если юзер написал сообщение, то добавляем его в БД и отправляем обновленный лог чата
 if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
-    $assignment_id = $_POST['assignment_id'];
-    $user_id = $_POST['user_id'];
-    $full_text = rtrim($_POST['message_text']);
+  $assignment_id = $_POST['assignment_id'];
+  $user_id = $_POST['user_id'];
+  $full_text = rtrim($_POST['message_text']);
+  if (isset($_POST['answer']) && $_POST['answer']){
+    $commit_id = insert_commit();
+    $message_id = set_message(1, $full_text, $commit_id);
+  }
+  else 
     $message_id = set_message(0, $full_text);
 
 	// Обработка вложений к сообщению
-	if (isset($_FILES['files'])) {
+	if (isset($_FILES['message-files'])) {
 		// Файлы с этими расширениями надо хранить в БД
 		$store_in_db = ['txt', 'cpp', 'h', 'c', 'hpp']; // TODO для Вани: Добавить сюда еще типы файлов
-		for ($i = 0; $i < count($_FILES['files']['name']); ++$i) {					
-			$file_name = rand_prefix() . basename($_FILES['files']['name'][$i]);
+		for ($i = 0; $i < count($_FILES['message-files']['name']); ++$i) {					
+			$file_name = rand_prefix() . basename($_FILES['message-files']['name'][$i]);
 			$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
 			$file_dir = 'upload_files/';
 			$file_path = $file_dir . $file_name;
 
 			// Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-			if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
+			if (move_uploaded_file($_FILES['message-files']['tmp_name'][$i], $file_path)) {
 				// Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
 				if (!in_array($file_ext, $store_in_db)) {
 					$query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
@@ -73,15 +77,24 @@ else if (isset($_POST['assignment_id'], $_POST['user_id'])) {
     echo '</div>';
 }
 
+
+if(isset($_FILES[''])){
+
+}
+
+
+
+
+
 // Делает запись сообщения и вложений в БД
 // type: 0 - переговоры, 2 - оценка
 // Возвращает id добавленного сообщения
-function set_message($type, $full_text) {
+function set_message($type, $full_text, $commit_id = null) {
 	global $dbconnect, $assignment_id, $user_id, $user_type;
 
 	$full_text = preg_replace('#\'#', '\'\'', $full_text);
 	$query = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
-		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', null, 0);
+		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', $commit_id, 0);
 		SELECT currval('ax_message_id_seq') as \"id\";";
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
@@ -180,7 +193,23 @@ function show_messages($messages) {
 		</div>
 		<div class="clear"></div>
 	<?php }
-}?>
+}
+
+
+// Генерация префикса для уникальности названий файлов, которые хранятся на сервере
+function rand_prefix() {
+  return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
+}
+
+function delete_prefix($str) {
+  return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
+// функция добавления ответа на задние, как комита
+function add_answer_to_task(){
+
+}
+?>
 
 <?php
 // Копии функций с запросами в БД, когда перенесу свои запросы в dbquires.php, их удалю и сделаю require_once(dbquires.php)

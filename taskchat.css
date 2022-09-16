@@ -213,10 +213,10 @@ b {
     z-index: 10;
     display: flex;
     align-items: center;
-    height: 33.6px;
+    height: 100%;
 }
 
-#user-files {
+#user-files, #user-answer-files {
     width: 0.1px;
     height: 0.1px;
     opacity: 0;
@@ -239,7 +239,7 @@ b {
     color: #4f4f4f;
 }
 
-#files-count {
+#files-count, #files-answer-count {
     display: inline-block;
     position: absolute;
     bottom: -4px;
@@ -249,6 +249,8 @@ b {
     color: #2e73e3;
     font-size: 14px;
 }
+
+#
 
 
 /* ///////////////////////////////////////

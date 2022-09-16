@@ -142,7 +142,9 @@ if ($row) {
 					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_files(); ?></p>
 					<div>
 						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
-						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" class="task-download-button" target="_blank"><i class="fa-solid fa-file-arrow-down"></i><span>Скачать задание</span></a>
+						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
+            class="btn btn-primary" target="_blank"><i class="fa-solid fa-file-arrow-down"></i>
+              <span>&nbsp;&nbsp;Скачать задание</span></a>
 					</div>
 				</div>
 				<div class="task-status-wrapper">
@@ -158,10 +160,25 @@ if ($row) {
 							echo "Оценка: <b>$task_mark</b>";
 						}?>
 					</div>
-					<div style="display: flex; flex-flow: column wrap;">
-						<a href="editor.php?assignment=<?=$assignment_id?>" class="code-redactor-button" target="_blank" style="margin-top: 10px;">
-							<i class="fa-solid fa-file-pen"></i>Онлайн редактор кода</a>
-					</div>
+          <div>
+            <div>
+              <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary" target="_blank" style="margin-top: 10px;">
+                <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;Онлайн редактор кода</a>
+            </div>
+            <form id="form-send-answer" action="taskchat_action.php" method="POST">
+              <div class="d-flex flex-row my-2">
+                <div class="file-input-wrapper me-1">
+                  <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
+                  <label for="user-answer-files">
+                    <i class="fa-solid fa-paperclip"></i><span id="files-answer-count" class="text-success"></span>
+                  </label>
+                </div>
+                <button id="submit-answer" class="btn btn-outline-success submit-files" 
+                target="_blank" type="submit" name="submit-answer">
+                  <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
+              </div>
+            </form>
+          </div>
 				</div>
 			</div>
 		</div>
@@ -175,16 +192,20 @@ if ($row) {
 			<form action="message_requires.php" method="POST" enctype="multipart/form-data">
 				<div class="message-input-wrapper">
 					<div class="file-input-wrapper">
-						<input type="file" name="user_files[]" id="user-files" multiple>
-						<label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
+						<input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
+						<label for="user-files">
+              <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
+            </label>
 					</div>
 					<textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
 					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
 				</div>
 			</form>
+
 		</div>
 	</main>
 	
+  
 	<script type="text/javascript">
 		
 		// После первой загрузки скролим страницу вниз
@@ -200,10 +221,6 @@ if ($row) {
 			}
 		});
 
-		// Показывает количество прикрепленных для отправки файлов
-		$('#user-files').on('change', function() {
-			$('#files-count').html(this.files.length);
-		});
 
 		/* Логика скрола на странице
 		Открываем страницу - страница скролится вниз, чат скролится до последнего непрочитанного сообщения
@@ -211,31 +228,61 @@ if ($row) {
 		Приходит сообщение от собеседника - появляется плашка "Новые сообщения"
 		*/
 
-		// Обновляет лог чата из БД
-		function loadChatLog($first_scroll = false) {
-			$('#chat-box').load('message_requires.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
-				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
-				if ($first_scroll) {
-					if ($('#new-messages').length == 0) {
-						$('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
-					}
-					else {
-						$('#chat-box').scrollTop($('#new-messages').offset().top - $('#chat-box').offset().top - 10);
-					}
-				}	
-			})
-		}
+
+    // Показывает количество прикрепленных для отправки файлов
+		$('#user-files').on('change', function() {
+      // TODO: Сделать удаление числа, если оно 0
+      if (this.files.length != 0)
+			  $('#files-count').html(this.files.length);
+      else
+        $('#files-count').html(this.files.length);
+		});
+
+    // Показывает количество прикрепленных для отправки файлов
+		$('#user-answer-files').on('change', function() {
+      // TODO: Сделать удаление числа, если оно 0
+			$('#files-answer-count').html(this.files.length);
+		});
+
 
 		$(document).ready(function() {
+
+      let form_sendAnswer  = document.getElementById('form-send-answer');
+
+      // Отправка формы прикрепления ответа на задание
+      form_sendAnswer.addEventListener('submit', function (event) {
+        var userFiles = $("#user-answer-files");
+        if (userFiles.val() == '' || userFiles.files.length <= 0) {
+          event.preventDefault();
+          return false;
+        } else {
+          var userMessage = "Ответ на задание:";
+          sendMessage(userMessage, userFiles, true);
+
+          userFiles.val("");
+          $('#files-answer-count').html('');
+
+          // Первое обновление лога чата
+          loadChatLog(true);
+          // Обновление лога чата раз в 5 секунд
+          setInterval(loadChatLog, 5000);
+
+          return false;
+        }
+      });
+
 			// Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
 				var userFiles = $("#user-files");
-				if ($.trim(userMessage) == '' && userFiles.val() == '') { return false; }
+				if ($.trim(userMessage) == '' && userFiles.val() == '') { 
+          return false; 
+        }
 				var formData = new FormData();
 				formData.append('message_text', userMessage);
 				formData.append('assignment_id', <?=$assignment_id?>);
 				formData.append('user_id', <?=$user_id?>);
+        formData.append('answer', false);
 				formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
 				$.each(userFiles[0].files, function(key, input) {
 					formData.append('files[]', input);
@@ -243,7 +290,7 @@ if ($row) {
  
 				$.ajax({
 					type: "POST",
-					url: 'message_requires.php #content',
+					url: 'taskchat_action.php #content',
 					cache: false,
 					contentType: false,
 					processData: false,
@@ -268,6 +315,57 @@ if ($row) {
 			// Обновление лога чата раз в 5 секунд
 			setInterval(loadChatLog, 5000);
 		});
+
+
+    // Обновляет лог чата из БД
+		function loadChatLog($first_scroll = false) {
+			$('#chat-box').load('taskchat_action.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
+				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
+				if ($first_scroll) {
+					if ($('#new-messages').length == 0) {
+						$('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+					}
+					else {
+						$('#chat-box').scrollTop($('#new-messages').offset().top - $('#chat-box').offset().top - 10);
+					}
+				}	
+			})
+		}
+
+
+    function sendMessage(userMessage, userFiles, type) {
+      if ($.trim(userMessage) == '' && userFiles.val() == '') { 
+        return false; 
+      }
+      
+      var formData = new FormData();
+      formData.append('message_text', userMessage);
+      formData.append('assignment_id', <?=$assignment_id?>);
+      formData.append('user_id', <?=$user_id?>);
+      formData.append('answer', type);
+      formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
+      $.each(userFiles[0].files, function(key, input) {
+        formData.append('message-files[]', input);
+      });
+
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php #content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          $("#chat-box").html(response);
+        },
+        complete: function() {
+          // Скролим чат вниз после отправки сообщения
+          $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+        }
+      });
+		}
+
 	</script>
 </body>
 
