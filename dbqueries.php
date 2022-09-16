@@ -333,6 +333,20 @@
       return $query;
     }
 
+    function delete_task($task_id){
+      return "DELETE FROM ax_task_files 
+                WHERE ax_task_files.task_id = $task_id;
+              DELETE FROM ax_task 
+                WHERE ax_task.task_id = $task_id;
+              DELETE FROM ax_assignment USING ax_assignment_student, ax_solution_commit
+                WHERE ax_assignment.task_id = $task_id AND ax_assignment.id = ax_assignment_student.assignment_id;
+      ";
+    }
+
+    function delete_task_hash($task_id){
+
+    }
+
 
 
 // ДЕЙСТВИЯ С СООБЩЕНИЯМИ

@@ -11,6 +11,9 @@ let inputRadio_group = document.getElementById('input-deligate-by-group');
 
 let input_files = document.getElementById('input-files');
 
+let button_save = document.getElementById('submit-save');
+let button_delete = document.getElementById('submit-delete');
+
 
 if(input_Title){
   input_Title.addEventListener('input', function (event) {
@@ -49,22 +52,25 @@ if(textArea_Description){
 if(form_taskEdit){
   form_taskEdit.addEventListener('submit', function (event) {
 
-    if(!input_Title.value /*|| !textArea_Description.value*/) {
-      // Если поля не заполнены, отображаем соответствующее сообщение об ошибке
-      showError();
-      // Затем предотвращаем стандартное событие отправки формы
-      event.preventDefault();
-    }
+    // Если нажата кнопка "Сохранить"
+    button_save.addEventListener('click', function (event) {
+      if(!input_Title.value /*|| !textArea_Description.value*/) {
+        // Если поля не заполнены, отображаем соответствующее сообщение об ошибке
+        showError();
+        // Затем предотвращаем стандартное событие отправки формы
+        event.preventDefault();
+      }
 
-    // Проверка прикреплённых студентов
-    // Если задан finish_limit - должны быть и заданы студенты
-    if(!checkStudentCheckboxes() && (inputRadio_individual.checked || inputRadio_group.checked)) {
-      let error_execution = document.getElementById('error-choose-executor');
-      error_execution.textContent = "Не выбраны пользователи";
-      error_execution.className = 'error-input active';
+      // Проверка прикреплённых студентов
+      // Если задан finish_limit - должны быть и заданы студенты
+      if(!checkStudentCheckboxes() && (inputRadio_individual.checked || inputRadio_group.checked)) {
+        let error_execution = document.getElementById('error-choose-executor');
+        error_execution.textContent = "Не выбраны пользователи";
+        error_execution.className = 'error-input active';
 
-      event.preventDefault();
-    }
+        event.preventDefault();
+      }
+    });
 
   });
 }
@@ -110,7 +116,7 @@ inputRadio_group.addEventListener('click', function (event) {
   }
 });
 
-/*input_files.addEventListener('click', function (event) {
+input_files.addEventListener('click', function (event) {
   console.log("НАЖАТА КНОПКА: ПРИЛОЖИТЬ ФАЙЛЫ");
   if (input_files.parentElement.classList.contains('btn-primary')){
     input_files.parentElement.classList.remove('btn-primary');
@@ -122,11 +128,11 @@ inputRadio_group.addEventListener('click', function (event) {
     input_files.parentElement.classList.add('btn-primary');
     console.log("ЭТАП 2 ЗАКОНЧЕН");
   }
-});*/
+});
 // Показывает количество прикрепленных для отправки файлов
-/*$('#input-files').on('change', function() {
+$('#input-files').on('change', function() {
   $('#files-count').html(this.files.length);
-});*/
+});
 
 
 

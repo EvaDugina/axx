@@ -31,6 +31,11 @@ if ($_POST['task-id'] != -1) {
 echo "TASK_ID: ".$task_id;
 echo "<br>";
 
+if (isset($_POST['action']) && $_POST['action'] == 'delete') {
+  $query = delete_task($task_id);
+  $result = pg_query($dbconnect, $query);
+}
+
 if(isset($_POST['task-type']) ?? $_POST['task-type'] == 1) {
   $query = select_task_file(2, $task_id);
   $result = pg_query($dbconnect, $query);
@@ -52,6 +57,7 @@ if(isset($_POST['task-type']) ?? $_POST['task-type'] == 1) {
   
   $result = pg_query($dbconnect, $query);
 }
+
 
 $assignments_id = array();
 // Изменение списка студентов, прикреплённых к заданию

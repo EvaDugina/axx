@@ -150,8 +150,13 @@ show_header_2($dbconnect, 'Редактор заданий',
 
             </div>
           </table>
-          <button id="submit" type="submit" class="btn btn-outline-primary">Сохранить</button>
+
+          <button id="submit-save" type="submit" class="btn btn-outline-primary" name="action" value="save">Сохранить</button>
+          <?php if ($task_id != -1) {?>
+            <button id="submit-delete" type="submit" class="btn btn-outline-danger" name="action" value="delete">Удалить задание</button>
+          <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
+
         </div>
 
         <div class="col-4">
