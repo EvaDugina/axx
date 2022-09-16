@@ -49,13 +49,15 @@ if(textArea_Description){
 if(form_taskEdit){
   form_taskEdit.addEventListener('submit', function (event) {
 
-    if(!input_Title.value || !textArea_Description.value) {
+    if(!input_Title.value /*|| !textArea_Description.value*/) {
       // Если поля не заполнены, отображаем соответствующее сообщение об ошибке
       showError();
       // Затем предотвращаем стандартное событие отправки формы
       event.preventDefault();
     }
 
+    // Проверка прикреплённых студентов
+    // Если задан finish_limit - должны быть и заданы студенты
     if(!checkStudentCheckboxes() && (inputRadio_individual.checked || inputRadio_group.checked)) {
       let error_execution = document.getElementById('error-choose-executor');
       error_execution.textContent = "Не выбраны пользователи";
@@ -72,10 +74,10 @@ function showError() {
     error_Title.textContent = "Не заполненное поле <Названия задания>";
     error_Title.className = 'error-input active';
   }
-  if(!textArea_Description.value) {
+  /*if(!textArea_Description.value) {
     error_Description.textContent = "Не заполненное поле <Описания задания>";
     error_Description.className = 'error-input active';
-  }
+  }*/
 }
 
 
@@ -108,7 +110,7 @@ inputRadio_group.addEventListener('click', function (event) {
   }
 });
 
-input_files.addEventListener('click', function (event) {
+/*input_files.addEventListener('click', function (event) {
   console.log("НАЖАТА КНОПКА: ПРИЛОЖИТЬ ФАЙЛЫ");
   if (input_files.parentElement.classList.contains('btn-primary')){
     input_files.parentElement.classList.remove('btn-primary');
@@ -120,11 +122,11 @@ input_files.addEventListener('click', function (event) {
     input_files.parentElement.classList.add('btn-primary');
     console.log("ЭТАП 2 ЗАКОНЧЕН");
   }
-});
+});*/
 // Показывает количество прикрепленных для отправки файлов
-$('#input-files').on('change', function() {
+/*$('#input-files').on('change', function() {
   $('#files-count').html(this.files.length);
-});
+});*/
 
 
 

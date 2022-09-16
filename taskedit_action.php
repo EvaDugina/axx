@@ -104,6 +104,7 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
 }
 
 if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
+  // Должны быть выбраны студенты!
   echo "FINISH_LIMIT: ".$_POST['finish-limit'];
   echo "<br>";
   foreach ($assignments_id as $assignment_id) {
@@ -112,5 +113,37 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
   }
 } 
 
-//header('Location: preptasks.php?page='.$_GET['page']);
+/*if (isset($_POST['user_files'])) {
+  echo "ADD_FILES: ".$_POST['user_files'];
+  echo "<br>";
+  foreach ($_POST['user_files'] as $file) {*/
+
+    // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+    /*if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
+      // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+      if (!in_array($file_ext, $store_in_db)) {
+        $query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      }
+
+      // Если файлы такого расширения надо хранить в ДБ, добавляем в БД полный текст файла
+      else {
+        $file_name_without_prefix = delete_prefix($file_name);
+        $file_full_text = file_get_contents($file_path);
+        $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+        $query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name_without_prefix', '$file_full_text')";
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        unlink($file_path);
+      }
+    }
+    else {
+      exit("Ошибка загрузки файла");
+    }*/
+    
+    //$query = insert_file_by_link(0/*Добавить галочку, если файл - шаблон проекта и тд.*/, $task_id, $file['name']);
+    /*$result = pg_query($dbconnect, $query);
+  }
+}*/
+
+header('Location: preptasks.php?page='.$_GET['page']);
 ?>

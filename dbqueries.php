@@ -524,6 +524,12 @@
                 VALUES ('$type', '$task_id', '$file_name', '$full_text')";
     }
 
+    function insert_file_by_link($type, $task_id, $file_name){
+        return "INSERT INTO ax_task_file(type, task_id, file_name)
+        VALUES ('$type', '$task_id', '$file_name');
+        ";
+    }
+
 
 
 // ПРОЧЕЕ

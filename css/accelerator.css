@@ -95,9 +95,7 @@
 .error-input {
   width  : 100%;
   padding: 0;
-  color: white;
-  background-color: #dc3545!important;
-  border-radius: 0 0 5px 5px;
+  color: #dc3545;
   box-sizing: border-box;
 }
 
