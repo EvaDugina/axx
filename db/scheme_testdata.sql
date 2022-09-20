@@ -160,9 +160,10 @@ INSERT INTO ax_page_group(id, page_id, group_id) VALUES
 
 CREATE TABLE ax_color_theme (		-- цветовые схемы
 	id serial,		
-	font_color text,	-- цвет текста RGB
-	bg_color text,		-- цвет фона RGB
-	dark boolean,		-- темная тема
+	disc_id integer,	--> discipline
+	name text,		-- Название темы
+	bg_color text,		-- Код соответсвующего ей цвета в палитре RGB
+  src_url text,    -- ссылка на картинку
 	CONSTRAINT ax_color_theme_pkey PRIMARY KEY (id)
 ); ALTER TABLE ax_color_theme OWNER TO postgres;
 
