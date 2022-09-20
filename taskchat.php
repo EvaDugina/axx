@@ -167,19 +167,9 @@ if ($row) {
             </div>
 
             <?php if($au->isAdminOrTeacher()) { // Отправить задание на проверку ?>
-              <form id="form-send-answer" action="taskchat_action.php" method="POST">
-                <div class="d-flex flex-row my-2">
-                  <div class="file-input-wrapper me-1">
-                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                    <label for="user-answer-files">
-                      <i class="fa-solid fa-paperclip"></i><span id="files-answer-count" class="text-success"></span>
-                    </label>
-                  </div>
-                  <button id="submit-answer" class="btn btn-outline-success submit-files" 
-                  target="_blank" type="submit" name="submit-answer">
-                    <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
-                </div>
-              </form>
+              <button id="button-check" class="btn btn-success my-2" target="_blank" type="submit" 
+              name="submit-answer" style="width: 100%;" <?php if($task_status_code != 5) echo "disabled";?>>
+                <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
             <?php } else { // Оценить отправленное на проверку задание?>
               <form id="form-send-answer" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-2">
@@ -224,6 +214,38 @@ if ($row) {
 
 		</div>
 	</main>
+
+
+
+  <div class="modal fade" id="dialogMark" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
+  <form class="needs-validation" onsubmit="answerSend(this)">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dialogMarkLabel">Зачесть задание</h5>
+          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-outline">
+            <input type="number" id="dialogMarkMarkInput" name="mark" class="form-control" required />
+            <label class="form-label" for="typeNumber" id="dialogMarkMarkLabel">Оценка</label>
+          </div>
+          <br />
+          <div class="form-outline">
+            <textarea class="form-control" id="dialogMarkText" rows="4" name="text" required></textarea>
+            <label class="form-label" for="dialogMarkText">Текст ответа</label>
+          </div>
+          <input type="hidden" id="dialogMarkMessageId" name="message" />
+          <input type="hidden" name="page" value="<?= $page_id ?>" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary" onclick="answerSend(this)">Ответить</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
 	
   
 	<script type="text/javascript">
@@ -376,6 +398,41 @@ if ($row) {
 		}
 
 	</script>
+
+<script type="text/javascript">
+  function answerPress(answer_type, message_id, max_mark) {
+    // TODO: implement answer
+    console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
+    if (answer_type == 2) { // mark
+      //const dialog = document.getElementById('dialogMark');
+      document.getElementById('dialogMarkMessageId').value = message_id;
+      document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
+      document.getElementById('dialogMarkText').value = 'Задание зачтено';
+      $('#dialogMark').modal('show');
+    } else {
+      //const dialog = document.getElementById('dialogAnswer');
+      document.getElementById('dialogAnswerMessageId').value = message_id;
+      document.getElementById('dialogAnswerText').value = '';
+      $('#dialogAnswer').modal('show');
+    }
+  }
+
+  function answerSend(form) {
+    $(form)
+      .find(':submit')
+      .attr('disabled', 'disabled')
+      .append(' <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+  }
+
+  function answerText(answer_text, message_id) {
+    console.log('answer: ', answer_text, message_id);
+  }
+
+  function answerMark(answer_text, mark, message_id) {
+    console.log('mark: ', answer_text, mark, message_id);
+  }
+</script>
+
 </body>
 
 </html>
