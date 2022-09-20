@@ -34,7 +34,7 @@ if (isset($_POST['select-discipline'])) {
 // отправка сообщения
 if (array_key_exists('message', $_REQUEST) && array_key_exists('text', $_REQUEST)) {
   $mark = (array_key_exists('mark', $_REQUEST)) ? $_REQUEST['mark'] : null;
-  $query = insert_message($_REQUEST['message'], $_REQUEST['text'], $mark, $user_id);
+  $query = insert_message_reply($_REQUEST['message'], $_REQUEST['text'], $mark, $user_id);
   $result = pg_query($dbconnect, $query);
   echo pg_result_error($result);
   if (!$result) {

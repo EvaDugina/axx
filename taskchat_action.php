@@ -1,86 +1,79 @@
 <?php
 require_once("settings.php");
-
-
-function insert_commit(){
-  $query = "INSERT INTO ";
-}
-
-
+require_once("dbqueries.php");
 
 // Находим user_type (0 - студент, 1 - преподаватель)
 if (isset($_POST['user_id'])) {
-	$query = "SELECT role from students where id = {$_POST['user_id']}";
+  $user_id = $_POST['user_id'];
+  /*echo "USER_ID: ".$user_id;
+  echo "<br>";*/
+	$query = select_student_role($_POST['user_id']);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
 	$user_type = $row['role'] == 3 ? 0 : 1;
+} else {
+  //exit;
 }
 
-// Если юзер написал сообщение, то добавляем его в БД и отправляем обновленный лог чата
-if (isset($_POST['message_text'], $_POST['assignment_id'], $_POST['user_id'])) {
+$assignment_id = -1;
+if (isset($_POST['assignment_id'])) {
   $assignment_id = $_POST['assignment_id'];
-  $user_id = $_POST['user_id'];
+  /*echo "ASSIGNMENT_ID: ".$assignment_id;
+  echo "<br>";*/
+} else  {
+  //exit;
+}
+
+$full_text = "";
+if (isset($_POST['message_text'])){
   $full_text = rtrim($_POST['message_text']);
-  if (isset($_POST['answer']) && $_POST['answer']){
-    $commit_id = insert_commit();
-    $message_id = set_message(1, $full_text, $commit_id);
-  }
-  else 
-    $message_id = set_message(0, $full_text);
-
-	// Обработка вложений к сообщению
-	if (isset($_FILES['message-files'])) {
-		// Файлы с этими расширениями надо хранить в БД
-		$store_in_db = ['txt', 'cpp', 'h', 'c', 'hpp']; // TODO для Вани: Добавить сюда еще типы файлов
-		for ($i = 0; $i < count($_FILES['message-files']['name']); ++$i) {					
-			$file_name = rand_prefix() . basename($_FILES['message-files']['name'][$i]);
-			$file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
-			$file_dir = 'upload_files/';
-			$file_path = $file_dir . $file_name;
-
-			// Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-			if (move_uploaded_file($_FILES['message-files']['tmp_name'][$i], $file_path)) {
-				// Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-				if (!in_array($file_ext, $store_in_db)) {
-					$query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
-					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-				}
-
-				// Если файлы такого расширения надо хранить в ДБ, добавляем в БД полный текст файла
-				else {
-					$file_name_without_prefix = delete_prefix($file_name);
-					$file_full_text = file_get_contents($file_path);
-					$file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-					$query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name_without_prefix', '$file_full_text')";
-					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-					unlink($file_path);
-				}
-			}
-			else {
-				exit("Ошибка загрузки файла");
-			}
-		}
-	}
-
-	// Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
-    echo '<div id="content">';
-    show_messages(get_messages());
-    echo '</div>';
+} else {
+  //exit;
 }
 
-// Обновление лога чата
-else if (isset($_POST['assignment_id'], $_POST['user_id'])) {
-    $assignment_id = $_POST['assignment_id'];
-    $user_id = $_POST['user_id'];
-    echo '<div id="content">';
-    show_messages(get_messages());
-    echo '</div>';
+/*echo "FULL_TEXT: " . $full_text;
+echo "<br>";*/
+
+$files = array();
+if (isset($_POST['answer']) && $_POST['answer'] && isset($_FILES['answer-files'])){
+  /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
+  echo "<br>";*/
+
+  $files = $_FILES['answer-files'];
+
+  $query = insert_answer_commit($assignment_id, $user_id);
+	$result = pg_query($dbconnect, $query) ;
+	$commit_id = pg_fetch_assoc($result)['id'];
+
+  /*echo "COMMIT_ID: ".$commit_id;
+  echo "<br>";*/
+
+  $message_id = set_message(1, $full_text, $commit_id);
+
+  $query = update_ax_assignment_status_code($assignment_id, 5);
+  $result = pg_query($dbconnect, $query);
+
+} else if ($full_text != "" || isset($_FILES['message-files'])){
+  /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ";
+  echo "<br>";*/
+  $message_id = set_message(0, $full_text);
+  if (isset($_FILES['message-files']))
+    $files = $_FILES['message-files'];
+} else {
+  /*echo "НИ ТО, НИ СЁ";
+  echo "<br>";*/
 }
 
+/*echo "MESSAGE_ID: ".$message_id;
+echo "<br>";*/
 
-if(isset($_FILES[''])){
-
+if ($files) {
+  /*echo "ФАЙЛЫ ЕСТЬ. ПРИКРЕПЛЕНИЕ ФАЙЛОВ К СООБЩЕНИЮ";
+  echo "<br>";*/
+  add_files_to_message($message_id, $files);
 }
+
+update_chat();
 
 
 
@@ -89,13 +82,20 @@ if(isset($_FILES[''])){
 // Делает запись сообщения и вложений в БД
 // type: 0 - переговоры, 2 - оценка
 // Возвращает id добавленного сообщения
+
+function update_chat(){
+  // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
+  echo '<div id="content">';
+  show_messages(get_messages());
+  echo '</div>';
+}
+
 function set_message($type, $full_text, $commit_id = null) {
 	global $dbconnect, $assignment_id, $user_id, $user_type;
 
 	$full_text = preg_replace('#\'#', '\'\'', $full_text);
-	$query = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
-		values ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', $commit_id, 0);
-		SELECT currval('ax_message_id_seq') as \"id\";";
+	$query = insert_message($assignment_id, $type, $user_type, $user_id, $full_text, $commit_id);
+
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
 	return $row['id'];
@@ -104,8 +104,13 @@ function set_message($type, $full_text, $commit_id = null) {
 // Возвращает двумерный массив сообщений для текущей страницы по ax_assignment
 function get_messages() {
 	global $dbconnect, $assignment_id, $user_type, $user_id;
-	$query = select_messages($assignment_id);
+  /*echo "ASSIGNMENT_ID: ".$assignment_id;
+  echo "<br>";*/
+	$query = select_messages_by_assignment_id($assignment_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+  /*echo $query;
+  echo "<br>";*/
 	
 	$ret = [];
 	$is_first_new = false; // false, пока for не обрабатывал новых сообщений от собеседника
@@ -123,10 +128,10 @@ function get_messages() {
 				$first_new = true;
 				$is_first_new = true;
 			}
-			$query = "UPDATE ax_message set status = 1 where id = {$row['message_id']}";
+			$query = update_ax_message_status($row['message_id']);
 			pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-			$query = "INSERT into ax_message_delivery (message_id, recipient_user_id, read) values ({$row['message_id']}, $user_id, true)";
+			$query = insert_ax_message_delivery($row['message_id'], $user_id);
 			pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 		}
 
@@ -140,6 +145,37 @@ function get_messages() {
             'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments, 'unreaded' => $unreaded, 'first_new' => $first_new];
 	}
 	return $ret;
+}
+
+function add_files_to_message($message_id, $files){
+  global $dbconnect;
+  // Файлы с этими расширениями надо хранить в БД
+  $store_in_db = ['cpp']; // TODO для Вани: Добавить сюда еще типы файлов
+  for ($i = 0; $i < count($files['name']); ++$i) {					
+    $file_name = rand_prefix() . basename($files['name'][$i]);
+    $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
+    $file_dir = 'upload_files/';
+    $file_path = $file_dir . $file_name;
+
+    // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+    if (move_uploaded_file($files['tmp_name'][$i], $file_path)) {
+      // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+      if (!in_array($file_ext, $store_in_db)) {
+        $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      } else { // Если файлы такого расширения надо хранить в ДБ, добавляем в БД полный текст файла
+        $file_name_without_prefix = delete_prefix($file_name);
+        $file_full_text = file_get_contents($file_path);
+        $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+        $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        unlink($file_path);
+      }
+    }
+    else {
+      exit("Ошибка загрузки файла");
+    }
+  }
 }
 
 // Возвращает двумерный массив вложений для сообщения по message_id
@@ -204,25 +240,4 @@ function rand_prefix() {
 function delete_prefix($str) {
   return preg_replace('#[0-9]{0,}_#', '', $str, 1);
 }
-
-// функция добавления ответа на задние, как комита
-function add_answer_to_task(){
-
-}
 ?>
-
-<?php
-// Копии функций с запросами в БД, когда перенесу свои запросы в dbquires.php, их удалю и сделаю require_once(dbquires.php)
-function select_messages($assignment_id) {
-    return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
-        ax_message.sender_user_type, ax_message.sender_user_id, ax_message.id as \"message_id\", ax_message.status
-        from ax_message
-        inner join students on ax_message.sender_user_id = students.id
-        where ax_message.assignment_id = $assignment_id order by date_time";
-}
-
-function select_message_attachment($message_id) {
-	return "SELECT ax_message_attachment.id, ax_message_attachment.file_name, ax_message_attachment.download_url from ax_message_attachment
-	inner join ax_message on ax_message.id = ax_message_attachment.message_id
-	where ax_message_attachment.message_id = $message_id";
-}

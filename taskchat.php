@@ -165,19 +165,39 @@ if ($row) {
               <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary" target="_blank" style="margin-top: 10px;">
                 <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;Онлайн редактор кода</a>
             </div>
-            <form id="form-send-answer" action="taskchat_action.php" method="POST">
-              <div class="d-flex flex-row my-2">
-                <div class="file-input-wrapper me-1">
-                  <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                  <label for="user-answer-files">
-                    <i class="fa-solid fa-paperclip"></i><span id="files-answer-count" class="text-success"></span>
-                  </label>
+
+            <?php if($au->isAdminOrTeacher()) { // Отправить задание на проверку ?>
+              <form id="form-send-answer" action="taskchat_action.php" method="POST">
+                <div class="d-flex flex-row my-2">
+                  <div class="file-input-wrapper me-1">
+                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
+                    <label for="user-answer-files">
+                      <i class="fa-solid fa-paperclip"></i><span id="files-answer-count" class="text-success"></span>
+                    </label>
+                  </div>
+                  <button id="submit-answer" class="btn btn-outline-success submit-files" 
+                  target="_blank" type="submit" name="submit-answer">
+                    <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
                 </div>
-                <button id="submit-answer" class="btn btn-outline-success submit-files" 
-                target="_blank" type="submit" name="submit-answer">
-                  <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
-              </div>
-            </form>
+              </form>
+            <?php } else { // Оценить отправленное на проверку задание?>
+              <form id="form-send-answer" action="taskchat_action.php" method="POST">
+                <div class="d-flex flex-row my-2">
+                  <div class="file-input-wrapper me-1">
+                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
+                    <label for="user-answer-files">
+                      <i class="fa-solid fa-paperclip"></i><span id="files-answer-count" class="text-success"></span>
+                    </label>
+                  </div>
+                  <button id="submit-answer" class="btn btn-outline-success submit-files" 
+                  target="_blank" type="submit" name="submit-answer">
+                    <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
+                </div>
+              </form>
+            <?php }?>
+
+
+
           </div>
 				</div>
 			</div>
@@ -189,7 +209,7 @@ if ($row) {
 				<!-- Вывод сообщений на страницу -->
 			</div>
 
-			<form action="message_requires.php" method="POST" enctype="multipart/form-data">
+			<form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
 				<div class="message-input-wrapper">
 					<div class="file-input-wrapper">
 						<input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
@@ -251,13 +271,18 @@ if ($row) {
 
       // Отправка формы прикрепления ответа на задание
       form_sendAnswer.addEventListener('submit', function (event) {
+        event.preventDefault();
+        console.log("СРАБОТАЛА ФОРМА ЗАГРУЗКИ ОТВЕТА НА ЗАДАНИЕ");
         var userFiles = $("#user-answer-files");
-        if (userFiles.val() == '' || userFiles.files.length <= 0) {
+        console.log(userFiles);
+        if (userFiles.val() == '' || userFiles.length <= 0) {
           event.preventDefault();
           return false;
         } else {
           var userMessage = "Ответ на задание:";
-          sendMessage(userMessage, userFiles, true);
+          if(sendMessage(userMessage, userFiles, true)) {
+            console.log("Сообщение было успешно отправлено");
+          }
 
           userFiles.val("");
           $('#files-answer-count').html('');
@@ -275,35 +300,14 @@ if ($row) {
 			$("#submit-message").click(function() {
 				var userMessage = $("#user-message").val();
 				var userFiles = $("#user-files");
-				if ($.trim(userMessage) == '' && userFiles.val() == '') { 
-          return false; 
+
+        if(!sendMessage(userMessage, userFiles, false)) {
+          event.preventDefault();
+          console.log("Сообщение было успешно отсправлено");
+        } else {
+          console.log("Сообщение не было отправлено");
         }
-				var formData = new FormData();
-				formData.append('message_text', userMessage);
-				formData.append('assignment_id', <?=$assignment_id?>);
-				formData.append('user_id', <?=$user_id?>);
-        formData.append('answer', false);
-				formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
-				$.each(userFiles[0].files, function(key, input) {
-					formData.append('files[]', input);
-				});
- 
-				$.ajax({
-					type: "POST",
-					url: 'taskchat_action.php #content',
-					cache: false,
-					contentType: false,
-					processData: false,
-					data: formData,
-					dataType : 'html',
-					success: function(response) {
-						$("#chat-box").html(response);
-					},
-					complete: function() {
-						// Скролим чат вниз после отправки сообщения
-						$('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
-					}
-				});
+
 				$("#user-message").val("");
 				$("#user-message").css('height', '37.6px');
 				$("#user-files").val("");
@@ -333,8 +337,9 @@ if ($row) {
 		}
 
 
-    function sendMessage(userMessage, userFiles, type) {
+    function sendMessage(userMessage, userFiles, isAnswer) {
       if ($.trim(userMessage) == '' && userFiles.val() == '') { 
+        console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
         return false; 
       }
       
@@ -342,10 +347,13 @@ if ($row) {
       formData.append('message_text', userMessage);
       formData.append('assignment_id', <?=$assignment_id?>);
       formData.append('user_id', <?=$user_id?>);
-      formData.append('answer', type);
+      formData.append('answer', isAnswer);
       formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
       $.each(userFiles[0].files, function(key, input) {
-        formData.append('message-files[]', input);
+        if (!isAnswer)
+          formData.append('message-files[]', input);
+        else 
+          formData.append('answer-files[]', input);
       });
 
       $.ajax({
@@ -364,26 +372,10 @@ if ($row) {
           $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
         }
       });
+      return true;
 		}
 
 	</script>
 </body>
 
 </html>
-
-<?php
-/* Select запросы, надо в dbqueries.php, но пока тут лежат */
-
-function select_messages($assignment_id) {
-    return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
-        ax_message.sender_user_type, ax_message.sender_user_id, ax_message.id as \"message_id\", ax_message.status
-        from ax_message
-        inner join students on ax_message.sender_user_id = students.id
-        where ax_message.assignment_id = $assignment_id order by date_time";
-}
-
-function select_message_attachment($message_id) {
-	return "SELECT ax_message_attachment.file_name, ax_message_attachment.download_url, ax_message_attachment.full_text from ax_message_attachment
-	inner join ax_message on ax_message.id = ax_message_attachment.message_id
-	where ax_message_attachment.message_id = $message_id";
-}
