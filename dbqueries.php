@@ -334,12 +334,15 @@
     }
 
     function delete_task($task_id){
-      return "DELETE FROM ax_task_files 
-                WHERE ax_task_files.task_id = $task_id;
+      return "DELETE FROM ax_task_file 
+                WHERE ax_task_file.task_id = $task_id;
               DELETE FROM ax_task 
-                WHERE ax_task.task_id = $task_id;
-              DELETE FROM ax_assignment USING ax_assignment_student, ax_solution_commit
-                WHERE ax_assignment.task_id = $task_id AND ax_assignment.id = ax_assignment_student.assignment_id;
+                WHERE ax_task.id = $task_id;
+              DELETE FROM ax_assignment USING ax_assignment_student, ax_solution_commit, ax_solution_file, ax_message, 
+              ax_message_attachment, ax_message_delivery
+                WHERE ax_assignment.task_id = $task_id AND ax_assignment.id = ax_assignment_student.assignment_id
+                AND ax_assignment.id = ax_solution_file.assignment_id AND ax_assignment.id = ax_message.assignment_id
+                AND ax_message.id = ax_message_attachment.message_id AND ax_message.id = ax_message_delivery.message_id;
       ";
     }
 

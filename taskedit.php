@@ -29,13 +29,20 @@ if (isset($_GET['task'])){
 	$result = pg_query($dbconnect, $query);
 	$task = pg_fetch_assoc($result);
 
-	if (!$result)
-		echo 'ОШИБКА! ТАКОГО ЗАДАНИЯ НЕТ В БД!!';
+	if (!$task) {
+    header('Location:'.$_SERVER['HTTP_REFERER']);
+	  exit;
+  }
 
 	$page_id = $task['page_id'];
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
 	$page = pg_fetch_assoc($result);
+
+  if (!$page) {
+    header('Location:'.$_SERVER['HTTP_REFERER']);
+	  exit;
+  }
 
 	$query = select_task_file(2, $task_id);
 	$result = pg_query($dbconnect, $query);
