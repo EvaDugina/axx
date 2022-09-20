@@ -36,7 +36,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete') {
   $result = pg_query($dbconnect, $query);
 }
 
-if(isset($_POST['task-type']) ?? $_POST['task-type'] == 1) {
+if(isset($_POST['task-type']) && $_POST['task-type'] == 1) {
   $query = select_task_file(2, $task_id);
   $result = pg_query($dbconnect, $query);
   $file = pg_fetch_all($result);
@@ -159,7 +159,7 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
   }
 }*/
 
-//header('Location: preptasks.php?page='.$_GET['page']);
+header('Location: preptasks.php?page='.$_GET['page']);
 ?>
 
 

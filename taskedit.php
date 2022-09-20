@@ -263,7 +263,7 @@ show_header_2($dbconnect, 'Редактор заданий',
 
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
 
-            <!--<form action="message_requires.php" method="POST" enctype="multipart/form-data">
+            <!--<form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
               <div class="message-input-wrapper">
                 <div class="file-input-wrapper">
                   <input type="file" name="user_files[]" id="user-files" multiple>
