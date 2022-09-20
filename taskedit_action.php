@@ -64,45 +64,51 @@ $assignments_id = array();
 if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) && !empty($_POST['checkboxStudents'])) {
   // Всё нормально, просто прикрепляем новых студентов
   $checked_elems = $_POST['checkboxStudents'];
+  $flag_checked_group = false;
+  $checked_group_id = -10;
   foreach($checked_elems as $id => $checked_elem) {
+    $elem_id = (int) substr($checked_elem, 1, strlen($checked_elem)-1);
     if($checked_elem[0] == 's'){
-      // Простой студент
-      $student_id = (int) substr($checked_elem, 1, strlen($checked_elem)-1);
-      echo "STUDENT_ID: ".$student_id;
+      // Обработка выделенного checkbox-студента
+      $student_id = $elem_id;
+      echo "<br>STUDENT_ID: ".$student_id;
       echo "<br>";
-      $query = select_task_assignment_student_id($student_id, $task_id);
-      $result = pg_query($dbconnect, $query);
-      $task_assignment = pg_fetch_assoc($result);
-      if($task_assignment){
-        echo "STUDENT-ASSIGNMENT_ID: ".$task_assignment['id'];
-        echo "<br>";
-        array_push($assignments_id, $task_assignment['id']);
-      } else {
-        // Если к нему ещё не прикреплено задание - добавляем в бд 
-        $query = insert_assignment($task_id);
-        $result = pg_query($dbconnect, $query);
-        $assignment_id = pg_fetch_assoc($result)['id'];
-        echo "ДОБАВЛЕНИЕ НОВОГО ASSIGNMENT, ASSIGNMENT_ID: ".$assignment_id;
-        echo "<br>";
-        array_push($assignments_id, $assignment_id);
 
-        $query = insert_assignment_student($assignment_id, $student_id);
-        $result = pg_query($dbconnect, $query);
-        
-      }
-    } else if ($checked_elem[0] == 'g') {
-        // Группа, которую нужно пропустить
-        $group_id = (int) substr($checked_elem, 1, strlen($checked_elem)-1);
-        echo "GROUP_ID: ".$student_id;
+      $query = select_group_id_by_student_id($student_id);
+      $result = pg_query($dbconnect, $query);
+      $group_id = pg_fetch_assoc($result)['group_id'];
+
+      echo "STUDENT_GROUP_ID: ".$group_id;
+      echo "<br>";
+
+      // Проспускаем, если его группа уже добавлена целиком
+      if ($flag_checked_group && $group_id == $checked_group_id){
+        echo "CONTINUE";
         echo "<br>";
-        $query = select_ax_page_group($student_id, $task_id);
+        continue;
+      }
+
+      $assignments_id = array_merge(add_asignment_to_students($student_id, $task_id));
+
+      add_group_to_ax_page_group($_GET['page'], $group_id);
+
+    } else if ($checked_elem[0] == 'g') {
+        // Обработка выделенного checkbox-группы
+        $group_id = $elem_id;
+        echo "<br>GROUP_ID: ".$group_id;
+        echo "<br>";
+
+        add_group_to_ax_page_group($_GET['page'], $group_id);
+
+        $query = select_students_id_by_group($group_id);
         $result = pg_query($dbconnect, $query);
-        $group = pg_fetch_assoc($result);
-        if ($group) {
-          // Группе уже ткрыт доступ к предмету, ещё раз предоставлять не надо
-        } else {
-          
+        $students = pg_fetch_all($result);
+        foreach($students as $student){
+          $assignments_id = array_merge(add_asignment_to_students($student['student_id'], $task_id));
         }
+
+        $flag_checked_group = true;
+        $checked_group_id = $group_id;
 
 
     }
@@ -117,7 +123,9 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
     $query = update_ax_assignment_finish_limit($assignment_id, $_POST['finish-limit']);
     $result = pg_query($dbconnect, $query);
   }
-} 
+} else if (count($assignments_id) > 0){
+
+}
 
 /*if (isset($_POST['user_files'])) {
   echo "ADD_FILES: ".$_POST['user_files'];
@@ -151,5 +159,51 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
   }
 }*/
 
-header('Location: preptasks.php?page='.$_GET['page']);
+//header('Location: preptasks.php?page='.$_GET['page']);
+?>
+
+
+
+<?php // ФУНКЦИИ
+
+// Прикрепление группы к странице предмета, если ещё не открыт доступ
+function add_group_to_ax_page_group($page_id, $group_id){
+  global $dbconnect;
+  $query = select_ax_page_group($page_id, $group_id);
+  $result = pg_query($dbconnect, $query);
+  $group = pg_fetch_assoc($result);
+  if (!$group) {
+    // Если группе ещё не открыт доступ к предмету - открываем доступ к предмету
+    $query = update_ax_page_group_by_group_id($page_id, $group_id);
+    $result = pg_query($dbconnect, $query);
+  }
+}
+
+function add_asignment_to_students($student_id, $task_id){
+  global $dbconnect;
+  $assignments_id = array();
+  $query = select_task_assignment_student_id($student_id, $task_id);
+  $result = pg_query($dbconnect, $query);
+  $task_assignment = pg_fetch_assoc($result);
+  if($task_assignment){
+    echo "STUDENT-ASSIGNMENT_ID: ".$task_assignment['id'];
+    echo "<br>";
+    array_push($assignments_id, $task_assignment['id']);
+  } else {
+    // Если к нему ещё не прикреплено задание - добавляем в бд 
+    $query = insert_assignment($task_id);
+    $result = pg_query($dbconnect, $query);
+    $assignment_id = pg_fetch_assoc($result)['id'];
+    echo "ДОБАВЛЕНИЕ НОВОГО ASSIGNMENT, ASSIGNMENT_ID: ".$assignment_id;
+    echo "<br>";
+    array_push($assignments_id, $assignment_id);
+
+    $query = insert_assignment_student($assignment_id, $student_id);
+    $result = pg_query($dbconnect, $query);
+
+    return $assignments_id;
+  }
+}
+
+
 ?>

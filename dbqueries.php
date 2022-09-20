@@ -292,7 +292,7 @@
 
     function insert_assignment($task_id){
         return "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, status_code, delay, status_text, mark)
-                VALUES ($task_id, null, now(), null, null, null, null, null) RETURNING id;
+                VALUES ($task_id, null, now(), null, 2, null, null, null) RETURNING id;
         ";
     }
 
@@ -401,10 +401,16 @@
         return 'SELECT * FROM groups';
     }
 
-    function select_ax_page_group($group_id){
+    function select_ax_page_group($page_id, $group_id){
         return "SELECT * FROM ax_page_group 
-                WHERE group_id = $group_id;
+                WHERE page_id = $page_id AND group_id = $group_id;
         ";
+    }
+
+    function select_group_id_by_student_id($student_id) {
+      return "SELECT group_id FROM students_to_groups
+              WHERE students_to_groups.student_id = $student_id
+      ";
     }
 
     // группы у конкретной дисциплины
@@ -417,11 +423,17 @@
         return 'DELETE FROM ax_page_group WHERE page_id ='.$page_id;
     }
 
-    function update_ax_page_group($id, $groups) {
+    function update_ax_page_group($page_id, $groups) {
         $groups = pg_escape_string($groups);
 
-        return "INSERT INTO ax_page_group(group_id, page_id)
-            VALUES ((SELECT id FROM groups WHERE name = '$groups'), '$id')";
+        return "INSERT INTO ax_page_group(page_id, group_id)
+            VALUES ($page_id, (SELECT id FROM groups WHERE name = '$groups'))";
+    }
+
+    function update_ax_page_group_by_group_id($page_id, $group_id) {
+      return "INSERT INTO ax_page_group(page_id, group_id)
+              VALUES ($page_id, $group_id);
+      ";
     }
 
     function select_page_groups($page_id) {
@@ -516,8 +528,8 @@
     }
 
     function select_students_id_by_group($group_id){
-      return "SELECT student_id FROM students_to_group
-              WHERE group_id = '$group_id';
+      return "SELECT student_id FROM students_to_groups
+              WHERE group_id = $group_id;
       ";
     }
 
