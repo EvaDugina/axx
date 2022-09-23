@@ -2,6 +2,7 @@
 
 require_once("common.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 
 if (!isset($_GET['page'])) {
   // Совсем некорректный ввод
@@ -120,7 +121,7 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
   echo "FINISH_LIMIT: ".$_POST['finish-limit'];
   echo "<br>";
   foreach ($assignments_id as $assignment_id) {
-    $query = update_ax_assignment_finish_limit($assignment_id, $_POST['finish-limit']);
+    $query = update_ax_assignment_finish_limit($assignment_id, conver_calendar_to_timestamp($_POST['finish-limit']));
     $result = pg_query($dbconnect, $query);
   }
 } else if (count($assignments_id) > 0){

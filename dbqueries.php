@@ -225,6 +225,10 @@ function select_task($task_id) {
     return "SELECT * FROM ax_task WHERE id ='$task_id'";
 }
 
+function select_ax_assignment_by_id($assignment_id) {
+  return "SELECT * FROM ax_assignment WHERE id = $assignment_id";
+}
+
 // - получение статуса и времени отправки ответа студента
 function select_task_assignment_with_limit($task_id, $student_id) {
     return "SELECT ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_assignment.status_text FROM ax_assignment 
@@ -279,43 +283,30 @@ function select_task_files($task_id) {
 
 // обновление задания
 function update_ax_task($id, $type, $title, $description) {
-    return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' WHERE id = '$id'";
+    return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' 
+            WHERE id = '$id'";
 }
 
 function update_ax_assignment_status_code($assignment_id, $status_code) {
   $status_text = status_code_to_text($status_code);
-  return "UPDATE ax_assignment SET status_code = $status_code, status_text = '$status_text' WHERE id = $assignment_id";
+  return "UPDATE ax_assignment SET status_code = $status_code, status_text = '$status_text' 
+          WHERE id = $assignment_id";
 }
 
-function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $status=1){
-    return "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
-            VALUES ('$page_id', '$type', '$title', '$description', $max_mark, '$status')
-            RETURNING id;
-    ";
-
+function update_ax_assignment_mark($assignment_id, $mark){
+  return "UPDATE ax_assignment SET mark = '$mark', status_code = 3, status_text = 'выполнено' 
+          WHERE id = $assignment_id;
+  ";
 }
 
-function insert_assignment($task_id){
-    return "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, status_code, delay, status_text, mark)
-            VALUES ($task_id, null, now(), null, 2, null, null, null) RETURNING id;
-    ";
+function update_ax_assignment_delay($assignment_id, $delay){
+  return "UPDATE ax_assignment SET delay = $delay 
+          WHERE id = $assignment_id;
+  ";
 }
 
-function insert_assignment_student($assignment_id, $student_id){
-    return "INSERT INTO ax_assignment_student (assignment_id, student_user_id)
-            VALUES ($assignment_id, $student_id);
-    ";
-}
-
-function update_ax_assignment_finish_limit($assignment_id, $finish_limit=null) {
-    date_default_timezone_set('UTC');
-    if ($finish_limit){
-        $timestamp = strtotime($finish_limit);
-        $timestamp = getdate($timestamp);
-        $timestamp = date("Y-m-d H:i:s", mktime(23, 59, 59, $timestamp['mon'],$timestamp['mday'], $timestamp['year']));
-
-    }
-    return "UPDATE ax_assignment SET finish_limit = '$timestamp' 
+function update_ax_assignment_finish_limit($assignment_id, $finish_limit) {
+    return "UPDATE ax_assignment SET finish_limit = '$finish_limit' 
             WHERE id = $assignment_id;
   ";
 }
@@ -336,6 +327,26 @@ function update_ax_assignment_by_id ($assignment_id, $finish_limit=null, $varian
     $query .= ", mark='$mark'";
   $query .= "WHERE id = '$assignment_id';";
   return $query;
+}
+
+function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $status=1){
+  return "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
+          VALUES ('$page_id', '$type', '$title', '$description', $max_mark, '$status')
+          RETURNING id;
+  ";
+
+}
+
+function insert_assignment($task_id){
+  return "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, status_code, delay, status_text, mark)
+          VALUES ($task_id, null, now(), null, 2, null, null, null) RETURNING id;
+  ";
+}
+
+function insert_assignment_student($assignment_id, $student_id){
+  return "INSERT INTO ax_assignment_student (assignment_id, student_user_id)
+          VALUES ($assignment_id, $student_id);
+  ";
 }
 
 function delete_task($task_id){

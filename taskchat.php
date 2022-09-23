@@ -39,12 +39,14 @@ if ($row) {
 
 $task_title = '';
 $task_description = '';
+$task_max_mark = 5;
 $query = select_task($task_id);
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $row = pg_fetch_assoc($result);
 if ($row) {
 	$task_title = $row['title'];
 	$task_description = $row['description'];
+  $task_max_mark = (int)$row['max_mark'];
 }
 
 $task_finish_limit = '';
@@ -162,25 +164,40 @@ if ($row) {
 					</div>
           <div>
             <div>
-              <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary" target="_blank" style="margin-top: 10px;">
+              <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
                 <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;Онлайн редактор кода</a>
             </div>
 
             <?php if($au->isAdminOrTeacher()) { // Отправить задание на проверку ?>
-              <button id="button-check" class="btn btn-success my-2" target="_blank" type="submit" 
-              name="submit-answer" style="width: 100%;" <?php if($task_status_code != 5) echo "disabled";?>>
-                <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
+              <form id="form-check-task" action="taskchat_action.php" method="POST">
+                <div class="d-flex flex-row my-1">
+                  <div class="file-input-wrapper me-1">
+                    <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;"
+                    <?php if($task_status_code != 5) echo "disabled";?> name="mark">
+                      <option hiddenb value="-1"></option>
+                      <?php for($i=1; $i<=$task_max_mark; $i++) {?>
+                        <option value="<?=$i?>"><?=$i?></option>
+                      <?php }?>
+                    </select>
+                  </div>
+                  <button id="button-check" class="btn btn-success" target="_blank" type="submit"
+                  name="submit-check" style="width: 100%;" <?php if($task_status_code != 5) echo "disabled";?>>
+                    <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
+                </div>
+              </form>
             <?php } else { // Оценить отправленное на проверку задание?>
               <form id="form-send-answer" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-2">
                   <div class="file-input-wrapper me-1">
-                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                    <label for="user-answer-files">
-                      <i class="fa-solid fa-paperclip"></i><span id="files-answer-count" class="text-success"></span>
+                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple 
+                    <?php if($task_status_code != 5) echo 'disabled';?>>
+                    <label for="user-answer-files" <?php if($task_status_code != 5) echo 'style="cursor: default;"';?>>
+                      <i class="fa-solid fa-paperclip"></i>
+                      <span id="files-answer-count" class="text-success"></span>
                     </label>
                   </div>
-                  <button id="submit-answer" class="btn btn-outline-success submit-files" 
-                  target="_blank" type="submit" name="submit-answer">
+                  <button id="submit-answer" class="btn btn-success submit-files" target="_blank" type="submit" 
+                  name="submit-answer"<?php if($task_status_code != 5) echo "disabled";?>>
                     <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
                 </div>
               </form>
@@ -214,38 +231,6 @@ if ($row) {
 
 		</div>
 	</main>
-
-
-
-  <div class="modal fade" id="dialogMark" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
-  <form class="needs-validation" onsubmit="answerSend(this)">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="dialogMarkLabel">Зачесть задание</h5>
-          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="form-outline">
-            <input type="number" id="dialogMarkMarkInput" name="mark" class="form-control" required />
-            <label class="form-label" for="typeNumber" id="dialogMarkMarkLabel">Оценка</label>
-          </div>
-          <br />
-          <div class="form-outline">
-            <textarea class="form-control" id="dialogMarkText" rows="4" name="text" required></textarea>
-            <label class="form-label" for="dialogMarkText">Текст ответа</label>
-          </div>
-          <input type="hidden" id="dialogMarkMessageId" name="message" />
-          <input type="hidden" name="page" value="<?= $page_id ?>" />
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
-          <button type="submit" class="btn btn-primary" onclick="answerSend(this)">Ответить</button>
-        </div>
-      </div>
-    </div>
-  </form>
-</div>
 	
   
 	<script type="text/javascript">
@@ -289,25 +274,56 @@ if ($row) {
 
 		$(document).ready(function() {
 
-      let form_sendAnswer  = document.getElementById('form-send-answer');
+      let form_sendAnswer = document.getElementById('form-send-answer');
+      let form_check = document.getElementById('form-check-task');
+
+      let button_check = document.getElementById('button-check');
 
       // Отправка формы прикрепления ответа на задание
-      form_sendAnswer.addEventListener('submit', function (event) {
-        event.preventDefault();
-        console.log("СРАБОТАЛА ФОРМА ЗАГРУЗКИ ОТВЕТА НА ЗАДАНИЕ");
-        var userFiles = $("#user-answer-files");
-        console.log(userFiles);
-        if (userFiles.val() == '' || userFiles.length <= 0) {
+      if (form_sendAnswer){
+        form_sendAnswer.addEventListener('submit', function (event) {
           event.preventDefault();
+          console.log("СРАБОТАЛА ФОРМА ЗАГРУЗКИ ОТВЕТА НА ЗАДАНИЕ");
+          var userFiles = $("#user-answer-files");
+          console.log(userFiles);
+          if (userFiles.val() == '' || userFiles.length <= 0) {
+            event.preventDefault();
+            return false;
+          } else {
+            var userMessage = "Ответ на задание:";
+            if(sendMessage(userMessage, userFiles, true)) {
+              console.log("Сообщение было успешно отправлено");
+            }
+
+            userFiles.val("");
+            $('#files-answer-count').html('');
+
+            // Первое обновление лога чата
+            loadChatLog(true);
+            // Обновление лога чата раз в 5 секунд
+            setInterval(loadChatLog, 5000);
+
+            return false;
+          }
+        });
+      } else if (form_check) {
+        form_check.addEventListener('submit', function (event) {
+        event.preventDefault();
+        console.log("СРАБОТАЛА ФОРМА ОЦЕНИВАНИЯ ЗАДАНИЕ");
+        var selector_mark = $("#select-mark");
+        var mark = selector_mark.val();
+        console.log(selector_mark);
+        if (mark == -1){
+          console.log("ОЦЕНКА НЕ ВЫБРАНА");
           return false;
-        } else {
-          var userMessage = "Ответ на задание:";
-          if(sendMessage(userMessage, userFiles, true)) {
+        }
+        else {
+          var userMessage = "Задние оценено. Оценка: " + mark;
+          if(sendMessage(userMessage, null, false, parseInt(mark))) {
             console.log("Сообщение было успешно отправлено");
           }
-
-          userFiles.val("");
-          $('#files-answer-count').html('');
+          selector_mark.prop('disabled', 'disabled');
+          button_check.setAttribute('disabled', '');
 
           // Первое обновление лога чата
           loadChatLog(true);
@@ -317,6 +333,9 @@ if ($row) {
           return false;
         }
       });
+
+      }
+
 
 			// Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
 			$("#submit-message").click(function() {
@@ -359,7 +378,7 @@ if ($row) {
 		}
 
 
-    function sendMessage(userMessage, userFiles, isAnswer) {
+    function sendMessage(userMessage, userFiles, isAnswer, mark=null) {
       if ($.trim(userMessage) == '' && userFiles.val() == '') { 
         console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
         return false; 
@@ -369,14 +388,21 @@ if ($row) {
       formData.append('message_text', userMessage);
       formData.append('assignment_id', <?=$assignment_id?>);
       formData.append('user_id', <?=$user_id?>);
-      formData.append('answer', isAnswer);
-      formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
-      $.each(userFiles[0].files, function(key, input) {
-        if (!isAnswer)
-          formData.append('message-files[]', input);
-        else 
-          formData.append('answer-files[]', input);
-      });
+      /*formData.append('student_id', <?=$student_id?>);
+      formData.append('task_id', <?=$task_id?>);
+      formData.append('page_id', <?=$page_id?>);*/
+      if(userFiles){
+        formData.append('answer', isAnswer);
+        formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
+        $.each(userFiles[0].files, function(key, input) {
+          if (!isAnswer)
+            formData.append('message-files[]', input);
+          else 
+            formData.append('answer-files[]', input);
+        });
+      } else if (mark) {
+        formData.append('mark', mark);
+      }
 
       $.ajax({
         type: "POST",
@@ -397,41 +423,11 @@ if ($row) {
       return true;
 		}
 
-	</script>
+    function scrollChat(){
 
-<script type="text/javascript">
-  function answerPress(answer_type, message_id, max_mark) {
-    // TODO: implement answer
-    console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
-    if (answer_type == 2) { // mark
-      //const dialog = document.getElementById('dialogMark');
-      document.getElementById('dialogMarkMessageId').value = message_id;
-      document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
-      document.getElementById('dialogMarkText').value = 'Задание зачтено';
-      $('#dialogMark').modal('show');
-    } else {
-      //const dialog = document.getElementById('dialogAnswer');
-      document.getElementById('dialogAnswerMessageId').value = message_id;
-      document.getElementById('dialogAnswerText').value = '';
-      $('#dialogAnswer').modal('show');
     }
-  }
 
-  function answerSend(form) {
-    $(form)
-      .find(':submit')
-      .attr('disabled', 'disabled')
-      .append(' <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-  }
-
-  function answerText(answer_text, message_id) {
-    console.log('answer: ', answer_text, message_id);
-  }
-
-  function answerMark(answer_text, mark, message_id) {
-    console.log('mark: ', answer_text, mark, message_id);
-  }
-</script>
+	</script>
 
 </body>
 

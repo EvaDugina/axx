@@ -1,6 +1,7 @@
 <?php
 require_once("settings.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 
 // Находим user_type (0 - студент, 1 - преподаватель)
 if (isset($_POST['user_id'])) {
@@ -16,12 +17,16 @@ if (isset($_POST['user_id'])) {
 }
 
 $assignment_id = -1;
+$assignment = null;
 if (isset($_POST['assignment_id'])) {
   $assignment_id = $_POST['assignment_id'];
+  $query = select_ax_assignment_by_id($assignment_id);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $assignment = pg_fetch_assoc($result);
   /*echo "ASSIGNMENT_ID: ".$assignment_id;
   echo "<br>";*/
 } else  {
-  //exit;
+  exit;
 }
 
 $full_text = "";
@@ -53,8 +58,18 @@ if (isset($_POST['answer']) && $_POST['answer'] && isset($_FILES['answer-files']
   $query = update_ax_assignment_status_code($assignment_id, 5);
   $result = pg_query($dbconnect, $query);
 
+  $delay = -1;
+  if ($assignment && $assignment['finish_limit']) {
+    $date_db = convert_timestamp_to_date($assignment['finish_limit']);
+    $date_now = get_now_date("d-m-Y");  
+    $delay = ($date_db >= $date_now) ? 0 : 1;
+  }
+  $query = update_ax_assignment_delay($assignment_id, $delay);
+  $result = pg_query($dbconnect, $query);
+
+
 } else if ($full_text != "" || isset($_FILES['message-files'])){
-  /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ";
+  /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
   $message_id = set_message(0, $full_text);
   if (isset($_FILES['message-files']))
@@ -72,6 +87,16 @@ if ($files) {
   echo "<br>";*/
   add_files_to_message($message_id, $files);
 }
+
+if (isset($_POST['mark'])) {
+  // Оценивание задания
+  /*echo "ПРОСТАВЛЕНИЕ ОЦЕНКИ";
+  echo "<br>";*/
+  $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
+  $result = pg_query($dbconnect, $query);
+
+}
+
 
 update_chat();
 
@@ -239,5 +264,13 @@ function rand_prefix() {
 
 function delete_prefix($str) {
   return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
+function checkTask($mark) {
+  global $dbconnect, $assignment_id;
+
+  $query = update_ax_assignment_mark($assignment_id, $mark);
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
 }
 ?>
