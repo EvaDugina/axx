@@ -18,13 +18,18 @@ $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result);
 
 $au = new auth_ssh();
+$sender_user_type = 0;
 if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
 	// Если на страницу чата зашёл преподаватель
 	$student_id = $_GET['id_student'];
+  $sender_user_type = 1;
 
 } else if ($au->loggedIn()){
 	// Если на страницу чата зашёл студент
 	$student_id = $user_id;
+} else {
+  header('Location:index.php');
+  exit;
 }
 
 $query = select_task_assignment_student_id($student_id, $task_id);
@@ -152,15 +157,12 @@ if ($row) {
 				<div class="task-status-wrapper">
 					<div>
 						<div class="form-check">
-							<input class="form-check-input" type="checkbox" value="" id="flexCheckDisabled" 
+							<input class="form-check-input" type="checkbox" id="flexCheckDisabled" 
 								<?php if ($task_status_code == 3) echo 'checked'; ?> disabled>
-							<label><?= $task_status_text ?></label>
+							<label id="label-task-status-text"><?= $task_status_text ?></label>
 						</div>
-						<?php  
-						if ($task_status_code == 3) {
-							if ($task_finish_date_time ) echo "<br> $task_finish_date_time <br>";
-							echo "Оценка: <b>$task_mark</b>";
-						}?>
+            <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
+            <span id="span-text-mark"><?php if($task_status_code == 3) echo 'Оценка: ';?><b id="b-mark"><?=$task_mark?></b></span>
 					</div>
           <div>
             <div>
@@ -190,14 +192,14 @@ if ($row) {
                 <div class="d-flex flex-row my-2">
                   <div class="file-input-wrapper me-1">
                     <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple 
-                    <?php if($task_status_code != 5) echo 'disabled';?>>
-                    <label for="user-answer-files" <?php if($task_status_code != 5) echo 'style="cursor: default;"';?>>
+                    <?php if($task_status_code == 3) echo 'disabled';?>>
+                    <label for="user-answer-files" <?php if($task_status_code == 3) echo 'style="cursor: default;"';?>>
                       <i class="fa-solid fa-paperclip"></i>
                       <span id="files-answer-count" class="text-success"></span>
                     </label>
                   </div>
                   <button id="submit-answer" class="btn btn-success submit-files" target="_blank" type="submit" 
-                  name="submit-answer"<?php if($task_status_code != 5) echo "disabled";?>>
+                  name="submit-answer"<?php if($task_status_code == 3) echo "disabled";?>>
                     <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
                 </div>
               </form>
@@ -291,7 +293,7 @@ if ($row) {
             return false;
           } else {
             var userMessage = "Ответ на задание:";
-            if(sendMessage(userMessage, userFiles, true)) {
+            if(sendMessage(userMessage, userFiles, 1)) {
               console.log("Сообщение было успешно отправлено");
             }
 
@@ -318,8 +320,8 @@ if ($row) {
           return false;
         }
         else {
-          var userMessage = "Задние оценено. Оценка: " + mark;
-          if(sendMessage(userMessage, null, false, parseInt(mark))) {
+          var userMessage = "Задние проверено. Оценка: " + mark;
+          if(sendMessage(userMessage, null, 2, parseInt(mark))) {
             console.log("Сообщение было успешно отправлено");
           }
           selector_mark.prop('disabled', 'disabled');
@@ -342,7 +344,7 @@ if ($row) {
 				var userMessage = $("#user-message").val();
 				var userFiles = $("#user-files");
 
-        if(!sendMessage(userMessage, userFiles, false)) {
+        if(!sendMessage(userMessage, userFiles, 0)) {
           event.preventDefault();
           console.log("Сообщение было успешно отсправлено");
         } else {
@@ -378,7 +380,7 @@ if ($row) {
 		}
 
 
-    function sendMessage(userMessage, userFiles, isAnswer, mark=null) {
+    function sendMessage(userMessage, userFiles, typeMessage, mark=null) {
       if ($.trim(userMessage) == '' && userFiles.val() == '') { 
         console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
         return false; 
@@ -388,19 +390,17 @@ if ($row) {
       formData.append('message_text', userMessage);
       formData.append('assignment_id', <?=$assignment_id?>);
       formData.append('user_id', <?=$user_id?>);
-      /*formData.append('student_id', <?=$student_id?>);
-      formData.append('task_id', <?=$task_id?>);
-      formData.append('page_id', <?=$page_id?>);*/
+      formData.append('sender_user_type', <?=$sender_user_type?>);
+      formData.append('type', typeMessage);
       if(userFiles){
-        formData.append('answer', isAnswer);
         formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
         $.each(userFiles[0].files, function(key, input) {
-          if (!isAnswer)
+          if (typeMessage == 0)
             formData.append('message-files[]', input);
-          else 
+          else if (typeMessage == 1)
             formData.append('answer-files[]', input);
         });
-      } else if (mark) {
+      } else if (typeMessage == 2 && mark) {
         formData.append('mark', mark);
       }
 
@@ -414,17 +414,52 @@ if ($row) {
         dataType : 'html',
         success: function(response) {
           $("#chat-box").html(response);
+          
+          if (typeMessage == 1) {
+            let now = new Date();
+            $("#label-task-status-text").text("Ожидает проверки");
+            $("#span-answer-date").text(formatDate(now));
+          } else if (typeMessage == 2) {
+            let now = new Date();
+            $("#flexCheckDisabled").prop("checked", true);
+            $("#label-task-status-text").text("Выполнено");
+            $("#span-answer-date").text(formatDate(now));
+            $("#span-text-mark").text("Оценка: ");
+          }
         },
         complete: function() {
           // Скролим чат вниз после отправки сообщения
           $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
         }
       });
+
+
       return true;
 		}
 
     function scrollChat(){
 
+    }
+
+    function formatDate(date) {
+      let dayOfMonth = date.getDate();
+      let month = date.getMonth() + 1;
+      let year = date.getFullYear();
+      let hour = date.getHours();
+      let minutes = date.getMinutes();
+      let diffMs = new Date() - date;
+      let diffSec = Math.round(diffMs / 1000);
+      let diffMin = diffSec / 60;
+      let diffHour = diffMin / 60;
+
+      // форматирование
+      year = year.toString().slice(-2);
+      month = month < 10 ? '0' + month : month;
+      dayOfMonth = dayOfMonth < 10 ? '0' + dayOfMonth : dayOfMonth;
+      hour = hour < 10 ? '0' + hour : hour;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+
+      return `${dayOfMonth}.${month}.${year} ${hour}:${minutes}`;
     }
 
 	</script>

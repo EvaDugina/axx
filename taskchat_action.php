@@ -11,7 +11,7 @@ if (isset($_POST['user_id'])) {
 	$query = select_student_role($_POST['user_id']);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
-	$user_type = $row['role'] == 3 ? 0 : 1;
+	$user_type = $_POST['sender_user_type'];
 } else {
   //exit;
 }
@@ -40,7 +40,7 @@ if (isset($_POST['message_text'])){
 echo "<br>";*/
 
 $files = array();
-if (isset($_POST['answer']) && $_POST['answer'] && isset($_FILES['answer-files'])){
+if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'])){
   /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
   echo "<br>";*/
 
@@ -71,7 +71,12 @@ if (isset($_POST['answer']) && $_POST['answer'] && isset($_FILES['answer-files']
 } else if ($full_text != "" || isset($_FILES['message-files'])){
   /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
-  $message_id = set_message(0, $full_text);
+
+  if (isset($_POST['type']) && $_POST['type'] == 2)
+    $message_id = set_message($_POST['type'], $full_text);
+  else 
+    $message_id = set_message(0, $full_text);
+
   if (isset($_FILES['message-files']))
     $files = $_FILES['message-files'];
 } else {
@@ -88,10 +93,8 @@ if ($files) {
   add_files_to_message($message_id, $files);
 }
 
-if (isset($_POST['mark'])) {
+if (isset($_POST['mark']) && $message_id) {
   // Оценивание задания
-  /*echo "ПРОСТАВЛЕНИЕ ОЦЕНКИ";
-  echo "<br>";*/
   $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
   $result = pg_query($dbconnect, $query);
 
