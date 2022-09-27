@@ -102,7 +102,7 @@ show_header_2($dbconnect, 'Задания по дисциплине',
 				</div>
 
 				<div class="row pt-3">
-					<div class="col-md-11 col-md-push-1">
+					<div class="col-md-11 col-md-push-1 w-100">
 						<div class="list-group list-group-flush" id="list-tab" role="tablist">
 							<?php
 							$query_tasks = select_page_tasks($page_id, 1);

@@ -255,7 +255,7 @@ if (array_key_exists('page', $_REQUEST)) {
 					<?php if ($page_id != 0) {?>
 						<div class="col-lg-3 offset-1">
 							<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
-								Удалить дисциплину
+								Удалить предмет
 							</button>
 						</div>
 					<?php }?>
