@@ -704,7 +704,8 @@ function select_page_messages($page_id) {
         LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
         INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
         INNER JOIN groups ON groups.id = students_to_groups.group_id
-        WHERE ax_task.page_id = '$page_id' AND (m1.type = 0 OR m1.type = 2) ORDER BY mid DESC;
+        WHERE ax_task.page_id = '$page_id' AND m1.type in (1, 2)
+        ORDER BY /*grp, fio, tid,*/ mid;
     ";
 }
 
