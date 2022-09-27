@@ -89,7 +89,7 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
         continue;
       }
 
-      $assignments_id = array_merge(add_asignment_to_students($student_id, $task_id));
+      array_push($assignments_id, add_assignment_to_students($student_id, $task_id));
 
       add_group_to_ax_page_group($_GET['page'], $group_id);
 
@@ -105,7 +105,7 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
         $result = pg_query($dbconnect, $query);
         $students = pg_fetch_all($result);
         foreach($students as $student){
-          $assignments_id = array_merge(add_asignment_to_students($student['student_id'], $task_id));
+          array_push($assignments_id, add_assignment_to_students($student['student_id'], $task_id));
         }
 
         $flag_checked_group = true;
@@ -118,10 +118,15 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
 
 if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
   // Должны быть выбраны студенты!
-  echo "FINISH_LIMIT: ".$_POST['finish-limit'];
+  echo "<br>FINISH_LIMIT: ".$_POST['finish-limit'];
   echo "<br>";
+
+  $timestamp = conver_calendar_to_timestamp($_POST['finish-limit']);
+  echo "TIMESTAMP: ".$timestamp;
+  echo "<br>";
+
   foreach ($assignments_id as $assignment_id) {
-    $query = update_ax_assignment_finish_limit($assignment_id, conver_calendar_to_timestamp($_POST['finish-limit']));
+    $query = update_ax_assignment_finish_limit($assignment_id, $timestamp);
     $result = pg_query($dbconnect, $query);
   }
 } else if (count($assignments_id) > 0){
@@ -180,16 +185,16 @@ function add_group_to_ax_page_group($page_id, $group_id){
   }
 }
 
-function add_asignment_to_students($student_id, $task_id){
+function add_assignment_to_students($student_id, $task_id){
   global $dbconnect;
-  $assignments_id = array();
+  $assignment_id = null;
   $query = select_task_assignment_student_id($student_id, $task_id);
   $result = pg_query($dbconnect, $query);
   $task_assignment = pg_fetch_assoc($result);
   if($task_assignment){
     echo "STUDENT-ASSIGNMENT_ID: ".$task_assignment['id'];
     echo "<br>";
-    array_push($assignments_id, $task_assignment['id']);
+    $assignment_id = $task_assignment['id'];
   } else {
     // Если к нему ещё не прикреплено задание - добавляем в бд 
     $query = insert_assignment($task_id);
@@ -197,13 +202,11 @@ function add_asignment_to_students($student_id, $task_id){
     $assignment_id = pg_fetch_assoc($result)['id'];
     echo "ДОБАВЛЕНИЕ НОВОГО ASSIGNMENT, ASSIGNMENT_ID: ".$assignment_id;
     echo "<br>";
-    array_push($assignments_id, $assignment_id);
 
     $query = insert_assignment_student($assignment_id, $student_id);
     $result = pg_query($dbconnect, $query);
-
-    return $assignments_id;
   }
+  return $assignment_id;
 }
 
 
