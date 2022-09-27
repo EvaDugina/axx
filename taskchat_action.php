@@ -3,6 +3,7 @@ require_once("settings.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
+
 // Находим user_type (0 - студент, 1 - преподаватель)
 if (isset($_POST['user_id'])) {
   $user_id = $_POST['user_id'];
@@ -12,8 +13,10 @@ if (isset($_POST['user_id'])) {
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);
 	$user_type = $_POST['sender_user_type'];
+  /*echo "SENDER_USER_TYPE: ".$user_type;
+  echo "<br>";*/
 } else {
-  //exit;
+  exit;
 }
 
 $assignment_id = -1;
@@ -61,7 +64,7 @@ if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'
   $delay = -1;
   if ($assignment && $assignment['finish_limit']) {
     $date_db = convert_timestamp_to_date($assignment['finish_limit']);
-    $date_now = get_now_date("d-m-Y");  
+    $date_now = get_now_date("d-message-Y");  
     $delay = ($date_db >= $date_now) ? 0 : 1;
   }
   $query = update_ax_assignment_delay($assignment_id, $delay);
@@ -80,8 +83,7 @@ if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'
   if (isset($_FILES['message-files']))
     $files = $_FILES['message-files'];
 } else {
-  /*echo "НИ ТО, НИ СЁ";
-  echo "<br>";*/
+  //exit;
 }
 
 /*echo "MESSAGE_ID: ".$message_id;
@@ -101,7 +103,7 @@ if (isset($_POST['mark']) && $message_id) {
 }
 
 
-update_chat();
+update_chat($assignment_id, $user_type, $user_id);
 
 
 
@@ -111,10 +113,11 @@ update_chat();
 // type: 0 - переговоры, 2 - оценка
 // Возвращает id добавленного сообщения
 
-function update_chat(){
+function update_chat($assignment_id, $user_type, $user_id){
   // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
   echo '<div id="content">';
-  show_messages(get_messages());
+  $messages = get_messages($assignment_id, $user_type, $user_id);
+  show_messages($messages);
   echo '</div>';
 }
 
@@ -130,8 +133,8 @@ function set_message($type, $full_text, $commit_id = null) {
 }
 
 // Возвращает двумерный массив сообщений для текущей страницы по ax_assignment
-function get_messages() {
-	global $dbconnect, $assignment_id, $user_type, $user_id;
+function get_messages($assignment_id, $user_type, $user_id) {
+	global $dbconnect;
   /*echo "ASSIGNMENT_ID: ".$assignment_id;
   echo "<br>";*/
 	$query = select_messages_by_assignment_id($assignment_id);
@@ -140,28 +143,35 @@ function get_messages() {
   /*echo $query;
   echo "<br>";*/
 	
-	$ret = [];
+	$messages = [];
 	$is_first_new = false; // false, пока for не обрабатывал новых сообщений от собеседника
 	for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
 		// Отмечаем сообщения собеседника прочитанными
 		// Если у любого препода/студента прогрузилась страница с непрочитанными сообщениями от любого студента/препода, то сообщения отмечаются прочитанными в БД. 
 		
-		$unreaded = false; // наши сообщения, которые не прочитал собеседник
+    $unreaded = null; //$unreaded = false; // наши сообщения, которые не прочитал собеседник
 		$first_new = false; // true, если это первое новое сообщение от собеседника
-		if ($row['status'] == 0 && $user_type == $row['sender_user_type']) {
-			$unreaded = true;
-		}
-		if ($row['status'] == 0 && $user_type != $row['sender_user_type']) {
-			if (!$is_first_new) {
-				$first_new = true;
-				$is_first_new = true;
-			}
-			$query = update_ax_message_status($row['message_id']);
-			pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+		if ($user_type != null && $row['status'] == 0){
+      if ($user_type == $row['sender_user_type']) {
+        $unreaded = true;
+      } else {
+        $unreaded = false;
+        /*echo "USER_TYPE: ".$user_type;
+        echo "<br>";
+        echo "MESSAGE_SENDER_USER_TYPE: ".$row['sender_user_type'];
+        echo "<br>";*/
+        if (!$is_first_new) {
+          $first_new = true;
+          $is_first_new = true;
+        }
 
-			$query = insert_ax_message_delivery($row['message_id'], $user_id);
-			pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-		}
+        $query = update_ax_message_status($row['message_id']);
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+        $query = insert_ax_message_delivery($row['message_id'], $user_id);
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      }
+    }
 
 		$username = $row['first_name'] . ' ' . $row['middle_name'];
 		$message_time = explode(" ", $row['date_time']);
@@ -169,10 +179,10 @@ function get_messages() {
 		$time = explode(":", $message_time[1]);
 		$date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
 		$attachments = get_message_attachments($row['message_id']);
-		$ret[] = ['id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
+		$messages[] = ['id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
             'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments, 'unreaded' => $unreaded, 'first_new' => $first_new];
 	}
-	return $ret;
+	return $messages;
 }
 
 function add_files_to_message($message_id, $files){
@@ -212,7 +222,7 @@ function get_message_attachments($message_id) {
 	$query = select_message_attachment($message_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	
-	$ret = [];
+	$messages = [];
 	for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
 		// Если текст файла лежит в БД
 		if ($row['download_url'] == null) {
@@ -222,37 +232,37 @@ function get_message_attachments($message_id) {
 		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
 			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
 		}
-		$ret[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
+		$messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
 	}
-	return $ret;
+	return $messages;
 }
 
 // Выводит сообщения на страницу
 function show_messages($messages) {
 	global $user_id;
-	foreach ($messages as $m) {
+	foreach ($messages as $message) {
 		// Прижимаем сообщения текущего пользователя к правой части экрана
-		$float_class = $m['sender_user_id'] == $user_id ? 'float-right' : ''; 
+		$float_class = $message['sender_user_id'] == $user_id ? 'float-right' : ''; 
 		// Если студент написал сообщение, то у всех студентов сообщение подсвечивается синим, 
 		// пока один из преподов его не прочитает(прочитать = прогрузить страницу с чатом). И наоборот
-		$background_color_class = $m['unreaded'] ? 'background-color-blue' : '';
-		if ($m['first_new']) {
+		$background_color_class = $message['unreaded'] ? 'background-color-blue' : '';
+		if ($message['first_new']) {
 			echo '<div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>';
 		}
 		?>
-		<div id="message-<?=$m['id']?>" class="chat-box-message <?=$float_class?>">
+		<div id="message-<?=$message['id']?>" class="chat-box-message <?=$float_class?>">
 			<div class="chat-box-message-wrapper pretty-text <?=$background_color_class?>"
-				><b><?=$m['username']?></b>
+				><b><?=$message['username']?></b>
 				<?php 
-				if ($m['full_text'] != '') {
-					echo stripslashes(htmlspecialchars($m['full_text'])) . "<br>";
+				if ($message['full_text'] != '') {
+					echo stripslashes(htmlspecialchars($message['full_text'])) . "<br>";
 				}
-				foreach ($m['attachments'] as $ma) {?>
+				foreach ($message['attachments'] as $ma) {?>
 					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank"><i class="fa-solid fa-file"></i><?=$ma['file_name']?></a>
 				<?php }?>
 			</div>
 			<div class="chat-box-message-date">
-				<?=$m['date_time']?>
+				<?=$message['date_time']?>
 			</div>
 		</div>
 		<div class="clear"></div>

@@ -366,7 +366,9 @@ if ($row) {
 
     // Обновляет лог чата из БД
 		function loadChatLog($first_scroll = false) {
-			$('#chat-box').load('taskchat_action.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
+      // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
+			$('#chat-box').load('taskchat_action.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
+      sender_user_type: <?=$sender_user_type?>}, function() {
 				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
 				if ($first_scroll) {
 					if ($('#new-messages').length == 0) {
