@@ -87,7 +87,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 	<?php
 	show_head("Добавление/Редактирование предмета");
-	show_header_2($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); ?>
+	show_header($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); ?>
 
 	<body>
 		<main class="pt-2" aria-hidden="true">

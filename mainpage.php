@@ -27,7 +27,7 @@ function full_name($discipline_id, $dbconnect) {
 
 	<?php 
 	show_head("Дашборд преподавателя");
-	show_header_2($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php')); ?>
+	show_header($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php')); ?>
   <body>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php

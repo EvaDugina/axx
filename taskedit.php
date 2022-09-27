@@ -72,7 +72,7 @@ if (isset($_GET['task'])){
 }
 
 show_head("Добавление\Редактирование задания");
-show_header_2($dbconnect, 'Редактор заданий', 
+show_header($dbconnect, 'Редактор заданий', 
 	array("Задания по дисциплине: " . $page['disc_name']  => 'preptasks.php?page='. $page_id,
 	"Редактор заданий" => $_SERVER['REQUEST_URI'])
 ); ?>

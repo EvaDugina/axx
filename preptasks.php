@@ -34,7 +34,7 @@ if (!$result || pg_num_rows($result) < 1) {
 } else {
   $row = pg_fetch_assoc($result);
   show_head("Задания по дисциплине: " . $row['disc_name']);
-  show_header_2($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));
+  show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));
 } ?>
 
 <body>

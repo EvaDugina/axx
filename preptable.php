@@ -59,7 +59,7 @@ if (!$result || pg_num_rows($result) < 1) {
 } else {
   $row = pg_fetch_row($result);
   show_head("Посылки по дисциплине: " . $row[1]);
-  show_header_2($dbconnect, 'Посылки по дисциплине', array($row[1]  => 'preptable.php?page=' . $page_id));
+  show_header($dbconnect, 'Посылки по дисциплине', array($row[1]  => 'preptable.php?page=' . $page_id));
 }
 
 if ($scripts) echo $scripts; ?>

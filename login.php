@@ -14,7 +14,7 @@
     $page_addr = '';
 						
   show_head("Страница Авторизации");
-  show_header_2($dbconnect, 'Вход в систему', array('Вход в систему' => 'login.php'));
+  show_header($dbconnect, 'Вход в систему', array('Вход в систему' => 'login.php'));
 ?>
   <body style="overflow-x: hidden;">
     <main class="pt-2">

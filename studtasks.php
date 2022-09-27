@@ -79,7 +79,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 <?php 
 show_head("Страница предмета ". $page['short_name']);
-show_header_2($dbconnect, 'Задания по дисциплине', 
+show_header($dbconnect, 'Задания по дисциплине', 
 		array($page['disc_name'] => 'studtasks.php?page=' . $page_id)); ?>
 
 <body style="overflow-x: hidden;">

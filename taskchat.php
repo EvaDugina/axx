@@ -133,10 +133,10 @@ if ($row) {
 <body>
 	<?php 
 	if ($au->isTeacher()) 
-		show_header_2($dbconnect, 'Чат c перподавателем', 
+		show_header($dbconnect, 'Чат c перподавателем', 
 			array('Посылки по дисциплине: ' . $page_name['name'] => 'preptable.php?page=' . $page_id, $task_title => '')); 
 	else 
-		show_header_2($dbconnect, 'Чат c перподавателем', 
+		show_header($dbconnect, 'Чат c перподавателем', 
 			array($page_name['name'] => 'studtasks.php?page=' . $page_id, $task_title => '')); 
 	?>
 

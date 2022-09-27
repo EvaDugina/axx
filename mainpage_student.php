@@ -15,7 +15,7 @@ $disc_count=pg_fetch_all($result1); ?>
 
     <?php
     show_head($pge_title='Дашборд студента');
-    show_header_2($dbconnect, 'Дашборд студента', array('Дашборд студента' => 'mainpage_student.php')); ?>
+    show_header($dbconnect, 'Дашборд студента', array('Дашборд студента' => 'mainpage_student.php')); ?>
 
     <body>
         <main class="justify-content-start" style="margin-bottom: 30px;">
