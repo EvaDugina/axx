@@ -64,6 +64,10 @@ function select_page_names($status) {
             WHERE p.status = " . $status . "ORDER BY p.semester";
 }
 
+function select_page_by_task_id($task_id) {
+  return "SELECT page_id FROM ax_task WHERE task_id = $task_id";
+}
+
 function select_page_with_thema(){
     return "SELECT p.id, p.short_name, p.disc_id, p.semester, ax_ct.bg_color, ax_ct.src_url 
             FROM ax_page p

@@ -5,38 +5,54 @@
 require_once("common.php");
 require_once("dbqueries.php");
 
-show_head($page_title); 
 //show_header('Редактор', array('Дисциплины' => 'index.php'));
 
-$result3 = pg_query($dbconnect, 'select id, task_id, finish_limit from ax_assignment');
+$user_id = $_SESSION['hash'];
+
+
+$assignment_id = 0;
+if (array_key_exists('assignment_id', $_REQUEST))
+  $assignment_id = $_REQUEST['assignment'];
+else {
+  //echo "Некорректное обращение";
+  //http_response_code(400);
+  header('Location: index.php');
+  exit;
+}
+
+
+$result3 = pg_query($dbconnect, "SELECT id, task_id, finish_limit FROM ax_assignment WHERE assignment_id = ". $assignment_id);
 $result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file order by id');
 $result1 = pg_query($dbconnect, 'select id, description from ax_task');
 $result_assig = pg_fetch_all($result3);
 $result_file = pg_fetch_all($result2);
 $result_task = pg_fetch_all($result1);
-$assignment = 0;
-if (array_key_exists('assignment', $_REQUEST))
-  $assignment = $_REQUEST['assignment'];
-else {
-  echo "Некорректное обращение";
-  http_response_code(400);
-  exit;
-}
-?>
 
-<?php
+
+$task_id = $result_assig['task_id'];
+
+$query = select_page_by_task_id($task_id);
+$result = pg_query($dbconnect, $query);
+$page_id = pg_fetch_assoc($result)['page_id'];
+
+$query = select_discipline_name_by_page($page_id, 1);
+$result = pg_query($dbconnect, $query);
+$page_name = pg_fetch_assoc($result)['name'];
+
+
+
 $files = [];
 $descr = "";
 $task_id= 0;
 $time= 0;
 
 foreach($result_file as $item) {
-if($item['assignment_id'] == $assignment) {
+if($item['assignment_id'] == $assignment_id) {
 $files[]= $item;
 }
 }
 foreach($result_assig as $item) {
-if($item['id'] == $assignment) {
+if($item['id'] == $assignment_id) {
 $task_id= $item['task_id'];
 $time= $item['finish_limit'];
 }
@@ -46,7 +62,32 @@ if($item['id'] == $task_id) {
 $descr= $item['description'];
 }
 }
+
+$task_title = '';
+$task_description = '';
+$task_max_mark = 5;
+$query = select_task($task_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+if ($row) {
+	$task_title = $row['title'];
+	$task_description = $row['description'];
+  $task_max_mark = (int)$row['max_mark'];
+}
+
+$page_title = "Онлайн редактор кода";
+show_head($page_title); 
 ?>
+
+<body>
+	<?php 
+	if ($au->isTeacher()) 
+		show_header($dbconnect, $page_title, 
+			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => '', $page_title => '')); 
+	else 
+		show_header($dbconnect, $page_title, 
+			array($page_name => 'studtasks.php?page=' . $page_id, $task_title => '', $page_title => '')); 
+	?>
 
 <link rel="stylesheet" href="css/rdt.css" />
 
@@ -56,9 +97,6 @@ $descr= $item['description'];
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 
 <body style="overflow-x: hidden;">
-
-<?php
-show_header($page_title, $breadcrumbs);?>
 
 <main class="container-fluid overflow-hidden">
 	<div class="pt-2">
