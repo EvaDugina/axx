@@ -130,14 +130,14 @@ function insert_page($discipline) {
 
 // получение уведомлений для студента по невыполненным заданиям
 function select_notify_for_student_header($student_id){
-    return "SELECT ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
-                teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.full_text FROM ax_task
+    return "SELECT DISTINCT ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+            teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.full_text FROM ax_task
             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
             INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
-            INNER JOIN students teachers ON teachers.id = ax_page_prep.prep_user_id
             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
             INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
             INNER JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+            INNER JOIN students teachers ON teachers.id = ax_message.sender_user_id
             WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 AND ax_message.sender_user_type != 0 
             AND ax_message.status = 0;
     ";
