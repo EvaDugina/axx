@@ -278,8 +278,8 @@ if ($scripts) echo $scripts; ?>
                                 &nbsp;&nbsp;&nbsp;<?=$task['title']?>
                                 <span class="badge badge-primary badge-pill"
                                 <?php if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?>
-                                  style="color: white; background: #dc3545;"><?php echo $array_messages_count[$i]['count'] + 1; 
-                                  } else {?> ><?=$array_messages_count[$i]['count']?> <?php }?>
+                                  style="color: white; background: #dc3545;"> <?php if($array_messages_count[$i]['count'] == 0) 
+                                  echo $array_messages_count[$i]['count'] + 1; } else {?>><?=$array_messages_count[$i]['count']?> <?php }?>
                                 </span>
                               </div>
                             </div>
