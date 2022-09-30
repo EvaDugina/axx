@@ -140,7 +140,8 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
               <!-- Notifications -->
               <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell fa-lg"></i>
-                <span class="badge rounded-pill badge-notification" style="background: #dc3545;"><?php if($array_notify) echo count($array_notify); else echo 0;?></span>
+                <span class="badge rounded-pill badge-notification <?php if(!$array_notify || ($array_notify && count($array_notify) < 1)) echo 'd-none';?>" 
+                style="background: #dc3545;"><?php if($array_notify) echo count($array_notify);?></span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                 <?php $i = 0;
@@ -172,11 +173,9 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
                               }?>
                             </div>
                             <span class="badge badge-primary badge-pill"
-                              <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> style="background: #dc3545; color: white;"> 
-                                <?php echo $count_unreaded_messages_by_notify['count'] + 1; 
-                              } else {
-                                echo ">". $count_unreaded_messages_by_notify['count'];
-                              }?>
+                              <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> 
+                                style="background: #dc3545; color: white;"
+                              <?php }?>><?=$count_unreaded_messages_by_notify['count']?>
                             </span>
                           </div>
                         </li>
