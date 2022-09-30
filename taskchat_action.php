@@ -75,10 +75,14 @@ if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'
   /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
 
-  if (isset($_POST['type']) && $_POST['type'] == 2)
-    $message_id = set_message($_POST['type'], $full_text);
-  else 
+  if (isset($_POST['type']) && $_POST['type'] == 2) {
+    $query = select_last_answer_message($assignment_id, 1);
+    $result = pg_query($dbconnect, $query);
+    $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
+    $message_id = set_message($_POST['type'], $full_text, null, $reply_to_id);
+  } else if (isset($_POST['type']) && $_POST['type'] == 0) {
     $message_id = set_message(0, $full_text);
+  }
 
   if (isset($_FILES['message-files']))
     $files = $_FILES['message-files'];
@@ -121,11 +125,11 @@ function update_chat($assignment_id, $user_type, $user_id){
   echo '</div>';
 }
 
-function set_message($type, $full_text, $commit_id = null) {
+function set_message($type, $full_text, $commit_id = null, $reply_id = null) {
 	global $dbconnect, $assignment_id, $user_id, $user_type;
 
 	$full_text = preg_replace('#\'#', '\'\'', $full_text);
-	$query = insert_message($assignment_id, $type, $user_type, $user_id, $full_text, $commit_id);
+	$query = insert_message($assignment_id, $type, $user_type, $user_id, $full_text, $commit_id, $reply_id);
 
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$row = pg_fetch_assoc($result);

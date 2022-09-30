@@ -387,6 +387,11 @@ function select_message_attachment($message_id) {
           WHERE ax_message_attachment.message_id = $message_id";
 }
 
+function select_last_answer_message($assignment_id, $type) {
+  return "SELECT MAX(id) as reply_to_id FROM ax_message 
+          WHERE assignment_id = $assignment_id AND type = $type;";
+}
+
 function update_ax_message_status($message_id){
 return "UPDATE ax_message SET status = 1 
         WHERE id = $message_id";
@@ -411,13 +416,20 @@ function insert_message_reply($message_id, $message_text, $mark, $sender_id) {
     }
 }
 
-function insert_message($assignment_id, $type, $user_type, $user_id, $full_text, $commit_id=null){
+function insert_message($assignment_id, $type, $user_type, $user_id, $full_text, $commit_id=null, $reply_to_id=null){
 
   $p1 = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
-  VALUES ($assignment_id, $type, $user_type, $user_id, now(), null, '$full_text', ";
+  VALUES ($assignment_id, $type, $user_type, $user_id, now(), ";
+
+  if ($reply_to_id != null) $p1 = $p1 . $reply_to_id . ", ";
+  else $p1 = $p1 . "null, ";
+
+  $p1 .= "'$full_text', ";
   $p2 = ", 0); SELECT currval('ax_message_id_seq') as \"id\";";
+
   if ($commit_id != null) $result = $p1 . $commit_id . $p2;
   else $result = $p1 . "null" . $p2;
+
   return $result;
 }
 

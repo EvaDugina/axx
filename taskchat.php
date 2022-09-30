@@ -320,7 +320,7 @@ if ($row) {
           return false;
         }
         else {
-          var userMessage = "Задние проверено. Оценка: " + mark;
+          var userMessage = "Задание проверено. Оценка: " + mark;
           if(sendMessage(userMessage, null, 2, parseInt(mark))) {
             console.log("Сообщение было успешно отправлено");
           }
