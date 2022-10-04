@@ -4,6 +4,7 @@
 <?php
 require_once("common.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 
 $assignment_id = 0;
 if (isset($_GET['assignment']))
@@ -16,7 +17,6 @@ else {
 }
 
 
-$files = [];
 $task_title = '';
 $task_description = '';
 $task_finish_limit = '';
@@ -38,13 +38,15 @@ if ($row) {
   exit;
 }
 
+
+$task_files = getTaskFiles($dbconnect, $task_id);
+
+$solution_files = array();
 $result = pg_query($dbconnect, select_ax_solution_file($assignment_id));
 $file_rows = pg_fetch_all($result);
 if ($file_rows) {
   foreach($file_rows as $file_row) {
-    if($file_row['assignment_id'] == $assignment_id) {
-      $files[] = $file_row;
-    }
+    array_push($task_files, $file_row);
   }
 }
 
@@ -94,11 +96,11 @@ show_head($page_title);
 		<ul class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
       <li class="list-group-item disabled px-0">Файлы</li>
 
-      <?php foreach($files as $item) { ?>
+      <?php foreach($solution_files as $file) { ?>
           
       <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
         <div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>
-        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$item['id']?>" value="<?=$item['file_name']?>" required>
+        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$file['id']?>" value="<?=$file['file_name']?>" required>
         <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>
         <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>
       </li>
@@ -153,6 +155,11 @@ show_head($page_title);
 
 		<div id="Task" class="tabcontent" style="height: 88%;">
 		  <p><?=$task_description?></p>
+      <p>
+        <b>Файлы, приложенные к заданию:</b> 
+        <br>
+        <?php show_task_files($task_files); ?>
+      </p>
 		</div>
 
 		<div id="Console" class="tabcontent">
