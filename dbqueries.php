@@ -257,6 +257,13 @@ function select_count_page_tasks($page_id) {
   return "SELECT COUNT(*) FROM ax_task WHERE page_id = '$page_id'";
 }
 
+function select_ax_assignment_with_task_by_id ($assignment_id) {
+  return "SELECT * FROM ax_assignment 
+          INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+          WHERE ax_assignment.id = $assignment_id;        
+  ";
+}
+
 function select_page_tasks_with_assignment($page_id, $status, $student_id) {
     return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id, 
     ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_assignment.status_text FROM ax_task 
@@ -690,6 +697,13 @@ function status_code_to_text($status_code) {
     default:
       return "ERROR!";
   }
+}
+
+function select_ax_solution_file ($assignment_id) {
+  return "SELECT * FROM ax_solution_file 
+          WHERE assignment_id = $assignment_id
+          ORDER BY id;
+  ";
 }
 
 

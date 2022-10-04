@@ -5,52 +5,49 @@
 require_once("common.php");
 require_once("dbqueries.php");
 
-//show_header('Редактор', array('Дисциплины' => 'index.php'));
-
-$user_id = $_SESSION['hash'];
-
-
 $assignment_id = 0;
 if (isset($_GET['assignment']))
   $assignment_id = $_GET['assignment'];
 else {
-  echo "Некорректное обращение";
+  //echo "Некорректное обращение";
   //http_response_code(400);
-  //header('Location: index.php');
+  header('Location: index.php');
   exit;
 }
 
 
-$result3 = pg_query($dbconnect, "SELECT id, task_id, finish_limit FROM ax_assignment WHERE id = ". $assignment_id);
-$result2 = pg_query($dbconnect, 'SELECT id, assignment_id, full_text, file_name from ax_solution_file order by id');
-$result1 = pg_query($dbconnect, 'SELECT id, description from ax_task');
-$result_assig = pg_fetch_all($result3);
-$result_file = pg_fetch_all($result2);
-$result_task = pg_fetch_all($result1);
-
-
-
 $files = [];
-$descr = "";
-$task_id= 0;
-$time= 0;
+$task_title = '';
+$task_description = '';
+$task_finish_limit = '';
+$task_status_code = '';
+$task_max_mark = 5;
+$query = select_ax_assignment_with_task_by_id($assignment_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+if ($row) {
+  $task_id = $row['task_id'];
+	$task_finish_limit = $row['finish_limit'];
+  $task_title = $row['title'];
+	$task_status_code = $row['status_code'];
+  $task_description = $row['description'];
+	$task_max_mark = (int)$row['mark'];
+} else {
+  echo "Такого assignment не существует";
+  //header('Location: index.php');
+  exit;
+}
 
-foreach($result_file as $item) {
-  if($item['assignment_id'] == $assignment_id) {
-    $files[] = $item;
+$result = pg_query($dbconnect, select_ax_solution_file($assignment_id));
+$file_rows = pg_fetch_all($result);
+if ($file_rows) {
+  foreach($file_rows as $file_row) {
+    if($file_row['assignment_id'] == $assignment_id) {
+      $files[] = $file_row;
+    }
   }
 }
-foreach($result_assig as $item) {
-  if($item['id'] == $assignment_id) {
-    $task_id= $item['task_id'];
-    $time= $item['finish_limit'];
-  }
-}
-foreach($result_task as $item) {
-  if($item['id'] == $task_id) {
-    $descr= $item['description'];
-  }
-}
+
 
 $query = select_page_by_task_id($task_id);
 $result = pg_query($dbconnect, $query);
@@ -60,17 +57,6 @@ $query = select_discipline_name_by_page($page_id, 1);
 $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result)['name'];
 
-$task_title = '';
-$task_description = '';
-$task_max_mark = 5;
-$query = select_task($task_id);
-$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-$row = pg_fetch_assoc($result);
-if ($row) {
-	$task_title = $row['title'];
-	$task_description = $row['description'];
-  $task_max_mark = (int)$row['max_mark'];
-}
 
 $page_title = "Онлайн редактор кода";
 show_head($page_title); 
@@ -128,25 +114,35 @@ show_head($page_title);
 	</div>
 	<div class="col-md-6 px-0">
 		<div>
-            <select class="form-select" aria-label=".form-select" id="language">
-              <option value="cpp" selected>C++</option>
-              <option value="c">C</option>
-              <option value="python">Python</option>
-              <option value="java">Java</option>
-            </select>
-          </div>
+      <select class="form-select" aria-label=".form-select" id="language">
+        <option value="cpp" selected>C++</option>
+        <option value="c">C</option>
+        <option value="python">Python</option>
+        <option value="java">Java</option>
+      </select>
+    </div>
     <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
 		<div id="container" class="embed-responsive-item"></div>
 		</div>
 
 			<div class="d-flex justify-content-between">
-			<button type="button" class="btn btn-outline-primary" id="check" style="width: 50%;"> Отправить на проверку</button>
-			<button type="button" class="btn btn-outline-primary" id="run" style="width: 50%;"> Запустить в консоли</button>
+			  <!--<button type="button" class="btn btn-outline-primary" id="check" style="width: 50%;"> Отправить на проверку</button>-->
+        <?php if($au->isAdminOrTeacher()) { // Отправить задание на проверку ?>
+          <!--<form id="form-check-task" action="taskchat_action.php" method="POST">-->
+            <button type="button" class="btn btn-success" id="check" style="width: 50%;"
+            <?php if ($task_status_code != 5) echo "disabled";?>>Оценить ответ</button>
+          <!--</form>-->
+        <?php } else { // Оценить отправленное на проверку задание ?>
+          <!--<form id="form-send-answer" action="taskchat_action.php" method="POST">-->
+            <button type="button" class="btn btn-primary" id="check" style="width: 50%;"
+            <?php /*if ($task_status_code == 3) echo "disabled";*/?>>Отправить на проверку</button>
+          <!--</form>-->
+        <?php }?>
+        <button type="button" class="btn btn-outline-primary" id="run" style="width: 50%;">Запустить в консоли</button>
 
-
+	    </div>
 	</div>
-	</div>
-	<div class="col-md-4 ">
+	<div class="col-md-4">
 		<div class="d-none d-sm-block d-print-block">
 		<div class="tab d-flex justify-content-between">
 		  <button id="defaultOpen" class="tablinks" onclick="openCity(event, 'Task')">Задача</button>
@@ -156,7 +152,7 @@ show_head($page_title);
 		</div>
 
 		<div id="Task" class="tabcontent" style="height: 88%;">
-		  <p><?=$descr?></p>
+		  <p><?=$task_description?></p>
 		</div>
 
 		<div id="Console" class="tabcontent">
@@ -194,7 +190,7 @@ show_head($page_title);
 
 
 <?php 
-if ($time){
+if ($task_finish_limit){
 echo '
 <script>
 function getTimeRemaining(endtime) {
@@ -239,7 +235,7 @@ function initializeClock(id, endtime) {
   var timeinterval = setInterval(updateClock, 1000);
 }
 function fun() { 
-	var deadline = "'.$time.'"; // for endless timer
+	var deadline = "'.$task_finish_limit.'"; // for endless timer
 	initializeClock("countdown", deadline);
 } 
 fun();
