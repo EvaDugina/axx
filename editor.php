@@ -11,33 +11,22 @@ $user_id = $_SESSION['hash'];
 
 
 $assignment_id = 0;
-if (array_key_exists('assignment_id', $_REQUEST))
-  $assignment_id = $_REQUEST['assignment'];
+if (isset($_GET['assignment']))
+  $assignment_id = $_GET['assignment'];
 else {
-  //echo "Некорректное обращение";
+  echo "Некорректное обращение";
   //http_response_code(400);
-  header('Location: index.php');
+  //header('Location: index.php');
   exit;
 }
 
 
-$result3 = pg_query($dbconnect, "SELECT id, task_id, finish_limit FROM ax_assignment WHERE assignment_id = ". $assignment_id);
-$result2 = pg_query($dbconnect, 'select id, assignment_id, full_text, file_name from ax_solution_file order by id');
-$result1 = pg_query($dbconnect, 'select id, description from ax_task');
+$result3 = pg_query($dbconnect, "SELECT id, task_id, finish_limit FROM ax_assignment WHERE id = ". $assignment_id);
+$result2 = pg_query($dbconnect, 'SELECT id, assignment_id, full_text, file_name from ax_solution_file order by id');
+$result1 = pg_query($dbconnect, 'SELECT id, description from ax_task');
 $result_assig = pg_fetch_all($result3);
 $result_file = pg_fetch_all($result2);
 $result_task = pg_fetch_all($result1);
-
-
-$task_id = $result_assig['task_id'];
-
-$query = select_page_by_task_id($task_id);
-$result = pg_query($dbconnect, $query);
-$page_id = pg_fetch_assoc($result)['page_id'];
-
-$query = select_discipline_name_by_page($page_id, 1);
-$result = pg_query($dbconnect, $query);
-$page_name = pg_fetch_assoc($result)['name'];
 
 
 
@@ -47,21 +36,29 @@ $task_id= 0;
 $time= 0;
 
 foreach($result_file as $item) {
-if($item['assignment_id'] == $assignment_id) {
-$files[]= $item;
-}
+  if($item['assignment_id'] == $assignment_id) {
+    $files[] = $item;
+  }
 }
 foreach($result_assig as $item) {
-if($item['id'] == $assignment_id) {
-$task_id= $item['task_id'];
-$time= $item['finish_limit'];
-}
+  if($item['id'] == $assignment_id) {
+    $task_id= $item['task_id'];
+    $time= $item['finish_limit'];
+  }
 }
 foreach($result_task as $item) {
-if($item['id'] == $task_id) {
-$descr= $item['description'];
+  if($item['id'] == $task_id) {
+    $descr= $item['description'];
+  }
 }
-}
+
+$query = select_page_by_task_id($task_id);
+$result = pg_query($dbconnect, $query);
+$page_id = pg_fetch_assoc($result)['page_id'];
+
+$query = select_discipline_name_by_page($page_id, 1);
+$result = pg_query($dbconnect, $query);
+$page_name = pg_fetch_assoc($result)['name'];
 
 $task_title = '';
 $task_description = '';
@@ -83,13 +80,17 @@ show_head($page_title);
 	<?php 
 	if ($au->isTeacher()) 
 		show_header($dbconnect, $page_title, 
-			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => '', $page_title => '')); 
+			array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
+      $task_title => 'taskchat.php?task='.$task_id.'&page='.$page_id, $page_title => '')
+    ); 
 	else 
 		show_header($dbconnect, $page_title, 
-			array($page_name => 'studtasks.php?page=' . $page_id, $task_title => '', $page_title => '')); 
+			array($page_name => 'studtasks.php?page='.$page_id, 
+      $task_title => 'taskchat.php?task='.$task_id.'&page='.$page_id, $page_title => '')
+    ); 
 	?>
 
-<link rel="stylesheet" href="css/rdt.css" />
+<link rel="stylesheet" href="css/mdb/rdt.css" />
 
 <link rel="stylesheet" href="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm/css/xterm.css" />
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm/lib/xterm.js"></script>

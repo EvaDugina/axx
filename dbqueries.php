@@ -65,7 +65,7 @@ function select_page_names($status) {
 }
 
 function select_page_by_task_id($task_id) {
-  return "SELECT page_id FROM ax_task WHERE task_id = $task_id";
+  return "SELECT page_id FROM ax_task WHERE id = $task_id";
 }
 
 function select_page_with_thema(){
