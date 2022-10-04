@@ -52,21 +52,6 @@ b {
     width: 100%;
 }
 
-.task-desc-wrapper-a {
-    transition: all 0.2s ease;
-
-    text-decoration: none;
-    color: #1266f1
-}
-.task-desc-wrapper-a:hover {
-    color: #0e52c1;
-}
-.task-desc-wrapper-a i {
-    margin-right: 7px;
-    
-    color: #4f4f4f;
-}
-
 .task-desc-wrapper > div {
     display: flex;
     justify-content: space-between;
@@ -250,7 +235,6 @@ b {
     font-size: 14px;
 }
 
-#
 
 
 /* ///////////////////////////////////////

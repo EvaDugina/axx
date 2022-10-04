@@ -2,6 +2,7 @@
 require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
+require_once("utilities.php");
 
 // Обработка некорректного перехода между страницами
 if (!isset($_GET['task']) || !isset($_GET['page']) || !is_numeric($_GET['task']) || !is_numeric($_GET['page'])){
@@ -81,32 +82,7 @@ if ($task_status_code != '') {
 	$task_status_text = $task_status_texts[$task_status_code];
 }
 
-// $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
-$query = "SELECT id, type, file_name, download_url from ax_task_file where task_id = $task_id";
-$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-$task_files = [];
-for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-	// Если текст файла лежит в БД
-	if ($row['download_url'] == null) {
-		$row['download_url'] = 'download_file.php?task_file_id=' . $row['id'];
-	}
-	// Если файл лежит на сервере
-	else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-		$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
-	}
-	$task_files[] = ['type' => $row['type'], 'file_name' => $row['file_name'], 'download_url' => $row['download_url']];
-}
-
-// Выводит прикрепленные к странице с заданием файлы
-function show_task_files() {
-	global $task_files;
-	foreach ($task_files as $f) {
-		echo '<a href="' . $f['download_url'] . '" target="_blank" class="task-desc-wrapper-a"><i class="fa-solid fa-file"></i>' . $f['file_name'] . '</a> <br>';
-	}
-	if (count($task_files) == 0) {
-		echo 'Файлы временно не доступны<br>';
-	}
-}
+$task_files = getTaskFiles($dbconnect, $task_id);
 
 $task_finish_date_time = '';
 $query = "SELECT date_time from ax_message where assignment_id = $assignment_id and type = 2";
@@ -146,7 +122,7 @@ if ($row) {
 			<div>
 				<div class="task-desc-wrapper">
 					<p><?= $task_description ?></p>
-					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_files(); ?></p>
+					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_files($task_files); ?></p>
 					<div>
 						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
 						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
