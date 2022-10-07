@@ -718,9 +718,15 @@ function status_code_to_text($status_code) {
   }
 }
 
-function select_ax_solution_file ($assignment_id) {
+function select_last_commit_id_by_assignment_id($assignment_id) {
+  return "SELECT MAX(id) as id FROM ax_solution_commit 
+          WHERE assignment_id = $assignment_id;
+  ";
+}
+
+function select_last_ax_solution_file_by_commit_id($commit_id) {
   return "SELECT * FROM ax_solution_file 
-          WHERE assignment_id = $assignment_id
+          WHERE commit_id = $commit_id
           ORDER BY id;
   ";
 }

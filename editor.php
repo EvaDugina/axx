@@ -41,12 +41,15 @@ if ($row) {
 
 $task_files = getTaskFiles($dbconnect, $task_id);
 
+$result = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+$last_commit_id = pg_fetch_assoc($result)['id'];
+
 $solution_files = array();
-$result = pg_query($dbconnect, select_ax_solution_file($assignment_id));
+$result = pg_query($dbconnect, select_last_ax_solution_file_by_commit_id($last_commit_id));
 $file_rows = pg_fetch_all($result);
 if ($file_rows) {
   foreach($file_rows as $file_row) {
-    array_push($task_files, $file_row);
+    array_push($solution_files, $file_row);
   }
 }
 
