@@ -4,50 +4,51 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 
-// Находим user_type (0 - студент, 1 - преподаватель)
-if (isset($_POST['user_id'])) {
-  $user_id = $_POST['user_id'];
-  /*echo "USER_ID: ".$user_id;
-  echo "<br>";*/
-	$query = select_student_role($_POST['user_id']);
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$row = pg_fetch_assoc($result);
-	$user_type = $_POST['sender_user_type'];
-  /*echo "SENDER_USER_TYPE: ".$user_type;
-  echo "<br>";*/
-} else {
+if (!isset($_POST['assignment_id']) || !isset($_POST['user_id']) || !isset($_POST['sender_user_type'])) {
+  //echo "ERROR EXIIIT!";
   exit;
 }
+
+
+// Находим user_type (0 - студент, 1 - преподаватель)
+$user_id = $_POST['user_id'];
+/*echo "USER_ID: ".$user_id;
+echo "<br>";*/
+$query = select_student_role($_POST['user_id']);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$row = pg_fetch_assoc($result);
+$user_type = $_POST['sender_user_type'];
+/*echo "SENDER_USER_TYPE: ".$user_type;
+echo "<br>";*/
 
 $assignment_id = -1;
 $assignment = null;
-if (isset($_POST['assignment_id'])) {
-  $assignment_id = $_POST['assignment_id'];
-  $query = select_ax_assignment_by_id($assignment_id);
-  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $assignment = pg_fetch_assoc($result);
-  /*echo "ASSIGNMENT_ID: ".$assignment_id;
-  echo "<br>";*/
-} else  {
+$assignment_id = $_POST['assignment_id'];
+$query = select_ax_assignment_by_id($assignment_id);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+$assignment = pg_fetch_assoc($result);
+/*echo "ASSIGNMENT_ID: ".$assignment_id;
+echo "<br>";*/
+
+
+if (!isset($_POST['message_text'])){
+  /*echo "JUST UPDATE <br>";
+  echo "ISSET: " . $_POST['message_text'] . "<br>";*/
+  update_chat($assignment_id, $user_type, $user_id);
   exit;
 }
 
+
 $full_text = "";
-if (isset($_POST['message_text'])){
-  $full_text = rtrim($_POST['message_text']);
-} else {
-  //exit;
-}
+$full_text = rtrim($_POST['message_text']);
+
 
 /*echo "FULL_TEXT: " . $full_text;
 echo "<br>";*/
 
-$files = array();
-if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'])){
+if ($_POST['type'] == 1){
   /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
   echo "<br>";*/
-
-  $files = $_FILES['answer-files'];
 
   $query = insert_answer_commit($assignment_id, $user_id);
 	$result = pg_query($dbconnect, $query) ;
@@ -75,7 +76,7 @@ if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'
   /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
 
-  if (isset($_POST['type']) && $_POST['type'] == 2) {
+  if ($_POST['type'] == 2) {
     $query = select_last_answer_message($assignment_id, 1);
     $result = pg_query($dbconnect, $query);
     $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
@@ -84,19 +85,22 @@ if (isset($_POST['type']) && $_POST['type'] == 1 && isset($_FILES['answer-files'
     $message_id = set_message(0, $full_text);
   }
 
-  if (isset($_FILES['message-files']))
-    $files = $_FILES['message-files'];
 } else {
-  //exit;
+  
 }
 
 /*echo "MESSAGE_ID: ".$message_id;
 echo "<br>";*/
 
-if ($files) {
+$files = array();
+if (isset($_FILES['answer-files'])) {
+  $files = $_FILES['answer-files'];
+
   /*echo "ФАЙЛЫ ЕСТЬ. ПРИКРЕПЛЕНИЕ ФАЙЛОВ К СООБЩЕНИЮ";
   echo "<br>";*/
-  add_files_to_message($message_id, $files);
+
+  add_files_to_message($message_id, $files, $_POST['type']);
+
 }
 
 if (isset($_POST['mark']) && $message_id) {
@@ -106,9 +110,8 @@ if (isset($_POST['mark']) && $message_id) {
 
 }
 
-
+/*echo "UPDATE AFTER ACTION";*/
 update_chat($assignment_id, $user_type, $user_id);
-
 
 
 
@@ -120,7 +123,10 @@ update_chat($assignment_id, $user_type, $user_id);
 function update_chat($assignment_id, $user_type, $user_id){
   // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
   echo '<div id="content">';
+  //echo "UPDATE_CHAT UPDATE_CHAT UPDATE_CHAT! <br>";
   $messages = get_messages($assignment_id, $user_type, $user_id);
+  //echo "SHOW_MESSAGES SHOW_MESSAGES SHOW_MESSAGES! <br>";
+  //echo "MESSAGES_COUNT: " . count($messages) . "<br>";
   show_messages($messages);
   echo '</div>';
 }
@@ -189,34 +195,60 @@ function get_messages($assignment_id, $user_type, $user_id) {
 	return $messages;
 }
 
-function add_files_to_message($message_id, $files){
-  global $dbconnect;
+function add_files_to_message($message_id, $files, $type){
   // Файлы с этими расширениями надо хранить в БД
-  $store_in_db = ['cpp']; // TODO для Вани: Добавить сюда еще типы файлов
-  for ($i = 0; $i < count($files['name']); ++$i) {					
-    $file_name = rand_prefix() . basename($files['name'][$i]);
-    $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
-    $file_dir = 'upload_files/';
-    $file_path = $file_dir . $file_name;
+  $store_in_db = []; // TODO для Вани: Добавить сюда еще типы файлов
+  for ($i = 0; $i < count($files['name']); $i++) {
+    work_with_file($files['name'][$i], $files['tmp_name'][$i], $message_id, $store_in_db, $type);
+    //work_with_file($files[$i], $message_id, $store_in_db);
+  }
+}
 
-    // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-    if (move_uploaded_file($files['tmp_name'][$i], $file_path)) {
-      // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-      if (!in_array($file_ext, $store_in_db)) {
-        $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
+
+function work_with_file($file_name, $file_tmp_name, $message_id, $store_in_db, $type) {
+  global $dbconnect, $assignment_id, $commit_id;
+
+  /*echo "WORKING WITH FILE <br>";
+
+  echo "ASSIGNMENT_ID: ".$assignment_id;
+  echo "<br>";*/
+  
+  $file_name = rand_prefix() . basename($file_name);
+  $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
+  $file_dir = 'upload_files/';
+  $file_path = $file_dir . $file_name;
+
+  /*echo "Добавление файла в ax_solution_file: ".$file_name;
+  echo "<br>";*/
+
+  // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+  if (move_uploaded_file($file_tmp_name, $file_path)) {
+    // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+    if (!in_array($file_ext, $store_in_db)) {
+      $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
+      if ($type == 1) {
+        //echo "Добавление download_url<br>";
+        $query = insert_ax_solution_file($assignment_id, $commit_id, $file_name, $file_path, 0);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-      } else { // Если файлы такого расширения надо хранить в ДБ, добавляем в БД полный текст файла
-        $file_name_without_prefix = delete_prefix($file_name);
-        $file_full_text = file_get_contents($file_path);
-        $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-        $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
+      }
+    } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
+      $file_name_without_prefix = delete_prefix($file_name);
+      $file_full_text = file_get_contents($file_path);
+      $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+      $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      unlink($file_path);
+      // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
+      if ($type == 1) {
+        //echo "Добавление file_text<br>";
+        $query = insert_ax_solution_file($assignment_id, $commit_id, $file_name, $file_full_text, 1);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        unlink($file_path);
       }
     }
-    else {
-      exit("Ошибка загрузки файла");
-    }
+  } else {
+    exit("Ошибка загрузки файла");
   }
 }
 

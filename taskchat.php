@@ -101,10 +101,7 @@ if ($row) {
 
 <?php show_head('Чат с преподавателем'); ?>
 <link rel="stylesheet" href="taskchat.css">
-<!-- jquery -->
-<script src="js/jquery/jquery-3.5.1.min.js"></script>
-<!-- Font Awesome -->
-<script src="https://kit.fontawesome.com/1dec1ea41f.js" crossorigin="anonymous"></script>
+
 
 <body>
 	<?php 
@@ -333,6 +330,8 @@ if ($row) {
 				$('#files-count').html('');
 				return false;
 			});
+
+
 			// Первое обновление лога чата
 			loadChatLog(true);
 			// Обновление лога чата раз в 5 секунд
@@ -342,6 +341,7 @@ if ($row) {
 
     // Обновляет лог чата из БД
 		function loadChatLog($first_scroll = false) {
+      console.log("LOAD_CHAT_LOG!");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
 			$('#chat-box').load('taskchat_action.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
       sender_user_type: <?=$sender_user_type?>}, function() {
@@ -365,10 +365,10 @@ if ($row) {
       }
       
       var formData = new FormData();
-      formData.append('message_text', userMessage);
       formData.append('assignment_id', <?=$assignment_id?>);
       formData.append('user_id', <?=$user_id?>);
       formData.append('sender_user_type', <?=$sender_user_type?>);
+      formData.append('message_text', userMessage);
       formData.append('type', typeMessage);
       if(userFiles){
         formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
@@ -381,6 +381,9 @@ if ($row) {
       } else if (typeMessage == 2 && mark) {
         formData.append('mark', mark);
       }
+
+      console.log('message_text =' + userMessage);
+      console.log('type =' + typeMessage);
 
       $.ajax({
         type: "POST",

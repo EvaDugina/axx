@@ -665,6 +665,25 @@ function insert_answer_commit($assignment_id, $student_id){
           RETURNING id";
 }
 
+// Добавление файлов к коммиту
+function insert_ax_solution_file ($assignment_id, $commit_id, $file_name, $file_info, $info_type) {
+  $p1 = "INSERT INTO ax_solution_file(assignment_id, type, commit_id, file_name, "; 
+  if ($info_type == 0)
+    $p2 = "download_url)";
+  else 
+    $p2 = "full_text)";
+  $p3 = "VALUES ($assignment_id, 11, $commit_id, '$file_name', '$file_info')";
+  $result = $p1 . $p2 . $p3;
+
+  return $result;
+}
+
+// Добавление файлов к коммиту
+function insert_ax_solution_file_all ($assignment_id, $commit_id, $file_name, $file_path, $file_text) {
+  return "INSERT INTO ax_solution_file(assignment_id, type, commit_id, file_name, download_url, full_text)
+          VALUES ($assignment_id, 11, $commit_id, '$file_name', '$file_path', '$file_text')";
+}
+
 
 function select_color_theme(){
     return "SELECT * FROM ax_color_theme ORDER BY id;";
