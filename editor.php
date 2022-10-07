@@ -49,7 +49,14 @@ $result = pg_query($dbconnect, select_last_ax_solution_file_by_commit_id($last_c
 $file_rows = pg_fetch_all($result);
 if ($file_rows) {
   foreach($file_rows as $file_row) {
-    array_push($solution_files, $file_row);
+    if (isset($file_row['download_url'])) {
+      $file_path = $file_row['download_url'];
+      $file_full_text = file_get_contents($file_path);
+      $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+      $solution_file = array('name'=>$file_row['file_name'], 'text'=>$file_full_text);
+    } else if (isset($file_row['full_text']))
+      $solution_file = array('name'=>$file_row['file_name'], 'text'=>$file_row['full_text']);
+    array_push($solution_files, $solution_file);
   }
 }
 
