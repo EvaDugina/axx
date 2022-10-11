@@ -9,8 +9,6 @@ let error_Description = document.getElementById('error-textArea-description');
 let inputRadio_individual = document.getElementById('input-deligate-by-individual');
 let inputRadio_group = document.getElementById('input-deligate-by-group');
 
-let input_files = document.getElementById('input-files');
-
 let button_save = document.getElementById('submit-save');
 let button_delete = document.getElementById('submit-delete');
 
@@ -116,6 +114,7 @@ inputRadio_group.addEventListener('click', function (event) {
   }
 });
 
+let input_files = document.getElementById('task-files');
 input_files.addEventListener('click', function (event) {
   console.log("НАЖАТА КНОПКА: ПРИЛОЖИТЬ ФАЙЛЫ");
   if (input_files.parentElement.classList.contains('btn-primary')){
@@ -130,7 +129,7 @@ input_files.addEventListener('click', function (event) {
   }
 });
 // Показывает количество прикрепленных для отправки файлов
-$('#input-files').on('change', function() {
+$('#task-files').on('change', function() {
   $('#files-count').html(this.files.length);
 });
 

@@ -82,7 +82,7 @@ show_header($dbconnect, 'Редактор заданий',
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
       
-    <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="post">
+    <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
       <div class="row gy-5">
         <div class="col-8">
           <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
@@ -263,25 +263,13 @@ show_header($dbconnect, 'Редактор заданий',
 
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
 
-            <!--<form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
-              <div class="message-input-wrapper">
-                <div class="file-input-wrapper">
-                  <input type="file" name="user_files[]" id="user-files" multiple>
-                  <label for="user-files"><i class="fa-solid fa-paperclip"></i><span id="files-count"></span></label>
-                </div>
-                <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
-                <button type="submit" name="submit-message" id="submit-message">Отправить</button>
-              </div>
-            </form>-->
-
-            <div class="p-1 border bg-light">
-              <div class="pt-1 pb-1">
-                <label class="btn btn-outline-default py-2 px-4">
-                  <input id="input-files" type="file" name="user_files[]" style="display: none;" multiple>
-                    <i class="fa-solid fa-paperclip"></i>
-                    <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
-                </label>  
-              </div>
+            <div class="pt-1 pb-1">
+              <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
+              <label class="btn btn-outline-default py-2 px-4">
+                <input id="task-files" type="file" name="task_files[]" style="display: none;" multiple>
+                  <i class="fa-solid fa-paperclip"></i>
+                  <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
+              </label>  
             </div>
                 
           </div>

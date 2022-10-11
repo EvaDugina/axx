@@ -35,6 +35,9 @@ echo "<br>";
 if (isset($_POST['action']) && $_POST['action'] == 'delete') {
   $query = delete_task($task_id);
   $result = pg_query($dbconnect, $query);
+  echo "УДАЛЕНИЕ ФАЙЛА";
+  //header('Location: preptasks.php?page='.$_GET['page']);
+  //exit();
 }
 
 if(isset($_POST['task-type']) && $_POST['task-type'] == 1) {
@@ -133,37 +136,52 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
 
 }
 
-/*if (isset($_POST['user_files'])) {
-  echo "ADD_FILES: ".$_POST['user_files'];
+if ($_FILES['task_files']['size'][0] > 0) {
+  $files = $_FILES['task_files'];
+  echo "<br>ADD_FILES: " . count($_FILES['task_files']['name']);
   echo "<br>";
-  foreach ($_POST['user_files'] as $file) {*/
+
+  $store_in_db = []; 
+
+  print_r($_FILES);
+  echo "<br>";
+  print_r($_FILES['task_files']);
+  echo "<br>";
+
+  for($i=0; $i < count($files['name']); $i++) {
+
+    print_r($files['name'][$i]);
+
+    $file_name = rand_prefix() . basename($files['name'][$i]);
+    $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
+    $file_dir = 'upload_files/';
+    $file_path = $file_dir . $file_name;
+
+    $file_tmp_name = $files['tmp_name'][$i];
+
+    /*echo "Добавление файла в ax_solution_file: ".$file_name;
+    echo "<br>";*/
 
     // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-    /*if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_path)) {
+    if (move_uploaded_file($file_tmp_name, $file_path)) {
       // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
       if (!in_array($file_ext, $store_in_db)) {
-        $query = "INSERT into ax_message_attachment (message_id, file_name, download_url) values ($message_id, '$file_name', '$file_path')";
+        $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-      }
-
-      // Если файлы такого расширения надо хранить в ДБ, добавляем в БД полный текст файла
-      else {
+      } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
         $file_name_without_prefix = delete_prefix($file_name);
         $file_full_text = file_get_contents($file_path);
         $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-        $query = "INSERT into ax_message_attachment (message_id, file_name, full_text) values ($message_id, '$file_name_without_prefix', '$file_full_text')";
+        $query = insert_ax_task_file_with_full_file_text($assignment_id, $commit_id, $file_name_without_prefix, $file_full_text);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
         unlink($file_path);
       }
-    }
-    else {
+      echo " - ПРИКРЕПЛЕНИЕ ФАЙЛОВ ПРОШЛО УСПЕШНО<br>";
+    } else {
       exit("Ошибка загрузки файла");
-    }*/
-    
-    //$query = insert_file_by_link(0/*Добавить галочку, если файл - шаблон проекта и тд.*/, $task_id, $file['name']);
-    /*$result = pg_query($dbconnect, $query);
+    }
   }
-}*/
+}
 
 header('Location: preptasks.php?page='.$_GET['page']);
 ?>

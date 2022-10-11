@@ -93,7 +93,7 @@ if ($_POST['type'] == 1){
 echo "<br>";*/
 
 $files = array();
-if (isset($_FILES['answer-files'])) {
+if (isset($_FILES['answer-files']) && $_FILES['answer-files']['size'][0] > 0) {
   $files = $_FILES['answer-files'];
 
   /*echo "ФАЙЛЫ ЕСТЬ. ПРИКРЕПЛЕНИЕ ФАЙЛОВ К СООБЩЕНИЮ";
