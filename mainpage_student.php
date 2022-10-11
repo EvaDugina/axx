@@ -39,7 +39,7 @@ $disc_count=pg_fetch_all($result1); ?>
                 <div class="row g-5 container-fluid">
                         <?php } ?>
                             
-                    <div class="col-3">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-xl-3">
                         <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px;" >
                             <?php 
                             $count_succes_tasks = 0;

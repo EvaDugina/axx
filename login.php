@@ -20,8 +20,8 @@
     <main class="pt-2">
       <div class="container-fluid overflow-hidden">
         <div class="row gy-5">
-          <div class="col-4"></div>
-          <div class="col-4 pt-4">
+          <div class="col-12 col-xl-4"></div>
+          <div class="col-12 col-xl-4 pt-4">
             <div class="pt-1 px-3" style="border: 1px solid #dee2e6; border-radius: 5px;">
               <h2 class="my-2">Авторизация</h2>
               <?php if (isset($_GET['error']) && $_GET['error'] == 1) { ?>
@@ -44,7 +44,7 @@
                   <strong><p id="error-authorization" class="error" style="display: none;">Ошибка: Неверный Логин или Пароль</p></strong>
                   <strong><p id="error-field-filled" class="error" style="display: none;">Ошибка: Незаполненные поля!</p></strong>
                 
-                  <button type="submit" class="btn my-2 col-3">
+                  <button type="submit" class="btn my-2 col-xl-3">
                     <i class="fas fa-signin-alt fa-lg"></i>Войти
                   </button>
               </form>
