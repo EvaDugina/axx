@@ -260,10 +260,19 @@ if ($scripts) echo $scripts; ?>
                             <strong><?= $student['fio']?></strong>
                           </div>
                           <span class="badge badge-primary badge-pill" 
-                            <?php if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) {?> 
-                              style="color: white; background: #dc3545;"> <?php echo $sum_message_count 
-                              + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
-                            } else {?> ><?=$sum_message_count?> <?php }?>
+                            <?php /* if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) { */
+								if($array_notify && in_array($student['id'], array_map(function($element){return $element['student_user_id'];}, $array_notify))) {
+							?> 
+                              style="color: white; background: #dc3545;"> 
+							<?php 
+							         //echo $sum_message_count + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
+									 echo $sum_message_count + count(array_keys(array_map(function($element){return $element['student_user_id'];}, $array_notify), $student['id']));
+                                } else {
+							?> >
+							<?=$sum_message_count?> 
+							<?php 
+							}
+							?>
                           </span>
                         </div>
                       </div> 
@@ -277,9 +286,18 @@ if ($scripts) echo $scripts; ?>
                               <div class="d-flex justify-content-between align-items-center">
                                 &nbsp;&nbsp;&nbsp;<?=$task['title']?>
                                 <span class="badge badge-primary badge-pill"
-                                <?php if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {?>
-                                  style="color: white; background: #dc3545;"> <?php if($array_messages_count[$i]['count'] == 0) 
-                                  echo $array_messages_count[$i]['count'] + 1; } else {?>><?=$array_messages_count[$i]['count']?> <?php }?>
+                                <?php 
+								    // if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {
+									if($array_notify && in_array($task['assignment_id'], array_map(function($element){return $element['assignment_id'];}, $array_notify))) {
+								?>
+                                style="color: white; background: #dc3545;"> 
+								<?php 
+									if($array_messages_count[$i]['count'] == 0) 
+										echo $array_messages_count[$i]['count'] + 1; } else {?>><?=$array_messages_count[$i]['count']
+								?> 
+								<?php 
+									}
+								?>
                                 </span>
                               </div>
                             </div>

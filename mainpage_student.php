@@ -20,7 +20,8 @@ $disc_count=pg_fetch_all($result1); ?>
     <body>
         <main class="justify-content-start" style="margin-bottom: 30px;">
             <?php
-                array_multisort(array_column($disciplines, 'semester'), SORT_DESC, $disciplines);
+                // array_multisort(array_column($disciplines, 'semester'), SORT_DESC, $disciplines);
+				array_multisort(array_map(function($element){return $element['semester'];}, $disciplines), SORT_DESC, $disciplines);
                 $now_semester = $disciplines[0]['semester']; // first semster in database after sort function
             ?>
             <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_semester; ?> семестр</h2><br>

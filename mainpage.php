@@ -31,7 +31,8 @@ function full_name($discipline_id, $dbconnect) {
   <body>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
-				array_multisort(array_column($pages, 'year'), SORT_DESC, $pages);
+				// array_multisort(array_column($pages, 'year'), SORT_DESC, $pages);
+				array_multisort(array_map(function($element){return $element['year'];}, $pages), SORT_DESC, $pages);
 				$now_year = $pages[0]['year']; // first year in database after sort function
 			?>
 			<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_year; ?> год </h2><br>
