@@ -1,0 +1,126 @@
+ax_page
+-id serial
+-disc_id integer
+-short_name text
+-year integer
+-semester integer  (1/2)
+-color_theme_id integer
+-creator_id integer
+-creation_date timestamp with timezone
+-status integer (0 - активна, 1 - архив)
+
+ax_page_prep
+-id serial
+-prep_user_id integer
+-page_id integer
+
+discipline
+-id serial
+-name text -- я бы так не назвал, но увы, для совместимости с Шаназаровым надо
+
+ax_page_group
+-id serial
+-page_id integer
+-group_id integer
+
+groups
+-id serial
+-name text
+-year integer
+
+ax_color_theme
+-id serial
+-font_color integer
+-bg_color integer
+-dark boolean
+-disc_id integer
+-name text
+-src_url text
+
+ax_task
+-id serial
+-page_id integer
+-type integer (0 - файлы, 1 - программирование)
+-title text
+-description text
+-max_mark text
+-status integer (0 - активно, 1 - архив)
+
+ax_task_file
+-id serial
+-type integer (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста)
+-task_id integer
+-file_name text
+-download_url text
+-full_text text
+
+ax_assignment
+-id serial
+-task_id integer
+-variant_comment text
+-start_limit timestamp with timezone
+-finish_limit timestamp with timezone
+-status_code (0 - недоступно для просмотра, 1 - недоступно для выполнения, 2 - активно, 3 - выполнено, 4 - отменено)
+-delay (0 - нет задержки, 1 - задержка срока выполнения)
+-status_text text
+-mark text
+
+ax_assignment_student
+-assignment_id integer
+-student_user_id integer
+
+ax_solution_commit
+-id serial
+-assignment_id integer
+-session_id integer
+-student_user_id integer
+-type (0 - промежуточный, 1 - отправлен на проверку)
+
+ax_solution_file
+-id serial
+-assignment_id integer
+-commit_id integer
+-type integer (10 - просто файл с результатами, 11 - файл проекта)
+-file_name text
+-download_url text
+-full_text text
+
+ax_message
+-id serial
+-assignment_id integer
+-type integer (0 - переговоры с приложением, 1 - коммит, 2 - оценка)
+-sender_user_type (0 - студент, 1 - преподаватель)
+-sender_user_id
+-date_time timestamp with timezone
+-full_text text
+-commit_id integer
+-status integer (0 - новое, 1 - прочитанное, 2 - удаленное)
+
+ax_message_attachment
+-id serial
+-message_id integer
+-reply_to_id integer
+-file_name text
+-download_url text
+-full_text text
+
+ax_assignment_session
+-id serial
+-student_user_id integer
+-start_time timestamp with timezone
+-end_time timestamp with timezone
+
+ax_settings
+-user_id integer
+-email text
+-notification_type integer (0 - не отправлять, 1 - почта)
+-dark_theme boolean
+
+ax_student_page_info
+-id serial
+-student_user_id integer
+-page_id integer
+-total_count integer
+-passed_count integer
+-variant_comment text
+-variant_num text
