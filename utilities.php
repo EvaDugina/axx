@@ -54,9 +54,15 @@ function show_task_files($task_files) {
 function rand_prefix() {
   return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
 }
-
 function delete_prefix($str) {
   return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
+function convert_real_file_name_to_file_name_db($real_file_name) {
+  return rand_prefix() . basename($real_file_name);
+}
+function convert_file_name_db_to_real_file_name($db_file_name) {
+  return preg_split('/_/', $db_file_name)[1];
 }
 
 
@@ -78,7 +84,8 @@ function getTaskFiles($dbconnect, $task_id){
     else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
       $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
     }
-    $task_files[] = ['type' => $row['type'], 'file_name' => $row['file_name'], 'download_url' => $row['download_url']];
+    $file_name = convert_file_name_db_to_real_file_name($row['file_name']);
+    $task_files[] = ['type' => $row['type'], 'file_name' => $file_name, 'download_url' => $row['download_url']];
   }
   return $task_files;
 }

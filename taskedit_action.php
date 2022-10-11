@@ -152,7 +152,7 @@ if ($_FILES['task_files']['size'][0] > 0) {
 
     print_r($files['name'][$i]);
 
-    $file_name = rand_prefix() . basename($files['name'][$i]);
+    $file_name = convert_real_file_name_to_file_name_db($files['name'][$i]);
     $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
     $file_dir = 'upload_files/';
     $file_path = $file_dir . $file_name;

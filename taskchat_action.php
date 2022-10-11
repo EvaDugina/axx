@@ -213,7 +213,7 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $store_in_db, $
   echo "ASSIGNMENT_ID: ".$assignment_id;
   echo "<br>";*/
   
-  $file_name = rand_prefix() . basename($file_name);
+  $file_name = convert_real_file_name_to_file_name_db($file_name);
   $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
   $file_dir = 'upload_files/';
   $file_path = $file_dir . $file_name;
