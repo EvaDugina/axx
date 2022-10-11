@@ -50,6 +50,17 @@ function show_task_files($task_files) {
 }
 
 
+// Генерация префикса для уникальности названий файлов, которые хранятся на сервере
+function rand_prefix() {
+  return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
+}
+
+function delete_prefix($str) {
+  return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+}
+
+
+
 
 // Получение данных из БД
 
