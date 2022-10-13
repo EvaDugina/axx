@@ -1,1 +1,1 @@
-export default `http://193.41.142.106/sandbox`;
+export default `https://vega.fcyb.mirea.ru/sandbox`;

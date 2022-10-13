@@ -1,5 +1,5 @@
-const apiUrl = `http://193.41.142.106/sandbox`;
-const wsUrl = `ws://193.41.142.106/sandbox/sandbox/ws`;
+const apiUrl = `https://vega.fcyb.mirea.ru/sandbox`;
+const wsUrl = `wss://vega.fcyb.mirea.ru/sandbox/sandbox/ws`;
 
 const Sandbox = {
     id: null

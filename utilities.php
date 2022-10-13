@@ -62,7 +62,8 @@ function convert_real_file_name_to_file_name_db($real_file_name) {
   return rand_prefix() . basename($real_file_name);
 }
 function convert_file_name_db_to_real_file_name($db_file_name) {
-  return preg_split('/_/', $db_file_name)[1];
+  //return preg_split('/_/', $db_file_name)[1];
+  return $db_file_name;
 }
 
 
