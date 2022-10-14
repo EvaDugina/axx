@@ -4,41 +4,43 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
-if (!isset($_GET['page'])) {
-  // Совсем некорректный ввод
+// Проверка на корректный запрос
+if (!isset($_GET['page']) && !isset($_POST['task_id'])) {
   header('Location: index.php');
   exit;
+} else if (isset($_GET['page'])) {
+  $page_id = $_GET['page'];
 }
 
-if (!isset($_POST['task-id'])) {
-  // Просто некорректный ввод
-  header('Location: preptasks.php?page='.$_GET['page']);
-  exit;
-}
-
-if ($_POST['task-id'] != -1) { 
-  echo "ОБНОВЛЕНИЕ ЗАДАНИЯ";
-  echo "<br>";
-  $query = update_ax_task($_POST['task-id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+// Удаление задания
+if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id'] != -1) {
+  $query = pg_query($dbconnect, select_page_by_task_id($_POST['task_id']));
+  $page_id = pg_fetch_assoc($query)['page_id'];
+  //echo "PAGE_ID: " . $page_id . "<br>";
+  $query = delete_task($task_id);
   $result = pg_query($dbconnect, $query);
-  $task_id = $_POST['task-id'];
+  //echo "УДАЛЕНИЕ ЗАДАНИЯ";
+  header('Location: preptasks.php?page='.$page_id);
+  exit();
+}
+
+if ($_POST['task_id'] != -1) { 
+  //echo "ОБНОВЛЕНИЕ ЗАДАНИЯ";
+  //echo "<br>";
+  $query = update_ax_task($_POST['task_id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+  $result = pg_query($dbconnect, $query);
+  $task_id = $_POST['task_id'];
 } else {
-  echo "СОЗДАНИЕ ЗАДАНИЯ";
-  echo "<br>";
-  $query = insert_ax_task($_GET['page'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+  //echo "СОЗДАНИЕ ЗАДАНИЯ";
+  //echo "<br>";
+  $query = insert_ax_task($page_id, $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+  //echo $query;
   $result = pg_query($dbconnect, $query);
   $task_id = pg_fetch_assoc($result)['id'];
 }
-echo "TASK_ID: ".$task_id;
-echo "<br>";
+//echo "TASK_ID: ".$task_id;
+//echo "<br>";
 
-if (isset($_POST['action']) && $_POST['action'] == 'delete') {
-  $query = delete_task($task_id);
-  $result = pg_query($dbconnect, $query);
-  echo "УДАЛЕНИЕ ФАЙЛА";
-  //header('Location: preptasks.php?page='.$_GET['page']);
-  //exit();
-}
 
 if(isset($_POST['task-type']) && $_POST['task-type'] == 1) {
   $query = select_task_file(2, $task_id);
@@ -94,7 +96,7 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
 
       array_push($assignments_id, add_assignment_to_students($student_id, $task_id));
 
-      add_group_to_ax_page_group($_GET['page'], $group_id);
+      add_group_to_ax_page_group($page_id, $group_id);
 
     } else if ($checked_elem[0] == 'g') {
         // Обработка выделенного checkbox-группы
@@ -102,7 +104,7 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
         echo "<br>GROUP_ID: ".$group_id;
         echo "<br>";
 
-        add_group_to_ax_page_group($_GET['page'], $group_id);
+        add_group_to_ax_page_group($page_id, $group_id);
 
         $query = select_students_id_by_group($group_id);
         $result = pg_query($dbconnect, $query);
@@ -183,7 +185,7 @@ if ($_FILES['task_files']['size'][0] > 0) {
   }
 }
 
-header('Location: preptasks.php?page='.$_GET['page']);
+//header('Location: preptasks.php?page='.$page_id);
 ?>
 
 

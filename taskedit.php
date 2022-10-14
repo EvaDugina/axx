@@ -10,12 +10,14 @@ $au = new auth_ssh();
 if (!$au->isAdmin() && !$au->isTeacher()){
 	$au->logout();
 	header('Location:login.php');
+  exit;
 }
 
 // Обработка некорректного перехода между страницами
 if ((!isset($_GET['task']) || !is_numeric($_GET['task'])) 
 && (!isset($_GET['page']) || !is_numeric($_GET['page']))){
 	header('Location:mainpage.php');
+  //echo "EXITTTT";
 	exit;
 }
 
@@ -85,7 +87,7 @@ show_header($dbconnect, 'Редактор заданий',
     <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
       <div class="row gy-5">
         <div class="col-8">
-          <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
+          <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
           <table class="table table-hover">
     
             <div class="pt-3">
