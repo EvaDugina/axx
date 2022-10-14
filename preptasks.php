@@ -112,14 +112,14 @@ if (!$result || pg_num_rows($result) < 1) {
                           } ?>
                         </td>
                         <td class="text-nowrap">
-                          <button type="submit" class="btn btn-sm px-3" name="action" value="delete"
+                          <button type="submit" class="btn btn-outline-danger px-3" name="action" value="delete"
                           onclick="window.location='preptasks_edit.php?task_id=<?=$task['id']?>&page_id=<?=$page_id?>';">
                             <i class="fa-solid fa-trash"></i>
                           </button>
-                          <button type="submit" class="btn btn-sm px-3" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
+                          <button type="submit" class="btn btn-outline-warning px-3" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
                             <i class="fas fa-pen fa-lg"></i>
                           </button>
-                          <button type="button" class="btn btn-sm px-3" disabled>
+                          <button type="button" class="btn btn-primary px-3" disabled>
                               <i class="fas fa-download fa-lg"></i>
                           </button>
                         </td>
