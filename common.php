@@ -102,14 +102,13 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
           data-mdb-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent"
           aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+          aria-label="Toggle navigation">
           <i class="fas fa-bars"></i>
         </button>
 
         <!-- Collapsible wrapper -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <div class="col-8 col-xl-10">
+        <div class="collapse navbar-collapse row" id="navbarSupportedContent">
+          <div class="d-none d-sm-block col-sm-8 col-md-8 col-xl-10">
 
           <?php
           show_breadcrumbs($breadcrumbs);
@@ -137,7 +136,7 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
             } ?>
             </div>
 
-            <div class="col-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
               <!-- Icons -->
               <ul class="navbar-nav me-1">
                 <!-- Notifications -->
@@ -203,9 +202,8 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
           <?php } 
 
           if (count($breadcrumbs) >= 1) echo '</div>'; ?>
-
-
       </div>
+
     </nav>
   </header>
 
