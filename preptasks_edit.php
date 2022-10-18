@@ -10,17 +10,19 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	header('Location:login.php');
 }
 
-if (!array_key_exists('page', $_REQUEST))
-{
+if (isset($_GET['task_id']) && isset($_GET['page_id'])) {
+  $query = delete_task($_GET['task_id']);
+  $result = pg_query($dbconnect, $query);
+  echo "УДАЛЕНИЕ ЗАДАНИЯ";
+  header('Location: preptasks.php?page='.$_GET['page_id']);
+  exit();
+}
+
+if (!array_key_exists('page', $_REQUEST)) {
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
 }
-
-/*
-var_dump($_REQUEST);
-exit;
-*/
 
 $action = @$_REQUEST['action'];
 switch($action)

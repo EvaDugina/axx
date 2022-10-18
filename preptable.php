@@ -132,7 +132,7 @@ if ($scripts) echo $scripts; ?>
           <?php 
           if (!$students || !$tasks || !$messages) {?>
             <div class="pt-3">
-              <h5>Ошибка получения данных</h5>
+              <h5>Отсутсвуют задания</h5>
             </div>
           <?php } else {?>
 
@@ -238,12 +238,12 @@ if ($scripts) echo $scripts; ?>
                 // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
                 foreach ($students as $key => $student) { 
                   $array_messages_count = array();
-                  $sum_message_count = 0;
+                  $sum_unreaded_message_count = 0;
                   for($i = 0; $i < count($tasks); $i++){
                     $query = select_count_unreaded_messages_by_task_for_teacher($student['id'], $tasks[$i]['id']);
                     $result = pg_query($dbconnect, $query);
                     array_push($array_messages_count, pg_fetch_assoc($result));
-                    $sum_message_count += $array_messages_count[$i]['count'];
+                    $sum_unreaded_message_count += $array_messages_count[$i]['count'];
                   }
 
                   $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
@@ -261,24 +261,23 @@ if ($scripts) echo $scripts; ?>
                           </div>
                           <span class="badge badge-primary badge-pill" 
                             <?php /* if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) { */
-								if($array_notify && in_array($student['id'], array_map(function($element){return $element['student_user_id'];}, $array_notify))) {
-							?> 
+                            if($array_notify && in_array($student['id'], array_map(function($element){
+                            return $element['student_user_id'];}, $array_notify))) {?> 
                               style="color: white; background: #dc3545;"> 
-							<?php 
-							         //echo $sum_message_count + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
-									 echo $sum_message_count + count(array_keys(array_map(function($element){return $element['student_user_id'];}, $array_notify), $student['id']));
-                                } else {
-							?> >
-							<?=$sum_message_count?> 
-							<?php 
-							}
-							?>
+                              <?php 
+                              //echo $sum_unreaded_message_count + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
+                              echo count(array_keys(array_map(function($element){
+                              return $element['student_user_id'];}, $array_notify), $student['id']));
+                            } else {?> >
+                              <?=$sum_unreaded_message_count?> 
+                            <?php } ?>
                           </span>
                         </div>
                       </div> 
                     </li>
                     <div class="inner-accordion noselect" style="display: none;">
                       <?php $i=0;
+                      if($array_student_tasks) {
                       foreach ($array_student_tasks as $task) {?>
                         <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
                           <li class="list-group-item" >
@@ -287,23 +286,23 @@ if ($scripts) echo $scripts; ?>
                                 &nbsp;&nbsp;&nbsp;<?=$task['title']?>
                                 <span class="badge badge-primary badge-pill"
                                 <?php 
-								    // if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {
-									if($array_notify && in_array($task['assignment_id'], array_map(function($element){return $element['assignment_id'];}, $array_notify))) {
-								?>
-                                style="color: white; background: #dc3545;"> 
-								<?php 
-									if($array_messages_count[$i]['count'] == 0) 
-										echo $array_messages_count[$i]['count'] + 1; } else {?>><?=$array_messages_count[$i]['count']
-								?> 
-								<?php 
-									}
-								?>
+                                // if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {
+                                if($array_notify && in_array($task['assignment_id'], array_map(function($element){
+                                return $element['assignment_id']; }, $array_notify))) {?>
+                                  style="color: white; background: #dc3545;">
+
+                                  <?php if($array_messages_count[$i]['count'] == 0 || !$array_messages_count[$i]['count']) 
+                                    $array_messages_count[$i]['count'] = 1; 
+                                  echo $array_messages_count[$i]['count'];
+                                } else {
+                                  echo ">".$array_messages_count[$i]['count'];
+                                }?>
                                 </span>
                               </div>
                             </div>
                           </li> 
                         </a>  
-                      <?php $i++; }?>
+                      <?php $i++; } }?>
                     </div>
                   </div>
                 <?php }?>            
