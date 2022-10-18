@@ -40,14 +40,19 @@ function get_now_date($format = "d-m-Y"){
 
 
 // Выводит прикрепленные к странице с заданием файлы
-function show_task_files($task_files) {
-	foreach ($task_files as $f) {
-		echo '<a href="' . $f['download_url'] . '" target="_blank" class="task-desc-wrapper-a"><i class="fa-solid fa-file"></i>' . $f['file_name'] . '</a> <br>';
-	}
+function show_task_files($task_files) {?>
+  <p style="line-height: 2.5em;">
+	<?php foreach ($task_files as $f) {?>
+		<a href="<?=$f['download_url']?>" target="_blank" class="btn btn-outline-primary">
+      <i class="fa-solid fa-file"></i> 
+      <?=$f['file_name']?>
+    </a> 
+	<?php }
 	if (count($task_files) == 0) {
 		echo 'Файлы временно не доступны<br>';
-	}
-}
+	}?>
+  </p>
+<?php }
 
 
 // Генерация префикса для уникальности названий файлов, которые хранятся на сервере

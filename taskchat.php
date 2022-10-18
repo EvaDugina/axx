@@ -119,7 +119,7 @@ if ($row) {
 			<div>
 				<div class="task-desc-wrapper">
 					<p><?= $task_description ?></p>
-					<p><b>Требования к выполнению и результату:</b><br> <?php show_task_files($task_files); ?></p>
+					<p style="line-height: 0.5em;"><b>Требования к выполнению и результату:</b><br> <?php show_task_files($task_files);?> </p>
 					<div>
 						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
 						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
