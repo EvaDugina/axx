@@ -187,8 +187,6 @@
 	// }
 
       pg_query($dbconnect, "UPDATE ax_assignment SET status_code='3' where id='$assignment'");
-	  
-	  $responce = 'commit_id='.$commit_id.' filecount='.$filecount.' new_id='.$new_id.' user_id='.$user_id.' login='.$_SESSION['login'].' '.var_export($result3);
   }
 ?>
 <?=$responce?>
