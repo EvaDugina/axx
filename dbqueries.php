@@ -622,6 +622,10 @@ function select_students_id_by_group($group_id){
   ";
 }
 
+function select_group_students_count($group_id){
+  return "SELECT COUNT(*) FROM students_to_groups WHERE group_id = $group_id";
+}
+
 function select_student_role($user_id){
   return "SELECT role FROM students 
           WHERE id = $user_id

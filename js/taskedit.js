@@ -183,7 +183,38 @@ if(task_select){
 
 // ACCORDION SCRIPT 
 
-var accordion = (function(){
+let array_accordion_groups_inputs = document.getElementsByClassName("input-group");
+let array_accordion_students_inputs = document.getElementsByClassName("input-student");
+
+//console.log(array_accordion_groups_inputs);
+
+for(let i = 0; i < array_accordion_groups_inputs.length; i ++) {
+  console.log(array_accordion_groups_inputs[i]);
+  array_accordion_groups_inputs[i].addEventListener('change', function() {
+    if (this.checked) {
+      console.log("Checkbox group is checked..");
+
+    } else {
+
+    }
+  });
+}
+
+for(let i = 0; i < array_accordion_students_inputs.length; i ++) {
+  console.log(array_accordion_students_inputs[i]);
+  array_accordion_students_inputs[i].addEventListener('change', function() {
+    if (this.checked) {
+      console.log("Checkbox group is checked..");
+    } else {
+      
+
+    }
+  });
+}
+
+
+
+/*var accordion = (function(){
   var $accordion = $('.js-accordion');
   var $accordion_header = $accordion.find('.js-accordion-header');
   var $accordion_item = $('.js-accordion-item');
@@ -215,13 +246,21 @@ var accordion = (function(){
       $('.js-accordion-item.active').find('> .js-accordion-body').show();
     },
     toggle: function($this) {
+
+      var group_id = $this.find('> .js-accordion-item').id;
+      var input = document.getElementById("group-" + group_id);
+      var stat_group = document.getElementById("group-" + group_id + "-stat");
+
+      console.log("CONSOLE LOG");
             
       if(settings.oneOpen && $this[0] != $this.closest('.js-accordion').find('> .js-accordion-item.active > .js-accordion-header')[0]) {
         $this.closest('.js-accordion')
               .find('> .js-accordion-item') 
               .removeClass('active')
               .find('.js-accordion-body')
-              .slideUp()
+              .slideUp();
+        input.prop('checked', false); 
+        stat_group.textContent = parseInt(stat_group.textContent.split('/')[0])-1 + "/" + stat_group.textContent.split('/')[1];
       }
       
       // show/hide the clicked accordion item
@@ -233,4 +272,4 @@ var accordion = (function(){
 
 $(document).ready(function(){
   accordion.init({ speed: 300, oneOpen: false });
-});
+});*/

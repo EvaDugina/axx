@@ -199,12 +199,19 @@ show_header($dbconnect, 'Редактор заданий',
 
             <section class="w-100 d-flex border" style="height: 50%;">
               <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
-                <div id="accordion-students" class="accordion js-accordion" style="overflow-y: auto; height: 100%; width: 100%;">
+                <div id="main-accordion-students" class="accordion accordion-flush" style="overflow-y: auto; height: 100%; width: 100%;">
 
-                  <?php $now_group_id = -1;
+                  <?php
+                  $now_group_id = -1;
+                  $count_chosen_students = 0;
                   if ($students){
                     foreach ($students as $key => $student) {
                       if($student['group_id'] != $now_group_id) {
+                        $count_chosen_students=0;
+
+                        $query = pg_query($dbconnect, select_group_students_count($student['group_id']));
+                        $group_students_count = pg_fetch_assoc($query)['count'];
+
                         // Обработка полностью выбранных групп
                         $flag_full_group = true;
                         if ($task_id != -1) {
@@ -213,34 +220,51 @@ show_header($dbconnect, 'Редактор заданий',
                               break;
                             if($students[$i]['task_id'] != $task_id)
                               $flag_full_group = false;
-
+                            else $count_chosen_students++;
                           }
                         } else
                           $flag_full_group = false;
                         if($key > 0) { ?>
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <?php }?>
-                        <div class="accordion__item js-accordion-item">
-                          <div class="accordion-header js-accordion-header">
-                            <div class="form-check">
-                              <input id="group-<?=$student['group_id']?>" class="accordion-input-item form-check-input" type="checkbox" 
-                              value="g<?=$student['group_id']?>" id="flexCheck1" onclick="markStudentElements(<?=$student['group_id']?>)" 
-                              name="checkboxStudents[]" <?php if($flag_full_group) echo 'checked';?>>
-                              <label class="form-check-label" for="flexCheck1"><?=$student['group_name']?></label>
+                        <div class="accordion-item">
+                          <div id="accordion-gheader-<?=$student['group_id']?>" class="accordion-header">
+                            <button class="accordion-button" type="button"
+                            data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-<?=$key?>" aria-expanded="true"
+                            aria-controls="accordion-collapse-<?=$key?>">
+                              <div class="form-check d-flex">
+                                <input id="group-<?=$student['group_id']?>" class="accordion-input-item form-check-input input-group" type="checkbox" 
+                                value="g<?=$student['group_id']?>" id="flexCheck1" onclick="markStudentElements(<?=$student['group_id']?>)" 
+                                name="checkboxStudents[]" <?php if($flag_full_group) echo 'checked';?>>
+                                <span id="group-<?=$student['group_id']?>-stat" class="badge badge-primary align-self-center" style="color: black;">
+                                  <?=$count_chosen_students?> / <?=$group_students_count?>
+                                </span>   
+                                <label class="ms-1 form-check-label" for="flexCheck1" style="font-weight: bold;"><?=$student['group_name']?></label>
+                              </div>                   
+                            </button>
+                          </div>
+                          <div id="accordion-collapse-<?=$key?>" class="accordion-collapse collapse" aria-labelledby="accordion-gheader-<?=$key?>"
+                          data-mdb-parent="#main-accordion-students">
+                            <div class="accordion-body">
+                              <div id="group-accordion-students" class="accordion accordion-flush">
+                      <?php }?>
+                      <div id="item-from-group-<?=$student['group_id']?>" class="accordion-item">
+                        <div id="accordion-sheader-<?=$student['id']?>" class="accordion-header">
+                          <div d-flex justify-content-between" type="button">
+                            <div class="form-check ms-3">
+                              <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input input-student" 
+                              type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
+                              <?php if($task_id != -1 && isset($student['task_id']) && $student['task_id'] == $task_id) echo 'checked';?>>
+                              <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                             </div>
                           </div>
-                          <div class="accordion-body js-accordion-body">
-                      <?php }?>
-                      <div class="accordion__item js-accordion-item">
-                        <div class="form-check">
-                          <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input" 
-                          type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
-                          <?php if($task_id != -1 && isset($student['task_id']) && $student['task_id'] == $task_id) echo 'checked';?>>
-                          <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                         </div>
                       </div>
-                      <?php $now_group_id = $student['group_id'];
+                      <?php 
+                      $now_group_id = $student['group_id'];
                     }
                   } else {?>
                     <strong>СТУДЕНТЫ ОТСУТСТВУЮТ</strong>
