@@ -21,14 +21,12 @@ if ($pageurl != 'login.php') {
     if ($row = pg_fetch_assoc($result))
     $_SESSION['username'] = $row['fio'];
   }
-} ?>
+} 
 
-
-<?php
 function show_breadcrumbs(&$breadcrumbs) {
   if (count($breadcrumbs) < 1)
-    return; ?>
-  
+    return; 
+?>
   <ul class="navbar-nav me-auto mb-2 mb-lg-0">
     <div class="container-fluid">
       <nav aria-label="breadcrumb">
@@ -43,14 +41,11 @@ function show_breadcrumbs(&$breadcrumbs) {
       </nav>
     </div>
   </ul>
-
 <?php
-} ?>
-
-
-<?php
-function show_head($page_title = ''){ ?>
-
+} 
+function show_head($page_title = '')
+{ 
+?>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -77,15 +72,11 @@ function show_head($page_title = ''){ ?>
     <script type="text/javascript" src="js/jquery/jquery-3.5.1.min.js"></script>
 
   </head>
-
 <?php 
-} ?>
+} 
 
-
-
-<?php
-function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
-     
+function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { 
+?>
   <header>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light">
@@ -111,7 +102,7 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <div class="col-8 col-xl-10">
 
-          <?php
+<?php
           show_breadcrumbs($breadcrumbs);
           if (count($breadcrumbs) < 1) echo '</div>';
 
@@ -134,7 +125,8 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
                 $array_notify = pg_fetch_all($result_undone_tasks);
               }
 
-            } ?>
+            } 
+?>
             </div>
 
             <div class="col-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
@@ -210,10 +202,11 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { ?>
   </header>
 
 <?php
-} ?>
+} 
 
-<?php
-function show_footer() { ?> 
+function show_footer() 
+{ 
+?> 
   <!-- MDB -->
   <script type="text/javascript" src="js/mdb.min.js"></script>
 
@@ -223,10 +216,8 @@ function show_footer() { ?>
     </body>
   </html>
 <?php
-} ?>
+} 
 
-  
-<?php 
 function show_message($message) {
   if ($message == null || $message['mtype'] == null || $message['type'] < 2) return;
     $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
@@ -260,4 +251,5 @@ function show_message($message) {
       <div class="popover-body"><?=$message_text?></div>
     </div>
 <?php        
-  } ?>
+  } 
+?>

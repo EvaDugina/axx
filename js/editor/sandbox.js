@@ -43,7 +43,7 @@ document.querySelector("#run").addEventListener('click', async e => {
     var entry = document.createElement("div"); 
     var l = resp['stdout']
     if (resp['stderr']){
-        l = resp['stdout']+"\n Ошибка"+resp['stderr'];
+        l = resp['stdout']+"\n Ошибка "+resp['stderr'];
     }
     entry.innerHTML = '<p> Результат Makefile:'+ l +' <p>';
     document.querySelector("#terminal").insertAdjacentElement('afterend',entry);

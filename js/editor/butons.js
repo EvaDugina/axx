@@ -43,7 +43,7 @@ function delFile(event) {
 
 function saveFile(name, id) {
     var text = editor.current.getValue();
-    makeRequest(['textdb.php?' + "type=" + "save" + "&" + "id=" + id + "&" + "file_name=" + name, text], "save");
+    makeRequest(['textdb.php?' + "type=" + "save" + "&" + "likeid=" + id + "&" + "file_name=" + name, text], "save");
 }
 
 function setEventListener(listItem) {  
