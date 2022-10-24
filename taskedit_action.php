@@ -138,9 +138,10 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
 
 }
 
-if ($_FILES['task_files']['size'][0] > 0) {
+echo $_FILES['task_files']['size'];
+if ($_FILES['task_files']['size'] > 0) {
   $files = $_FILES['task_files'];
-  echo "<br>ADD_FILES: " . count($_FILES['task_files']['name']);
+  echo "<br><br>ADD_FILES: " . count($_FILES['task_files']['name']);
   echo "<br>";
 
   $store_in_db = []; 
@@ -185,7 +186,7 @@ if ($_FILES['task_files']['size'][0] > 0) {
   }
 }
 
-//header('Location: preptasks.php?page='.$page_id);
+header('Location: preptasks.php?page='.$page_id);
 ?>
 
 
