@@ -374,9 +374,9 @@ if ($row) {
         formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
         $.each(userFiles[0].files, function(key, input) {
           if (typeMessage == 0)
-            formData.append('message-files[]', input);
+            formData.append('message_files[]', input);
           else if (typeMessage == 1)
-            formData.append('answer-files[]', input);
+            formData.append('answer_files[]', input);
         });
       } else if (typeMessage == 2 && mark) {
         formData.append('mark', mark);

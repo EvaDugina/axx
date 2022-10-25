@@ -458,7 +458,7 @@ function insert_ax_message_attachment_with_url($message_id, $file_name, $file_pa
 
 function insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text){
   return "INSERT into ax_message_attachment (message_id, file_name, full_text) 
-          VALUES ($message_id, '$file_name_without_prefix', '$file_full_text')";
+          VALUES ($message_id, '$file_name_without_prefix' $$$file_full_text$$)";
 }
 
 

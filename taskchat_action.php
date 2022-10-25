@@ -72,7 +72,7 @@ if ($_POST['type'] == 1){
   $result = pg_query($dbconnect, $query);
 
 
-} else if ($full_text != "" || isset($_FILES['message-files'])){
+} else if ($full_text != "" || isset($_FILES['message_files'])){
   /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
 
@@ -86,24 +86,49 @@ if ($_POST['type'] == 1){
   }
 
 } else {
-  
+  //exit();
 }
 
-/*echo "MESSAGE_ID: ".$message_id;
-echo "<br>";*/
+
+echo "MESSAGE_ID: ".$message_id;
+echo "<br>";
 
 $files = array();
-if (isset($_FILES['answer-files']) && $_FILES['answer-files']['size'][0] > 0) {
-  $files = $_FILES['answer-files'];
+print_r($_FILES);
+if (isset($_FILES['answer_files'])) {
 
-  /*echo "ФАЙЛЫ ЕСТЬ. ПРИКРЕПЛЕНИЕ ФАЙЛОВ К СООБЩЕНИЮ";
-  echo "<br>";*/
+  echo "ПРИКРЕПЛЕНИЕ ФАЙЛА-ОТВЕТА НА ЗАДАНИЕ";
+  echo "<br>";
 
+  for($i=0; $i < count($_FILES['answer_files']['tmp_name']); $i++) {
+    if(!is_uploaded_file($_FILES['answer_files']['tmp_name'][$i])){
+      continue;
+    } else {
+      array_push($files, ['name' => $_FILES['answer_files']['name'][$i], 'tmp_name' => $_FILES['answer_files']['tmp_name'][$i], 
+              'size' => $_FILES['answer_files']['size'][$i]]);
+    }
+  }
   add_files_to_message($message_id, $files, $_POST['type']);
 
+} else if (isset($_FILES['message_files'])) {
+
+  echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОМУ К СООБЩЕНИЮ";
+  echo "<br>";
+
+  for($i=0; $i < count($_FILES['message_files']['tmp_name']); $i++) {
+    if(!is_uploaded_file($_FILES['message_files']['tmp_name'][$i])){
+      continue;
+    } else {
+      array_push($files, ['name' => $_FILES['message_files']['name'][$i], 'tmp_name' => $_FILES['message_files']['tmp_name'][$i], 
+              'size' => $_FILES['message_files']['size'][$i]]);
+      
+    }
+  }
+  add_files_to_message($message_id, $files, $_POST['type']);
 }
 
-if (isset($_POST['mark']) && $message_id) {
+
+if (isset($_POST['mark'])) {
   // Оценивание задания
   $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
   $result = pg_query($dbconnect, $query);
@@ -197,21 +222,22 @@ function get_messages($assignment_id, $user_type, $user_id) {
 
 function add_files_to_message($message_id, $files, $type){
   // Файлы с этими расширениями надо хранить в БД
-  $store_in_db = getSpecialFileTypes();
-  for ($i = 0; $i < count($files['name']); $i++) {
-    work_with_file($files['name'][$i], $files['tmp_name'][$i], $message_id, $store_in_db, $type);
+  for ($i = 0; $i < count($files); $i++) {
+    work_with_file($files[$i]['name'], $files[$i]['tmp_name'], $message_id, $type);
     //work_with_file($files[$i], $message_id, $store_in_db);
   }
 }
 
 
-function work_with_file($file_name, $file_tmp_name, $message_id, $store_in_db, $type) {
+function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
   global $dbconnect, $assignment_id, $commit_id;
 
-  /*echo "WORKING WITH FILE <br>";
+  echo "WORKING WITH FILE <br>";
 
   echo "ASSIGNMENT_ID: ".$assignment_id;
-  echo "<br>";*/
+  echo "<br>";
+
+  $store_in_db = getSpecialFileTypes();
   
   $file_name = convert_real_file_name_to_file_name_db($file_name);
   $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
@@ -225,24 +251,25 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $store_in_db, $
   if (move_uploaded_file($file_tmp_name, $file_path)) {
     // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
     if (in_array($file_ext, $store_in_db)) {
+      echo "Добавление download_url<br>";
       $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-      // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
       if ($type == 1) {
-        //echo "Добавление download_url<br>";
+        // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
         $query = insert_ax_solution_file($assignment_id, $commit_id, $file_name, $file_path, 0);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       }
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
+      echo "Добавление file_text<br>";
       $file_name_without_prefix = convert_file_name_db_to_real_file_name($file_name);
       $file_full_text = file_get_contents($file_path);
-      $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+      //$file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+      echo $file_full_text;
       $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       unlink($file_path);
-      // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
       if ($type == 1) {
-        //echo "Добавление file_text<br>";
+        // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
         $query = insert_ax_solution_file($assignment_id, $commit_id, $file_name, $file_full_text, 1);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       }
