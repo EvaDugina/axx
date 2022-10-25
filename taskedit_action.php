@@ -138,29 +138,40 @@ if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
 
 }
 
-echo $_FILES['task_files']['size'];
-if ($_FILES['task_files']['size'] > 0) {
-  $files = $_FILES['task_files'];
-  echo "<br><br>ADD_FILES: " . count($_FILES['task_files']['name']);
+$files = array();
+if ($_FILES['task_files']) {
+
+  for($i=0; $i < count($_FILES['task_files']['tmp_name']); $i++) {
+    if(!is_uploaded_file($_FILES['task_files']['tmp_name'][$i])){
+      continue;
+    } else {
+      array_push($files, ['name' => $_FILES['task_files']['name'][$i], 'tmp_name' => $_FILES['task_files']['tmp_name'][$i], 
+              'size' => $_FILES['task_files']['size'][$i]]);
+      
+    }
+  }
+
+  echo "<br><br>ADD_FILES: "; 
+  print_r($files);
   echo "<br>";
 
-  $store_in_db = []; 
+  $store_in_db = getSpecialFileTypes(); 
 
-  print_r($_FILES);
-  echo "<br>";
-  print_r($_FILES['task_files']);
-  echo "<br>";
+  // print_r($_FILES);
+  // echo "<br>";
+  // print_r($_FILES['task_files']);
+  // echo "<br>";
 
-  for($i=0; $i < count($files['name']); $i++) {
+  for($i=0; $i < count($files); $i++) {
 
-    print_r($files['name'][$i]);
+    print_r($files[$i]['name']);
 
-    $file_name = convert_real_file_name_to_file_name_db($files['name'][$i]);
+    $file_name = convert_real_file_name_to_file_name_db($files[$i]['name']);
     $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
     $file_dir = 'upload_files/';
     $file_path = $file_dir . $file_name;
 
-    $file_tmp_name = $files['tmp_name'][$i];
+    $file_tmp_name = $files[$i]['tmp_name'];
 
     /*echo "Добавление файла в ax_solution_file: ".$file_name;
     echo "<br>";*/
@@ -168,15 +179,15 @@ if ($_FILES['task_files']['size'] > 0) {
     // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
     if (move_uploaded_file($file_tmp_name, $file_path)) {
       // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-      if (!in_array($file_ext, $store_in_db)) {
+      if (in_array($file_ext, $store_in_db)) {
         $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
-        $file_name_without_prefix = delete_prefix($file_name);
+        $file_name_without_prefix = convert_file_name_db_to_real_file_name($file_name);
         $file_full_text = file_get_contents($file_path);
         $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-        $query = insert_ax_task_file_with_full_file_text($assignment_id, $commit_id, $file_name_without_prefix, $file_full_text);
-        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        $query = insert_ax_task_file_with_full_file_text($task_id, 0, $file_name, $file_full_text);
+        pg_query($dbconnect, $query);
         unlink($file_path);
       }
       echo " - ПРИКРЕПЛЕНИЕ ФАЙЛОВ ПРОШЛО УСПЕШНО<br>";

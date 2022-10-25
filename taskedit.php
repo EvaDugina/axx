@@ -290,7 +290,7 @@ show_header($dbconnect, 'Редактор заданий',
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
 
             <div class="pt-1 pb-1">
-              <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
+              <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
               <label class="btn btn-outline-default py-2 px-4">
                 <input id="task-files" type="file" name="task_files[]" style="display: none;" multiple>
                   <i class="fa-solid fa-paperclip"></i>

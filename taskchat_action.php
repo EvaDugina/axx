@@ -197,7 +197,7 @@ function get_messages($assignment_id, $user_type, $user_id) {
 
 function add_files_to_message($message_id, $files, $type){
   // Файлы с этими расширениями надо хранить в БД
-  $store_in_db = []; // TODO для Вани: Добавить сюда еще типы файлов
+  $store_in_db = getSpecialFileTypes();
   for ($i = 0; $i < count($files['name']); $i++) {
     work_with_file($files['name'][$i], $files['tmp_name'][$i], $message_id, $store_in_db, $type);
     //work_with_file($files[$i], $message_id, $store_in_db);
@@ -224,7 +224,7 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $store_in_db, $
   // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
   if (move_uploaded_file($file_tmp_name, $file_path)) {
     // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-    if (!in_array($file_ext, $store_in_db)) {
+    if (in_array($file_ext, $store_in_db)) {
       $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
@@ -234,7 +234,7 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $store_in_db, $
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       }
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
-      $file_name_without_prefix = delete_prefix($file_name);
+      $file_name_without_prefix = convert_file_name_db_to_real_file_name($file_name);
       $file_full_text = file_get_contents($file_path);
       $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
       $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);

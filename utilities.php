@@ -42,13 +42,18 @@ function get_now_date($format = "d-m-Y"){
 // Выводит прикрепленные к странице с заданием файлы
 function show_task_files($task_files) {?>
   <p style="line-height: 2.5em;">
-	<?php foreach ($task_files as $f) {?>
-		<a href="<?=$f['download_url']?>" target="_blank" class="btn btn-outline-primary">
-      <i class="fa-solid fa-file"></i> 
-      <?=$f['file_name']?>
-    </a> 
-	<?php }
-	if (count($task_files) == 0) {
+  
+	<?php $count_files = 0;
+  foreach ($task_files as $f) {
+    if ($f['type'] < 2) {
+      $count_files++; ?>
+      <a href="<?=$f['download_url']?>" target="_blank" class="btn btn-outline-primary">
+        <i class="fa-solid fa-file"></i> 
+        <?=$f['file_name']?>
+      </a> 
+	  <?php }
+  }
+	if ($count_files == 0) {
 		echo 'Файлы временно не доступны<br>';
 	}?>
   </p>
@@ -64,10 +69,17 @@ function delete_prefix($str) {
 }
 
 function convert_real_file_name_to_file_name_db($real_file_name) {
-  return rand_prefix() . basename($real_file_name);
+  //return rand_prefix() . basename($real_file_name);
+  return $real_file_name;
 }
 function convert_file_name_db_to_real_file_name($db_file_name) {
-  //return preg_split('/_/', $db_file_name)[1];
+  // Докодирование названия файла
+  // $split_array = preg_split('/_/', $db_file_name);
+  // $decodedFileName = "";
+  // for ($i = 1; $i < count($split_array); $i++) {
+  //   $decodedFileName .= $split_array[$i];
+  // }
+  // return $decodedFileName;
   return $db_file_name;
 }
 
@@ -94,6 +106,10 @@ function getTaskFiles($dbconnect, $task_id){
     $task_files[] = ['type' => $row['type'], 'file_name' => $file_name, 'download_url' => $row['download_url']];
   }
   return $task_files;
+}
+
+function getSpecialFileTypes(){
+  return array('zip', 'rar');
 }
 
 ?>

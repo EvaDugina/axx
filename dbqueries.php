@@ -677,7 +677,7 @@ function insert_ax_task_file_with_url($task_id, $file_type, $file_name, $file_pa
 }
 
 function insert_ax_task_file_with_full_file_text($task_id, $file_type, $file_name, $file_full_text){
-  return "INSERT into ax_message_attachment (task_id, type, file_name, full_text) 
+  return "INSERT into ax_task_file (task_id, type, file_name, full_text) 
           VALUES ($task_id, $file_type, '$file_name', '$file_full_text')";
 }
 
