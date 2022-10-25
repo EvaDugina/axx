@@ -11,7 +11,7 @@ if (ob_get_level()) {
 
 // Скачивание архива всех файлов к странице с заданием
 if (isset($_GET['download_task_files'])) {
-    $query = "SELECT file_name, download_url, full_text from ax_task_file where task_id = {$_GET['task_id']}";
+    $query = "SELECT file_name, download_url, full_text FROM ax_task_file WHERE task_id = {$_GET['task_id']} AND type < 2";
     $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
     $zip = new ZipArchive();
