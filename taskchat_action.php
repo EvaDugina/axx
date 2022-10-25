@@ -112,7 +112,7 @@ if (isset($_FILES['answer_files'])) {
 
 } else if (isset($_FILES['message_files'])) {
 
-  echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОМУ К СООБЩЕНИЮ";
+  echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОГО К СООБЩЕНИЮ";
   echo "<br>";
 
   for($i=0; $i < count($_FILES['message_files']['tmp_name']); $i++) {
@@ -232,16 +232,16 @@ function add_files_to_message($message_id, $files, $type){
 function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
   global $dbconnect, $assignment_id, $commit_id;
 
-  echo "WORKING WITH FILE <br>";
+  //echo "WORKING WITH FILE <br>";
 
-  echo "ASSIGNMENT_ID: ".$assignment_id;
-  echo "<br>";
+  //echo "ASSIGNMENT_ID: ".$assignment_id;
+  //echo "<br>";
 
   $store_in_db = getSpecialFileTypes();
   
   $file_name = convert_real_file_name_to_file_name_db($file_name);
   $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
-  $file_dir = 'upload_files/';
+  $file_dir = getPathForUploadFiles();
   $file_path = $file_dir . $file_name;
 
   /*echo "Добавление файла в ax_solution_file: ".$file_name;
@@ -250,8 +250,8 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
   // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
   if (move_uploaded_file($file_tmp_name, $file_path)) {
     // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-    if (in_array($file_ext, $store_in_db)) {
-      echo "Добавление download_url<br>";
+    if (!in_array($file_ext, $store_in_db)) {
+      //echo "Добавление download_url<br>";
       $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       if ($type == 1) {
@@ -263,13 +263,14 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
       echo "Добавление file_text<br>";
       $file_name_without_prefix = convert_file_name_db_to_real_file_name($file_name);
       $file_full_text = file_get_contents($file_path);
-      //$file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+      $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
       echo $file_full_text;
       $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       unlink($file_path);
       if ($type == 1) {
-        // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
+        // Добавление файла в ax_solution_file, если сообщение - ответ на задание
+        echo "ДОБАВЛЕНИЕ ФАЙЛА В ax_solution_file";
         $query = insert_ax_solution_file($assignment_id, $commit_id, $file_name, $file_full_text, 1);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       }

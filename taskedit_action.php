@@ -168,7 +168,7 @@ if ($_FILES['task_files']) {
 
     $file_name = convert_real_file_name_to_file_name_db($files[$i]['name']);
     $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
-    $file_dir = 'upload_files/';
+    $file_dir = getPathForUploadFiles();
     $file_path = $file_dir . $file_name;
 
     $file_tmp_name = $files[$i]['tmp_name'];
@@ -179,7 +179,7 @@ if ($_FILES['task_files']) {
     // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
     if (move_uploaded_file($file_tmp_name, $file_path)) {
       // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-      if (in_array($file_ext, $store_in_db)) {
+      if (!in_array($file_ext, $store_in_db)) {
         $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла

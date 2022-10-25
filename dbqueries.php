@@ -458,7 +458,7 @@ function insert_ax_message_attachment_with_url($message_id, $file_name, $file_pa
 
 function insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text){
   return "INSERT into ax_message_attachment (message_id, file_name, full_text) 
-          VALUES ($message_id, '$file_name_without_prefix' $$$file_full_text$$)";
+          VALUES ($message_id, '$file_name_without_prefix', " . '$antihype1$' . $file_full_text . '$antihype1$)';
 }
 
 
@@ -678,7 +678,7 @@ function insert_ax_task_file_with_url($task_id, $file_type, $file_name, $file_pa
 
 function insert_ax_task_file_with_full_file_text($task_id, $file_type, $file_name, $file_full_text){
   return "INSERT into ax_task_file (task_id, type, file_name, full_text) 
-          VALUES ($task_id, $file_type, '$file_name', '$file_full_text')";
+          VALUES ($task_id, $file_type, '$file_name', " . '$antihype1$' . $file_full_text . '$antihype1$)';
 }
 
 

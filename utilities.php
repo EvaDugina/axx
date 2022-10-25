@@ -109,7 +109,11 @@ function getTaskFiles($dbconnect, $task_id){
 }
 
 function getSpecialFileTypes(){
-  return array('zip', 'rar', 'docx');
+  return array('cpp', 'c', 'h', 'txt');
+}
+
+function getPathForUploadFiles(){
+  return 'upload_files/';
 }
 
 ?>
