@@ -61,7 +61,7 @@ if ($last_commit_id) {
       } else if (isset($file_row['full_text']))
           $file_full_text = $file_row['full_text'];
       //echo $file_row['file_name'];
-      $file_name = convert_file_name_db_to_real_file_name($file_row['file_name']);
+      $file_name = delete_random_prefix_from_file_name($file_row['file_name']);
       //echo $file_name;
       $solution_file = array('id'=>$file_row['id'], 'file_name'=>$file_name, 'text'=>$file_full_text);
       array_push($solution_files, $solution_file);

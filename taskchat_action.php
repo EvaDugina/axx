@@ -239,7 +239,7 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
 
   $store_in_db = getSpecialFileTypes();
   
-  $file_name = convert_real_file_name_to_file_name_db($file_name);
+  $file_name = add_random_prefix_to_file_name($file_name);
   $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
   $file_dir = getPathForUploadFiles();
   $file_path = $file_dir . $file_name;
@@ -261,7 +261,7 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
       }
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
       echo "Добавление file_text<br>";
-      $file_name_without_prefix = convert_file_name_db_to_real_file_name($file_name);
+      $file_name_without_prefix = delete_random_prefix_from_file_name($file_name);
       $file_full_text = file_get_contents($file_path);
       $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
       echo $file_full_text;

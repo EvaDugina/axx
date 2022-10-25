@@ -68,12 +68,12 @@ function delete_prefix($str) {
   return preg_replace('#[0-9]{0,}_#', '', $str, 1);
 }
 
-function convert_real_file_name_to_file_name_db($real_file_name) {
+function add_random_prefix_to_file_name($real_file_name) {
   //return rand_prefix() . basename($real_file_name);
   return $real_file_name;
 }
-function convert_file_name_db_to_real_file_name($db_file_name) {
-  // Докодирование названия файла
+function delete_random_prefix_from_file_name($db_file_name) {
+  // Декодирование названия файла
   // $split_array = preg_split('/_/', $db_file_name);
   // $decodedFileName = "";
   // for ($i = 1; $i < count($split_array); $i++) {
@@ -102,7 +102,7 @@ function getTaskFiles($dbconnect, $task_id){
     else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
       $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
     }
-    $file_name = convert_file_name_db_to_real_file_name($row['file_name']);
+    $file_name = delete_random_prefix_from_file_name($row['file_name']);
     $task_files[] = ['type' => $row['type'], 'file_name' => $file_name, 'download_url' => $row['download_url']];
   }
   return $task_files;

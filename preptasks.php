@@ -107,7 +107,7 @@ if (!$result || pg_num_rows($result) < 1) {
                           if ($result2 && pg_num_rows($result2) > 0) {
                             echo '<div class="small">Приложения:<ul>';
                             while ($row2 = pg_fetch_assoc($result2))
-                              echo '<li>'.convert_file_name_db_to_real_file_name($row2['file_name']).'</li>';
+                              echo '<li>'.delete_random_prefix_from_file_name($row2['file_name']).'</li>';
                             echo '</ul></div>';
                           } ?>
                         </td>

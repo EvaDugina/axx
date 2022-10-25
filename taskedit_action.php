@@ -166,7 +166,7 @@ if ($_FILES['task_files']) {
 
     print_r($files[$i]['name']);
 
-    $file_name = convert_real_file_name_to_file_name_db($files[$i]['name']);
+    $file_name = add_random_prefix_to_file_name($files[$i]['name']);
     $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
     $file_dir = getPathForUploadFiles();
     $file_path = $file_dir . $file_name;
@@ -183,7 +183,7 @@ if ($_FILES['task_files']) {
         $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
-        $file_name_without_prefix = convert_file_name_db_to_real_file_name($file_name);
+        $file_name_without_prefix = delete_random_prefix_from_file_name($file_name);
         $file_full_text = file_get_contents($file_path);
         $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
         $query = insert_ax_task_file_with_full_file_text($task_id, 0, $file_name, $file_full_text);
