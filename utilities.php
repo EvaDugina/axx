@@ -1,17 +1,10 @@
 <?php
 
-//семестр по цифре
-function convert_sem_from_id($id){
-  if($id == 1) return 'Весна';
-  else return 'Осень';
-}
-
-
 // Работа с TIMESTAMP
 date_default_timezone_set('Europe/Moscow');
 
 function getNowTimestamp(){
-  $timestamp = date("Y-m-d H:i:s", mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("y")));
+  $timestamp = date("Y-m-d H:i:s", mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
   return $timestamp;
 }
 
@@ -41,6 +34,13 @@ function conver_calendar_to_timestamp($finish_limit) {
   $timestamp = getdate($timestamp);
   $timestamp = date("Y-m-d H:i:s", mktime(23, 59, 59, $timestamp['mon'],$timestamp['mday'], $timestamp['year']));
   return $timestamp;
+}
+
+
+//семестр по цифре
+function convert_sem_from_id($id){
+  if($id == 1) return 'Весна';
+  else return 'Осень';
 }
 
 

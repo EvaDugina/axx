@@ -63,7 +63,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			$name = $discipline['name'];
 	}
 
-	$semester = $page['year']."/".convert_sem_from_id($page['semester']);
+	//$semester = $page['year']."/".convert_sem_from_id($page['semester']);
 	$short_name = $page['short_name'];
 
 	$query = select_page_prep_name($page_id);
@@ -138,20 +138,25 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-lg-3 row justify-content-left">Семестр:</div>
 					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
-							<select class="form-select" name="timestamp">           
+							<select class="form-select" name="semester">           
 								<option selected>
-									<?=$semester?>
+									<?=/*$semester*/$page['semester']." СЕМЕСТР"?>
 								</option>
-								<?php foreach($years as $year){
-									if ($page && ($year['year'] != $page['year'] or $page['semester']%2 != 1))
-										echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
-									if ($page && ($year['year'] != $page['year'] or $page['semester']%2 != 0))
-										echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
-									else {
-										echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
-										echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
-									}
-								} ?>
+								<?php 
+								for($i = 1; $i <= 8; $i++) {
+									if ($i != $page['semester'])
+										echo "<option value=$i>".$i." СЕМЕСТР</option>";
+								}
+								// foreach($years as $year){
+								// 	if ($page && ($year['year'] != $page['year'] or $page['semester']%2 != 1))
+								// 		echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
+								// 	if ($page && ($year['year'] != $page['year'] or $page['semester']%2 != 0))
+								// 		echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
+								// 	else {
+								// 		echo "<option>".$year['year']."/".convert_sem_from_id(1)."</option>";
+								// 		echo "<option>".$year['year']."/".convert_sem_from_id(0)."</option>";
+								// 	}
+								// } ?>
 							</select>
 						</div>
 					</div>

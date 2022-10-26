@@ -22,10 +22,11 @@ if (isset($_POST['action'])) {
 	switch($action){
 		case 'save':
 			if (isset($_POST['id']) && $_POST['id'] != 0) {
-        $id = $_POST['id'];
+        		$id = $_POST['id'];
 
 				$query = update_discipline($_POST);
 				$result = pg_query($dbconnect, $query);
+				//echo update_discipline($_POST);
 		
 				$query = delete_page_prep($_POST['id']);
 				$result = pg_query($dbconnect, $query);
@@ -39,22 +40,22 @@ if (isset($_POST['action'])) {
 				$id = pg_fetch_all($result)[0]['id'];
 			}
 
-      if (isset($_POST['teachers'])){
-        foreach($_POST['teachers'] as $teacher) {
-          $pos = strpos($teacher, ' ');
-          $first_name = substr($teacher, 0, $pos);
-          $middle_name = substr($teacher, $pos+1);
-          $query = prep_ax_prep_page($id, $first_name, $middle_name);
-          pg_query($dbconnect, $query);
-        }
-      }
+			if (isset($_POST['teachers'])){
+				foreach($_POST['teachers'] as $teacher) {
+				$pos = strpos($teacher, ' ');
+				$first_name = substr($teacher, 0, $pos);
+				$middle_name = substr($teacher, $pos+1);
+				$query = prep_ax_prep_page($id, $first_name, $middle_name);
+				pg_query($dbconnect, $query);
+				}
+			}
 
-      if (isset($_POST['groups'])){
-        foreach($_POST['groups'] as $group) {
-          $query = update_ax_page_group($id, $group);
-          pg_query($dbconnect, $query);
-        }
-      }
+			if (isset($_POST['groups'])){
+				foreach($_POST['groups'] as $group) {
+				$query = update_ax_page_group($id, $group);
+				pg_query($dbconnect, $query);
+				}
+			}
 			break;
 		case 'delete':
 			var_dump($_POST['id']);
