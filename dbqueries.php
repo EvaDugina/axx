@@ -109,9 +109,10 @@ function update_discipline($discipline) {
     $semester = pg_escape_string($timestamp['semester']);
     $color_theme_id = pg_escape_string($discipline['color_theme_id']);
     $creator_id = pg_escape_string($discipline['creator_id']);
+    $creation_date = getNowTimestamp();
 
     return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester',
-                color_theme_id='$color_theme_id', creator_id='$creator_id'
+                color_theme_id='$color_theme_id', creator_id='$creator_id', creation_date='$creation_date', status=1
             WHERE id ='$id'";
 }
 
@@ -123,9 +124,10 @@ function insert_page($discipline) {
     $semester = pg_escape_string($timestamp['semester']);
     $color_theme_id = pg_escape_string($discipline['color_theme_id']);
     $creator_id = pg_escape_string($discipline['creator_id']);
+    $creation_date = getNowTimestamp();
 
-    return "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id) 
-        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id') returning id";
+    return "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, status) 
+        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', 1) returning id";
 }
 
 

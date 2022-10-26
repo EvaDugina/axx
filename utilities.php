@@ -10,6 +10,15 @@ function convert_sem_from_id($id){
 // Работа с TIMESTAMP
 date_default_timezone_set('Europe/Moscow');
 
+function getNowTimestamp(){
+  $timestamp = date("Y-m-d H:i:s", mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("y")));
+  return $timestamp;
+}
+
+function get_now_date($format = "d-m-Y"){
+  return date($format);
+}
+
 // год и номер семестра по названию
 function convert_timestamp_from_string($str){
   $pos = strpos($str, "/");
@@ -32,10 +41,6 @@ function conver_calendar_to_timestamp($finish_limit) {
   $timestamp = getdate($timestamp);
   $timestamp = date("Y-m-d H:i:s", mktime(23, 59, 59, $timestamp['mon'],$timestamp['mday'], $timestamp['year']));
   return $timestamp;
-}
-
-function get_now_date($format = "d-m-Y"){
-  return date($format);
 }
 
 
