@@ -4,6 +4,7 @@
 <?php
 require_once("common.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 $scripts = null;
 
 // защита от случайного перехода
@@ -189,7 +190,6 @@ if ($scripts) echo $scripts; ?>
                           foreach ($messages as $message) { // search for last student+task message
                             if ($message['tid'] == $task['id'] && $message['sid'] == $student['id'] && $message['type'] == 1) {
                               $task_message = $message;
-                              break;
                             }
                           }
                         }
@@ -206,11 +206,12 @@ if ($scripts) echo $scripts; ?>
                         if ($array_student_tasks[$now_index]['mark'] != null) { ?>
                           <td tabindex="1"><?= $array_student_tasks[$now_index]['mark'] ?></td>
                         <?php // Задание требует проверки
-                        } else if ($array_student_tasks[$now_index]['status_code'] == 5 && $task_message != null) { ?>
+                        } else if ($array_student_tasks[$now_index]['status_code'] == 5 && $task_message) { ?>
                           <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" 
                           title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" 
-                          data-mdb-content="<a target='_blank' href='<?= $task_message['murl'] ?>'>FILE: <?= $task_message['mfile'] ?></a><br/> <?= $task_message['mtext'] ?><br/> <a href='javascript:answerPress(2,<?= $task_message['mid'] ?>,<?= $task_message['max_mark'] ?>)' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0,<?= $task_message['mid'] ?>)' type='message' class='btn btn-outline-primary'>Ответить</a>">
-                          ?</td>
+                          data-mdb-content="<?=getPopoverContent($task_message)?>">
+                            ?
+                          </td>
                         <?php 
                         } else { ?>
                           <td tabindex="-1"></td>
@@ -380,13 +381,23 @@ if ($scripts) echo $scripts; ?>
         </div>
         <div class="modal-body">
           <div class="form-outline">
-            <input type="number" id="dialogMarkMarkInput" name="mark" class="form-control" required />
+            <input type="number" id="dialogMarkMarkInput" name="mark" class="form-control" required min="1" max="5"/>
             <label class="form-label" for="typeNumber" id="dialogMarkMarkLabel">Оценка</label>
+            <div class="form-notch">
+              <div class="form-notch-leading" style="width: 9px;"></div>
+              <div class="form-notch-middle" style="width: 114.4px;"></div>
+              <div class="form-notch-trailing"></div>
+            </div>
           </div>
           <br />
           <div class="form-outline">
-            <textarea class="form-control" id="dialogMarkText" rows="4" name="text" required></textarea>
+            <input class="form-control" id="dialogMarkText" rows="4" name="text"/>
             <label class="form-label" for="dialogMarkText">Текст ответа</label>
+            <div class="form-notch">
+              <div class="form-notch-leading" style="width: 9px;"></div>
+              <div class="form-notch-middle" style="width: 114.4px;"></div>
+              <div class="form-notch-trailing"></div>
+            </div>
           </div>
           <input type="hidden" id="dialogMarkMessageId" name="message" />
           <input type="hidden" name="page" value="<?= $page_id ?>" />
@@ -401,6 +412,25 @@ if ($scripts) echo $scripts; ?>
 </div>
 
 <?php }?>
+
+<?php
+function getPopoverContent($task_message) { 
+  $message_files = get_message_attachments($task_message['mid']);
+  $data_mdb_content = "";
+
+  $data_mdb_content .= "<strong><<</strong>". $task_message['mtext'] ."<strong>>></strong> <br/>";
+  $data_mdb_content .= showAttachedFiles($task_message['mid']);
+  $data_mdb_content .= "
+  <a href='javascript:answerPress(2,". $task_message['mid'] .", ". $task_message['max_mark'] .")' 
+  type='message' class='btn btn-outline-primary'>
+    Зачесть
+  </a> 
+  <a href='javascript:answerPress(0,".  $task_message['mid'] .")' 
+  type='message' class='btn btn-outline-primary'>
+    Ответить
+  </a>";
+  return $data_mdb_content;
+} ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
   integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -437,7 +467,6 @@ if ($scripts) echo $scripts; ?>
     } else {
         console.log('Закрытие всех остальных элементов');
         $this.parent().parent().find('div .inner-accordion').removeClass('show');
-        //$this.parent().parent().find('div .inner-accordion').firstElementChild.firstElementChild.firstElementChild.firstElementChild.removeClass('fa-caret-down');
         $this.parent().parent().find('div .inner-accordion').slideUp();
         
         console.log('Открытие себя');
@@ -503,8 +532,8 @@ if ($scripts) echo $scripts; ?>
     if (answer_type == 2) { // mark
       //const dialog = document.getElementById('dialogMark');
       document.getElementById('dialogMarkMessageId').value = message_id;
+      document.getElementById('dialogMarkMarkInput').max = max_mark;
       document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
-      document.getElementById('dialogMarkText').value = 'Задание зачтено';
       $('#dialogMark').modal('show');
     } else {
       //const dialog = document.getElementById('dialogAnswer');
@@ -515,6 +544,7 @@ if ($scripts) echo $scripts; ?>
   }
 
   function answerSend(form) {
+    console.log($(form).find(':submit').getAttribute("class"));
     $(form)
       .find(':submit')
       .attr('disabled', 'disabled')

@@ -115,6 +115,22 @@ function get_message_attachments($message_id) {
 	return $messages;
 }
 
+
+ function showAttachedFiles($message_id){
+  $message_files = get_message_attachments($message_id);
+  $message_text = "</br>";
+  if (count($message_files) > 0) { 
+    foreach ($message_files as $file) { 
+      $message_text .= "
+      <a target='_blank' download href='" . $file['download_url'] . "'>
+        <i class='fa fa-paperclip' aria-hidden='true'></i> " . 
+        $file['file_name']. "
+      </a><br/>";
+    }
+  }
+  return $message_text;
+ }
+
 // $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
 function getTaskFiles($dbconnect, $task_id){
   $query = "SELECT id, type, file_name, download_url from ax_task_file where task_id = $task_id";
