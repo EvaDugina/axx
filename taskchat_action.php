@@ -280,27 +280,6 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
   }
 }
 
-// Возвращает двумерный массив вложений для сообщения по message_id
-function get_message_attachments($message_id) {
-	global $dbconnect;
-	$query = select_message_attachment($message_id);
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	
-	$messages = [];
-	for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-		// Если текст файла лежит в БД
-		if ($row['download_url'] == null) {
-			$row['download_url'] = 'download_file.php?attachment_id=' . $row['id'];
-		}
-		// Если файл лежит на сервере
-		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
-		}
-		$messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
-	}
-	return $messages;
-}
-
 // Выводит сообщения на страницу
 function show_messages($messages) {
 	global $user_id;
