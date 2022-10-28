@@ -103,6 +103,7 @@ show_head($page_title);
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm/lib/xterm.js"></script>
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <body style="overflow-x: hidden;">
 
@@ -173,7 +174,11 @@ show_head($page_title);
 		</div>
 
 		<div id="Task" class="tabcontent" style="height: 88%;">
-		  <p><?=$task_description?></p>
+		  <p id="TaskDescr"><?=$task_description?></p>
+		  <script>
+			document.getElementById('TaskDescr').innerHTML =
+				marked.parse(document.getElementById('TaskDescr').innerHTML);
+		  </script>
       <p>
         <b>Файлы, приложенные к заданию:</b> 
         <br>
