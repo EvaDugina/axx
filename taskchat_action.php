@@ -5,7 +5,7 @@ require_once("utilities.php");
 
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id']) || !isset($_POST['sender_user_type'])) {
-  //echo "ERROR EXIIIT!";
+  echo "ERROR EXIIIT!";
   exit;
 }
 
@@ -32,8 +32,8 @@ echo "<br>";*/
 
 
 if (!isset($_POST['message_text'])){
-  /*echo "JUST UPDATE <br>";
-  echo "ISSET: " . $_POST['message_text'] . "<br>";*/
+  echo "JUST UPDATE <br>";
+  echo "ISSET: " . $_POST['message_text'] . "<br>";
   update_chat($assignment_id, $user_type, $user_id);
   exit;
 }
@@ -130,13 +130,16 @@ if (isset($_FILES['answer_files'])) {
 
 if (isset($_POST['mark'])) {
   // Оценивание задания
+  echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
   $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
   $result = pg_query($dbconnect, $query);
 
 }
 
 /*echo "UPDATE AFTER ACTION";*/
-update_chat($assignment_id, $user_type, $user_id);
+if (!isset($_POST['flag_preptable']) || ( isset($_POST['flag_preptable']) && !$_POST['flag_preptable'])){
+  update_chat($assignment_id, $user_type, $user_id);
+}
 
 
 

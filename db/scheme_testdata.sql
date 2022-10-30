@@ -4,7 +4,7 @@
 	middle_name text,	-- фамилия
 	last_name text,		-- отчество (не верь глазам своим блин)
 	login text,		
-	role integer,		-- 1, 2 - преподаватели, 3 - студенты (бывает, что в БД две записи для одного человека, как студент и как препод)
+	role integer,		-- 1 - администратор, 2 - преподаватели, 3 - студенты (бывает, что в БД две записи для одного человека, как студент и как препод)
 	CONSTRAINT students_pkey PRIMARY KEY (id)
 ); ALTER TABLE students OWNER TO postgres;
 

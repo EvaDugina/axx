@@ -94,6 +94,9 @@ if ($row) {
 	$time = explode(":", $message_time[1]);
 	$task_finish_date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
 }
+
+$task_number = explode('.', $task_title)[0];
+//echo $task_number;
 ?>
 
 <!DOCTYPE html>
@@ -265,7 +268,7 @@ if ($row) {
             event.preventDefault();
             return false;
           } else {
-            var userMessage = "Ответ на задание:";
+            var userMessage = 'Ответ на <<?=$task_number?>>:';
             if(sendMessage(userMessage, userFiles, 1)) {
               console.log("Сообщение было успешно отправлено");
             }
@@ -417,6 +420,27 @@ if ($row) {
 
       return true;
 		}
+
+    function func_ajax_success(response){
+      $("#chat-box").html(response);
+          
+      if (typeMessage == 1) {
+        let now = new Date();
+        $("#label-task-status-text").text("Ожидает проверки");
+        $("#span-answer-date").text(formatDate(now));
+      } else if (typeMessage == 2) {
+        let now = new Date();
+        $("#flexCheckDisabled").prop("checked", true);
+        $("#label-task-status-text").text("Выполнено");
+        $("#span-answer-date").text(formatDate(now));
+        $("#span-text-mark").text("Оценка: ");
+      }
+    }
+
+    function func_ajax_complete(){
+      // Скролим чат вниз после отправки сообщения
+      $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+    }
 
     function scrollChat(){
 

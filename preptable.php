@@ -321,9 +321,9 @@ if ($scripts) echo $scripts; ?>
       </div>
 
       <?php if ($messages && count($messages) > 0) {?>
-        <div class="col-4 bg-light">
-          <div id="list-messages" class="p-3 bg-light" style="overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);">
-            <h5>История посылок и оценок</h5>
+        <div class="col-4 bg-light p-3">
+          <h5>История посылок и оценок</h5>
+          <div id="list-messages" class="bg-light" style="/*overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);*/">
             <div id="list-messages-id">
               <?php
               for ($m = 0; $m < count($messages); $m++) { // list all messages
@@ -372,7 +372,7 @@ if ($scripts) echo $scripts; ?>
 
 <!-- Modal dialog mark -->
 <div class="modal fade" id="dialogMark" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
-  <form class="needs-validation" onsubmit="answerSend(this)">
+  <form id="form-mark" class="needs-validation">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -389,10 +389,11 @@ if ($scripts) echo $scripts; ?>
               <div class="form-notch-trailing"></div>
             </div>
           </div>
-          <br />
+          <span id="error-input-mark" class="error-input" aria-live="polite"></span>
+          <br/>
           <div class="form-outline">
             <input class="form-control" id="dialogMarkText" rows="4" name="text"/>
-            <label class="form-label" for="dialogMarkText">Текст ответа</label>
+            <label id="label-dialogMarkText" class="form-label" for="dialogMarkText">Текст ответа</label>
             <div class="form-notch">
               <div class="form-notch-leading" style="width: 9px;"></div>
               <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -415,17 +416,19 @@ if ($scripts) echo $scripts; ?>
 
 <?php
 function getPopoverContent($task_message) { 
-  $message_files = get_message_attachments($task_message['mid']);
+
+  // $message_files = get_message_attachments($task_message['mid']);
   $data_mdb_content = "";
 
-  $data_mdb_content .= "<strong><<</strong>". $task_message['mtext'] ."<strong>>></strong> <br/>";
+  $data_mdb_content .= "<strong>". $task_message['mtext'] ."</strong>";
   $data_mdb_content .= showAttachedFiles($task_message['mid']);
   $data_mdb_content .= "
-  <a href='javascript:answerPress(2,". $task_message['mid'] .", ". $task_message['max_mark'] .")' 
+  <a href='javascript:answerPress(2,". $task_message['mid'] .", ". $task_message['max_mark'] .", " .
+  $task_message['aid'] . ", " . $task_message['sid'] . ", 1)'
   type='message' class='btn btn-outline-primary'>
     Зачесть
   </a> 
-  <a href='javascript:answerPress(0,".  $task_message['mid'] .")' 
+  <a href='javascript:answerPress(0,". $task_message['mid'] .")' 
   type='message' class='btn btn-outline-primary'>
     Ответить
   </a>";
@@ -436,129 +439,9 @@ function getPopoverContent($task_message) {
   integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 
 <!-- Custom scripts -->
-<script>
-  const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
-    const value = document.getElementById("selectCourse").value;
-    document.location.href = 'preptable.php?page=' + value;
-    //log(`option desc`, desc);
-  });
-</script>
+<script type="text/javascript" src="js/utilities.js"></script>
+<script type="text/javascript" src="js/preptable.js"></script>
 
-<script type="text/javascript">
-  $('.toggle-accordion').click(function(e) {
-  	e.preventDefault();
-
-    console.log('Нажатие на элемент: ' + $(this).attr("class"));
-  
-    var $this = $(this);
-    //var $id_icon = "icon-down-right-" + $(this).attr("id");
-    //var $i = document.getElementById($id_icon);
-
-    //console.log($id_icon);
-    //console.log('Поиск: ' + $i.nodeName);
-  
-    if ($this.next().hasClass('show')) {
-        console.log('Закрытие себя');
-        //$i.classList.remove('fa-caret-down');
-        //$i.classList.add('fa-caret-right');
-        $this.next().removeClass('show');
-        $this.next().slideUp();
-
-    } else {
-        console.log('Закрытие всех остальных элементов');
-        $this.parent().parent().find('div .inner-accordion').removeClass('show');
-        $this.parent().parent().find('div .inner-accordion').slideUp();
-        
-        console.log('Открытие себя');
-        $this.next().toggleClass('show');
-        //$i.classList.remove('fa-caret-right');
-        //$i.classList.add('fa-caret-down');
-        $this.next().slideToggle();
-        
-    }
-  });
-</script>
-
-<script type="text/javascript">
-  $(function() {
-    //$('[data-toggle="tooltip"]').tooltip();
-    //$('[data-toggle="popover"]').popover();      
-  });
-
-  $(document).ready(function() {
-    //$("#table-status-id>a").click(function(sender){alert(sender)});
-    //console.log( "ready!" );
-  });
-
-  function filterTable(value) {
-    if (value.trim() === '') {
-      $('#table-status-id').find('tbody>tr').show();
-      $('#list-messages-id').find('.message').show();
-    } else {
-      $('#table-status-id').find('tbody>tr').each(function() {
-        $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
-      });
-      $('#list-messages-id').find('.message').each(function() {
-        $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
-      });
-    }
-  }
-
-  function showPopover(element, message_id) {
-    //console.log(element);
-    $(element).popover({
-        html: true,
-        delay: 250,
-        trigger: 'focus',
-        placement: 'bottom',
-        sanitize: false,
-        title: element.getAttribute('title'),
-        content: element.getAttribute('data-mdb-content')
-      })
-      //.on('inserted.bs.popover', function(e){
-      //    var p = document.getElementById(e.target.getAttribute('aria-describedby'));
-      //    $(p).find('a').click(function(args){answerPress(args.currentTarget,message_id);}); 
-      //    //$(element).popover('dispose');});
-      //})
-      .popover('show');
-    $('.popover-dismiss').popover({
-      trigger: 'focus'
-    });
-  }
-
-  function answerPress(answer_type, message_id, max_mark) {
-    // TODO: implement answer
-    console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
-    if (answer_type == 2) { // mark
-      //const dialog = document.getElementById('dialogMark');
-      document.getElementById('dialogMarkMessageId').value = message_id;
-      document.getElementById('dialogMarkMarkInput').max = max_mark;
-      document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
-      $('#dialogMark').modal('show');
-    } else {
-      //const dialog = document.getElementById('dialogAnswer');
-      document.getElementById('dialogAnswerMessageId').value = message_id;
-      document.getElementById('dialogAnswerText').value = '';
-      $('#dialogAnswer').modal('show');
-    }
-  }
-
-  function answerSend(form) {
-    console.log($(form).find(':submit').getAttribute("class"));
-    $(form)
-      .find(':submit')
-      .attr('disabled', 'disabled')
-      .append(' <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-  }
-
-  function answerText(answer_text, message_id) {
-    console.log('answer: ', answer_text, message_id);
-  }
-
-  function answerMark(answer_text, mark, message_id) {
-    console.log('mark: ', answer_text, mark, message_id);
-  }
-</script>
 
 <!-- End your project here-->
 </body>
