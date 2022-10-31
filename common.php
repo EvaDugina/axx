@@ -217,37 +217,54 @@ function show_footer()
 } 
 
 function show_message($message) {
-  if ($message == null || $message['mtype'] == null || $message['type'] < 2) return;
-    $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
-    $message_text = $message['mtext'];
-    if ($message['mfile'] != null) { // have file attachment
-      // to be usefull image preview need: 1) scale to max message size 2) make big preview or link to big image and
-      //if (preg_match('/\.(gif|png|jpg|jpeg|bmp|tif|tiff|ico|svg)$/i', $message['mfile'])) // file is image, inline it
-      //    $message_text = "<img src='" . $message['murl'] . "' alt='" . $message['mfile']. "'/><br/>";
-      //else 
-      if ($message['murl'] != null) // file is attachment, add link to open in new window
-          $message_text = "<a target='_blank' download href='" . $message['murl'] . "'><i class='fa fa-paperclip' aria-hidden='true'></i> " . $message['mfile']. "</a><br/>" . $message_text;
-      else // file is text content, add link to open in new window
-          $message_text = "<a target='_blank' download href='message_file.php?id=" . $message['fid'] . "'><i class='fa fa-paperclip' aria-hidden='true'></i> " . $message['mfile'] . "</a><br/>" . $message_text;
-    }
-    if ($message['mreply'] != null) // is reply message, add citing
-      $message_text = "<p class='note note-light'>" . $message['mreply'] . "</p>" . $message_text;
-    if ($message['amark'] == null && $message['mtype'] == 0 && $message['mstatus'] == 0) // is student message not viewed/answered, no mark, add buttons answer/mark
-      $message_text = $message_text . "<br/><a href='javascript:answerPress(2," . $message['mid'] . "," . $message['max_mark'] . ")' type='message' class='btn btn-outline-primary'>Зачесть</a> <a href='javascript:answerPress(0," . $message['mid'] . ")' type='message' class='btn btn-outline-primary'>Ответить</a>";
-    $time_date = explode(" ", $message['mtime']);
-    $date = explode("-", $time_date[0]);
-    $time = explode(":", $time_date[1]);
-    $time_date_output = $date[0] .".". $date[1] ." ". $time[0] .":". $time[1]; ?>
+  if ($message == null || $message['mtype'] == null || $message['type'] < 2) 
+    return;
+  $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
+  $message_text = $message['mtext'];
 
-    <div class="popover message <?=$message_style?>" role="listitem">
-      <div class="popover-arrow"></div>
-      <div class="p-3 popover-header">
-        <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
-          <?=$message['fio']. '<br>'?></h6>
-        <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=$time_date_output?></p>
-      </div>
-      <div class="popover-body"><?=$message_text?></div>
+  // $message_files = get_message_attachments($message['mid']);
+  // if (count($message_files) > 0) { 
+  //   foreach ($message_files as $file) { 
+  //     $message_text .= "
+  //     <a target='_blank' download href='" . $file['download_url'] . "'>
+  //       <i class='fa fa-paperclip' aria-hidden='true'></i> " . 
+  //       $file['file_name']. "
+  //     </a><br/>" . $message_text;
+  //   }
+  // }
+    
+  if ($message['mreply_id'] != null){ // is reply message, add citing
+    $message_text .= "<p class='note note-light'>" . $message['mreply_text'];
+    $message_text .= showAttachedFiles($message['mreply_id']);
+    $message_text .= "</p>";
+  }
+  else if ($message['amark'] == null && $message['mtype'] == 0 && $message['mstatus'] == 0) { 
+    // is student message not viewed/answered, no mark, add buttons answer/mark
+    $message_text .= "
+    <br/>
+    <a href='javascript:answerPress(2," . $message['mid'] . "," . $message['max_mark'] . ")' type='message' 
+    class='btn btn-outline-primary'> 
+      Зачесть
+    </a> 
+    <a href='javascript:answerPress(0," . $message['mid'] . ")' type='message' 
+    class='btn btn-outline-primary'>
+      Ответить
+    </a>";
+  }
+  $time_date = explode(" ", $message['mtime']);
+  $date = explode("-", $time_date[0]);
+  $time = explode(":", $time_date[1]);
+  $time_date_output = $date[0] .".". $date[1] ." ". $time[0] .":". $time[1]; ?>
+
+  <div class="popover message <?=$message_style?>" role="listitem">
+    <div class="popover-arrow"></div>
+    <div class="p-3 popover-header">
+      <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
+        <?=$message['fio']. '<br>'?></h6>
+      <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=$time_date_output?></p>
     </div>
+    <div class="popover-body"><?=$message_text?></div>
+  </div>
 <?php        
   } 
 ?>

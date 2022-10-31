@@ -5,7 +5,7 @@ require_once("utilities.php");
 
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id']) || !isset($_POST['sender_user_type'])) {
-  //echo "ERROR EXIIIT!";
+  echo "ERROR EXIIIT!";
   exit;
 }
 
@@ -32,8 +32,8 @@ echo "<br>";*/
 
 
 if (!isset($_POST['message_text'])){
-  /*echo "JUST UPDATE <br>";
-  echo "ISSET: " . $_POST['message_text'] . "<br>";*/
+  echo "JUST UPDATE <br>";
+  echo "ISSET: " . $_POST['message_text'] . "<br>";
   update_chat($assignment_id, $user_type, $user_id);
   exit;
 }
@@ -90,15 +90,15 @@ if ($_POST['type'] == 1){
 }
 
 
-echo "MESSAGE_ID: ".$message_id;
-echo "<br>";
+//echo "MESSAGE_ID: ".$message_id;
+//echo "<br>";
 
 $files = array();
-print_r($_FILES);
+// print_r($_FILES);
 if (isset($_FILES['answer_files'])) {
 
-  echo "ПРИКРЕПЛЕНИЕ ФАЙЛА-ОТВЕТА НА ЗАДАНИЕ";
-  echo "<br>";
+  //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА-ОТВЕТА НА ЗАДАНИЕ";
+  // echo "<br>";
 
   for($i=0; $i < count($_FILES['answer_files']['tmp_name']); $i++) {
     if(!is_uploaded_file($_FILES['answer_files']['tmp_name'][$i])){
@@ -112,8 +112,8 @@ if (isset($_FILES['answer_files'])) {
 
 } else if (isset($_FILES['message_files'])) {
 
-  echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОГО К СООБЩЕНИЮ";
-  echo "<br>";
+  //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОГО К СООБЩЕНИЮ";
+  //echo "<br>";
 
   for($i=0; $i < count($_FILES['message_files']['tmp_name']); $i++) {
     if(!is_uploaded_file($_FILES['message_files']['tmp_name'][$i])){
@@ -130,13 +130,16 @@ if (isset($_FILES['answer_files'])) {
 
 if (isset($_POST['mark'])) {
   // Оценивание задания
+  echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
   $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
   $result = pg_query($dbconnect, $query);
 
 }
 
 /*echo "UPDATE AFTER ACTION";*/
-update_chat($assignment_id, $user_type, $user_id);
+if (!isset($_POST['flag_preptable']) || ( isset($_POST['flag_preptable']) && !$_POST['flag_preptable'])){
+  update_chat($assignment_id, $user_type, $user_id);
+}
 
 
 
@@ -260,17 +263,17 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       }
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
-      echo "Добавление file_text<br>";
+      // echo "Добавление file_text<br>";
       $file_name_without_prefix = delete_random_prefix_from_file_name($file_name);
       $file_full_text = file_get_contents($file_path);
       $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-      echo $file_full_text;
+      // echo $file_full_text;
       $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       unlink($file_path);
       if ($type == 1) {
         // Добавление файла в ax_solution_file, если сообщение - ответ на задание
-        echo "ДОБАВЛЕНИЕ ФАЙЛА В ax_solution_file";
+        // echo "ДОБАВЛЕНИЕ ФАЙЛА В ax_solution_file";
         $query = insert_ax_solution_file($assignment_id, $commit_id, $file_name, $file_full_text, 1);
         pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       }
@@ -278,27 +281,6 @@ function work_with_file($file_name, $file_tmp_name, $message_id, $type) {
   } else {
     exit("Ошибка загрузки файла");
   }
-}
-
-// Возвращает двумерный массив вложений для сообщения по message_id
-function get_message_attachments($message_id) {
-	global $dbconnect;
-	$query = select_message_attachment($message_id);
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	
-	$messages = [];
-	for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-		// Если текст файла лежит в БД
-		if ($row['download_url'] == null) {
-			$row['download_url'] = 'download_file.php?attachment_id=' . $row['id'];
-		}
-		// Если файл лежит на сервере
-		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
-		}
-		$messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
-	}
-	return $messages;
 }
 
 // Выводит сообщения на страницу
