@@ -17,12 +17,15 @@ function convert_timestamp_from_string($str){
   $pos = strpos($str, "/");
   $year = substr($str, 0, $pos);
   $sem = substr($str, $pos+1);
-  $sem_id = 0;
+  $sem_number = 0;
 
-  if($sem == 'Весна') $sem_id = 1;
-  else $sem_id = 2;
+  if($sem == 'Весна') 
+    $sem_number = 2*((int)date('Y')-(int) $year + 1);
+  else 
+    $sem_number = 2*((int)date('Y')-(int) $year + 1)-1;
+  echo $sem_number;
 
-  return array('year' => $year, 'semester' => $sem_id);
+  return array('year' => $year, 'semester' => $sem_number);
 }
 
 function convert_timestamp_to_date($timestamp, $format = "d-m-Y") {
