@@ -43,7 +43,7 @@ function show_breadcrumbs(&$breadcrumbs) {
   </ul>
 <?php
 } 
-function show_head($page_title = '')
+function show_head($page_title = '', $js = array(), $css = array())
 { 
 ?>
   <head>
@@ -71,6 +71,21 @@ function show_head($page_title = '')
     <!-- jQuery -->
     <script type="text/javascript" src="js/jquery/jquery-3.5.1.min.js"></script>
 
+	<!-- Page-specific JS/CSS -->
+<?php 
+    foreach($js as $url) {
+?>
+    <script type="text/javascript" src="<?=$url?>"></script>
+<?php 
+    } 
+?>
+<?php 
+    foreach($css as $url) {
+?>
+    <link rel="stylesheet" href="<?=$url?>"/>
+<?php 
+    } 
+?>
   </head>
 <?php 
 } 
