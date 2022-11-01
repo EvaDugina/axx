@@ -26,7 +26,6 @@ if (isset($_POST['action'])) {
 
 				$query = update_discipline($_POST);
 				$result = pg_query($dbconnect, $query);
-				//echo update_discipline($_POST);
 		
 				$query = delete_page_prep($_POST['id']);
 				$result = pg_query($dbconnect, $query);
@@ -56,6 +55,7 @@ if (isset($_POST['action'])) {
 				pg_query($dbconnect, $query);
 				}
 			}
+			
 			break;
 		case 'delete':
 			var_dump($_POST['id']);

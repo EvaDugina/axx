@@ -38,7 +38,7 @@ function conver_calendar_to_timestamp($finish_limit) {
 
 
 //семестр по цифре
-function convert_sem_from_id($id){
+function convert_sem_from_number($id){
   if($id == 1) return 'Весна';
   else return 'Осень';
 }

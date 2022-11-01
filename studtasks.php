@@ -49,7 +49,7 @@ if (array_key_exists('page', $_REQUEST)) {
 		}
 	}
 
-	$semester = $page['year'] . "/" . convert_sem_from_id($page['semester']);
+	$semester = $page['year'] . "/" . convert_sem_from_number($page['semester']);
 	$short_name = $page['short_name'];
 
 	// Подсчёт количества выполненных заданий

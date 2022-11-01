@@ -101,12 +101,12 @@ function select_discipline_years(){
 
 // Изменение страницы дисциплины
 function update_discipline($discipline) {
-    //$timestamp = convert_timestamp_from_string($discipline['timestamp']);
+    $timestamp = convert_timestamp_from_string($discipline['timestamp']);
     $short_name = pg_escape_string($discipline['short_name']);
     $id = pg_escape_string($discipline['id']);
     $disc_id = pg_escape_string($discipline['disc_id']);
-    $year = date("Y");
-    $semester = pg_escape_string($discipline['semester']);
+    $year = pg_escape_string($timestamp['year']);
+    $semester = pg_escape_string($timestamp['semester']);
     $color_theme_id = pg_escape_string($discipline['color_theme_id']);
     $creator_id = pg_escape_string($discipline['creator_id']);
     $creation_date = getNowTimestamp();
