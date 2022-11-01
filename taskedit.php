@@ -73,7 +73,7 @@ if (isset($_GET['task'])){
 
 }
 
-show_head("Добавление\Редактирование задания");
+show_head("Добавление\Редактирование задания", array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
 show_header($dbconnect, 'Редактор заданий', 
 	array("Задания по дисциплине: " . $page['disc_name']  => 'preptasks.php?page='. $page_id,
 	"Редактор заданий" => $_SERVER['REQUEST_URI'])
@@ -120,6 +120,9 @@ show_header($dbconnect, 'Редактор заданий',
                 <textarea id="textArea-description" class="form-control <?php /*if ($task['description'])*/ echo 'active';?>" 
                 rows="5" name="task-description" style="resize: none;"><?=$task['description']?></textarea>
                 <label id="label-textArea-description" class="form-label" for="textArea-description">Описание задания</label>
+				<script>
+					const easyMDE = new EasyMDE({element: document.getElementById('textArea-description')});
+				</script>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
