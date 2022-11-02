@@ -25,6 +25,9 @@ if (count($result) > 0)
   $fulltext = $result[0]['full_text'];
 }
 
+// remove non ascii characters for copydetect correct work
+$fulltext = preg_replace('/[^\x20-\x7E]/','', $fulltext);
+
 file_put_contents('../plate/tested/'.$filename, $fulltext);
 shell_exec('/var/bin/copydetect -t ../plate/tested -r ../plate/222 -a -O ../plate/report.html');
 shell_exec('rm ../plate/tested/'.$filename);
