@@ -10,7 +10,7 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	header('Location:login.php');
 }
 
-$result = pg_query($dbconnect, 'select id, short_name, disc_id, year from ax_page');
+$result = pg_query($dbconnect, 'select id, short_name, disc_id, get_semester(year, semester) sem, year y, semester s from ax_page order by y desc, s desc');
 $pages=pg_fetch_all($result);
 $result1=pg_query($dbconnect, 'select count(id) from ax_page');
 $disc_count=pg_fetch_all($result1);
@@ -31,11 +31,13 @@ function full_name($discipline_id, $dbconnect) {
   <body>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
-				// array_multisort(array_column($pages, 'year'), SORT_DESC, $pages);
-				array_multisort(array_map(function($element){return $element['year'];}, $pages), SORT_DESC, $pages);
-				$now_year = $pages[0]['year']; // first year in database after sort function
+				// array_multisort(array_column($pages, 'y'), SORT_DESC, $pages);
+				//array_multisort(array_map(function($element){return $element['y'];}, $pages), SORT_DESC, $pages);
+				$curr_sem = $pages[0]['sem']; // first sem 
+				$curr_y = $pages[0]['y'];
+				$curr_s = $pages[0]['s'];
 			?>
-			<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_year; ?> год </h2><br>
+			<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $curr_sem; ?></h2><br>
 			<div class="container">
 				<div class="row g-5 container-fluid">
 					<?php 
@@ -48,10 +50,10 @@ function full_name($discipline_id, $dbconnect) {
                                         		$result = pg_query($dbconnect, $query);
 							$array_notify = pg_fetch_all($result);
 
-							if ($now_year != $page['year']) { ?>
+							if ($curr_sem != $page['sem']) { ?>
 								<div class="col-2 align-self-center popover-message-message-stud" 
 								style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?add-page'">
-									<a class="btn btn-link" href="pageedit.php?add-page" type="button" 
+									<a class="btn btn-link" href="pageedit.php?addpage=1&year=<?=$curr_y?>&sem=<?=$curr_s?>" type="button" 
 									style="width: 100%; height: 100%; padding-top: 20%;">
 										<div class="row">
 											<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
@@ -61,8 +63,12 @@ function full_name($discipline_id, $dbconnect) {
 								</div>
 								</div>
 								</div>
-								<?php $now_year = $page['year'];?>
-								<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $now_year; ?> год </h2><br>
+								<?php 
+									$curr_sem = $page['sem'];
+									$curr_y = $page['y'];
+									$curr_s = $page['s'];
+								?>
+								<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $curr_sem; ?></h2><br>
 								<div class="container">
 									<div class="row g-5 container-fluid">
 							<?php } ?>
