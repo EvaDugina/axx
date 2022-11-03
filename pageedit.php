@@ -14,7 +14,7 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 }
 
 // Обработка некорректного перехода между страницами
-if ((!isset($_GET['page']) || !is_numeric($_GET['page'])) && !array_key_exists('add-page', $_REQUEST)){
+if ((!isset($_GET['page']) || !is_numeric($_GET['page'])) && !array_key_exists('addpage', $_REQUEST)){
 	header('Location:mainpage.php');
 	exit;
 }
@@ -75,6 +75,9 @@ if (array_key_exists('page', $_REQUEST)) {
 	$page_groups = pg_fetch_all($result);
 } else {
 	$page_id = 0;
+	
+	if (array_key_exists('year', $_REQUEST) && array_key_exists('sem', $_REQUEST))	
+		$semester = $_REQUEST['year']."/".convert_sem_from_number($_REQUEST['sem']);
 }
 
 #echo "<pre>";
