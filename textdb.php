@@ -12,6 +12,7 @@
     http_response_code(400);
     exit;
   }
+  
   if ($type == "open"){
 
     //-----------------------------------------------------------------OPEN-------------------------------------------------------
@@ -101,15 +102,15 @@
 	foreach($result as $item) 
 		$commit_id = $item['mid'];	
 		
-	if ($commit == 0 || is_null($commit_id)) {
+	if ($commit_id == 0 || is_null($commit_id)) {
 		// создать новый коммит
 		
-		$result = pg_query($dbconnect, "select id from students where login=".$_SESSION['login']);
+		$result = pg_query($dbconnect, "select id from students where login='".$_SESSION['login']."'");
 		$result = pg_fetch_all($result);
 		$user_id = $result[0]['id'];	
 
 			// сессий пока нет
-		$result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) values ($assignment, '', $user_id, 0) returning id;");
+		$result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) values ($assignment, null, $user_id, 0) returning id;");
 		$result = pg_fetch_all($result);
 		$commit_id = $result[0]['id'];	
 	}
@@ -124,7 +125,7 @@
       $responce= $item['id'];
      } 
     }
-
+	
   }else if ($type == "del"){
     
     //-----------------------------------------------------------------DEL---------------------------------------------------------
@@ -187,6 +188,13 @@
 	// }
 
       pg_query($dbconnect, "UPDATE ax_assignment SET status_code='3' where id='$assignment'");
+	  
+	  $msgtext = "Отправлено на проверку"; //"<a href=\"editor.php?assignment=$assignment&commit=$commit_id\">Задание на проверку</a>";
+  	  $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)".
+						 "     values ($assignment, 1, 0, $user_id, now(), null, '$msgtext', $commit_id, 0) returning id");
+      $result = pg_fetch_assoc($result2);
+	  $responce = $result['id'];
+
   }
 ?>
 <?=$responce?>

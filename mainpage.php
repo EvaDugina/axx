@@ -78,7 +78,7 @@ function full_name($discipline_id, $dbconnect) {
 											</a>
                       <a href="preptasks.php?page=<?php echo $page_id; ?>">   
                         <button type="button" class="btn btn-link">
-                          <i class="fa-solid fa-file-pen"></i>
+                          <i class="fa-solid fa-file-pen"></i>задания
                         </button>
 											</a>
 										</div>
