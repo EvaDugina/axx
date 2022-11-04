@@ -7,7 +7,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 $assignment_id = 0;
-if (isset($_GET['assignment']))
+if ( array_key_exists('assignment', $_GET))
   $assignment_id = $_GET['assignment'];
 else {
   //echo "Некорректное обращение";
@@ -42,9 +42,14 @@ if ($row) {
 
 $task_files = getTaskFiles($dbconnect, $task_id);
 
-$result = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
-$last_commit_id = pg_fetch_assoc($result)['id'];
-//echo select_last_commit_id_by_assignment_id($assignment_id) . "<br>";
+$last_commit_id = NULL;
+if ( array_key_exists('commit', $_GET))
+  $last_commit_id = $_GET['commit'];
+else {
+  $result = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+  $last_commit_id = pg_fetch_assoc($result)['id'];
+  //echo select_last_commit_id_by_assignment_id($assignment_id) . "<br>";
+}
 
 $solution_files = array();
 
@@ -80,7 +85,7 @@ $page_name = pg_fetch_assoc($result)['name'];
 
 
 $page_title = "Онлайн редактор кода";
-show_head($page_title); 
+show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js')); 
 ?>
 
 <body>
@@ -103,7 +108,6 @@ show_head($page_title);
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm/lib/xterm.js"></script>
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <body style="overflow-x: hidden;">
 

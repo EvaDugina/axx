@@ -194,7 +194,9 @@
 						 "     values ($assignment, 1, 0, $user_id, now(), null, '$msgtext', $commit_id, 0) returning id");
       $result = pg_fetch_assoc($result2);
 	  $responce = $result['id'];
-
+	  
+	  $result2 = pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
+						 "     values ($responce, 'проверить', 'editor.php?assignment=$assignment&commit=$commit_id', null)");
   }
 ?>
 <?=$responce?>

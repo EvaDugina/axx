@@ -2,6 +2,7 @@
 
 require_once("common.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 
 // защита от случайного перехода
 $au = new auth_ssh();
@@ -84,6 +85,7 @@ switch($action)
         }        
 
         $tilltime = @$_REQUEST['tilltime'];
+		$tilltime = conver_calendar_to_timestamp($tilltime);
         $query = select_check_timestamp($tilltime);
         $level = error_reporting();
         error_reporting(E_ERROR);
@@ -150,8 +152,8 @@ switch($action)
             }
         }
 
-
         header('Location:preptasks.php?page='.$_REQUEST['page']);
+		break;
     }
     case "delete":
     {

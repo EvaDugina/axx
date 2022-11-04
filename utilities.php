@@ -111,7 +111,8 @@ function get_message_attachments($message_id) {
 		}
 		// Если файл лежит на сервере
 		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-			$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
+			if (strpos($row['download_url'], 'editor.php') === false)
+				$row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
 		}
 		$messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
 	}

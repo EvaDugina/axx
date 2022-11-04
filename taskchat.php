@@ -102,7 +102,7 @@ $task_number = explode('.', $task_title)[0];
 <!DOCTYPE html>
 <html lang="en">
 
-<?php show_head('Чат с преподавателем'); ?>
+<?php show_head('Чат с преподавателем', array('https://cdn.jsdelivr.net/npm/marked/marked.min.js')); ?>
 <link rel="stylesheet" href="taskchat.css">
 
 
@@ -121,7 +121,12 @@ $task_number = explode('.', $task_title)[0];
 			<h2><?= $task_title ?></h2>
 			<div>
 				<div class="task-desc-wrapper">
-					<p><?= $task_description ?></p>
+					<p id="TaskDescr"><?= $task_description ?></p>
+   				    <script>
+						document.getElementById('TaskDescr').innerHTML =
+							marked.parse(document.getElementById('TaskDescr').innerHTML);
+					</script>
+
 					<p style="line-height: 0.5em;"><b>Требования к выполнению и результату:</b><br> <?php show_task_files($task_files);?> </p>
 					<div>
 						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
