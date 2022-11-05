@@ -42,9 +42,9 @@
   else if ($file_id != 0) {
 	$result = pg_query($dbconnect, 'select file_name from ax_solution_file where id = '.$file_id);
 	$result = pg_fetch_assoc($result);
-	$commit_id = $result['mid'];		  
+	$file_name = $result['file_name'];		  
   }
-  else {
+  else if ($type != 'oncheck'){
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -56,7 +56,7 @@
 	$responce = "Коммит $commit_id файла $file_name не найден";
 	
 	// выбираем файл по названию и номеру коммита
-	$result = pg_query($dbconnect, "select id, full_text from ax_solution_file where file_name = $file_name and commit_id = $commit_id");
+	$result = pg_query($dbconnect, "select id, full_text from ax_solution_file where file_name = '$file_name' and commit_id = $commit_id");
 	$result = pg_fetch_all($result);
     foreach($result as $item) {
       if($item['id'] == $file_id) {

@@ -30,6 +30,7 @@ function openFile(event) {
         };
         editor.id = id;
 		var param = document.location.href.split("?")[1].split("#")[0];
+		if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
     }
 }
@@ -37,7 +38,8 @@ function openFile(event) {
 function delFile(event) {  
     var id = this.parentNode.querySelector(".validationCustom").id;
     var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&" + "type=" + "del" + "&" + "id=" + id, "del");
+	if (param == '') param = 'void';
+    makeRequest('textdb.php?' + param + "&type=del&id=" + id, "del");
     list.removeChild(this.parentNode);
     listItems = list.querySelectorAll(".tasks__item");
 }
@@ -45,6 +47,7 @@ function delFile(event) {
 function saveFile(name, id) {
     var text = editor.current.getValue();
     var param = document.location.href.split("?")[1].split("#")[0];
+	if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
 }
 
@@ -59,6 +62,7 @@ function saveEditedFile() {
 
     var text = editor.current.getValue();
     var param = document.location.href.split("?")[1].split("#")[0];
+	if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + editor.id + "&" + "file_name=" + name, text], "save");
 }
 
@@ -231,6 +235,7 @@ document.querySelector("#newFile").addEventListener('click', async e => {
     entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
 
     var param = document.location.href.split("?")[1].split("#")[0];
+	if (param == '') param = 'void';
 
     entry.innerHTML = '<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>\
         <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="'+0+'" value="'+name+'" required>\

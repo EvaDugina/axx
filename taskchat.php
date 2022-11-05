@@ -351,7 +351,7 @@ $task_number = explode('.', $task_title)[0];
 		function loadChatLog($first_scroll = false) {
       console.log("LOAD_CHAT_LOG!");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
-			$('#chat-box').load('taskchat_action.php #content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
+			$('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
       sender_user_type: <?=$sender_user_type?>}, function() {
 				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
 				if ($first_scroll) {
@@ -395,7 +395,7 @@ $task_number = explode('.', $task_title)[0];
 
       $.ajax({
         type: "POST",
-        url: 'taskchat_action.php #content',
+        url: 'taskchat_action.php#content',
         cache: false,
         contentType: false,
         processData: false,
