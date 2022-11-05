@@ -1,11 +1,12 @@
 import editor from "./editor.js";
+import {makeRequest, saveEditedFile} from "./butons.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
-import makeRequest from "./butons.js";
 //import alertify from "./alertifyjs/alertify.js";
 //запуск в консоли. 
 
 function saveAll() {
+	var param = document.location.href.split("?")[1].split("#")[0];
     var list = document.getElementsByClassName("tasks__list")[0];
     var items = list.querySelectorAll(".validationCustom");
     var name = "";
@@ -13,16 +14,17 @@ function saveAll() {
         name = items[i].value;
         if(items[i].id == editor.id){
             var text = editor.current.getValue();
-            makeRequest('textdb.php?' + "type=" + "save" + "&" + "id=" + items[i].id + "&" + "file_name=" + name + "&" + "file=" + encodeURIComponent(text), "save");
+            makeRequest('textdb.php?' + param + "type=save&id=" + items[i].id + "&file_name=" + name + "&file=" + encodeURIComponent(text), "save");
         }
         else {          
-            makeRequest('textdb.php?' + "type=" + "save" + "&" + "id=" + items[i].id + "&" + "file_name=" + name, "save");
+            makeRequest('textdb.php?' + param + "type=save&id=" + items[i].id + "&file_name=" + name, "save");
         }
     }
 }
 
 document.querySelector("#run").addEventListener('click', async e => {
     saveAll();
+	var param = document.location.href.split("?")[1].split("#")[0];
     var list = document.getElementsByClassName("tasks__list")[0];
     var items = list.querySelectorAll(".validationCustom");
     var name = "";
@@ -31,7 +33,7 @@ document.querySelector("#run").addEventListener('click', async e => {
         //if(items[i].value.split(".")[items[i].value.split(".").length-1] == "makefile" ^ items[i].value.split(".")[items[i].value.split(".").length-1] == "make"){
         //    t = i;
         //}
-        makeRequest(['textdb.php?' + "type=" + "open" + "&" + "id=" + items[i].id, items[i].value], "get");
+        makeRequest(['textdb.php?' + param + "type=open&id=" + items[i].id, items[i].value], "get");
     }
 
     //if(t){
@@ -45,11 +47,12 @@ document.querySelector("#run").addEventListener('click', async e => {
     if (resp['stderr']){
         l = resp['stdout']+"\n Ошибка "+resp['stderr'];
     }
-    entry.innerHTML = '<p> Результат Makefile:'+ l +' <p>';
+    entry.innerHTML = '<p>Результат Makefile: '+ l +' <p>';
     document.querySelector("#terminal").insertAdjacentElement('afterend',entry);
 });
 
 document.querySelector("#check").addEventListener('click', async e => {
+    saveEditedFile();
     var param = document.location.href.split("?")[1].split("#")[0];
     makeRequest('textdb.php?' + param + "&" + "type=" + "oncheck", "oncheck");
 });
@@ -59,7 +62,7 @@ function funonload() {
     var listItems = list.querySelectorAll(".tasks__item");
     var id = listItems[0].querySelector(".validationCustom").id;
     listItems[0].className += " active_file";
-    makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + id, "open");
+    makeRequest('textdb.php?' + param + "type=open&id=" + id, "open");
     editor.id = id;
 } 
 window.onload = funonload;

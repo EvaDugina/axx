@@ -124,7 +124,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           
       <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
         <div class="px-1 align-items-center" style="cursor: move;"><a href="plug.php?assignment=<?=$assignment_id?>&file=<?=$file['id']?>" target="_blank"><i class="fas fa-file-code fa-lg"></i></a></div>
-        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$file['id']?>" value="<?=$file['file_name']?>" required>
+        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$file['id']?>" value="<?=$file['file_name']?>" disabled>
         <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>
         <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>
       </li>
@@ -153,17 +153,17 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
 			<div class="d-flex justify-content-between">
 			  <!--<button type="button" class="btn btn-outline-primary" id="check" style="width: 50%;"> Отправить на проверку</button>-->
-        <?php if($au->isAdminOrTeacher()) { // Отправить задание на проверку ?>
-          <!--<form id="form-check-task" action="taskchat_action.php" method="POST">-->
-            <button type="button" class="btn btn-success" id="check" style="width: 50%;"
-            <?php if ($task_status_code != 5) echo "disabled";?>>Оценить ответ</button>
-          <!--</form>-->
-        <?php } else { // Оценить отправленное на проверку задание ?>
-          <!--<form id="form-send-answer" action="taskchat_action.php" method="POST">-->
-            <button type="button" class="btn btn-primary" id="check" style="width: 50%;"
-            <?php /*if ($task_status_code == 3) echo "disabled";*/?>>Отправить на проверку</button>
-          <!--</form>-->
-        <?php }?>
+        <?php 
+		if($au->isAdminOrTeacher()) { // Отправить задание на проверку 
+?>
+            <button type="button" class="btn btn-success" id="check" style="width: 50%;" <?=(($task_status_code == 4) ?"disabled" :"")?> >Завершить проверку</button>
+<?php 
+		} else { // Оценить отправленное на проверку задание 
+?>
+            <button type="button" class="btn btn-primary" id="check" style="width: 50%;" <?=(($task_status_code == 1) ?"disabled" :"")?> >Отправить на проверку</button>
+<?php 
+		}
+?>
         <button type="button" class="btn btn-outline-primary" id="run" style="width: 50%;">Запустить в консоли</button>
 
 	    </div>

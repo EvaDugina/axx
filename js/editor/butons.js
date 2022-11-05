@@ -29,7 +29,8 @@ function openFile(event) {
             saveFile(name, editor.id);
         };
         editor.id = id;
-        makeRequest('textdb.php?' + "type=" + "open" + "&" + "id=" + id, "open");
+		var param = document.location.href.split("?")[1].split("#")[0];
+        makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
     }
 }
 
@@ -43,7 +44,22 @@ function delFile(event) {
 
 function saveFile(name, id) {
     var text = editor.current.getValue();
-    makeRequest(['textdb.php?' + "type=" + "save" + "&" + "likeid=" + id + "&" + "file_name=" + name, text], "save");
+    var param = document.location.href.split("?")[1].split("#")[0];
+    makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
+}
+
+function saveEditedFile() {
+    var items = list.querySelectorAll(".validationCustom");
+    var name = "";
+    for (var i = 0; i < items.length; i++) {
+        if(items[i].id == editor.id){
+            name = items[i].value;
+        }
+    }
+
+    var text = editor.current.getValue();
+    var param = document.location.href.split("?")[1].split("#")[0];
+    makeRequest(['textdb.php?' + param + "&type=save&likeid=" + editor.id + "&" + "file_name=" + name, text], "save");
 }
 
 function setEventListener(listItem) {  
@@ -59,7 +75,7 @@ document.querySelector("#language").addEventListener('click', async e => {
     monaco.editor.setModelLanguage(editor.current.getModel(), sel);
 });
 
-export default function makeRequest(url, type) {
+function makeRequest(url, type) {
     var httpRequest = false;
     if (window.XMLHttpRequest) { // Mozilla, Safari, ...
         httpRequest = new XMLHttpRequest();
@@ -224,5 +240,7 @@ document.querySelector("#newFile").addEventListener('click', async e => {
     document.querySelector("#newFile").parentNode.insertAdjacentElement('beforebegin',entry);
 
     listItems = list.querySelectorAll(".tasks__item");
-    makeRequest('textdb.php?' + param + "&" + "type=" + "new" + "&" + "file_name=" + name, "new");
+    makeRequest('textdb.php?' + param + "&type=new&file_name=" + name, "new");
 });
+
+export {makeRequest, saveEditedFile};
