@@ -20,9 +20,9 @@ function convert_timestamp_from_string($str){
   $sem_number = 0;
 
   if($sem == 'Весна') 
-    $sem_number = 2*((int)date('Y')-(int) $year + 1);
+    $sem_number = 1; //2*((int)date('Y')-(int) $year + 1);
   else 
-    $sem_number = 2*((int)date('Y')-(int) $year + 1)-1;
+    $sem_number = 2; //2*((int)date('Y')-(int) $year + 1)-1;
   echo $sem_number;
 
   return array('year' => $year, 'semester' => $sem_number);
