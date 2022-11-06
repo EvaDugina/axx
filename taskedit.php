@@ -110,8 +110,8 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-3">
               <label>Тип задания:</label>
               <select id = "task-type" class="form-select" aria-label=".form-select" name="task-type">
-                <option selected value = "0">Обычное</option>
-                <option value = "1">Программирование</option>
+                <option value = "0" <?=(($task['type']==0) ? "selected" : "")?> >Обычное</option>
+                <option value = "1" <?=(($task['type']==1) ? "selected" : "")?>>Программирование</option>
               </select>
             </div>
 
@@ -135,9 +135,7 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-3 d-flex" id="tools">
               
               <div class="form-outline col-5">
-                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;">
-                  <?php if($task['type'] == 1) echo $test[0]['full_text'];?>
-                </textarea>
+                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($task['type'] == 1) echo $test[0]['full_text'];?></textarea>
                   <label class="form-label" for="textArea-testCode">Код теста</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -149,9 +147,7 @@ show_header($dbconnect, 'Редактор заданий',
               <div class="col-1"></div>
 
               <div class="form-outline col-6">
-                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;">
-                  <?php if($task['type'] == 1) echo $test_of_test[0]['full_text'];?>
-                </textarea>
+                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($task['type'] == 1) echo $test_of_test[0]['full_text'];?></textarea>
                   <label class="form-label" for="textArea-checkCode">Код проверки</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
