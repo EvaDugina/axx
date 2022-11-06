@@ -118,7 +118,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 									$status = false;
 									if ($result_assignment && $row_assignment && $row_assignment['status_code']!=0) {
 										$date_finish = "";
-										$text_status = 'Ответ не загружен';
+										$text_status = $row_assignment['status_text'];
 										if ($row_assignment['finish_limit'] != null)
 											if ($row_assignment['status_code'] == 1 || $row_assignment['status_code'] == 4)
 												$date_finish = "(". $row_assignment['status_text'] . ")";

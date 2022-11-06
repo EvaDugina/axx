@@ -84,20 +84,26 @@ switch($action)
             exit;            
         }        
 
-        $tilltime = @$_REQUEST['tilltime'];
-		$tilltime = conver_calendar_to_timestamp($tilltime);
-        $query = select_check_timestamp($tilltime);
-        $level = error_reporting();
-        error_reporting(E_ERROR);
-        $result = pg_query($dbconnect, $query);
-        error_reporting($level);
-        if (!$result && ($tilltime != ""))
-        {
+        $tilltime = "now() + '1 year'";
+		if (array_key_exists('tilltime', $_REQUEST) && ($_REQUEST['tilltime'] != "")) {
+		  $tilltime = $_REQUEST['tilltime'];
+		  $tilltime = conver_calendar_to_timestamp($tilltime);
+		  
+          $query = select_check_timestamp($tilltime);
+          $level = error_reporting();
+          error_reporting(E_ERROR);
+          $result = pg_query($dbconnect, $query);
+          error_reporting($level);
+          if (!$result && ($tilltime != ""))
+          {
             echo "Неверный формат даты и времени";
             http_response_code(400);
             exit;  
-        }
-
+          }
+		  $tilltime = "to_timestamp('".$tilltime."', 'YYYY-MM-DD HH24:MI:SS')";
+		}
+		
+		
         $group = 0;
         $group = @$_REQUEST['groupped'];
 
@@ -115,7 +121,7 @@ switch($action)
             foreach($tasknums as $tn) {
                 $query = 'insert into ax_assignment(task_id, variant_comment, start_limit, finish_limit, '.
                             ' status_code, delay, status_text, mark) values '.
-                            ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :'to_timestamp(\''.$tilltime.'\', \'YYYY-MM-DD HH24:MI:SS\')').
+                            ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
                             ' , 2, 0, \'ожидает выполнения\', null) returning id;';
                 $result = pg_query($dbconnect, $query);
 
@@ -137,7 +143,7 @@ switch($action)
                 foreach($tasknums as $tn) {
                     $query = 'insert into ax_assignment(task_id, variant_comment, start_limit, finish_limit, '.
                                 ' status_code, delay, status_text, mark) values '.
-                                ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :'to_timestamp(\''.$tilltime.'\', \'YYYY-MM-DD HH24:MI:SS\')').
+                                ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
                                 ' , 2, 0, \'ожидает выполнения\', null) returning id;';
                     $result = pg_query($dbconnect, $query);
 

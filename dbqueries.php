@@ -352,7 +352,7 @@ function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $sta
 
 function insert_assignment($task_id){
   return "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, status_code, delay, status_text, mark)
-          VALUES ($task_id, null, now(), null, 2, null, null, null) RETURNING id;
+          VALUES ($task_id, null, now(), now()+'1 year', 2, null, null, null) RETURNING id;
   ";
 }
 
