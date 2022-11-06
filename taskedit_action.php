@@ -77,15 +77,15 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
     if($checked_elem[0] == 's'){
       // Обработка выделенного checkbox-студента
       $student_id = $elem_id;
-      echo "<br>STUDENT_ID: ".$student_id;
-      echo "<br>";
+//      echo "<br>STUDENT_ID: ".$student_id;
+//      echo "<br>";
 
       $query = select_group_id_by_student_id($student_id);
       $result = pg_query($dbconnect, $query);
       $group_id = pg_fetch_assoc($result)['group_id'];
 
-      echo "STUDENT_GROUP_ID: ".$group_id;
-      echo "<br>";
+//      echo "STUDENT_GROUP_ID: ".$group_id;
+//      echo "<br>";
 
       // Проспускаем, если его группа уже добавлена целиком
       if ($flag_checked_group && $group_id == $checked_group_id){
@@ -101,8 +101,8 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
     } else if ($checked_elem[0] == 'g') {
         // Обработка выделенного checkbox-группы
         $group_id = $elem_id;
-        echo "<br>GROUP_ID: ".$group_id;
-        echo "<br>";
+//        echo "<br>GROUP_ID: ".$group_id;
+//        echo "<br>";
 
         add_group_to_ax_page_group($page_id, $group_id);
 
@@ -123,12 +123,12 @@ if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) &
 
 if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != ""){
   // Должны быть выбраны студенты!
-  echo "<br>FINISH_LIMIT: ".$_POST['finish-limit'];
-  echo "<br>";
+//  echo "<br>FINISH_LIMIT: ".$_POST['finish-limit'];
+//  echo "<br>";
 
   $timestamp = conver_calendar_to_timestamp($_POST['finish-limit']);
-  echo "TIMESTAMP: ".$timestamp;
-  echo "<br>";
+//  echo "TIMESTAMP: ".$timestamp;
+//  echo "<br>";
 
   foreach ($assignments_id as $assignment_id) {
     $query = update_ax_assignment_finish_limit($assignment_id, $timestamp);
@@ -151,9 +151,9 @@ if ($_FILES['task_files']) {
     }
   }
 
-  echo "<br><br>ADD_FILES: "; 
-  print_r($files);
-  echo "<br>";
+//  echo "<br><br>ADD_FILES: "; 
+//  print_r($files);
+//  echo "<br>";
 
   $store_in_db = getSpecialFileTypes(); 
 
@@ -190,7 +190,7 @@ if ($_FILES['task_files']) {
         pg_query($dbconnect, $query);
         unlink($file_path);
       }
-      echo " - ПРИКРЕПЛЕНИЕ ФАЙЛОВ ПРОШЛО УСПЕШНО<br>";
+//      echo " - ПРИКРЕПЛЕНИЕ ФАЙЛОВ ПРОШЛО УСПЕШНО<br>";
     } else {
       exit("Ошибка загрузки файла");
     }
@@ -224,16 +224,16 @@ function add_assignment_to_students($student_id, $task_id){
   $result = pg_query($dbconnect, $query);
   $task_assignment = pg_fetch_assoc($result);
   if($task_assignment){
-    echo "STUDENT-ASSIGNMENT_ID: ".$task_assignment['id'];
-    echo "<br>";
+//    echo "STUDENT-ASSIGNMENT_ID: ".$task_assignment['id'];
+//    echo "<br>";
     $assignment_id = $task_assignment['id'];
   } else {
     // Если к нему ещё не прикреплено задание - добавляем в бд 
     $query = insert_assignment($task_id);
     $result = pg_query($dbconnect, $query);
     $assignment_id = pg_fetch_assoc($result)['id'];
-    echo "ДОБАВЛЕНИЕ НОВОГО ASSIGNMENT, ASSIGNMENT_ID: ".$assignment_id;
-    echo "<br>";
+//    echo "ДОБАВЛЕНИЕ НОВОГО ASSIGNMENT, ASSIGNMENT_ID: ".$assignment_id;
+//    echo "<br>";
 
     $query = insert_assignment_student($assignment_id, $student_id);
     $result = pg_query($dbconnect, $query);

@@ -58,6 +58,7 @@ document.querySelector("#check").addEventListener('click', async e => {
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
     makeRequest('textdb.php?' + param + "&type=oncheck", "oncheck");
+	document.location.href = "taskchat.php?assignment=" + this.assignment;
 });
 
 function funonload() {

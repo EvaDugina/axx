@@ -32,8 +32,8 @@ echo "<br>";*/
 
 
 if (!isset($_POST['message_text'])){
-  echo "JUST UPDATE <br>";
-  echo "ISSET: " . $_POST['message_text'] . "<br>";
+//  echo "JUST UPDATE <br>";
+//  echo "ISSET: " . $_POST['message_text'] . "<br>";
   update_chat($assignment_id, $user_type, $user_id);
   exit;
 }

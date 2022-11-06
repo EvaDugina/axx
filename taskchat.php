@@ -5,14 +5,22 @@ require_once("settings.php");
 require_once("utilities.php");
 
 // Обработка некорректного перехода между страницами
-if (!isset($_GET['task']) || !isset($_GET['page']) || !is_numeric($_GET['task']) || !is_numeric($_GET['page'])){
+if (!(isset($_GET['task']) && isset($_GET['page'])) && !isset($_GET['assignment'])) {
 	header('Location:index.php');
   	exit;
 }
 
-$task_id = $_GET['task'];
-$page_id = $_GET['page'];
+$task_id = 0;
+if (array_key_exists('task', $_GET))
+	$task_id = $_GET['task'];
+$assignment_id = 0;
+if (array_key_exists('assignment', $_GET))
+	$assignment_id = $_GET['assignment'];
+$page_id = 0;
+if (array_key_exists('page', $_GET))
+	$page_id = $_GET['page'];
 $user_id = $_SESSION['hash'];
+
 
 $query = select_discipline_name_by_page($page_id, 1);
 $result = pg_query($dbconnect, $query);
@@ -33,14 +41,30 @@ if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
   exit;
 }
 
-$query = select_task_assignment_student_id($student_id, $task_id);
-$result = pg_query($dbconnect, $query);
-$row = pg_fetch_assoc($result);
-if ($row) {
-	$assignment_id = $row['id'];
-} else {
-	echo '<p style="color:#f00">У страницы нет assignment_id в таблице</p>';
-	exit;
+if ($assignment_id == 0)
+{
+	$query = select_task_assignment_student_id($student_id, $task_id);
+	$result = pg_query($dbconnect, $query);
+	$row = pg_fetch_assoc($result);
+	if ($row) {
+		$assignment_id = $row['id'];
+	} else {
+		echo '<p style="color:#f00">Задание не назначено данному студенту</p>';
+		exit;
+	}
+}
+else {
+	$result = pg_query($dbconnect, "select task_id, page_id from ax_assignment a inner join ax_task t on a.task_id = t.id where a.id = $assignment_id");
+	$row = pg_fetch_assoc($result);
+	if ($row == false) {
+		echo 'Задание не найдено';
+		http_response_code(404);
+		exit;
+	}
+	else {
+		$task_id = $row['task_id'];
+		$page_id = $row['page_id'];
+	}
 }
 
 $task_title = '';
@@ -164,7 +188,7 @@ $task_number = explode('.', $task_title)[0];
                     </select>
                   </div>
                   <button id="button-check" class="btn btn-success" target="_blank" type="submit"
-                  name="submit-check" style="width: 100%;" <?php if($task_status_code != 5) echo "disabled";?>>
+                  name="submit-check" style="width: 100%;">
                     <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
                 </div>
               </form>
