@@ -14,66 +14,46 @@ if ($au->isTeacher()) {
 }
 
 // Обработка некорректного перехода между страницами
-if (!isset($_GET['page']) || !is_numeric($_GET['page'])){
-	header('Location:mainpage_student.php');
-  	exit;
-}
+if (isset($_GET['page']) && is_numeric($_GET['page'])){
+  $page_id = $_GET['page'];
 
-
-$page_id = 0;
-$discipline_name = "";
-$disc_id = 0;
-$semester = "";
-$short_name = "";
-
-$actual_teachers = [];
-$page_groups = [];
-
-if (array_key_exists('page', $_REQUEST)) {
-	$page_id = $_REQUEST['page'];
-
-	$query = select_discipline_page($page_id);
+  $query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
 	$page = pg_fetch_all($result)[0];
 	$disc_id = $page['disc_id'];
 
-	$query = select_all_disciplines();
-	$result = pg_query($dbconnect, $query);
-	$disciplines = pg_fetch_all($result);
-
-	foreach ($disciplines as $key => $discipline) {
-		if ($discipline['id'] == $page['disc_id']){
-			$discipline_name = $discipline['name'];
-			$discipline_name = strtoupper((string) "$discipline_name");
-			break;
-		}
-	}
+	$query = select_discipline_name($disc_id);
+	$result = pg_fetch_assoc(pg_query($dbconnect, $query))['name'];
+	$discipline_name = strtoupper((string) "$result");
 
 	$semester = $page['year'] . "/" . convert_sem_from_number($page['semester']);
 	$short_name = $page['short_name'];
+} else {
+	header('Location:mainpage_student.php');
+  exit;
+}
 
-	// Подсчёт количества выполненных заданий
-	$count_succes_tasks = 0;
-	$count_unsucces_tasks = 0;
-	$count_tasks = 0;
-	$query_tasks = select_page_tasks($page_id, 1);
-	$result_tasks = pg_query($dbconnect, $query_tasks);
-	if (!$result_tasks || pg_num_rows($result_tasks) < 1);
-	else {
-		$i = 0;
-		while ($row_task = pg_fetch_assoc($result_tasks)) {
-			$query_assignment = select_task_assignment_with_limit($row_task['id'], $_SESSION['hash']);
-			$result_assignment = pg_query($dbconnect, $query_assignment);
-			if ($result_assignment && pg_num_rows($result_assignment) >= 1) { 
-				$row_task_assignment = pg_fetch_assoc($result_assignment);
-				if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
-				if($row_task_assignment['status_code'] == 2 || $row_task_assignment['status_code'] == 5) $count_unsucces_tasks++;
-			}
-		}
-	}
-	$count_tasks = $count_unsucces_tasks + $count_succes_tasks;
+$student_id = $_SESSION['hash'];
 
-}?>
+$actual_teachers = [];
+$page_groups = [];
+
+
+// Подсчёт количества выполненных заданий
+$count_succes_tasks = 0;
+$count_tasks = 0;
+$query_tasks = select_page_tasks_with_assignment($page_id, 1, $student_id);
+$result_tasks = pg_query($dbconnect, $query_tasks);
+$tasks = pg_fetch_all($result_tasks);
+if (!$result_tasks || pg_num_rows($result_tasks) < 1);
+else {
+  foreach($tasks as $key => $task) { 
+      if ($task['status_code'] == 3) $count_succes_tasks++;
+      $count_tasks++;
+    }
+}
+
+?>
 
 <html lang="en">
 
@@ -105,13 +85,10 @@ show_header($dbconnect, 'Задания по дисциплине',
 					<div class="col-md-11 col-md-push-1 w-100">
 						<div class="list-group list-group-flush" id="list-tab" role="tablist">
 							<?php
-							$query_tasks = select_page_tasks($page_id, 1);
-							$result_tasks = pg_query($dbconnect, $query_tasks);
 							if (!$result_tasks || pg_num_rows($result_tasks) < 1);
 							else {
-								$i = 0;
-								while ($row_task = pg_fetch_assoc($result_tasks)) { 
-									$query_assignment = select_task_assignment_with_limit($row_task['id'], $_SESSION['hash']);
+                foreach($tasks as $key => $task) { 
+									$query_assignment = select_task_assignment_with_limit($task['id'], $_SESSION['hash']);
 									$result_assignment = pg_query($dbconnect, $query_assignment);
 									$row_assignment = pg_fetch_assoc($result_assignment);
 
@@ -133,10 +110,10 @@ show_header($dbconnect, 'Задания по дисциплине',
 										
 										<button class="list-group-item list-group-item-action d-flex justify-content-between mb-3" 
 										<?php if($row_assignment['status_code'] == 1 || $row_assignment['status_code'] == 4) echo "disabled"; ?>
-										onclick="window.location='<?='taskchat.php?task='. $row_task['id'] . '&page=' . $page_id?>';"
+										onclick="window.location='<?='taskchat.php?task='. $task['id'] . '&page=' . $page_id?>';"
 										style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;"
-										id="studtasks-elem-<?php echo $i + 1; ?>">
-											<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $row_task['title']; ?></p>
+										id="studtasks-elem-<?php echo $key + 1; ?>">
+											<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $task['title']; ?></p>
 											<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $date_finish;?></p>
 											<p class="col-md-2" style="margin: 10px; text-align: center;"><?php echo $text_status;?></p>
 											<div class="form-check" style="margin: 10px;">
@@ -149,8 +126,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 											-->
 									</button>
 									<?php
-									} 
-									$i++;
+									}
 								}
 							} ?>
 						</div>

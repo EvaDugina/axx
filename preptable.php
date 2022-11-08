@@ -326,10 +326,14 @@ if ($scripts) echo $scripts; ?>
           <div id="list-messages" class="bg-light" style="/*overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);*/">
             <div id="list-messages-id">
               <?php
-              for ($m = 0; $m < count($messages); $m++) { // list all messages
-                if ($messages[$m]['mtype'] != null)
-                  show_message($messages[$m]);
-              } ?>
+              foreach ($messages as $message) {
+                if ($message['mtype'] != null)
+                  show_message($message);
+              }
+              // for ($m = 0; $m < count($messages); $m++) { // list all messages
+              //   if ($messages[$m]['mtype'] != null)
+              //     show_message($messages[$m]);
+              // } ?>
             </div>
             <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div> -->
           </div>
@@ -421,7 +425,7 @@ function getPopoverContent($task_message) {
   $data_mdb_content = "";
 
   $data_mdb_content .= "<strong>". $task_message['mtext'] ."</strong>";
-  $data_mdb_content .= showAttachedFiles($task_message['mid']);
+  $data_mdb_content .= showAttachedFilesByMessageId($task_message['mid']);
   $data_mdb_content .= "
   <a href='javascript:answerPress(2,". $task_message['mid'] .", ". $task_message['max_mark'] .", " .
   $task_message['aid'] . ", " . $task_message['sid'] . ", 1)'
@@ -439,7 +443,7 @@ function getPopoverContent($task_message) {
   integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 
 <!-- Custom scripts -->
-<script type="text/javascript" src="js/utilities.js"></script>
+<script type="text/javascript" src="js/messageHandler.js"></script>
 <script type="text/javascript" src="js/preptable.js"></script>
 
 
