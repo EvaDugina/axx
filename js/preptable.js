@@ -130,7 +130,7 @@ form_taskCheck.addEventListener('submit', function (event) {
     let mark = document.getElementById('dialogMarkMarkInput').value;
     let messsage_text = document.getElementById('dialogMarkText').value;
     sendMessage(messsage_text, null, 2, assignment_id, user_id, sender_user_type, mark, true);
-    answerSend(form_taskCheck);
+    //answerSend(form_taskCheck);
     return 1;
 });
 }
@@ -156,13 +156,13 @@ function checkInputs(){
     return 1;
 }
 
-function answerSend(form) {
-    //console.log($(form).find(':submit').getAttribute("class"));
-    $(form)
-        .find(':submit')
-        .attr('disabled', 'disabled')
-        .append(' <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-}
+// function answerSend(form) {
+//     //console.log($(form).find(':submit').getAttribute("class"));
+//     $(form)
+//         .find(':submit')
+//         .attr('disabled', 'disabled')
+//         .append(' <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+// }
 
 function answerText(answer_text, message_id) {
     console.log('answer: ', answer_text, message_id);
