@@ -58,6 +58,12 @@ function select_page_name($page_id) {
             WHERE p.id='$page_id' ";
 }
 
+function select_ax_page_short_name($page_id){
+  return "SELECT short_name FROM ax_page
+          WHERE id = $page_id;
+  ";
+}
+
 function select_page_names($status) {
     return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names
             FROM ax_page p INNER JOIN discipline d ON d.id = p.disc_id 
@@ -254,7 +260,7 @@ function select_page_tasks($page_id, $status) {
     return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' ORDER BY id";
 }
 
-// - получение всех заданий по странице дисциплины
+// - получение количества всех заданий по странице дисциплины
 function select_count_page_tasks($page_id) {
   return "SELECT COUNT(*) FROM ax_task WHERE page_id = '$page_id'";
 }
@@ -401,8 +407,8 @@ function select_message_attachment($message_id) {
 }
 
 function select_last_answer_message($assignment_id, $type) {
-  return "SELECT MAX(id) as reply_to_id FROM ax_message 
-          WHERE assignment_id = $assignment_id AND type = $type;";
+  return "SELECT commit_id, MAX(id) as reply_to_id FROM ax_message 
+          WHERE assignment_id = $assignment_id AND type = $type GROUP BY commit_id ORDER BY commit_id DESC;";
 }
 
 function update_ax_message_status($message_id){
@@ -434,14 +440,18 @@ function insert_message($assignment_id, $type, $user_type, $user_id, $full_text,
   $p1 = "INSERT into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
   VALUES ($assignment_id, $type, $user_type, $user_id, now(), ";
 
-  if ($reply_to_id != null) $p1 = $p1 . $reply_to_id . ", ";
-  else $p1 = $p1 . "null, ";
+  if ($reply_to_id) 
+    $p1 = $p1 . $reply_to_id . ", ";
+  else 
+    $p1 = $p1 . "null, ";
 
   $p1 .= "'$full_text', ";
   $p2 = ", 0); SELECT currval('ax_message_id_seq') as \"id\";";
 
-  if ($commit_id != null) $result = $p1 . $commit_id . $p2;
-  else $result = $p1 . "null" . $p2;
+  if ($commit_id != null) 
+    $result = $p1 . $commit_id . $p2;
+  else 
+    $result = $p1 . "null" . $p2;
 
   return $result;
 }
@@ -483,6 +493,8 @@ function select_discipline_name_by_page($page_id) {
             WHERE ax_page.id = '$page_id';
     ";
 }
+
+
 
 
 
@@ -571,6 +583,14 @@ function select_page_prep_name($page_id) {
     return 'SELECT first_name, middle_name FROM ax_page_prep 
             INNER JOIN students ON students.id = ax_page_prep.prep_user_id 
             WHERE page_id ='.$page_id;
+}
+
+function isPrepByAssignmentId($assignment_id, $user_id){
+  return "SELECT DISTINCT prep_user_id FROM ax_page_prep
+          INNER JOIN ax_page ON ax_page.id = ax_page_prep.page_id
+          INNER JOIN ax_task ON ax_task.page_id = ax_page.id
+          INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+          WHERE prep_user_id = $user_id AND ax_assignment.id = $assignment_id";
 }
 
 // удаление из таблицы дисциплины-преподователи
@@ -782,7 +802,7 @@ function select_page_messages($page_id) {
             INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
             INNER JOIN groups ON groups.id = students_to_groups.group_id
             WHERE ax_task.page_id = '$page_id' AND m1.type in (1, 2)
-            ORDER BY /*grp, fio, tid,*/ mid;
+            ORDER BY /*grp, fio, tid,*/ mid DESC;
     ";
 }
 

@@ -8,7 +8,6 @@ assignment_id, user_id, sender_user_type, mark=null, flag_preptable=false, func_
     var formData = new FormData();
     formData.append('assignment_id', assignment_id);
     formData.append('user_id', user_id);
-    formData.append('sender_user_type', sender_user_type);
     formData.append('message_text', userMessage);
     formData.append('type', typeMessage);
     formData.append('flag_preptable', flag_preptable);

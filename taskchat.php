@@ -10,21 +10,25 @@ if (!(isset($_GET['task']) && isset($_GET['page'])) && !isset($_GET['assignment'
   	exit;
 }
 
-$task_id = 0;
-if (array_key_exists('task', $_GET))
-	$task_id = $_GET['task'];
-$assignment_id = 0;
-if (array_key_exists('assignment', $_GET))
-	$assignment_id = $_GET['assignment'];
-$page_id = 0;
-if (array_key_exists('page', $_GET))
-	$page_id = $_GET['page'];
 $user_id = $_SESSION['hash'];
 
+$task_id = 0;
+if (isset($_GET['task']))
+	$task_id = $_GET['task'];
 
-$query = select_discipline_name_by_page($page_id, 1);
+$assignment_id = 0;
+if (isset($_GET['assignment']))
+	$assignment_id = $_GET['assignment'];
+
+$page_id = 0;
+if (isset($_GET['page']))
+	$page_id = $_GET['page'];
+
+
+$query = select_ax_page_short_name($page_id);
 $result = pg_query($dbconnect, $query);
-$page_name = pg_fetch_assoc($result);
+$page_name = pg_fetch_assoc($result)['short_name'];
+
 
 $au = new auth_ssh();
 $sender_user_type = 0;
@@ -41,8 +45,7 @@ if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
   exit;
 }
 
-if ($assignment_id == 0)
-{
+if ($assignment_id == 0) {
 	$query = select_task_assignment_student_id($student_id, $task_id);
 	$result = pg_query($dbconnect, $query);
 	$row = pg_fetch_assoc($result);
@@ -134,10 +137,10 @@ $task_number = explode('.', $task_title)[0];
 	<?php 
 	if ($au->isTeacher()) 
 		show_header($dbconnect, 'Чат c перподавателем', 
-			array('Посылки по дисциплине: ' . $page_name['name'] => 'preptable.php?page=' . $page_id, $task_title => '')); 
+			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => '')); 
 	else 
 		show_header($dbconnect, 'Чат c перподавателем', 
-			array($page_name['name'] => 'studtasks.php?page=' . $page_id, $task_title => '')); 
+			array($page_name => 'studtasks.php?page=' . $page_id, $task_title => '')); 
 	?>
 
 	<main>
@@ -239,6 +242,7 @@ $task_number = explode('.', $task_title)[0];
 		</div>
 	</main>
 	
+  <!-- <script type="text/javascript" src="js/messageHandler.js"></script> -->
   
 	<script type="text/javascript">
 		
@@ -375,8 +379,7 @@ $task_number = explode('.', $task_title)[0];
 		function loadChatLog($first_scroll = false) {
       console.log("LOAD_CHAT_LOG!");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
-			$('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
-      sender_user_type: <?=$sender_user_type?>}, function() {
+			$('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
 				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
 				if ($first_scroll) {
 					if ($('#new-messages').length == 0) {
@@ -399,7 +402,6 @@ $task_number = explode('.', $task_title)[0];
       var formData = new FormData();
       formData.append('assignment_id', <?=$assignment_id?>);
       formData.append('user_id', <?=$user_id?>);
-      formData.append('sender_user_type', <?=$sender_user_type?>);
       formData.append('message_text', userMessage);
       formData.append('type', typeMessage);
       if(userFiles){
