@@ -5,20 +5,20 @@ require_once("settings.php");
 require_once("utilities.php");
 
 // Обработка некорректного перехода между страницами
-if (!(isset($_GET['task']) && isset($_GET['page'])) && !isset($_GET['assignment'])) {
+if (!(isset($_REQUEST['task']) && isset($_REQUEST['page'])) && !isset($_REQUEST['assignment'])) {
 	header('Location:index.php');
   	exit;
 }
 
 $task_id = 0;
-if (array_key_exists('task', $_GET))
-	$task_id = $_GET['task'];
+if (array_key_exists('task', $_REQUEST))
+	$task_id = $_REQUEST['task'];
 $assignment_id = 0;
-if (array_key_exists('assignment', $_GET))
-	$assignment_id = $_GET['assignment'];
+if (array_key_exists('assignment', $_REQUEST))
+	$assignment_id = $_REQUEST['assignment'];
 $page_id = 0;
-if (array_key_exists('page', $_GET))
-	$page_id = $_GET['page'];
+if (array_key_exists('page', $_REQUEST))
+	$page_id = $_REQUEST['page'];
 $user_id = $_SESSION['hash'];
 
 
@@ -28,9 +28,9 @@ $page_name = pg_fetch_assoc($result);
 
 $au = new auth_ssh();
 $sender_user_type = 0;
-if ($au->isAdminOrTeacher() && isset($_GET['id_student'])){
+if ($au->isAdminOrTeacher() && isset($_REQUEST['id_student'])){
 	// Если на страницу чата зашёл преподаватель
-	$student_id = $_GET['id_student'];
+	$student_id = $_REQUEST['id_student'];
   $sender_user_type = 1;
 
 } else if ($au->loggedIn()){

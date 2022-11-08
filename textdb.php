@@ -1,4 +1,6 @@
 <?php
+  header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() - (60 * 60)));
+
   require_once("common.php");
   require_once("dbqueries.php");
   $file_name = 0;

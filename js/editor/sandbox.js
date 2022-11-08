@@ -49,7 +49,7 @@ document.querySelector("#run").addEventListener('click', async e => {
     if (resp['stderr']){
         l = resp['stdout']+"\n Ошибка "+resp['stderr'];
     }
-    entry.innerHTML = '<p>Результат Makefile: '+ l +' <p>';
+    entry.innerHTML = '<pre>Результат Makefile: '+ l +' </pre>';
     document.querySelector("#terminal").insertAdjacentElement('afterend',entry);
 });
 
@@ -58,7 +58,6 @@ document.querySelector("#check").addEventListener('click', async e => {
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
     makeRequest('textdb.php?' + param + "&type=oncheck", "oncheck");
-	document.location.href = "taskchat.php?assignment=" + this.assignment;
 });
 
 function funonload() {

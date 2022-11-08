@@ -153,20 +153,20 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
 			<div class="d-flex justify-content-between">
 			  <!--<button type="button" class="btn btn-outline-primary" id="check" style="width: 50%;"> Отправить на проверку</button>-->
-			  <form action="taskchat.php" method="GET" style="width:50%">
+			  <!--<form action="taskchat.php" method="POST" style="width:50%">-->
 				<input type="hidden" name="assignment" value="<?=$assignment_id?>">
         <?php 
 		if($au->isAdminOrTeacher()) { // Отправить задание на проверку 
 ?>
-            <button type="submit" class="btn btn-success" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 4) ?"disabled" :"")?> >Завершить проверку</button>
+            <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 4) ?"disabled" :"")?> >Завершить проверку</button>
 <?php 
 		} else { // Оценить отправленное на проверку задание 
 ?>
-            <button type="submit" class="btn btn-primary" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 1) ?"disabled" :"")?> >Отправить на проверку</button>
+            <button type="button" class="btn btn-primary" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 1) ?"disabled" :"")?> >Отправить на проверку</button>
 <?php 
 		}
 ?>
-			  </form>
+			  <!--</form>-->
 			  <button type="button" class="btn btn-outline-primary" id="run" style="width: 50%;">Запустить в консоли</button>
 
 	    </div>

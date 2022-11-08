@@ -130,8 +130,8 @@ function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "oncheck") {
-        httpRequest.onreadystatechange = function() { alertContents1(httpRequest, url); };  
-        httpRequest.open('GET', encodeURI(url), true);
+        httpRequest.onreadystatechange = function() { alertContentsCheck(httpRequest, url); };  
+        httpRequest.open('POST', encodeURI(url), true);
         httpRequest.send(null);
     }
     else if (type == "ws") {
@@ -163,6 +163,22 @@ function alertContents1(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
+            } else {
+                alert('С запросом возникла проблема.' + httpRequest.status);
+            }
+        }
+    }
+    catch( e ) {
+        alert('Произошло исключение: ' + e.description);
+    }
+}
+
+function alertContentsCheck(httpRequest) {
+    try {
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+				alert('Новая копия проекта отправлена. Вы продолжаете работу со своей копией');
+				document.location.href = "taskchat.php?assignment=" + document.getElementById('check').getAttribute('assignment');
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
             }
