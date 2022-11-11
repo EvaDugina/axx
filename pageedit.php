@@ -40,7 +40,7 @@ $query = select_discipline_years();
 $result = pg_query($dbconnect, $query);
 $years = pg_fetch_all($result);
 
-$query = select_teacher_name();
+$query = select_all_teachers();
 $result = pg_query($dbconnect, $query);
 $teachers = pg_fetch_all($result);
 
@@ -90,7 +90,9 @@ if (array_key_exists('page', $_REQUEST)) {
 
 	<?php
 	show_head("Добавление/Редактирование предмета");
-	show_header($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); ?>
+  if ($short_name) show_header($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета: '.$short_name  => $_SERVER['REQUEST_URI'])); 
+  else show_header($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); 
+  ?>
 
 	<body>
 		<main class="pt-2" aria-hidden="true">
@@ -174,9 +176,9 @@ if (array_key_exists('page', $_REQUEST)) {
 						<div class="btn-group shadow-0">
 							<select class="form-select" id = "select_teacher">
 								<?php
-									foreach($teachers as $teacher){
-										echo "<option>".$teacher['first_name'].' '.$teacher['middle_name']."</option>";
-									}
+									foreach($teachers as $teacher){?>
+										<option value="<?=$teacher['id']?>"><?=$teacher['first_name'].' '.$teacher['middle_name']?></option>;
+									<?php }
 								?>
 							</select>
 						</div>
@@ -304,13 +306,10 @@ if (array_key_exists('page', $_REQUEST)) {
 		
 		
 		function add_teacher() {
+			let id = document.getElementById("select_teacher").value;
 			let name = document.getElementById("select_teacher").value;
-			
-			if(teachers.has(name))
-				return;
-			
-			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
-
+      console.log(id + " " + name);
+			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers, id);
 			teachers.add(name);
 		}
 		
@@ -330,7 +329,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			groups.add(name);
 		}
 		
-		function add_element(parent, name, tag, set) {
+		function add_element(parent, name, tag, set, id=null) {
 			let element = document.createElement("div");
 
 			//element.classList.add("col-lg-2");
@@ -360,7 +359,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			});
 			
 			let input = document.createElement("input");
-			input.setAttribute("type","hidden");
+			input.setAttribute("type", "hidden");
 			input.setAttribute("value", name);
 			input.setAttribute("name", tag);
 			element.append(input);

@@ -40,10 +40,13 @@ if (isset($_POST['action'])) {
 			}
 
 			if (isset($_POST['teachers'])){
+        echo '</br></br>';
+        print_r($_POST['teachers']);
 				foreach($_POST['teachers'] as $teacher) {
 				$pos = strpos($teacher, ' ');
 				$first_name = substr($teacher, 0, $pos);
 				$middle_name = substr($teacher, $pos+1);
+        echo '</br>' . $teacher;
 				$query = prep_ax_prep_page($id, $first_name, $middle_name);
 				pg_query($dbconnect, $query);
 				}
@@ -73,6 +76,6 @@ if (isset($_POST['action'])) {
 		break;
 
 	}
-	header('Location: mainpage.php');
+	//header('Location: mainpage.php');
 }
 ?>
