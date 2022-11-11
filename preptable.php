@@ -128,7 +128,7 @@ if ($scripts) echo $scripts; ?>
             $result = pg_query($dbconnect, $query);
             $students = pg_fetch_all_assoc($result, PGSQL_ASSOC);
 
-            $query = select_page_messages($page_id);
+            $query = select_preptable_messages($page_id);
             $result = pg_query($dbconnect, $query);
             $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
           ?>

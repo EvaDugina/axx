@@ -782,27 +782,37 @@ function select_last_ax_solution_file_by_commit_id($commit_id) {
 
 
 // получение сообщений для таблицы посылок
-function select_page_messages($page_id) {
-    return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
-            ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
-            ax_message_attachment.id fid, m1.type, ax_task.title task, ax_task.max_mark max_mark, 
-            ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, 
-            to_char(m1.date_time, 'DD-MM-YYYY HH24:MI:SS') mtime, 
-            m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.id mreply_id, m2.full_text mreply_text,
-            s2.middle_name || ' ' || s2.first_name mfio, s2.login mlogin FROM ax_task 
+function select_preptable_messages($page_id) {
+    return "SELECT DISTINCT ON (a.tid) a.fio, a.grp, a.tid, a.aid, a.mid, a.sid, 
+            a.type, a.task, a.max_mark, a.amark, a.adelay, a.astatus, 
+            a.mtime, a.mtext, a.mtype, a.mstatus, a.mreply_id, 
+            a.mreply_text, a.mfio, a.mlogin
+            FROM( 
+              SELECT DISTINCT ON (ax_assignment.id) s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
+              ax_task.id tid, ax_assignment.id aid, m1.id mid, ax_assignment_student.student_user_id sid, 
+              m1.type, ax_task.title task, ax_task.max_mark max_mark, 
+              ax_assignment.mark amark, ax_assignment.delay adelay, ax_assignment.status_code astatus, 
+              to_char(m1.date_time, 'DD-MM-YYYY HH24:MI:SS') mtime, 
+              m1.full_text mtext, m1.sender_user_type mtype, m1.status mstatus, m2.id mreply_id, m2.full_text mreply_text,
+              s2.middle_name || ' ' || s2.first_name mfio, s2.login mlogin FROM ax_task 
 
-            INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id AND ax_assignment.status_code in (2,3,4,5)
-            INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id
-            INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
-            LEFT JOIN ax_message m1 ON ax_assignment.id = m1.assignment_id 
-            AND (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) AND m1.status in (0,1)
-            LEFT JOIN ax_message m2 ON m1.reply_to_id = m2.id
-            LEFT JOIN students s2 ON s2.id = m1.sender_user_id
-            LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
-            INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
-            INNER JOIN groups ON groups.id = students_to_groups.group_id
-            WHERE ax_task.page_id = '$page_id' AND m1.type in (1, 2)
-            ORDER BY /*grp, fio, tid,*/ mid DESC;
+              INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id AND ax_assignment.status_code in (5)
+              INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id
+              INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
+              LEFT JOIN ax_message m1 ON ax_assignment.id = m1.assignment_id 
+              AND (m1.sender_user_id=ax_assignment_student.student_user_id or m1.sender_user_type=1) AND m1.status in (0,1)
+              LEFT JOIN ax_message m2 ON m1.reply_to_id = m2.id
+              LEFT JOIN students s2 ON s2.id = m1.sender_user_id
+              LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
+              INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
+              INNER JOIN groups ON groups.id = students_to_groups.group_id
+              WHERE ax_task.page_id = '$page_id' AND m1.type in (1, 2)
+              ORDER BY /*grp, fio, tid,*/ ax_assignment.id DESC
+            ) a
+            GROUP BY a.fio, a.grp, a.tid, a.aid, a.mid, a.sid, 
+            a.type, a.task, a.max_mark, a.amark, a.adelay, a.astatus, 
+            a.mtime, a.mtext, a.mtype, a.mstatus, a.mreply_id, 
+            a.mreply_text, a.mfio, a.mlogin ORDER BY a.tid;
     ";
 }
 
