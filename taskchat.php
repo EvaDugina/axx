@@ -182,8 +182,7 @@ $task_number = explode('.', $task_title)[0];
               <form id="form-check-task" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-1">
                   <div class="file-input-wrapper me-1">
-                    <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;"
-                    <?php if($task_status_code != 5) echo "disabled";?> name="mark">
+                    <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
                       <option hiddenb value="-1"></option>
                       <?php for($i=1; $i<=$task_max_mark; $i++) {?>
                         <option value="<?=$i?>"><?=$i?></option>
