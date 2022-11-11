@@ -11,7 +11,7 @@ function select_check_timestamp($datetime) {
 }
 
 function get_user_name($id) {
-    return "SELECT first_name || ' ' || middle_name fio FROM students WHERE id = $id;";
+    return "SELECT first_name, middle_name fio FROM students WHERE id = $id;";
 }
 
 function update_user_email($id, $email) {
@@ -33,11 +33,11 @@ function update_user_notify_type($id, $notify_type){
 }
 
 function get_user_info($id){
-    return "SELECT first_name || ' ' || middle_name || ' ' || last_name as fio, 
+    return "SELECT first_name, middle_name, last_name, login, role,
         groups.name as group_name, ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
         FROM students
-        INNER JOIN students_to_groups ON students_to_groups.student_id = students.id
-        INNER JOIN groups ON groups.id = students_to_groups.group_id
+        LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
+        LEFT JOIN groups ON groups.id = students_to_groups.group_id
         LEFT JOIN ax_settings ON ax_settings.user_id = students.id
         WHERE students.id = $id;
     ";
@@ -572,10 +572,9 @@ function select_page_students_grouped($page_id) {
 // ДЕЙСТВИЯ С ПРЕПОДАВАТЕЛЯМИ
 
 // все преподователи
-function select_teacher_name() {
-    return 'SELECT student_id, first_name, middle_name, last_name FROM students_to_groups 
-            INNER JOIN students ON students_to_groups.student_id = students.id 
-            WHERE group_id = 29';
+function select_all_teachers() {
+    return 'SELECT id, first_name, middle_name, last_name, role FROM students
+            WHERE role = 2';
 }
 
 // преподователи у конкретной дисциплины

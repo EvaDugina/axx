@@ -198,15 +198,14 @@ $task_number = explode('.', $task_title)[0];
               <form id="form-send-answer" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-2">
                   <div class="file-input-wrapper me-1">
-                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple 
-                    <?php if($task_status_code == 3) echo 'disabled';?>>
+                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
                     <label for="user-answer-files" <?php if($task_status_code == 3) echo 'style="cursor: default;"';?>>
                       <i class="fa-solid fa-paperclip"></i>
                       <span id="files-answer-count" class="text-success"></span>
                     </label>
                   </div>
                   <button id="submit-answer" class="btn btn-success submit-files" target="_blank" type="submit" 
-                  name="submit-answer"<?php if($task_status_code == 3) echo "disabled";?>>
+                  name="submit-answer">
                     <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
                 </div>
               </form>
