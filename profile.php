@@ -8,6 +8,13 @@ require_once("utilities.php");
 $query = get_user_info($_SESSION['hash']);
 $result = pg_query($dbconnect, $query);
 $student_info = pg_fetch_assoc($result);
+
+$fio = $student_info['first_name'];
+if (isset($student_info['middle_name']))
+  $fio .= " " . $student_info['middle_name'];
+if (isset($student_info['last_name']))
+  $fio .= " " . $student_info['last_name'];
+
 ?>
 
 <html lang="en">
@@ -30,7 +37,7 @@ show_head(); ?>
             </div>
           </div>
           <form clacc="col-md-6 form-check" action="profile_edit.php" method="POST">
-            <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?=$student_info['fio']?></span> </p>
+            <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?=$fio?></span> </p>
             <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$_SESSION['login']?></span> </p>
             <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$student_info['group_name']?></span> </p>
             <p> <span class="font-weight-bold">ПОЧТА: </span> 

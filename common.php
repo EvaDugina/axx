@@ -20,7 +20,9 @@ if ($pageurl != 'login.php') {
     $query = get_user_name($au->getUserId());
     $result = pg_query($query);
     if ($row = pg_fetch_assoc($result))
-    $_SESSION['username'] = $row['fio'];
+      $_SESSION['username'] = $row['first_name'];
+      if (isset($row['middle_name']))
+        $_SESSION .= " " . $row['middle_name'];
   }
 } 
 
