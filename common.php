@@ -22,7 +22,7 @@ if ($pageurl != 'login.php') {
     if ($row = pg_fetch_assoc($result))
       $_SESSION['username'] = $row['first_name'];
       if (isset($row['middle_name']))
-        $_SESSION .= " " . $row['middle_name'];
+        $_SESSION['username'] .= " " . $row['middle_name'];
   }
 } 
 

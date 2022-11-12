@@ -11,7 +11,7 @@ function select_check_timestamp($datetime) {
 }
 
 function get_user_name($id) {
-    return "SELECT first_name, middle_name fio FROM students WHERE id = $id;";
+    return "SELECT first_name, middle_name FROM students WHERE id = $id;";
 }
 
 function update_user_email($id, $email) {
