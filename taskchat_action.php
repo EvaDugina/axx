@@ -65,7 +65,7 @@ if ($_POST['type'] == 1){
   $delay = -1;
   if ($finish_limit) {
     $date_db = convert_timestamp_to_date($finish_limit);
-    $date_now = get_now_date("d-message-Y");  
+    $date_now = get_now_date("d-m-Y");  
     $delay = ($date_db >= $date_now) ? 0 : 1;
   }
   $query = update_ax_assignment_delay($assignment_id, $delay);

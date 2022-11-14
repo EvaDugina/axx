@@ -17,15 +17,15 @@ function get_now_date($format = "d-m-Y"){
 
 // год и номер семестра по названию
 function convert_timestamp_from_string($str){
-  $pos = strpos($str, "/");
-  $year = substr($str, 0, $pos);
-  $sem = substr($str, $pos+1);
+  $pos = explode(" ", $str);
+  $year = explode("/", $pos[0])[0];
+  $sem = $pos[1];
   $sem_number = 0;
 
   if($sem == 'Весна') 
-    $sem_number = 1; //2*((int)date('Y')-(int) $year + 1);
+    $sem_number = 1;
   else 
-    $sem_number = 2; //2*((int)date('Y')-(int) $year + 1)-1;
+    $sem_number = 2;
   echo $sem_number;
 
   return array('year' => $year, 'semester' => $sem_number);

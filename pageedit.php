@@ -144,20 +144,18 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="timestamp">           
-								<option selected>
-									<?=$semester?>
-								</option>
-								<?php foreach($years as $key => $year){
-									if ($page) {
-										if ($year['year'] != $page['year'] or $page['semester']%2 != 1)
-											echo "<option>".$year['year']."/".convert_sem_from_number(1)."</option>";
-										if ($year['year'] != $page['year'] or $page['semester']%2 != 0)
-											echo "<option>".$year['year']."/".convert_sem_from_number(0)."</option>";
-									} else {
-										echo "<option>".$year['year']."/".convert_sem_from_number(1)."</option>";
-										echo "<option>".$year['year']."/".convert_sem_from_number(0)."</option>";
-									}
-								} ?>
+								<?php echo $page['year'] . " " . $page['semester'];
+								foreach($years as $key => $year){
+									echo "<option ";
+									if ($page && $year['year'] == $page['year'] && $page['semester'] == 1)
+										echo "selected";
+									echo ">".$year['year']."/".($year['year']+1)." Весна</option>";
+
+									echo "<option ";
+									if ($page && $year['year'] == $page['year'] && $page['semester'] == 2)
+										echo "selected";
+									echo ">".$year['year']."/".($year['year']+1)." Осень</option>";
+								}?>
 							</select>
 						</div>
 					</div>
@@ -177,7 +175,7 @@ if (array_key_exists('page', $_REQUEST)) {
 							<select class="form-select" id = "select_teacher">
 								<?php
 									foreach($teachers as $teacher){?>
-										<option value="<?=$teacher['id']?>"><?=$teacher['first_name'].' '.$teacher['middle_name']?></option>;
+										<option><?=$teacher['first_name'].' '.$teacher['middle_name']?></option>;
 									<?php }
 								?>
 							</select>
@@ -306,10 +304,9 @@ if (array_key_exists('page', $_REQUEST)) {
 		
 		
 		function add_teacher() {
-			let id = document.getElementById("select_teacher").value;
 			let name = document.getElementById("select_teacher").value;
-      console.log(id + " " + name);
-			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers, id);
+      		console.log(name);
+			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
 			teachers.add(name);
 		}
 		
@@ -329,7 +326,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			groups.add(name);
 		}
 		
-		function add_element(parent, name, tag, set, id=null) {
+		function add_element(parent, name, tag, set) {
 			let element = document.createElement("div");
 
 			//element.classList.add("col-lg-2");
