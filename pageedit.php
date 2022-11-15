@@ -114,7 +114,7 @@ if (array_key_exists('page', $_REQUEST)) {
 				<div class="row align-items-center m-3">
 					<div class="col-lg-3 row justify-content-left">Краткое название предмета:</div>
 					<div class="col-lg-2">
-						<input type="text" id="form12" class="form-control" maxlength="14" value="<?=$short_name?>" name="short_name" autocomplete="off"/>
+						<input type="text" id="form12" class="form-control" maxlength="19" value="<?=$short_name?>" name="short_name" autocomplete="off" required/>
 					</div>
 				</div>
 				
@@ -122,7 +122,7 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-lg-3 row justify-content-left">Полное название дисциплины:</div>
 					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
-						<select id="selectDiscipline" class="form-select" name="disc_id">
+						<select id="selectDiscipline" class="form-select" name="disc_id" required>
 							<option selected value="<?=$disc_id?>">
 								<?=$name?>
 							</option>
