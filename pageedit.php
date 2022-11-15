@@ -114,7 +114,7 @@ if (array_key_exists('page', $_REQUEST)) {
 				<div class="row align-items-center m-3">
 					<div class="col-lg-3 row justify-content-left">Краткое название предмета:</div>
 					<div class="col-lg-2">
-						<input type="text" id="form12" class="form-control" value = "<?=$short_name?>" name="short_name" autocomplete="off"/>
+						<input type="text" id="form12" class="form-control" maxlength="14" value="<?=$short_name?>" name="short_name" autocomplete="off"/>
 					</div>
 				</div>
 				
@@ -305,7 +305,9 @@ if (array_key_exists('page', $_REQUEST)) {
 		
 		function add_teacher() {
 			let name = document.getElementById("select_teacher").value;
-      		console.log(name);
+      if (teachers.has(name))
+				return;
+      console.log(name);
 			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
 			teachers.add(name);
 		}
@@ -330,11 +332,11 @@ if (array_key_exists('page', $_REQUEST)) {
 			let element = document.createElement("div");
 
 			//element.classList.add("col-lg-2");
-			element.setAttribute("style", "margin-right: 30px;");
+      element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 badge badge-primary text-wrap");
 
 			let text = document.createElement("span");
-			text.classList.add("badge", "badge-primary", "text-wrap");
-			text.setAttribute("style", "padding: 10px 10px; font-size: 15px; margin-right: 10px;");
+			text.classList.add("p-1", "me-1");
+			text.setAttribute("style", "font-size: 15px; /*border-right: 1px solid; border-color: grey;*/");
 			text.innerText = name;
 			
 			let button = document.createElement("button");
@@ -349,7 +351,6 @@ if (array_key_exists('page', $_REQUEST)) {
 			parent.append(element);
 			
 			button.addEventListener('click', function (event){
-
 				let name = event.target.parentNode.textContent;
 				set.delete(name);
 				parent.removeChild(event.target.parentNode);
@@ -359,6 +360,7 @@ if (array_key_exists('page', $_REQUEST)) {
 			input.setAttribute("type", "hidden");
 			input.setAttribute("value", name);
 			input.setAttribute("name", tag);
+      //console.log(input);
 			element.append(input);
 		}
 		

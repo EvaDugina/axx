@@ -43,23 +43,28 @@ if (isset($_POST['action'])) {
         echo '</br></br>';
         print_r($_POST['teachers']);
 				foreach($_POST['teachers'] as $teacher) {
-				$pos = strpos($teacher, ' ');
-				$first_name = substr($teacher, 0, $pos);
-				$middle_name = substr($teacher, $pos+1);
-        echo '</br>' . $teacher;
-				$query = prep_ax_prep_page($id, $first_name, $middle_name);
-				pg_query($dbconnect, $query);
+          // echo '</br>';
+          $pos = explode(" ", $teacher);
+          $first_name = $pos[0];
+          $middle_name = "";
+          if (isset($pos[1]))
+            $middle_name = $pos[1];
+          //echo $first_name .' ' . $middle_name;  
+          //echo $teacher;
+          $query = prep_ax_prep_page($id, $first_name, $middle_name);
+          pg_query($dbconnect, $query);
 				}
 			}
 
 			if (isset($_POST['groups'])){
 				foreach($_POST['groups'] as $group) {
-				$query = update_ax_page_group($id, $group);
-				pg_query($dbconnect, $query);
+          $query = update_ax_page_group($id, $group);
+          pg_query($dbconnect, $query);
 				}
 			}
 			
 			break;
+
 		case 'delete':
 			var_dump($_POST['id']);
 			$query = delete_page_prep($_POST['id']);
