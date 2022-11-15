@@ -38,7 +38,7 @@ $timestamps = pg_fetch_all($result);
 
 $query = select_discipline_years();
 $result = pg_query($dbconnect, $query);
-$years = pg_fetch_all($result);
+$years = pg_fetch_assoc($result);
 
 $query = select_all_teachers();
 $result = pg_query($dbconnect, $query);
@@ -144,17 +144,17 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="timestamp">           
-								<?php echo $page['year'] . " " . $page['semester'];
-								foreach($years as $key => $year){
-									echo "<option ";
-									if ($page && $year['year'] == $page['year'] && $page['semester'] == 1)
-										echo "selected";
-									echo ">".$year['year']."/".($year['year']+1)." Весна</option>";
+								<?php // echo $page['year'] . " " . $page['semester'];
+								for($year = $years['max']+1; $year >= $years['max']-4; $year--){
+                  echo "<option ";
+                  if ($page && $year == $page['year'] && $page['semester'] == 1)
+                    echo "selected";
+                  echo ">".($year-1)."/".$year." Весна</option>";
 
-									echo "<option ";
-									if ($page && $year['year'] == $page['year'] && $page['semester'] == 2)
-										echo "selected";
-									echo ">".$year['year']."/".($year['year']+1)." Осень</option>";
+                  echo "<option ";
+                  if ($page && $year == $page['year']+1 && $page['semester'] == 2)
+                    echo "selected";
+                  echo ">".($year-1)."/".$year." Осень</option>";
 								}?>
 							</select>
 						</div>

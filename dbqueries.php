@@ -102,7 +102,7 @@ return 'SELECT distinct year, semester FROM ax_page ORDER BY year desc';
 
 // Все года
 function select_discipline_years(){
-    return 'SELECT distinct year FROM ax_page ORDER BY year desc'; 
+    return 'SELECT max(year) as max, min(year) as min FROM ax_page'; 
 }
 
 // Изменение страницы дисциплины
