@@ -91,18 +91,13 @@ function select_pages_for_admin(){
 }
 
 function select_pages_for_student($group_id){
-  return "SELECT p.id, p.short_name, p.disc_id, get_semester(year, semester) sem, p.year y, p.semester s
+  return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester, ax_ct.src_url 
           FROM ax_page p
-          INNER JOIN ax_page_groups ON ax_page_groups.page_id = p.id
-          WHERE ax_page_groups.group_id = $group_id
-          ORDER BY y DESC, s DESC
+          INNER JOIN ax_page_group ON ax_page_group.page_id = p.id
+          INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
+          WHERE ax_page_group.group_id = $group_id AND p.status = 1
+          ORDER BY y DESC, p.semester DESC;
   ";
-}
-
-function select_page_with_thema(){
-    return "SELECT p.id, p.short_name, p.disc_id, p.semester, ax_ct.bg_color, ax_ct.src_url 
-            FROM ax_page p
-            LEFT JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id";
 }
 
 // Страница предмета

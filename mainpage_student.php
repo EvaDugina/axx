@@ -4,10 +4,25 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
-$result = pg_query($dbconnect, select_page_with_thema());
-$disciplines=pg_fetch_all($result);
-$result1=pg_query($dbconnect, 'select count(id) from ax_page');
-$disc_count=pg_fetch_all($result1); ?>
+
+$au = new auth_ssh();
+if ($au->isAdmin() && $au->isTeacher()){
+	header('Location:mainpage.php');
+  exit;
+} else if ($au->loggedIn()) {
+  $student_id = $_SESSION['hash'];
+  $result = pg_query($dbconnect, select_group_id_by_student_id($student_id));
+  $group_id = pg_fetch_assoc($result)['group_id'];
+} else {
+  $au->logout();
+  header('Location:login.php');
+  exit;
+}
+
+$result = pg_query($dbconnect, select_pages_for_student($group_id));
+$disciplines = pg_fetch_all($result);
+$result1 = pg_query($dbconnect, 'select count(id) from ax_page');
+$disc_count = pg_fetch_all($result1); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -79,20 +94,26 @@ $disc_count=pg_fetch_all($result1); ?>
                                 <div class="popover-footer text-muted">
                                     <span>Задания временно отсутствуют</span>
                                 </div>
-                            <?php } else {?>
+                            <?php } else {
+                              $page_progress = $count_succes_tasks/$count_tasks*100;
+                              if ($page_progress < 30)
+                                $bg_progress_color = "bg-danger";
+                              else if ($page_progress < 100)
+                                $bg_progress_color = "bg-warning";
+                              else 
+                                $bg_progress_color = "bg-success";?>
+                                
                                 <div class="d-flex justify-content-between text-muted" style="width: 100%">
                                     <span>Выполнено</span>
                                     <span><?php echo $count_succes_tasks; ?>/<?php echo $count_tasks; ?></span>
                                 </div>
                                 <div class="progress" style="width: 100%; height: 1px; border-radius: 5px; margin-bottom: 5px;">
-                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%;
-                                    background-color:<?= $discipline['bg_color']?>;" 
+                                    <div class="progress-bar <?=$bg_progress_color?>" role="progressbar" style="width: <?=$page_progress?>%" 
                                     aria-valuenow="<?=$count_succes_tasks?>" aria-valuemin="0" aria-valuemax="<?=$count_tasks?>">
                                     </div>
                                 </div>
                                 <div class="progress" style="width: 100%; height: 20px; border-radius: 5px;">
-                                    <div class="progress-bar" role="progressbar" style="width: <?=$count_succes_tasks/$count_tasks*100?>%; 
-                                    background-color:<?= $discipline['bg_color']?>;" 
+                                    <div class="progress-bar <?=$bg_progress_color?>" role="progressbar" style="width: <?=$page_progress?>%" 
                                     aria-valuenow="<?=$count_succes_tasks?>" aria-valuemin="0" aria-valuemax="<?=$count_tasks?>">
                                         <?=round($count_succes_tasks/$count_tasks*100, 0)?>%
                                     </div>
