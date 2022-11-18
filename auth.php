@@ -1,8 +1,6 @@
 <?php
 include_once('auth_ssh.class.php');
 
-session_start();
-
 $loggedIn = false;
 
 $au = new auth_ssh();
@@ -14,9 +12,7 @@ if (array_key_exists('action', $_POST)) {
 				if(!$loggedIn) {
 					header('Location:login.php'); 
 					exit;
-				} 
-
-				if ($au->isAdmin() || $au->isTeacher())
+				} else if ($au->isAdmin() || $au->isTeacher())
 					header('Location:mainpage.php');
 				else 
 					header('Location:mainpage_student.php');

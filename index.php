@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 include_once('auth_ssh.class.php');
 $au = new auth_ssh();
 if($au->isTeacher() || $au->isAdmin()) 

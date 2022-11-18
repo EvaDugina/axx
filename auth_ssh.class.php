@@ -1,5 +1,4 @@
 <?php
-
 require_once("settings.php");
 
 class auth_ssh
