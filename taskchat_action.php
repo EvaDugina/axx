@@ -5,7 +5,6 @@ require_once("utilities.php");
 require_once("messageHandler.php");
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
-  echo "ERROR EXIIIT!";
   exit;
 }
 
@@ -16,15 +15,15 @@ $assignment_id = $_POST['assignment_id'];
 $messageHandler = new messageHandler($assignment_id, $user_id);
 $sender_user_type = $messageHandler->sender_user_type;
 
-echo "USER_ID: ".$user_id;
-echo "<br>";
-echo "ASSIGNMENT_ID: ".$assignment_id;
-echo "<br>";
-echo "SENDER_USER_TYPE: ".$sender_user_type;
-echo "<br>";
-echo "SESSION_ROLE = ".$_SESSION['role'];
-echo "<br>";
-echo "SESSION_ID = ".$_SESSION['hash'];
+// echo "USER_ID: ".$user_id;
+// echo "<br>";
+// echo "ASSIGNMENT_ID: ".$assignment_id;
+// echo "<br>";
+// echo "SENDER_USER_TYPE: ".$sender_user_type;
+// echo "<br>";
+// echo "SESSION_ROLE = ".$_SESSION['role'];
+// echo "<br>";
+// echo "SESSION_ID = ".$_SESSION['hash'];
 
 $assignment = null;
 $query = select_ax_assignment_by_id($assignment_id);
@@ -37,6 +36,8 @@ if (!isset($_POST['message_text'])){
 //  echo "ISSET: " . $_POST['message_text'] . "<br>";
   update_chat($assignment_id, $sender_user_type, $user_id);
   exit;
+} else {
+  // echo "AAAAAAAAAAAAAAAA";
 }
 
 
@@ -73,7 +74,7 @@ if ($_POST['type'] == 1){
   $result = pg_query($dbconnect, $query);
 
 
-} else if ($full_text != "" || isset($_FILES['message_files'])){
+} else if ($full_text != "" || isset($_FILES['files'])) {
   /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
 
@@ -84,7 +85,7 @@ if ($_POST['type'] == 1){
     $result = pg_query($dbconnect, $query);
     $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
     $message_id = $messageHandler->set_message($_POST['type'], $full_text, null, $reply_to_id);
-  } else if (isset($_POST['type']) && $_POST['type'] == 0) {
+  } else if ($_POST['type'] == 0) {
     $message_id = $messageHandler->set_message(0, $full_text);
   }
 
@@ -98,32 +99,32 @@ if ($_POST['type'] == 1){
 
 $files = array();
 // print_r($_FILES);
-if (isset($_FILES['answer_files'])) {
+if ($_POST['type'] == 1 && isset($_FILES['files'])) {
 
   //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА-ОТВЕТА НА ЗАДАНИЕ";
   // echo "<br>";
 
-  for($i=0; $i < count($_FILES['answer_files']['tmp_name']); $i++) {
-    if(!is_uploaded_file($_FILES['answer_files']['tmp_name'][$i])){
+  for($i=0; $i < count($_FILES['files']['tmp_name']); $i++) {
+    if(!is_uploaded_file($_FILES['files']['tmp_name'][$i])){
       continue;
     } else {
-      array_push($files, ['name' => $_FILES['answer_files']['name'][$i], 'tmp_name' => $_FILES['answer_files']['tmp_name'][$i], 
-              'size' => $_FILES['answer_files']['size'][$i]]);
+      array_push($files, ['name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i], 
+              'size' => $_FILES['files']['size'][$i]]);
     }
   }
   $messageHandler->add_files_to_message($commit_id, $message_id, $files, $_POST['type']);
 
-} else if (isset($_FILES['message_files'])) {
+} else if ($_POST['type'] == 0 && isset($_FILES['files'])) {
 
   //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОГО К СООБЩЕНИЮ";
   //echo "<br>";
 
-  for($i=0; $i < count($_FILES['message_files']['tmp_name']); $i++) {
-    if(!is_uploaded_file($_FILES['message_files']['tmp_name'][$i])){
+  for($i=0; $i < count($_FILES['files']['tmp_name']); $i++) {
+    if(!is_uploaded_file($_FILES['files']['tmp_name'][$i])){
       continue;
     } else {
-      array_push($files, ['name' => $_FILES['message_files']['name'][$i], 'tmp_name' => $_FILES['message_files']['tmp_name'][$i], 
-              'size' => $_FILES['message_files']['size'][$i]]);
+      array_push($files, ['name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i], 
+              'size' => $_FILES['files']['size'][$i]]);
       
     }
   }

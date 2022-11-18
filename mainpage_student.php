@@ -80,7 +80,7 @@ $disc_count = pg_fetch_all($result1); ?>
                             <div data-mdb-ripple-color="light" style="position: relative;">
                                 <div class="bg-image hover-zoom" style="cursor: pointer;" onclick="window.location='studtasks.php?page=<?=$page_id?>'">
                                     <img src="<?=$discipline['src_url']?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
-                                    <div class="mask" style="background: <?=$discipline['bg_color']?>; transition: all .1s linear;"></div>
+                                    <div class="mask" style="transition: all .1s linear;"></div>
                                 </div>
                                 <div class="card_image_content">
                                     <div class="p-2" style="text-align: left;">

@@ -30,6 +30,8 @@ $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result)['short_name'];
 
 
+$MAX_FILE_SIZE = 5242880;
+
 $au = new auth_ssh();
 $sender_user_type = 0;
 if ($au->isAdminOrTeacher() && isset($_REQUEST['id_student'])){
@@ -170,7 +172,10 @@ $task_number = explode('.', $task_title)[0];
 							<label id="label-task-status-text"><?= $task_status_text ?></label>
 						</div>
             <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
-            <span id="span-text-mark"><?php if($task_status_code == 3) echo 'Оценка: ';?><b id="b-mark"><?=$task_mark?></b></span>
+            <span id="span-text-mark"><?php if($task_status_code == 3){?> 
+              Оценка: <b id="b-mark"><?=$task_mark?></b>
+            <?php }?>
+            </span>
 					</div>
           <div>
             <div>
@@ -198,6 +203,7 @@ $task_number = explode('.', $task_title)[0];
               <form id="form-send-answer" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-2">
                   <div class="file-input-wrapper me-1">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
                     <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
                     <label for="user-answer-files" <?php if($task_status_code == 3) echo 'style="cursor: default;"';?>>
                       <i class="fa-solid fa-paperclip"></i>
@@ -227,6 +233,7 @@ $task_number = explode('.', $task_title)[0];
 			<form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
 				<div class="message-input-wrapper">
 					<div class="file-input-wrapper">
+            <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
 						<input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
 						<label for="user-files">
               <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
@@ -288,20 +295,20 @@ $task_number = explode('.', $task_title)[0];
 
       let button_check = document.getElementById('button-check');
 
-      // Отправка формы прикрепления ответа на задание
+      // Отправка формы прикрепления ответа к заданию
       if (form_sendAnswer){
         form_sendAnswer.addEventListener('submit', function (event) {
           event.preventDefault();
-          console.log("СРАБОТАЛА ФОРМА ЗАГРУЗКИ ОТВЕТА НА ЗАДАНИЕ");
+          // console.log("СРАБОТАЛА ФОРМА ЗАГРУЗКИ ОТВЕТА НА ЗАДАНИЕ");
           var userFiles = $("#user-answer-files");
-          console.log(userFiles);
+          // console.log(userFiles);
           if (userFiles.val() == '' || userFiles.length <= 0) {
             event.preventDefault();
             return false;
           } else {
             var userMessage = 'Ответ на <<?=$task_number?>>:';
             if(sendMessage(userMessage, userFiles, 1)) {
-              console.log("Сообщение было успешно отправлено");
+              // console.log("Сообщение было успешно отправлено");
             }
 
             userFiles.val("");
@@ -318,18 +325,18 @@ $task_number = explode('.', $task_title)[0];
       } else if (form_check) {
         form_check.addEventListener('submit', function (event) {
         event.preventDefault();
-        console.log("СРАБОТАЛА ФОРМА ОЦЕНИВАНИЯ ЗАДАНИЕ");
+        // console.log("СРАБОТАЛА ФОРМА ОЦЕНИВАНИЯ ЗАДАНИЕ");
         var selector_mark = $("#select-mark");
         var mark = selector_mark.val();
-        console.log(selector_mark);
+        // console.log(selector_mark);
         if (mark == -1){
-          console.log("ОЦЕНКА НЕ ВЫБРАНА");
+          // console.log("ОЦЕНКА НЕ ВЫБРАНА");
           return false;
         }
         else {
           var userMessage = "Задание проверено. Оценка: " + mark;
           if(sendMessage(userMessage, null, 2, parseInt(mark))) {
-            console.log("Сообщение было успешно отправлено");
+            // console.log("Сообщение было успешно отправлено");
           }
           selector_mark.prop('disabled', 'disabled');
           button_check.setAttribute('disabled', '');
@@ -353,9 +360,9 @@ $task_number = explode('.', $task_title)[0];
 
         if(!sendMessage(userMessage, userFiles, 0)) {
           event.preventDefault();
-          console.log("Сообщение было успешно отсправлено");
+          // console.log("Сообщение было успешно отсправлено");
         } else {
-          console.log("Сообщение не было отправлено");
+          // console.log("Сообщение не было отправлено");
         }
 
 				$("#user-message").val("");
@@ -375,7 +382,7 @@ $task_number = explode('.', $task_title)[0];
 
     // Обновляет лог чата из БД
 		function loadChatLog($first_scroll = false) {
-      console.log("LOAD_CHAT_LOG!");
+      // console.log("LOAD_CHAT_LOG!");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
 			$('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
 				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
@@ -393,9 +400,11 @@ $task_number = explode('.', $task_title)[0];
 
     function sendMessage(userMessage, userFiles, typeMessage, mark=null) {
       if ($.trim(userMessage) == '' && userFiles.val() == '') { 
-        console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
+        // console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
         return false; 
       }
+      
+      let flag = true;
       
       var formData = new FormData();
       formData.append('assignment_id', <?=$assignment_id?>);
@@ -403,48 +412,57 @@ $task_number = explode('.', $task_title)[0];
       formData.append('message_text', userMessage);
       formData.append('type', typeMessage);
       if(userFiles){
-        formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
+        // console.log("EEEEEEEEEE");
+        //formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
         $.each(userFiles[0].files, function(key, input) {
-          if (typeMessage == 0)
-            formData.append('message_files[]', input);
-          else if (typeMessage == 1)
-            formData.append('answer_files[]', input);
+          // console.log(input.size);
+          // console.log(<?=$MAX_FILE_SIZE?>*0.8);
+          if (input.size < <?=$MAX_FILE_SIZE?>*0.8){
+            formData.append('files[]', input);
+          } else {
+            alert("Размер отправленного файла превышает допустимый размер");
+            flag = false;
+          }
         });
       } else if (typeMessage == 2 && mark) {
         formData.append('mark', mark);
       }
 
-      console.log('message_text =' + userMessage);
-      console.log('type =' + typeMessage);
+      if (flag == false) {
+        return false;
+      } else {
 
-      $.ajax({
-        type: "POST",
-        url: 'taskchat_action.php#content',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: formData,
-        dataType : 'html',
-        success: function(response) {
-          $("#chat-box").html(response);
-          
-          if (typeMessage == 1) {
-            let now = new Date();
-            $("#label-task-status-text").text("Ожидает проверки");
-            $("#span-answer-date").text(formatDate(now));
-          } else if (typeMessage == 2) {
-            let now = new Date();
-            $("#flexCheckDisabled").prop("checked", true);
-            $("#label-task-status-text").text("Выполнено");
-            $("#span-answer-date").text(formatDate(now));
-            $("#span-text-mark").text("Оценка: ");
+        // console.log('message_text =' + userMessage);
+        // console.log('type =' + typeMessage);
+
+        $.ajax({
+          type: "POST",
+          url: 'taskchat_action.php#content',
+          cache: false,
+          contentType: false,
+          processData: false,
+          data: formData,
+          dataType : 'html',
+          success: function(response) {
+            $("#chat-box").html(response);
+            if (typeMessage == 1) {
+              let now = new Date();
+              $("#label-task-status-text").text("Ожидает проверки");
+              $("#span-answer-date").text(formatDate(now));
+            } else if (typeMessage == 2) {
+              let now = new Date();
+              $("#flexCheckDisabled").prop("checked", true);
+              $("#label-task-status-text").text("Выполнено");
+              $("#span-answer-date").text(formatDate(now));
+              $("#span-text-mark").text("Оценка: ");
+            }
+          },
+          complete: function() {
+            // Скролим чат вниз после отправки сообщения
+            $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
           }
-        },
-        complete: function() {
-          // Скролим чат вниз после отправки сообщения
-          $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
-        }
-      });
+        });
+      }
 
 
       return true;
