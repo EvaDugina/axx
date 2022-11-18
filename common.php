@@ -167,7 +167,8 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) {
                       $result = pg_query($query);
                       $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
                       <a <?php 
-                      if($au->isTeacher()){ echo 'style="color: black;"';?>
+                      if($au->isTeacher()){ 
+                        echo 'style="color: black;"';?>
                         href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
                       <?php
                       } else if ($au->isAdmin());
