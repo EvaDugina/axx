@@ -10,7 +10,13 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	header('Location:login.php');
 }
 
-$result = pg_query($dbconnect, 'select id, short_name, disc_id, get_semester(year, semester) sem, year y, semester s from ax_page order by y desc, s desc');
+// $result = pg_query($dbconnect, 'select id, short_name, disc_id, get_semester(year, semester) sem, year y, semester s from ax_page order by y desc, s desc');
+
+if ($au->isTeacher())
+  $result = pg_query($dbconnect, select_pages_for_teacher($_SESSION['hash']));
+else 
+  $result = pg_query($dbconnect, select_pages_for_admin());
+
 $pages=pg_fetch_all($result);
 $result1=pg_query($dbconnect, 'select count(id) from ax_page');
 $disc_count=pg_fetch_all($result1);

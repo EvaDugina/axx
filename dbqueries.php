@@ -74,6 +74,31 @@ function select_page_by_task_id($task_id) {
   return "SELECT page_id FROM ax_task WHERE id = $task_id";
 }
 
+function select_pages_for_teacher($teacher_id){
+  return "SELECT p.id, p.short_name, p.disc_id, get_semester(year, semester) sem, p.year y, p.semester s
+          FROM ax_page p
+          INNER JOIN ax_page_prep ON ax_page_prep.page_id = p.id
+          WHERE ax_page_prep.prep_user_id = $teacher_id
+          ORDER BY y DESC, s DESC
+  ";
+}
+
+function select_pages_for_admin(){
+  return "SELECT ax_page.id, ax_page.short_name, ax_page.disc_id, get_semester(year, semester) sem, ax_page.year y, ax_page.semester s
+          FROM ax_page
+          ORDER BY y DESC, s DESC
+  ";
+}
+
+function select_pages_for_student($group_id){
+  return "SELECT p.id, p.short_name, p.disc_id, get_semester(year, semester) sem, p.year y, p.semester s
+          FROM ax_page p
+          INNER JOIN ax_page_groups ON ax_page_groups.page_id = p.id
+          WHERE ax_page_groups.group_id = $group_id
+          ORDER BY y DESC, s DESC
+  ";
+}
+
 function select_page_with_thema(){
     return "SELECT p.id, p.short_name, p.disc_id, p.semester, ax_ct.bg_color, ax_ct.src_url 
             FROM ax_page p
