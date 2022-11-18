@@ -187,7 +187,8 @@ function select_notify_for_teacher_header($teacher_id){
             INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
             LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
             LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
-            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 1 AND ax_message.status = 0;
+            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 1 
+            AND ax_message.status = 0;
     ";
 }
 
@@ -226,12 +227,12 @@ function select_unchecked_by_page($teacher_id, $page_id){
     ";
 }
 
-function select_count_unreaded_messages_by_task_for_teacher($student_id, $task_id){
+function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_id){
     return "SELECT COUNT(*) FROM ax_message
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
         INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
         INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = '$student_id' AND ax_task.id = '$task_id'
+        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = '$teacher_id' AND ax_task.id = '$task_id'
         AND ax_message.sender_user_type != 1;
     ";
 }

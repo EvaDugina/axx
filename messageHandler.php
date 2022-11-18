@@ -1,4 +1,5 @@
 <?php
+require_once("settings.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
@@ -23,30 +24,18 @@ class messageHandler {
   public $sender_user_type;
 
   function __construct($assignment_id, $user_id) {
-    require("settings.php");
+    global $dbconnect;
     $this->dbconnect = $dbconnect;
     $this->assignment_id = $assignment_id;
     $this->user_id = $user_id;
-    $this->sender_user_type = $this->getSenderUserType($user_id, $assignment_id);
+    $this->sender_user_type = $this->getSenderUserType($_SESSION['role']);
   }
 
-  function getSenderUserType($user_id, $assignment_id){
-    $query = select_student_role($user_id);
-    $result = pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $row = pg_fetch_assoc($result);
-    if(count($row) > 1) {
-      $query = isPrepByAssignmentId($assignment_id, $user_id);
-      $result = pg_query($this->dbconnect, $query);
-      if(count(pg_fetch_all($result)) > 0)
-        $sender_user_type = 1;
-      else 
-        $sender_user_type = 0;
-    } else {
-      if ($row['role'] == 3)
-        $sender_user_type = 0;
-      else 
-        $sender_user_type = 1;
-    }
+  function getSenderUserType($role){
+    if ($role == 3) // Студент
+      $sender_user_type = 0;
+    else // Преподавателя или Админ
+      $sender_user_type = 1;
     return $sender_user_type;
   }
 

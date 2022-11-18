@@ -14,16 +14,17 @@ $user_id = $_POST['user_id'];
 $assignment_id = $_POST['assignment_id'];
 
 $messageHandler = new messageHandler($assignment_id, $user_id);
-
 $sender_user_type = $messageHandler->sender_user_type;
 
-// echo "USER_ID: ".$user_id;
-// echo "<br>";
-// echo "ASSIGNMENT_ID: ".$assignment_id;
-// echo "<br>";
-// echo "SENDER_USER_TYPE: ".$sender_user_type;
-// echo "<br>";
-
+echo "USER_ID: ".$user_id;
+echo "<br>";
+echo "ASSIGNMENT_ID: ".$assignment_id;
+echo "<br>";
+echo "SENDER_USER_TYPE: ".$sender_user_type;
+echo "<br>";
+echo "SESSION_ROLE = ".$_SESSION['role'];
+echo "<br>";
+echo "SESSION_ID = ".$_SESSION['hash'];
 
 $assignment = null;
 $query = select_ax_assignment_by_id($assignment_id);
@@ -181,15 +182,15 @@ function get_messages($assignment_id, $sender_user_type, $user_id) {
 		
     $unreaded = null; //$unreaded = false; // наши сообщения, которые не прочитал собеседник
 		$first_new = false; // true, если это первое новое сообщение от собеседника
-		if ($sender_user_type != null && $row['status'] == 0){
+		if ((int) $row['status'] == 0){
       if ($sender_user_type == $row['sender_user_type']) {
         $unreaded = true;
       } else {
         $unreaded = false;
-        /*echo "sender_user_type: ".$sender_user_type;
-        echo "<br>";
-        echo "MESSAGE_SENDER_USER_TYPE: ".$row['sender_user_type'];
-        echo "<br>";*/
+        // echo "sender_user_type: ".$sender_user_type;
+        // echo "<br>";
+        // echo "MESSAGE_SENDER_USER_TYPE: ".$row['sender_user_type'];
+        // echo "<br>";
         if (!$is_first_new) {
           $first_new = true;
           $is_first_new = true;
