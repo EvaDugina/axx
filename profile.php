@@ -9,9 +9,10 @@ $query = get_user_info($_SESSION['hash']);
 $result = pg_query($dbconnect, $query);
 $student_info = pg_fetch_assoc($result);
 
-$fio = $student_info['first_name'];
+$fio = "";
 if (isset($student_info['middle_name']))
-  $fio .= " " . $student_info['middle_name'];
+  $fio .= $student_info['middle_name'] . " ";
+$fio .= $student_info['first_name'];
 if (isset($student_info['last_name']))
   $fio .= " " . $student_info['last_name'];
 
