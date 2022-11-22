@@ -28,26 +28,22 @@ class messageHandler {
     $this->dbconnect = $dbconnect;
     $this->assignment_id = $assignment_id;
     $this->user_id = $user_id;
-    $this->sender_user_type = $this->getSenderUserType($_SESSION['role']);
-  }
-
-  function getSenderUserType($role){
-    if ($role == 3) // Студент
-      $sender_user_type = 0;
-    else // Преподавателя или Админ
-      $sender_user_type = 1;
-    return $sender_user_type;
+    $this->sender_user_type = $_SESSION['role'];
   }
 
 
-  function set_message($type, $full_text, $commit_id = null, $reply_id = null) {
+  function set_message($type, $visibility, $full_text, $commit_id = null, $reply_id = null) {
   
     $full_text = preg_replace('#\'#', '\'\'', $full_text);
-    $query = insert_message($this->assignment_id, $type, $this->sender_user_type, $this->user_id, $full_text, $commit_id, $reply_id);
+    $query = insert_message($this->assignment_id, $type, $visibility, $this->sender_user_type, $this->user_id, $full_text, $commit_id, $reply_id);
   
     $result = pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $row = pg_fetch_assoc($result);
     return $row['id'];
+  }
+
+  function set_message_only_for_teacher ($link){
+    return $this->set_message(3, 2, $link);
   }
   
   

@@ -89,7 +89,7 @@ ax_message
 -id serial
 -assignment_id integer
 -type integer (0 - переговоры с приложением, 1 - коммит, 2 - оценка)
--sender_user_type (0 - студент, 1 - преподаватель)
+-sender_user_type (3 - студент, 2 - преподаватель)
 -sender_user_id
 -date_time timestamp with timezone
 -full_text text

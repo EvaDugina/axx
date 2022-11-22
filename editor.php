@@ -93,7 +93,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 	if ($au->isTeacher()) 
 		show_header($dbconnect, $page_title, 
 			array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
-      $task_title => 'taskchat.php?task='.$task_id.'&page='.$page_id, $page_title => '')
+      $task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => '')
     ); 
 	else 
 		show_header($dbconnect, $page_title, 

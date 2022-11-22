@@ -8,7 +8,7 @@ if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
   exit;
 }
 
-// Находим sender_user_type (0 - студент, 1 - преподаватель)
+// Находим sender_user_type (3 - студент, 2 - преподаватель)
 $user_id = $_POST['user_id'];
 $assignment_id = $_POST['assignment_id'];
 
@@ -59,7 +59,8 @@ if ($_POST['type'] == 1){
   /*echo "COMMIT_ID: ".$commit_id;
   echo "<br>";*/
 
-  $message_id = $messageHandler->set_message(1, $full_text, $commit_id);
+  $message_id = $messageHandler->set_message(1, 0, $full_text, $commit_id);
+  $messageHandler->set_message_only_for_teacher("editor.php?assignment=$assignment_id&commit=$commit_id");
 
   $query = update_ax_assignment_status_code($assignment_id, 5);
   $result = pg_query($dbconnect, $query);
@@ -75,18 +76,18 @@ if ($_POST['type'] == 1){
 
 
 } else if ($full_text != "" || isset($_FILES['files'])) {
-  /*echo "ОТПРАВКА ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
+  /*echo "ОТПРАВКА ОЦЕНКИ или ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
   echo "<br>";*/
 
   if ($_POST['type'] == 2) {
     /*echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
     echo "<br>";*/
-    $query = select_last_answer_message($assignment_id, 1);
+    $query = select_last_answer_message($assignment_id);
     $result = pg_query($dbconnect, $query);
     $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
-    $message_id = $messageHandler->set_message($_POST['type'], $full_text, null, $reply_to_id);
+    $message_id = $messageHandler->set_message($_POST['type'], 0, $full_text, null, $reply_to_id);
   } else if ($_POST['type'] == 0) {
-    $message_id = $messageHandler->set_message(0, $full_text);
+    $message_id = $messageHandler->set_message(0, 0, $full_text);
   }
 
 } else {
@@ -169,7 +170,8 @@ function get_messages($assignment_id, $sender_user_type, $user_id) {
 	global $dbconnect;
   /*echo "ASSIGNMENT_ID: ".$assignment_id;
   echo "<br>";*/
-	$query = select_messages_by_assignment_id($assignment_id);
+
+	$query = select_messages_by_assignment_id($assignment_id, $sender_user_type);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   /*echo $query;
@@ -211,7 +213,7 @@ function get_messages($assignment_id, $sender_user_type, $user_id) {
 		$time = explode(":", $message_time[1]);
 		$date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
 		$attachments = get_message_attachments($row['message_id']);
-		$messages[] = ['id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 
+		$messages[] = ['id' => $row['id'], 'username' => $username, 'full_text' => $row['full_text'], 'date_time' => $date_time, 'type' => $row['type'],
             'sender_user_id' => $row['sender_user_id'], 'attachments' => $attachments, 'unreaded' => $unreaded, 'first_new' => $first_new];
 	}
 	return $messages;
@@ -235,7 +237,10 @@ function show_messages($messages) {
 				><b><?=$message['username']?></b>
 				<?php 
 				if ($message['full_text'] != '') {
-					echo stripslashes(htmlspecialchars($message['full_text'])) . "<br>";
+          if ($message['type'] == 3){ // если ссылка
+            echo '<a href="'.$message['full_text'].'">Проверить код</a>';
+          } else
+					  echo stripslashes(htmlspecialchars($message['full_text'])) . "<br>";
 				}
 				foreach ($message['attachments'] as $ma) {?>
 					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank"><i class="fa-solid fa-file"></i><?=$ma['file_name']?></a>

@@ -110,7 +110,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 										
 										<button class="list-group-item list-group-item-action d-flex justify-content-between mb-3" 
 										<?php if($row_assignment['status_code'] == 1 || $row_assignment['status_code'] == 4) echo "disabled"; ?>
-										onclick="window.location='<?='taskchat.php?task='. $task['id'] . '&page=' . $page_id?>';"
+										onclick="window.location='<?='taskchat.php?assignment='. $row_assignment['id']?>';"
 										style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;"
 										id="studtasks-elem-<?php echo $key + 1; ?>">
 											<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $task['title']; ?></p>

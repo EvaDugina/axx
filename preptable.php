@@ -37,7 +37,7 @@ else if (isset($_POST['select-discipline'])) {
 // отправка сообщения
 if (array_key_exists('message', $_REQUEST) && array_key_exists('text', $_REQUEST)) {
   $mark = (array_key_exists('mark', $_REQUEST)) ? $_REQUEST['mark'] : null;
-  $query = insert_message_reply($_REQUEST['message'], $_REQUEST['text'], $mark, $user_id);
+  $query = insert_message_reply($_REQUEST['message'], $_REQUEST['text'], $user_id, $mark);
   $result = pg_query($dbconnect, $query);
   echo pg_result_error($result);
   if (!$result) {
@@ -428,7 +428,7 @@ function getPopoverContent($task_message) {
   $data_mdb_content .= showAttachedFilesByMessageId($task_message['mid']);
   $data_mdb_content .= "
   <a href='javascript:answerPress(2,". $task_message['mid'] .", ". $task_message['max_mark'] .", " .
-  $task_message['aid'] . ", " . $task_message['sid'] . ", 1)'
+  $task_message['aid'] . ", " . $task_message['sid'] . ", 2)'
   type='message' class='btn btn-outline-primary'>
     Зачесть
   </a> 

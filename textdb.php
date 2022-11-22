@@ -181,7 +181,7 @@
 	  
 	  if ($user_role == 3) {
   	    $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)".
-										"     values ($assignment, 1, 0, $user_id, now(), null, 'Отправлено на проверку', $new_id, 0) returning id");
+										"     values ($assignment, 1, $user_role, $user_id, now(), null, 'Отправлено на проверку', $new_id, 0) returning id");
         $result = pg_fetch_assoc($result2);
 	    $msg_id = $result['id'];
 	  
@@ -191,7 +191,7 @@
 	  }
 	  else {
   	    $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)".
-										"     values ($assignment, 1, 0, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
+										"     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
         $result = pg_fetch_assoc($result2);
 	    $msg_id = $result['id'];
 	  
