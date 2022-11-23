@@ -58,7 +58,7 @@ function full_name($discipline_id, $dbconnect) {
 
 							if ($curr_sem != $page['sem']) { ?>
 								<div class="col-2 align-self-center popover-message-message-stud" 
-								style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?add-page'">
+								style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
 									<a class="btn btn-link" href="pageedit.php?addpage=1&year=<?=$curr_y?>&sem=<?=$curr_s?>" type="button" 
 									style="width: 100%; height: 100%; padding-top: 20%;">
 										<div class="row">
@@ -141,8 +141,8 @@ function full_name($discipline_id, $dbconnect) {
 							</div>
 						<?php } ?>
 						<div class="col-2 align-self-center popover-message-message-stud" 
-						style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?add-page'">
-							<a class="btn btn-link" href="pageedit.php?add-page" type="button" 
+						style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
+							<a class="btn btn-link" href="pageedit.php?addpage" type="button" 
 							style="width: 100%; height: 100%; padding-top: 20%;">
 								<div class="row">
 									<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
