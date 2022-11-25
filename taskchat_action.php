@@ -232,9 +232,9 @@ function show_messages($messages) {
 			echo '<div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>';
 		}
 		?>
-		<div id="message-<?=$message['id']?>" class="chat-box-message <?=$float_class?>">
-			<div class="chat-box-message-wrapper pretty-text <?=$background_color_class?>"
-				><b><?=$message['username']?></b>
+		<div id="message-<?=$message['id']?>" class="chat-box-message <?=$float_class?>" style="height: auto;">
+			<div class="chat-box-message chat-box-message-wrapper <?=$background_color_class?>">
+        <strong><?=$message['username']?></strong> </br>
 				<?php 
 				if ($message['full_text'] != '') {
           if ($message['type'] == 3){ // если ссылка
@@ -242,11 +242,17 @@ function show_messages($messages) {
           } else
 					  echo stripslashes(htmlspecialchars($message['full_text'])) . "<br>";
 				}
-				foreach ($message['attachments'] as $ma) {?>
-					<a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank"><i class="fa-solid fa-file"></i><?=$ma['file_name']?></a>
-				<?php }?>
+				foreach ($message['attachments'] as $ma) {  
+          $file_name_split = explode('.', $ma['file_name']);
+          $file_ext = $file_name_split[count($file_name_split)-1];     
+          if (in_array($file_ext, getImageFileTypes())) {?>
+            <img src="<?=$ma['download_url']?>" class="rounded <?=$float_class?> w-100 mb-1" alt="...">
+          <?php } else {?>
+					  <a href="<?=$ma['download_url']?>" class="task-desc-wrapper-a" target="_blank"><i class="fa-solid fa-file"></i><?=$ma['file_name']?></a>
+				  <?php }
+        }?>
 			</div>
-			<div class="chat-box-message-date">
+			<div class="chat-box-message-date mb-2">
 				<?=$message['date_time']?>
 			</div>
 		</div>

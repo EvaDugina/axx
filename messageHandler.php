@@ -10,6 +10,10 @@ function getSpecialFileTypes(){
   return array('cpp', 'c', 'h', 'txt');
 }
 
+function getImageFileTypes() {
+  return array('img', 'png', 'jpeg', 'jpg', 'gif');
+}
+
 function getPathForUploadFiles(){
   return 'upload_files/';
 }
