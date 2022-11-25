@@ -212,7 +212,7 @@ function show_message($message) {
 
 // ПРОЧЕЕ
 function convert_sem_from_number($id){
-  if($id == 1) return 'Весна';
-  else return 'Осень';
+  if($id == 1) return 'Осень';
+  else return 'Весна';
 }
 ?>

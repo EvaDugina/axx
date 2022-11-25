@@ -26,7 +26,7 @@ if (isset($_GET['page']) && is_numeric($_GET['page'])){
 	$result = pg_fetch_assoc(pg_query($dbconnect, $query))['name'];
 	$discipline_name = strtoupper((string) "$result");
 
-	$semester = $page['year'] . "/" . convert_sem_from_number($page['semester']);
+	$semester = $page['year'] . "/" . ($page['year']+1).convert_sem_from_number($page['semester']);
 	$short_name = $page['short_name'];
 } else {
 	header('Location:mainpage_student.php');

@@ -62,8 +62,6 @@ if (array_key_exists('page', $_REQUEST)) {
 		if($discipline['id'] == $page['disc_id'])
 			$name = $discipline['name'];
 	}
-
-	$semester = $page['year']."/".convert_sem_from_number($page['semester']);
 	$short_name = $page['short_name'];
 
 	$query = select_page_prep_name($page_id);
