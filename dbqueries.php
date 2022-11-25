@@ -75,9 +75,10 @@ function select_page_by_task_id($task_id) {
 }
 
 function select_pages_for_teacher($teacher_id){
-  return "SELECT p.id, p.short_name, p.disc_id, get_semester(year, semester) sem, p.year y, p.semester s
+  return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax_ct.src_url
           FROM ax_page p
           INNER JOIN ax_page_prep ON ax_page_prep.page_id = p.id
+          INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
           WHERE ax_page_prep.prep_user_id = $teacher_id
           ORDER BY y DESC, s DESC
   ";
