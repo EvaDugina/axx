@@ -131,6 +131,10 @@ input_files.addEventListener('click', function (event) {
 // Показывает количество прикрепленных для отправки файлов
 $('#task-files').on('change', function() {
   $('#files-count').html(this.files.length);
+  let a = document.createElement("a");
+  a.setAttribute('target', "_blank");
+  // href="<?=$f['download_url']?>" target="_blank" class="btn btn-outline-primary">
+  $('#p-task-files').appendChild(elemText);
 });
 
 

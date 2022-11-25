@@ -84,9 +84,9 @@ show_header($dbconnect, 'Редактор заданий',
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
       
-    <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
+    <div class="pt-3">
       <div class="row gy-5">
-        <div class="col-8">
+        <div class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
           <table class="table table-hover">
     
@@ -168,10 +168,9 @@ show_header($dbconnect, 'Редактор заданий',
         </div>
 
         <div class="col-4">
-        <div class="p-3 border bg-light" style="max-height: calc(100vh - 80px);">
-          <!--<form id="form-choose-executors" class="p-2 border bg-light" name="form-taskEdit" 
-          action="taskedit_action.php?page=<?=$page_id?>" method="post">-->
-            <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
+        <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
+        id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
 
             <div class="pt-1 pb-1">
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
@@ -291,16 +290,18 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-1 pb-1">
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
               <label class="btn btn-outline-default py-2 px-4">
-                <input id="task-files" type="file" name="task_files[]" style="display: none;" multiple>
+                <input id="task-files" type="file" name="task_files[]" style="display: none;">
                   <i class="fa-solid fa-paperclip"></i>
                   <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
               </label>  
+              <?php if ($task_id != -1)
+                show_task_files(getTaskFiles($dbconnect, $task_id))?>
             </div>
                 
           </div>
-        </div>
+        </form>
       </div>
-    </form>
+    </div>
 
   </div>
 </main>

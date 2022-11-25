@@ -129,18 +129,29 @@ function showAttachedFilesByMessageId($message_id){
 
 // Выводит прикрепленные к странице с заданием файлы
 function show_task_files($task_files) {?>
-  <p style="line-height: 2.5em;">
+  <p id="p-task-files" style="line-height: 2.5em;">
   
 	<?php $count_files = 0;
   foreach ($task_files as $f) {
-    if ($f['type'] < 2) {
       $count_files++; ?>
       <a href="<?=$f['download_url']?>" target="_blank" class="btn btn-outline-primary">
-        <i class="fa-solid fa-file"></i> 
+        <?php if ($f['type'] == 0) {?>
+          <i class="fa-solid fa-file"></i> 
+        <?php } else if ($f['type'] == 1) {?>
+          <i class="fas fa-file-code fa-lg"></i> 
+        <?php } else if ($f['type'] == 2) {?>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-binary-fill" viewBox="0 0 16 16">
+            <path d="M5.526 10.273c-.542 0-.832.563-.832 1.612 0 .088.003.173.006.252l1.559-1.143c-.126-.474-.375-.72-.733-.72zm-.732 2.508c.126.472.372.718.732.718.54 0 .83-.563.83-1.614 0-.085-.003-.17-.006-.25l-1.556 1.146z"/>
+            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-2.45 8.385c0 1.415-.548 2.206-1.524 2.206C4.548 14.09 4 13.3 4 11.885c0-1.412.548-2.203 1.526-2.203.976 0 1.524.79 1.524 2.203zm3.805 1.52V14h-3v-.595h1.181V10.5h-.05l-1.136.747v-.688l1.19-.786h.69v3.633h1.125z"/>
+          </svg>
+        <?php } else {?>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">
+            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>
+          </svg>
+        <?php }?>
         <?=$f['file_name']?>
-      </a> 
-	  <?php }
-  }
+      </a>
+  <?php }
 	if ($count_files == 0) {
 		echo 'Файлы временно не доступны<br>';
 	}?>
