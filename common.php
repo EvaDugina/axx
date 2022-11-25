@@ -128,7 +128,11 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) {
                 $au = new auth_ssh();
                 $array_notify = array();
 
-                $query = select_notify_for_header($_SESSION['hash'], $_SESSION['role']);
+                if ($au->isTeacher())
+                  $query = select_notify_for_teacher_header($_SESSION['hash']);
+                else if ($au->loggedIn())
+                  $query = select_notify_for_student_header($_SESSION['hash']);
+
                 $result = pg_query($dbconnect, $query);
                 $array_notify = pg_fetch_all($result);
               }?>
