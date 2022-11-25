@@ -18,18 +18,13 @@ function get_now_date($format = "d-m-Y"){
 // год и номер семестра по названию
 function convert_timestamp_from_string($str){
   $pos = explode(" ", $str);
-  $year_split = explode("/", $pos[0]);
+  $year = explode("/", $pos[0])[0];
   $sem = $pos[1];
   $sem_number = 0;
 
-  if($sem == 'Весна'){
-    $sem_number = 1;
-    $year = $year_split[1];
-  } else {
-    $sem_number = 2;
-    $year = $year_split[0];
-  }
-  echo $sem_number;
+  if($sem == 'Осень') $sem_number = 1;
+  else $sem_number = 2;
+  // echo $sem_number;
 
   return array('year' => $year, 'semester' => $sem_number);
 }

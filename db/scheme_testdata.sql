@@ -4,7 +4,7 @@
 	middle_name text,	-- фамилия
 	last_name text,		-- отчество (не верь глазам своим блин)
 	login text,		
-	role integer,		-- 1 - администратор, 2 - преподаватели, 3 - студенты (бывает, что в БД две записи для одного человека, как студент и как препод)
+	role integer,		-- 1 - администратор, 2 - преподаватель, 3 - студент (бывает, что в БД две записи для одного человека, как студент и как препод)
 	CONSTRAINT students_pkey PRIMARY KEY (id)
 ); ALTER TABLE students OWNER TO postgres;
 
@@ -75,7 +75,7 @@ CREATE TABLE ax_page (			-- страница дисциплины
 	disc_id integer,	-- --> discipline
 	short_name text,	-- краткое название страницы
 	year integer,		-- календаный год
-	semester integer,	-- номер семестра в учебном году (1/2)
+	semester integer,	-- номер семестра в учебном году (1 - Осень / 2 - Весна)
 	color_theme_id integer,	-- --> ax_color_theme
 	creator_id integer,	-- --> students
 	creation_date timestamp with time zone,
@@ -373,7 +373,7 @@ CREATE TABLE ax_message	(		-- сообщение в диалоге по зада
 	assignment_id integer,	-- --> ax_assignment
 	type integer, 		-- тип сообщения (0 - обычное сообщение (в т. ч. с приложениями), 1 - коммит, 2 - оценка, 3 - ссылка)
   visibility integer, -- метка видимости сообщения (0 - видимо всем, 1 - видимо только админу, 2 - видимо только преподавателю, 3 - видимо только студенту)
-	sender_user_type integer,-- тип отправителя (2 - преподаватель, 3 - студент)
+	sender_user_type integer,-- тип отправителя (1 - админ, 2 - преподаватель, 3 - студент)
 	sender_user_id integer, -- --> students
 	date_time timestamp with time zone,
 				-- дата и время отправки сообщения
