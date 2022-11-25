@@ -117,19 +117,18 @@ function full_name($discipline_id, $dbconnect) {
                   </div>
                   <div class="card-body">
                     <div class="d-flex justify-content-between">
-                      <span>Посылки студентов</span>
-                      <button class="btn btn-link btn-sm" style="width: 55px" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-bell fa-lg"></i><span <?php if ($notify_count['count'] > 0) {?> 
-                          class="badge rounded-pill badge-notification bg-danger"><?php } 
-                        else { ?> class="badge rounded-pill badge-notification" style="background-color: green;"><?php } echo $notify_count['count'];?></span>
+                      <span>Посылки студентов </span>
+                      <button class="btn btn-link btn-sm" style="background-color: unset;" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span  class="badge rounded-pill badge-notification 
+                          <?php if ($notify_count['count'] > 0) echo "bg-danger";
+                          else echo "bg-success";?>"><?=$notify_count['count'];?></span>
                       </button>
-                      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
+                      <ul class="dropdown-menu dropdown-menu-end dropup" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                         <?php if ($notify_count > 0 && $array_notify) { $i=0;
                           foreach ($array_notify as $notify) { $i++; ?>
                             <li class="dropdown-item bg-primary" <?php if($i != $notify_count) echo 'style="border-bottom: 1px solid;"'?>> 
                             <a href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>"> 
-                              
-
                             <span class="text-white" style="border-bottom: 1px solid;"><?=$notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")"?></span>
                             <br><span class="text-white"><?=$notify['title']?></span>
                             </a>

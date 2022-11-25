@@ -82,7 +82,7 @@ $disc_count = pg_fetch_all($result1); ?>
                                     <img src="<?=$discipline['src_url']?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
                                     <div class="mask" style="transition: all .1s linear;"></div>
                                 </div>
-                                <div class="card_image_content">
+                                <div class="card_image_content"style="cursor: pointer;" onclick="window.location='studtasks.php?page=<?=$page_id?>'">
                                     <div class="p-2" style="text-align: left;">
                                         <a style="color: white; font-weight: bold;"><?php echo $discipline['short_name']; ?></a>
                                         <br><a><?php echo $full_name[0]['name']; ?></a>
