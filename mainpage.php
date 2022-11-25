@@ -58,6 +58,8 @@ function full_name($discipline_id, $dbconnect) {
             $result = full_name($page['disc_id'], $dbconnect);
             $full_name = pg_fetch_all($result)[0]['name'];
 
+            $page_id = $page['id'];
+
             if ($curr_sem != $page['sem']) { ?>
               <div class="col-2 align-self-center popover-message-message-stud" 
               style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
@@ -80,54 +82,10 @@ function full_name($discipline_id, $dbconnect) {
               <div class="container">
                 <div class="row g-5 container-fluid">
             <?php } ?>
-            <div class="col-3">
-              <div class="popover-message-message-stud" role="listitem">
-                <div class="popover-body">
-                  <div class="d-flex justify-content-between">
-                    <?php $page_id = $page['id']; ?>   
-                    <a href="pageedit.php?page=<?php echo $page_id; ?>">   
-                      <button type="button" class="btn btn-link">
-                        <i class="fas fa-pencil-alt"></i>
-                      </button>
-                    </a>
-                    <a href="preptasks.php?page=<?php echo $page_id; ?>">   
-                      <button type="button" class="btn btn-link">
-                        <i class="fa-solid fa-file-pen"></i>&nbsp;задания
-                      </button>
-                    </a>
-                  </div>
-                  <div class="p-3 popover-header">
-                    <a href="preptable.php?page=<?php echo $page_id; ?>"><?php echo $page['short_name']; ?></a><br>
-                  </div>
-                  <div class="d-flex justify-content-between" style="margin-top: 30px;">
-                    <span>Посылки студентов</span>
-                    <button class="btn btn-link btn-sm" style="width: 55px" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                      <i class="fas fa-bell fa-lg"></i><span <?php if ($notify_count['count'] > 0) {?> 
-                        class="badge rounded-pill badge-notification bg-danger"><?php } 
-                      else { ?> class="badge rounded-pill badge-notification" style="background-color: green;"><?php } echo $notify_count['count'];?></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
-                      <?php if ($notify_count > 0 && $array_notify) { $i=0;
-                        foreach ($array_notify as $notify) { $i++; ?>
-                          <li class="dropdown-item bg-primary" <?php if($i != $notify_count) echo 'style="border-bottom: 1px solid;"'?>> 
-                          <a href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>"> 
-                            
-
-                          <span class="text-white" style="border-bottom: 1px solid;"><?=$notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")"?></span>
-                          <br><span class="text-white"><?=$notify['title']?></span>
-                          </a>
-                          </li>
-                        <?php } 
-                      }?>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
 
 
             <div class="col-xs-12 col-sm-12 col-md-6 col-xl-3">
-              <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px;">
+              <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px!important;">
                   <div data-mdb-ripple-color="light" style="position: relative;">
                       <div class="bg-image" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?=$page_id?>'">
                           <img src="<?=$page['src_url']?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
@@ -135,17 +93,16 @@ function full_name($discipline_id, $dbconnect) {
                       </div>
                       <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;"
                        onclick="window.location='preptable.php?page=<?=$page_id?>'">
-                        <div class="d-flex justify-content-between" style="z-index: 2;">
-                          <?php $page_id = $page['id']; ?>   
-                          <a class="bg-white p-0" style="border-radius: 0px 0px 10px 0px;" 
+                        <div class="d-flex justify-content-between" style="z-index: 2;"> 
+                          <a class="bg-white p-0" style="border-radius: 10px 0px 10px 0px!important;" 
                           href="pageedit.php?page=<?php echo $page_id; ?>">   
-                            <button type="button" class="btn btn-white h-100 text-primary">
+                            <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-left-radius: 0px;">
                               <i class="fas fa-pencil-alt"></i>
                             </button>
                           </a>
-                          <a class="bg-white p-0" style="border-radius: 0px 0px 0px 10px;"
+                          <a class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important;"
                           href="preptasks.php?page=<?php echo $page_id; ?>">   
-                            <button type="button" class="btn btn-white h-100 text-primary">
+                            <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-right-radius: 0px;">
                               <i class="fa-solid fa-file-pen"></i>&nbsp;задания
                             </button>
                           </a>
