@@ -36,10 +36,17 @@ if (isset($_GET['task'])){
 	  exit;
   }
 
+  $user_id = $_SESSION['hash'];
+
 	$page_id = $task['page_id'];
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
 	$page = pg_fetch_assoc($result);
+
+
+  $query = select_task_assignment_student_id($user_id, $task_id);
+  $result = pg_query($dbconnect, $query);
+  $assignment_id = pg_fetch_assoc($result)['id'];
 
   if (!$page) {
     header('Location:'.$_SERVER['HTTP_REFERER']);
@@ -86,8 +93,10 @@ show_header($dbconnect, 'Редактор заданий',
       
     <div class="pt-3">
       <div class="row gy-5">
-        <div class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
+        <div class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+          <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+          <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input>
           <table class="table table-hover">
     
             <div class="pt-3">
@@ -169,9 +178,11 @@ show_header($dbconnect, 'Редактор заданий',
 
         <div class="col-4">
         <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
-        id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
+        id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-
+          <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+          <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input>
+          
             <div class="pt-1 pb-1">
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
             </div>
@@ -289,13 +300,16 @@ show_header($dbconnect, 'Редактор заданий',
 
             <div class="pt-1 pb-1">
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
+              <div id="div-task-files">
+                <?php if ($task_id != -1)
+                  $task_files = getTaskFiles($dbconnect, $task_id);
+                  show_task_files($task_files, true)?>
+              </div>
               <label class="btn btn-outline-default py-2 px-4">
-                <input id="task-files" type="file" name="task_files[]" style="display: none;">
+                <input id="task-files" type="file" name="task_files[]" style="display: none;" multiple>
                   <i class="fa-solid fa-paperclip"></i>
                   <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
               </label>  
-              <?php if ($task_id != -1)
-                show_task_files(getTaskFiles($dbconnect, $task_id))?>
             </div>
                 
           </div>
@@ -309,6 +323,55 @@ show_header($dbconnect, 'Редактор заданий',
 
     <!-- СКРИПТ "СОЗДАНИЯ ЗАДАНИЯ" -->
   <script type="text/javascript" src="js/taskedit.js"></script>
+  
+  <script type="text/javascript">
+    var added_files = <?=json_encode($task_files)?>;
+
+    // Показывает количество прикрепленных для отправки файлов
+    $('#task-files').on('change', function() {
+      //$('#files-count').html(this.files.length);
+      
+      let new_file = document.getElementById("task-files").files[0];
+      
+      if (added_files.find(file_name_check, new_file)){
+        alert("ФАЙЛ С ТАКИМ НАЗВАНИЕМ УЖЕ СУЩЕСТВУЕТ. ПЕРЕИМЕНУЙТЕ ПРИКРЕПЛЯЕМЫЙ ИЛИ ВЫБЕРИТЕ ДРУГОЙ");
+        return;
+      }
+      
+      var formData = new FormData();
+      formData.append('task_id', <?=$task_id?>);
+      formData.append('page_id', <?=$page_id?>);
+      $.each($("#task-files")[0].files, function(key, input){
+        formData.append('add-files[]', input);
+      });
+
+      console.log(formData);
+
+      $.ajax({
+        type: "POST",
+        url: 'taskedit_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function (response){
+          location.reload();
+        },
+        complete: function() {}
+      });
+    });
+
+
+    function file_name_check(file) {
+      console.log(file['file_name']);
+      if (file['file_name'] == this.name){
+        return true;
+      }
+      return false;
+    }
+
+  </script>
 
   </body>
 

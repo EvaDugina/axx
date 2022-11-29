@@ -114,29 +114,6 @@ inputRadio_group.addEventListener('click', function (event) {
   }
 });
 
-let input_files = document.getElementById('task-files');
-input_files.addEventListener('click', function (event) {
-  console.log("НАЖАТА КНОПКА: ПРИЛОЖИТЬ ФАЙЛЫ");
-  if (input_files.parentElement.classList.contains('btn-primary')){
-    input_files.parentElement.classList.remove('btn-primary');
-    input_files.parentElement.classList.add('btn-outline-default');
-    console.log("ЭТАП 1 ЗАКОНЧЕН");
-  } 
-  if (input_files.parentElement.classList.contains('btn-outline-default')){
-    input_files.parentElement.classList.remove('btn-outline-default');
-    input_files.parentElement.classList.add('btn-primary');
-    console.log("ЭТАП 2 ЗАКОНЧЕН");
-  }
-});
-// Показывает количество прикрепленных для отправки файлов
-$('#task-files').on('change', function() {
-  $('#files-count').html(this.files.length);
-  let a = document.createElement("a");
-  a.setAttribute('target', "_blank");
-  // href="<?=$f['download_url']?>" target="_blank" class="btn btn-outline-primary">
-  $('#p-task-files').appendChild(elemText);
-});
-
 
 
 //СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
@@ -193,10 +170,10 @@ let array_accordion_students_inputs = document.getElementsByClassName("input-stu
 //console.log(array_accordion_groups_inputs);
 
 for(let i = 0; i < array_accordion_groups_inputs.length; i ++) {
-  console.log(array_accordion_groups_inputs[i]);
+  // console.log(array_accordion_groups_inputs[i]);
   array_accordion_groups_inputs[i].addEventListener('change', function() {
     if (this.checked) {
-      console.log("Checkbox group is checked..");
+      // console.log("Checkbox group is checked..");
 
     } else {
 
@@ -205,10 +182,10 @@ for(let i = 0; i < array_accordion_groups_inputs.length; i ++) {
 }
 
 for(let i = 0; i < array_accordion_students_inputs.length; i ++) {
-  console.log(array_accordion_students_inputs[i]);
+  // console.log(array_accordion_students_inputs[i]);
   array_accordion_students_inputs[i].addEventListener('change', function() {
     if (this.checked) {
-      console.log("Checkbox group is checked..");
+      // console.log("Checkbox group is checked..");
     } else {
       
 
