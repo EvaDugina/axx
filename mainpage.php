@@ -94,13 +94,13 @@ function full_name($discipline_id, $dbconnect) {
                       <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;"
                        onclick="window.location='preptable.php?page=<?=$page_id?>'">
                         <div class="d-flex justify-content-between" style="z-index: 2;"> 
-                          <a class="bg-white p-0" style="border-radius: 10px 0px 10px 0px!important;" 
+                          <a class="bg-white p-0" style="border-radius: 10px 0px 10px 0px!important; opacity: 0.8;" 
                           href="pageedit.php?page=<?php echo $page_id; ?>">   
                             <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-left-radius: 0px;">
                               <i class="fas fa-pencil-alt"></i>
                             </button>
                           </a>
-                          <a class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important;"
+                          <a class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important; opacity: 0.8;"
                           href="preptasks.php?page=<?php echo $page_id; ?>">   
                             <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-right-radius: 0px;">
                               <i class="fa-solid fa-file-pen"></i>&nbsp;задания
