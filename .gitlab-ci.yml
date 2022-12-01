@@ -1,0 +1,18 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: none
+  GIT_CLEAN_FLAGS: none
+  GIT_STRATEGY: none
+
+stages:
+  - deploy
+
+pull-site:
+    when: manual
+    stage: deploy
+    script:
+      - cd /var/vega.fcyb.mirea.ru/accel
+      - whoami
+      - git status
+      - git pull http://gitlab-runner:rohv5Oad@vega.fcyb.mirea.ru/gitlab/avz/accelerator.git -b dev
+    tags:
+      - vega-site
