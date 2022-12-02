@@ -145,7 +145,9 @@ if ($scripts) echo $scripts; ?>
               <thead>
                 <tr class="table-row-header" style="text-align:center;">
                   <th scope="col" colspan="1">Студенты и группы</th>
-                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">Задания</th>
+                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">Задания <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?=$page_id?>';" style="">
+                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                          </button></th>
                 </tr>
                 <tr>
                   <th scope="col" colspan="1"> </th>
