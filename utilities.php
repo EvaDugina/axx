@@ -70,7 +70,7 @@ function delete_prefix($str) {
 // ОБЩИЕ ФУНКЦИИ РАБОТЫ С ЗАДАНИЯМИ
 // $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
 function getTaskFiles($dbconnect, $task_id){
-  $query = "SELECT id, type, file_name, download_url from ax_task_file where task_id = $task_id";
+  $query = "SELECT id, type, file_name, download_url from ax_task_file where task_id = $task_id order by id";
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $task_files = [];
   for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
