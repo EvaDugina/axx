@@ -178,9 +178,11 @@ function special_for_taskedit($f, $task_id, $page_id){?>
     <input type="hidden" name="flag-statusFile" value="true"></input>
     
     <select id="select-statusTaskFile" class="form-select me-2 select-statusTaskFile" id="select-statusFile">
-      <?php for($i=0; $i<=3; $i++) {?>
+      <?php 
+	    $captions = array('вложение', 'исходный код');
+	    for($i=0; $i<=1; $i++) {?>
         <option value="<?=$i?>" <?php if($i == $f['type']) echo 'selected';?>>
-          <?=$i?>
+          <?=$captions[$i]?>
         </option>
       <?php }?>
     </select>
