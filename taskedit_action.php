@@ -4,6 +4,7 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
+
 // Проверка на корректный запрос
 if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   header('Location: index.php');
@@ -14,41 +15,59 @@ if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
 
 
 
+if(isset($_POST['flag-deleteFile'])) {
+  $task_file_id = $_POST['task_file_id'];
+  $query = pg_query($dbconnect, delete_ax_task_file($task_file_id));
+  header('Location: taskedit.php?task='.$_POST['task_id']);
+  exit();
+}
+
+if(isset($_POST['flag-statusFile'])) {
+  $task_file_id = $_POST['task_file_id'];
+  $new_statusFile = $_POST['task-file-status'];
+  $sdjl = update_ax_task_file_status($task_file_id, $new_statusFile);
+  $query = pg_query($dbconnect, update_ax_task_file_status($task_file_id, $new_statusFile));
+  header('Location: taskedit.php?task='.$_POST['task_id']);
+  exit();
+}
+
+
 
 // Удаление задания
 if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id'] != -1) {
+  //echo "УДАЛЕНИЕ ЗАДАНИЯ";
   $query = pg_query($dbconnect, select_page_by_task_id($_POST['task_id']));
   $page_id = pg_fetch_assoc($query)['page_id'];
-  //echo "PAGE_ID: " . $page_id . "<br>";
   $query = delete_task($task_id);
   $result = pg_query($dbconnect, $query);
-  //echo "УДАЛЕНИЕ ЗАДАНИЯ";
   header('Location: preptasks.php?page=' . $page_id);
   exit();
 }
 
 
 
-
 if ($_POST['task_id'] != -1) {
-  //echo "ОБНОВЛЕНИЕ ЗАДАНИЯ";
-  //echo "<br>";
-  $query = update_ax_task($_POST['task_id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
-  $result = pg_query($dbconnect, $query);
+  //echo "РЕДАКТИРОВАНИЕ СУЩЕСТВУЮЩЕГО ЗАДАНИЯ";
+  if (isset($_POST['flag-editTaskInfo'])) {
+    $query = update_ax_task($_POST['task_id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+    $result = pg_query($dbconnect, $query);
+  }
   $task_id = $_POST['task_id'];
 } else {
   //echo "СОЗДАНИЕ ЗАДАНИЯ";
-  //echo "<br>";
-  $query = insert_ax_task($page_id, $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
-  //echo $query;
+  if (isset($_POST['flag-editTaskInfo'])) {
+    $query = insert_ax_task($page_id, $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+  } else {
+    $query = insert_ax_task($page_id, 1, "", "");
+  }
   $result = pg_query($dbconnect, $query);
   $task_id = pg_fetch_assoc($result)['id'];
 }
-//echo "TASK_ID: ".$task_id;
-//echo "<br>";
+
+
 
 // Прикрепление файлов к заданию
-if (isset($_FILES['add-files'])) {
+if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
   $files = get_files('add-files');
   $store_in_db = getSpecialFileTypes();
 
@@ -87,10 +106,13 @@ if (isset($_FILES['add-files'])) {
 
   // http_response_code(400);
   // echo json_encode(array('id_new_element' => "AAAAAAAAAAAA"));
-  return array('id_new_element' => "$id_new_file");
-  // header('Location: taskedit.php?task='.$task_id);
+  //return array('id_new_element' => "$id_new_file");
+  header('Location: taskedit.php?task='.$task_id);
   exit;
 }
+
+
+
 
 if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
   $query = select_task_file(2, $task_id);

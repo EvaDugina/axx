@@ -736,6 +736,18 @@ function insert_ax_task_file_with_full_file_text($task_id, $file_type, $file_nam
           RETURNING id';
 }
 
+function update_ax_task_file_status($task_file_id, $new_status_file){
+  return "UPDATE ax_task_file SET type = $new_status_file
+          WHERE ax_task_file.id = $task_file_id;
+  ";
+}
+
+function delete_ax_task_file($task_file_id){
+  return "DELETE FROM ax_task_file 
+          WHERE ax_task_file.id = $task_file_id;
+  ";
+}
+
 
 
 // ПРОЧЕЕ

@@ -96,7 +96,8 @@ show_header($dbconnect, 'Редактор заданий',
         <div class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
           <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-          <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input>
+          <input type="hidden" name="flag-editTaskInfo" value="true"></input>
+          <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
           <table class="table table-hover">
     
             <div class="pt-3">
@@ -181,7 +182,8 @@ show_header($dbconnect, 'Редактор заданий',
         id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
           <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-          <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input>
+          <input type="hidden" name="flag-editDeligation" value="true"></input>
+          <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
           
             <div class="pt-1 pb-1">
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
@@ -297,23 +299,32 @@ show_header($dbconnect, 'Редактор заданий',
             </div>
 
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
+          </form>
+
+          <div class="p-3 border bg-light">
 
             <div class="pt-1 pb-1">
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
-              <div id="div-task-files">
-                <?php if ($task_id != -1)
-                  $task_files = getTaskFiles($dbconnect, $task_id);
-                  show_task_files($task_files, true)?>
-              </div>
-              <label class="btn btn-outline-default py-2 px-4">
-                <input id="task-files" type="file" name="task_files[]" style="display: none;" multiple>
-                  <i class="fa-solid fa-paperclip"></i>
-                  <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
-              </label>  
+                <?php if ($task_id != -1) {?>
+                  <div id="div-task-files" class="mb-3">
+                    <?php $task_files = getTaskFiles($dbconnect, $task_id);
+                    show_task_files($task_files, true, $task_id, $page_id);?>
+                  </div>
+                <?php }?>
+              
+              <form id="form-addTaskFiles" name="taskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+                <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+                <input type="hidden" name="flag-addFiles" value="true"></input>
+                <label class="btn btn-outline-default py-2 px-4">
+                  <input id="task-files" type="file" name="add-files[]" style="display: none;" multiple>
+                    <i class="fa-solid fa-paperclip"></i>
+                    <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
+                </label> 
+              </form>
             </div>
                 
           </div>
-        </form>
       </div>
     </div>
 
@@ -325,6 +336,7 @@ show_header($dbconnect, 'Редактор заданий',
   <script type="text/javascript" src="js/taskedit.js"></script>
   
   <script type="text/javascript">
+    let form_addFiles  = document.getElementById('form-addTaskFiles');
     var added_files = <?=json_encode($task_files)?>;
 
     // Показывает количество прикрепленных для отправки файлов
@@ -337,8 +349,10 @@ show_header($dbconnect, 'Редактор заданий',
         alert("ФАЙЛ С ТАКИМ НАЗВАНИЕМ УЖЕ СУЩЕСТВУЕТ. ПЕРЕИМЕНУЙТЕ ПРИКРЕПЛЯЕМЫЙ ИЛИ ВЫБЕРИТЕ ДРУГОЙ");
         return;
       }
+
+      form_addFiles.submit();
       
-      var formData = new FormData();
+      /*var formData = new FormData();
       formData.append('task_id', <?=$task_id?>);
       formData.append('page_id', <?=$page_id?>);
       $.each($("#task-files")[0].files, function(key, input){
@@ -359,7 +373,7 @@ show_header($dbconnect, 'Редактор заданий',
           location.reload();
         },
         complete: function() {}
-      });
+      });*/
     });
 
 
@@ -372,6 +386,76 @@ show_header($dbconnect, 'Редактор заданий',
     }
 
   </script>
+
+<script type="text/javascript">
+
+//   $(function() {
+//     $('#list.dropdown-item').on("click", function() { // when LI is clicked
+//       console.log("CLICKED!");
+//       var option = $(this).data("option");
+//       console.log("OPTION: " + option);
+//       let form_statusTaskFiles = $(this).parent().parent().parent();
+//       console.log("FORM-StatusTaskFiles: " + form_statusTaskFiles);
+    
+//       let input = document.createElement("input");
+//       input.setAttribute("type", "hidden");
+//       input.setAttribute("value", option);
+//       input.setAttribute("name", 'task-file-status');
+//       console.log(input);
+    
+//       form_statusTaskFiles.append(input);
+//       form_statusTaskFiles.submit();
+//     });
+
+    $('#list').click();
+    $('#123').click();
+// });
+
+
+document.querySelectorAll("#div-task-files div").forEach(function (div) {
+  let form = div.getElementsByClassName("form-statusTaskFiles")[0];
+  let select = form.getElementsByClassName("select-statusTaskFile")[0];
+  select.addEventListener("change", function (e) {
+    console.log("SELECT CHANGED!");
+    var value = e.target.value;
+    console.log("OPTION: " + value);;
+    console.log("FORM-StatusTaskFiles: " + form);
+
+    let input = document.createElement("input");
+    input.setAttribute("type", "hidden");
+    input.setAttribute("value", value);
+    input.setAttribute("name", 'task-file-status');
+    console.log(input);
+
+    form.append(input);
+    form.submit();  
+  });
+});
+
+
+// document.getElementsByClassName("select-statusTaskFile").addEventListener("change", function(e) {
+//   console.log("SELECT CHANGED!");
+//   var value = e.target.value;
+//   console.log("OPTION: " + value);
+//   let form_statusTaskFiles = document.getElementById('form-statusTaskFiles');
+//   console.log("FORM-StatusTaskFiles: " + form_statusTaskFiles);
+
+//   let input = document.createElement("input");
+//   input.setAttribute("type", "hidden");
+//   input.setAttribute("value", value);
+//   input.setAttribute("name", 'task-file-status');
+//   console.log(input);
+
+//   form_statusTaskFiles.append(input);
+//   form_statusTaskFiles.submit();  
+// });
+
+
+
+
+
+</script>
+
 
   </body>
 
