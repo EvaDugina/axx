@@ -93,7 +93,7 @@ show_header($dbconnect, 'Редактор заданий',
       
     <div class="pt-3">
       <div class="row gy-5">
-        <div class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+        <form class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
           <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
           <input type="hidden" name="flag-editTaskInfo" value="true"></input>
@@ -130,9 +130,9 @@ show_header($dbconnect, 'Редактор заданий',
                 <textarea id="textArea-description" class="form-control <?php /*if ($task['description'])*/ echo 'active';?>" 
                 rows="5" name="task-description" style="resize: none;"><?=$task['description']?></textarea>
                 <label id="label-textArea-description" class="form-label" for="textArea-description">Описание задания</label>
-				<script>
-					const easyMDE = new EasyMDE({element: document.getElementById('textArea-description')});
-				</script>
+                <script>
+                  const easyMDE = new EasyMDE({element: document.getElementById('textArea-description')});
+                </script>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -175,7 +175,7 @@ show_header($dbconnect, 'Редактор заданий',
           <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
 
-        </div>
+        </form>
 
         <div class="col-4">
         <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
@@ -412,46 +412,25 @@ show_header($dbconnect, 'Редактор заданий',
 // });
 
 
-document.querySelectorAll("#div-task-files div").forEach(function (div) {
-  let form = div.getElementsByClassName("form-statusTaskFiles")[0];
-  let select = form.getElementsByClassName("select-statusTaskFile")[0];
-  select.addEventListener("change", function (e) {
-    console.log("SELECT CHANGED!");
-    var value = e.target.value;
-    console.log("OPTION: " + value);;
-    console.log("FORM-StatusTaskFiles: " + form);
+  document.querySelectorAll("#div-task-files div").forEach(function (div) {
+    let form = div.getElementsByClassName("form-statusTaskFiles")[0];
+    let select = form.getElementsByClassName("select-statusTaskFile")[0];
+    select.addEventListener("change", function (e) {
+      console.log("SELECT CHANGED!");
+      var value = e.target.value;
+      console.log("OPTION: " + value);;
+      console.log("FORM-StatusTaskFiles: " + form);
 
-    let input = document.createElement("input");
-    input.setAttribute("type", "hidden");
-    input.setAttribute("value", value);
-    input.setAttribute("name", 'task-file-status');
-    console.log(input);
+      let input = document.createElement("input");
+      input.setAttribute("type", "hidden");
+      input.setAttribute("value", value);
+      input.setAttribute("name", 'task-file-status');
+      console.log(input);
 
-    form.append(input);
-    form.submit();  
+      form.append(input);
+      form.submit();  
+    });
   });
-});
-
-
-// document.getElementsByClassName("select-statusTaskFile").addEventListener("change", function(e) {
-//   console.log("SELECT CHANGED!");
-//   var value = e.target.value;
-//   console.log("OPTION: " + value);
-//   let form_statusTaskFiles = document.getElementById('form-statusTaskFiles');
-//   console.log("FORM-StatusTaskFiles: " + form_statusTaskFiles);
-
-//   let input = document.createElement("input");
-//   input.setAttribute("type", "hidden");
-//   input.setAttribute("value", value);
-//   input.setAttribute("name", 'task-file-status');
-//   console.log(input);
-
-//   form_statusTaskFiles.append(input);
-//   form_statusTaskFiles.submit();  
-// });
-
-
-
 
 
 </script>
