@@ -60,7 +60,7 @@ else {
 <?php 
 show_head("Страница предмета ". $page['short_name']);
 show_header($dbconnect, 'Задания по дисциплине', 
-		array($page['disc_name'] => 'studtasks.php?page=' . $page_id)); ?>
+		array($page['short_name'] => 'studtasks.php?page=' . $page_id)); ?>
 
 <body style="overflow-x: hidden;">
 
@@ -68,7 +68,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 		<div class="pt-5 px-4">
 			<div class="row">
 				<div class="col-md-6 d-flex">
-					<h3><?php echo $discipline_name; ?></h4>
+					<h3><?php echo $short_name; ?></h4>
 					<p style="color: grey; margin-left: 10px; margin-top:17px; "><?php echo $count_succes_tasks . "/" . $count_tasks; ?></p>
 				</div>
 			</div>

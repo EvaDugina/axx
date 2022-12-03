@@ -79,9 +79,13 @@ $query = select_page_by_task_id($task_id);
 $result = pg_query($dbconnect, $query);
 $page_id = pg_fetch_assoc($result)['page_id'];
 
-$query = select_discipline_name_by_page($page_id, 1);
+//$query = select_discipline_name_by_page($page_id, 1);
+//$result = pg_query($dbconnect, $query);
+//$page_name = pg_fetch_assoc($result)['name'];
+
+$query = select_ax_page_short_name($page_id);
 $result = pg_query($dbconnect, $query);
-$page_name = pg_fetch_assoc($result)['name'];
+$page_name = pg_fetch_assoc($result)['short_name'];
 
 
 $page_title = "Онлайн редактор кода";
