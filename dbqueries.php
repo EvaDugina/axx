@@ -85,8 +85,9 @@ function select_pages_for_teacher($teacher_id){
 }
 
 function select_pages_for_admin(){
-  return "SELECT ax_page.id, ax_page.short_name, ax_page.disc_id, get_semester(year, semester) sem, ax_page.year y, ax_page.semester s
-          FROM ax_page
+  return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax_ct.src_url
+          FROM ax_page p
+          INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
           ORDER BY y DESC, s DESC
   ";
 }
