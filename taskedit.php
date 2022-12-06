@@ -170,8 +170,11 @@ show_header($dbconnect, 'Редактор заданий',
           </table>
 
           <button id="submit-save" type="submit" class="btn btn-outline-primary" name="action" value="save">Сохранить</button>
-          <?php if ($task_id != -1) {?>
-            <button id="submit-delete" type="submit" class="btn btn-outline-danger" name="action" value="delete">Удалить задание</button>
+          <?php if ($task_id != -1 && $task['status'] == 1) {?>
+            <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
+             name="action" value="archive">Архивировать задание</button>
+          <?php } else {?>
+            <button id="submit-archive" type="submit" class="btn btn-outline-success" name="action" value="re-archive">Разархивировать задание</button>
           <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
 

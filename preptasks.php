@@ -112,16 +112,21 @@ if (!$result || pg_num_rows($result) < 1) {
                           } ?>
                         </td>
                         <td class="text-nowrap">
-                          <button type="submit" class="btn btn-outline-danger px-3" name="action" value="delete"
-                          onclick="window.location='preptasks_edit.php?task_id=<?=$task['id']?>&page_id=<?=$page_id?>';">
-                            <i class="fa-solid fa-trash"></i>
-                          </button>
-                          <button type="submit" class="btn btn-outline-warning px-3" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
+                          <div class="d-flex flex-row">
+                          <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="action" value="archive">
+                            <input type="hidden" name="task_id" value="<?=$task['id']?>">
+                            <button type="submit" class="btn btn-outline-secondary px-3" name="action" value="archive">
+                              <i class="fas fa-ban"></i>
+                            </button>
+                          </form>
+                          <button type="submit" class="btn btn-outline-warning px-3 ms-1 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
                             <i class="fas fa-pen fa-lg"></i>
                           </button>
                           <button type="button" class="btn btn-primary px-3" disabled>
                               <i class="fas fa-download fa-lg"></i>
                           </button>
+                          </div>
                         </td>
                       </tr>
                     <?php }	?>
@@ -270,7 +275,7 @@ if (!$result || pg_num_rows($result) < 1) {
             <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
             <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-ban fa-lg"></i> Перенести в архив</button></div>
             <form method="get" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
-              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
               <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-primary"

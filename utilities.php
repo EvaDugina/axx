@@ -70,7 +70,7 @@ function delete_prefix($str) {
 // ОБЩИЕ ФУНКЦИИ РАБОТЫ С ЗАДАНИЯМИ
 // $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
 function getTaskFiles($dbconnect, $task_id){
-  $query = "SELECT id, type, file_name, download_url from ax_task_file where task_id = $task_id order by id";
+  $query = "SELECT id, type, file_name, download_url FROM ax_task_file WHERE task_id = $task_id AND type < 2 order by id";
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $task_files = [];
   for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
@@ -188,49 +188,13 @@ function special_for_taskedit($f, $task_id, $page_id){?>
     </select>
   </form>
 
-<!-- <input type="hidden" name="status-file" value="0"> -->
-
-  <!-- <div class="dropdown me-0">
-    <button id="321" type="button" class="btn btn-primary text-white dropdown-toggle ms-1 me-2 p-1" data-mdb-toggle="dropdown" 
-      id="dropdownMenuButton" >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journal-arrow-down" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M8 5a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 9.293V5.5A.5.5 0 0 1 8 5z"/>
-          <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"/>
-          <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"/>
-        </svg>
-      </button>
-    <ul id="ul" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <li id="123" class="dropdown-item text-primary" style="cursor: pointer" data-option="0">
-        <i id="i" class="fa-solid fa-file"></i>
-        &nbsp;Простой файл
-      </li>
-      <li class="dropdown-item text-primary" style="cursor: pointer" data-option="1">
-        <i class="fas fa-file-code fa-lg"></i>
-        &nbsp;Шаблон проекта
-      </li>
-      <li class="dropdown-item text-primary" style="cursor: pointer" data-option="2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-binary-fill" viewBox="0 0 16 16">
-          <path d="M5.526 10.273c-.542 0-.832.563-.832 1.612 0 .088.003.173.006.252l1.559-1.143c-.126-.474-.375-.72-.733-.72zm-.732 2.508c.126.472.372.718.732.718.54 0 .83-.563.83-1.614 0-.085-.003-.17-.006-.25l-1.556 1.146z"/>
-          <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-2.45 8.385c0 1.415-.548 2.206-1.524 2.206C4.548 14.09 4 13.3 4 11.885c0-1.412.548-2.203 1.526-2.203.976 0 1.524.79 1.524 2.203zm3.805 1.52V14h-3v-.595h1.181V10.5h-.05l-1.136.747v-.688l1.19-.786h.69v3.633h1.125z"/>
-        </svg>
-        &nbsp;Код теста
-      </li>
-      <li class="dropdown-item text-primary" style="cursor: pointer" data-option="3">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">
-          <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>
-        </svg> 
-        &nbsp;Код проверки теста
-      </li>
-    </ul>
-  </div> -->
-
 <form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
   <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
   <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
   <input type="hidden" name="task_file_id" value="<?=$f['id']?>"></input>
   <input type="hidden" name="flag-deleteFile" value="true"></input>
 
-  <button class="btn btn-link bg-danger text-white me-0 p-1 submit-delete" type="submit">
+  <button class="btn btn-link bg-danger text-white me-0 p-1" type="submit">
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
     <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
   </svg>

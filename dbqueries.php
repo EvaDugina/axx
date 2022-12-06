@@ -323,6 +323,11 @@ function select_task_files($task_id) {
 }
 
 // обновление задания
+function update_ax_task_status($id, $status) {
+    return "UPDATE ax_task SET status = $status WHERE id = $id";
+}
+
+// обновление задания
 function update_ax_task($id, $type, $title, $description) {
     return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' 
             WHERE id = '$id'";

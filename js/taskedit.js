@@ -10,7 +10,7 @@ let inputRadio_individual = document.getElementById('input-deligate-by-individua
 let inputRadio_group = document.getElementById('input-deligate-by-group');
 
 let button_save = document.getElementById('submit-save');
-let button_delete = document.getElementById('submit-delete');
+let button_delete = document.getElementById('submit-archive');
 
 
 if(input_Title){

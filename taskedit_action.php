@@ -5,6 +5,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 
+
 // Проверка на корректный запрос
 if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   header('Location: index.php');
@@ -13,6 +14,20 @@ if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   $page_id = $_POST['page_id'];
 }
 
+
+// Архивирование и разархивирование задания
+if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'] == 're-archive') && $_POST['task_id'] != -1) {
+  if ($_POST['action'] == 'archive') {
+    //echo "АРХИВИРОВАНИЕ ЗАДАНИЯ";
+    $new_status = 0;
+  } else {
+    //echo "РАЗАРХИВИРОВАНИЕ ЗАДАНИЯ";
+    $new_status = 1;
+  }
+  $query = pg_query($dbconnect, update_ax_task_status($_POST['task_id'], $new_status));
+  header('Location:'.$_SERVER['HTTP_REFERER']);
+  exit();
+}
 
 
 if(isset($_POST['flag-deleteFile'])) {
@@ -30,6 +45,7 @@ if(isset($_POST['flag-statusFile'])) {
   header('Location: taskedit.php?task='.$_POST['task_id']);
   exit();
 }
+
 
 
 
