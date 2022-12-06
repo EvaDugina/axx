@@ -78,38 +78,53 @@ if (!$result || pg_num_rows($result) < 1) {
                       <tr>
                         <td scope="row" style="--mdb-table-accent-bg:unset;"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$task['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
                         <td style="--mdb-table-accent-bg:unset;">
-                          <?php if ($task['type'] == 1) {?>
-                            <i class="fas fa-code fa-lg"></i>
-                          <?php } else { ?>
-                            <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
-                          <?php } ?>
-                          <?=$task['title']?>
-                  
+                          <h6>
+                            <?php if ($task['type'] == 1) {?>
+                              <i class="fas fa-code fa-lg"></i>
+                            <?php } else { ?>
+                              <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
+                            <?php } ?>
+                            <?=$task['title']?>
+                          </h6>
+
+                          
                           <?php
                           $query = select_assigned_students($task['id']);
                           $result2 = pg_query($dbconnect, $query);
                           if ($result2 && pg_num_rows($result2) > 0) {
-                            echo '<div class="small">Назначено:<ul><li style="display:none;">';
-                            $prev_assign = 0;
-                            while ($row2 = pg_fetch_assoc($result2))
-                            {
-                              if ($row2['aid'] == $prev_assign)
-                                echo ', '.$row2['fio'];
-                              else
-                                echo '</li><li>'.($row2['ts'] != '' ? '(до '.$row2['ts'].') ' :'').$row2['fio'];
-                              $prev_assign = $row2['aid'];
-                            }
-                            echo '</li></ul></div>';
-                          }
+                            $i=0;?> 
+                            <div class="small">Назначения:</div>
+                            <div id="student_container" class="col-lg-12 my-1" style="display: flex; flex-direction: row; justify-content: flex-start;">
+                              <?php while ($student_task = pg_fetch_assoc($result2)) { ?>
+                                <form id="form-rejectAssignment-<?=$i?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+                                  <input type="hidden" name="task_id" value="<?=$student_task['tid']?>"></input>
+                                  <input type="hidden" name="student_id" value ="<?=$student_task['sid']?>"></input>
+                                  <input type="hidden" name="flag-rejecAssignment" value="true"></input>
 
-                          $query = select_task_files($task['id']);
-                          $result2 = pg_query($dbconnect, $query);
-                          if ($result2 && pg_num_rows($result2) > 0) {
-                            echo '<div class="small">Приложения:<ul>';
-                            while ($row2 = pg_fetch_assoc($result2))
-                              echo '<li>'.delete_random_prefix_from_file_name($row2['file_name']).'</li>';
-                            echo '</ul></div>';
-                          } ?>
+                                  <div class="d-flex justify-content-between align-items-center me-2 badge badge-primary text-wrap">
+                                    <span class="p-1 me-1"><?=$student_task['fio']?> (до <?=$student_task['ts']?>)</span>
+                                    <button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment('form-rejectAssignment-<?=$i?>')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                                    </svg>
+                                    </button>
+                                  </div>
+                                </form>
+                              <?php $i++;
+                              }?>
+                            </div>
+                          <?php }?>
+
+                           
+                        
+                          <div id="div-task-files" class="mb-3">
+                            <?php $task_files = getTaskFiles($dbconnect, $task['id']);
+                            if (count($task_files) > 0) {?>
+                              <div class="small"><strong>Приложения:</strong></div>
+                              <?php show_task_files($task_files);
+                            }?>
+                          </div>
+
                         </td>
                         <td class="text-nowrap" style="--mdb-table-accent-bg:unset;">
                           <div class="d-flex flex-row">
@@ -313,6 +328,44 @@ if (!$result || pg_num_rows($result) < 1) {
       </div>
     </div>
   </main>
+
+
+  <div class="modal" id="dialogMark" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">ВНИМАНИЕ!</h5>
+          <button type="button" class="close" data-mdb-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Внимание! Если отменить назначение, соответсвующие посылки от студента будут утеряны!</p>
+        </div>
+        <div class="modal-footer">
+          <button id="modal-btn-continue" type="button" class="btn btn-danger" data-mdb-dismiss="modal">Продолжить</button>
+          <button id="modal-btn-escape" type="button" class="btn btn-primary">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    function confirmRejectAssignment(form_id) {
+      $('#dialogMark').modal('show');
+
+      $('#modal-btn-continue').click(function() {
+          let form_reject = document.getElementById(form_id);
+          form_reject.submit();
+      });
+      
+      $('#modal-btn-escape').click(function() {
+        $('#dialogMark').modal('hide');
+      });
+    }
+
+
+  </script>
   
 </body>
 </html>

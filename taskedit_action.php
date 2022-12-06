@@ -81,6 +81,17 @@ if ($_POST['task_id'] != -1) {
 }
 
 
+
+// ОТМЕНА НАЗНАЧЕНИЯ СТУДЕНТА
+if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['student_id'])) {
+  $query = pg_query($dbconnect, select_task_assignment_student_id($_POST['student_id'], $_POST['task_id']));
+  $assignment_id = pg_fetch_assoc($query)['id'];
+  $query = pg_query($dbconnect, delete_assignment($assignment_id));
+  header('Location:'.$_SERVER['HTTP_REFERER']);
+  exit();
+}
+
+
 // if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
 //   $query = select_task_file(2, $task_id);
 //   $result = pg_query($dbconnect, $query);

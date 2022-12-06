@@ -133,7 +133,7 @@ function show_task_files($task_files, $taskedit_page_status = false, $task_id = 
     <?php $count_files = 0;
     foreach ($task_files as $f) {
         $count_files++; ?>
-        <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 pe-2 div-task-file" style="cursor:unset;">
+        <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 px-3 div-task-file" style="cursor:unset;">
           <a id="a-file-<?=$f['id']?>" href="<?=$f['download_url']?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
             <?php if ($f['type'] == 0) {?>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
@@ -188,18 +188,18 @@ function special_for_taskedit($f, $task_id, $page_id){?>
     </select>
   </form>
 
-<form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-  <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-  <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-  <input type="hidden" name="task_file_id" value="<?=$f['id']?>"></input>
-  <input type="hidden" name="flag-deleteFile" value="true"></input>
+  <form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+    <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+    <input type="hidden" name="task_file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="flag-deleteFile" value="true"></input>
 
-  <button class="btn btn-link bg-danger text-white me-0 p-1" type="submit">
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-  </svg>
-  </button>
-</form>
+    <button class="btn btn-link bg-danger text-white me-0 p-1" type="submit">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+    </svg>
+    </button>
+  </form>
 <?php }
 
 

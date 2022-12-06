@@ -306,7 +306,8 @@ function select_page_tasks_with_assignment($page_id, $status, $student_id) {
 
 // - получение студентов, которым назначено задание
 function select_assigned_students($task_id) {
-    return "SELECT students.middle_name || ' ' || students.first_name fio, ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts 
+    return "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,
+    ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts 
           FROM ax_task 
           INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id 
           INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
@@ -393,6 +394,25 @@ function insert_assignment($task_id){
 function insert_assignment_student($assignment_id, $student_id){
   return "INSERT INTO ax_assignment_student (assignment_id, student_user_id)
           VALUES ($assignment_id, $student_id);
+  ";
+}
+
+function delete_assignment($assignment_id) {
+  return "DELETE FROM ax_assignment 
+          WHERE ax_assignment.id = $assignment_id;
+
+          DELETE FROM ax_assignment_student
+          WHERE ax_assignment_student.assignment_id = $assignment_id;
+
+          DELETE FROM ax_solution_file 
+          WHERE ax_solution_file.assignment_id = $assignment_id;
+
+          DELETE FROM ax_solution_commit
+          WHERE ax_solution_commit.assignment_id = $assignment_id;
+          
+          DELETE FROM ax_message USING ax_message_attachment, ax_message_delivery
+          WHERE ax_message.assignment_id = $assignment_id AND ax_message_attachment.message_id = ax_message.id
+          AND ax_message.id = ax_message_delivery.message_id;
   ";
 }
 

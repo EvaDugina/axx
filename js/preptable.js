@@ -62,7 +62,7 @@ if (value.trim() === '') {
 }
 }
 
-function showPopover(element, message_id) {
+function showPopover(element) {
 //console.log(element);
 $(element).popover({
     html: true,
