@@ -26,6 +26,8 @@ $task_id = -1;
 $page_id = -1;
 if (isset($_GET['task'])){
 	// Изменение текущего задания
+  $flag_new_task = false;
+
 	$task_id = $_REQUEST['task'];
 	$query = select_task($task_id);
 	$result = pg_query($dbconnect, $query);
@@ -63,6 +65,8 @@ if (isset($_GET['task'])){
 
 } else if (isset($_GET['page'])){
 	// Добавление новго задания
+  $flag_new_task = true;
+
 	$page_id = $_REQUEST['page'];
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
@@ -173,14 +177,14 @@ show_header($dbconnect, 'Редактор заданий',
           <?php if ($task_id != -1 && $task['status'] == 1) {?>
             <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
              name="action" value="archive">Архивировать задание</button>
-          <?php } else {?>
+          <?php } else if($task_id != -1 && $task['status'] == 0){?>
             <button id="submit-archive" type="submit" class="btn btn-outline-success" name="action" value="re-archive">Разархивировать задание</button>
           <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
 
         </form>
 
-        <div class="col-4">
+        <div class="col-4 <?php if($flag_new_task) echo 'd-none';?>">
         <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
         id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
