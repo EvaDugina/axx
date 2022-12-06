@@ -76,8 +76,8 @@ if (!$result || pg_num_rows($result) < 1) {
                     <?php
                     while ($task = pg_fetch_assoc($result)) {?>
                       <tr>
-                        <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$task['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
-                        <td>
+                        <td scope="row" style="--mdb-table-accent-bg:unset;"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$task['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
+                        <td style="--mdb-table-accent-bg:unset;">
                           <?php if ($task['type'] == 1) {?>
                             <i class="fas fa-code fa-lg"></i>
                           <?php } else { ?>
@@ -111,16 +111,16 @@ if (!$result || pg_num_rows($result) < 1) {
                             echo '</ul></div>';
                           } ?>
                         </td>
-                        <td class="text-nowrap">
+                        <td class="text-nowrap" style="--mdb-table-accent-bg:unset;">
                           <div class="d-flex flex-row">
                           <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="archive">
                             <input type="hidden" name="task_id" value="<?=$task['id']?>">
-                            <button type="submit" class="btn btn-outline-secondary px-3" name="action" value="archive">
+                            <button type="submit" class="btn btn-secondary px-3">
                               <i class="fas fa-ban"></i>
                             </button>
                           </form>
-                          <button type="submit" class="btn btn-outline-warning px-3 ms-1 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
+                          <button type="submit" class="btn btn-warning px-3 ms-1 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
                             <i class="fas fa-pen fa-lg"></i>
                           </button>
                           <button type="button" class="btn btn-primary px-3" disabled>
@@ -135,52 +135,63 @@ if (!$result || pg_num_rows($result) < 1) {
               </div>
             <?php } ?>
 
-            <h2 class="pt-5 text-secondary"><i class="fas fa-ban"></i> Архив заданий</h2>
-            <?php
-            $query = select_page_tasks($page_id, 0);
-            $result = pg_query($dbconnect, $query);
+            <div class="my-5">
+              <h2 class="pt-5 text-secondary"><i class="fas fa-ban"></i> Архив заданий</h2>
+              <?php
+              $query = select_page_tasks($page_id, 0);
+              $result = pg_query($dbconnect, $query);
+              
+              if (!$result || pg_num_rows($result) < 1)
+                echo 'Архивные задания по этой дисциплине отсутствуют';
+              else {?>
             
-            if (!$result || pg_num_rows($result) < 1)
-              echo 'Архивные задания по этой дисциплине отсутствуют';
-            else {?>
-          
-              <table class="table table-secondary table-hover">
-                <thead>
-                  <tr>
-                    <!-- <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></th> -->
-                    <th scope="col" style="width:100%;">Название</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                  while ( $row = pg_fetch_assoc($result) ) { ?>
+                <table class="table table-secondary table-hover">
+                  <thead>
                     <tr>
-                      <!-- <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td> -->
-                      <td>
-                        <?php
-                        if ($row['type'] == 1) {?>
-                          <i class="fas fa-code fa-lg"></i>
-                        <?php } else { ?>
-                          <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
-                        <?php } ?>
-                        <?=$row['title']?>
-                      </td>
-                      <td class="text-nowrap">
-                        <form class="text-nowrap" method="get" action="preptasks_edit.php" name="recover1Form" id="recover1Form">
-                          <input type="hidden" name="action" value="recover" />
-                          <input type="hidden" name="page" value="<?=$page_id?>" />
-                          <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
-                          <button type="submit" class="btn btn-sm px-3"><i class="fas fa-undo fa-lg"></i></button>&nbsp;
-                          <button type="button" class="btn btn-sm px-3" disabled><i class="fas fa-download fa-lg"></i></button>
-                        </form>                      
-                      </td>
+                      <!-- <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></th> -->
+                      <th scope="col" style="width:100%;">Название</th>
+                      <th scope="col"></th>
                     </tr>
-                  <?php }	?>				  
-                </tbody>
-              </table>
-            <?php } ?>
+                  </thead>
+                  <tbody>
+                    <?php
+                    while ( $row = pg_fetch_assoc($result) ) { ?>
+                      <tr>
+                        <!-- <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td> -->
+                        <td style="--mdb-table-accent-bg:unset;">
+                          <?php
+                          if ($row['type'] == 1) {?>
+                            <i class="fas fa-code fa-lg"></i>
+                          <?php } else { ?>
+                            <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
+                          <?php } ?>
+                          <?=$row['title']?>
+                        </td>
+                        <td class="text-nowrap" style="--mdb-table-accent-bg:unset;">
+                            <div class="d-flex flex-row">
+                              <form method="get" action="preptasks_edit.php">
+                                <input type="hidden" name="action" value="recover" />
+                                <input type="hidden" name="page" value="<?=$page_id?>" />
+                                <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
+                                <button type="submit" class="btn btn-outline-primary px-3"><i class="fas fa-undo fa-lg"></i></button>&nbsp;
+                              </form>
+                              <form name="form-deleteTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="task_id" value="<?=$row['id']?>">
+                                <button type="submit" class="btn btn-outline-danger px-3">
+                                  <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                              </form>
+                              <button type="button" class="btn btn-sm px-3" disabled><i class="fas fa-download fa-lg"></i></button>
+                            </div>
+                        </td>
+                      </tr>
+                    <?php }	?>				  
+                  </tbody>
+                </table>
+              <?php } ?>
 
+            </div>
           </div>
         </div>
 
@@ -273,12 +284,23 @@ if (!$result || pg_num_rows($result) < 1) {
                 <button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-copy fa-lg"></i> Копировать</button> 
             </div>
             <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
-            <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-ban fa-lg"></i> Перенести в архив</button></div>
             <form method="get" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
-              <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-primary"
+              <div class="pt-1 pb-1">
+                <button type="submit" class="btn btn-outline-secondary"
+                onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
+                        $(deleteForm).find(groupped).val(0);"
+                onChange="$(deleteForm).trigger('submit')">
+                  <i class="fas fa-ban fa-lg"></i>&nbsp;Перенести в архив</button>
+              </div>
+            </form>
+            <form method="get" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
+              <input type="hidden" name="action" value="delete"/>
+              <input type="hidden" name="page" value="<?=$page_id?>" />
+              <input type="hidden" name="tasknum" id="tasknum" value="" />
+              <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-danger" disabled
                     onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
                               $(deleteForm).find(groupped).val(0);"
                     onChange="$(deleteForm).trigger('submit')">

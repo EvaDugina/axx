@@ -5,7 +5,6 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 
-
 // Проверка на корректный запрос
 if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   header('Location: index.php');
@@ -51,7 +50,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
   //echo "УДАЛЕНИЕ ЗАДАНИЯ";
   $query = pg_query($dbconnect, select_page_by_task_id($_POST['task_id']));
   $page_id = pg_fetch_assoc($query)['page_id'];
-  $query = delete_task($task_id);
+  $query = delete_task($_POST['task_id']);
   $result = pg_query($dbconnect, $query);
   header('Location: preptasks.php?page=' . $page_id);
   exit();
@@ -103,10 +102,6 @@ if ($_POST['task_id'] != -1) {
 
 //   $result = pg_query($dbconnect, $query);
 // }
-
-
-
-
 
 
 
