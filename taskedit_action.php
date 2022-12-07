@@ -83,6 +83,7 @@ if ($_POST['task_id'] != -1) {
 
 
 // ОТМЕНА НАЗНАЧЕНИЯ СТУДЕНТА
+/*
 if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['student_id'])) {
   $query = pg_query($dbconnect, select_task_assignment_student_id($_POST['student_id'], $_POST['task_id']));
   $assignment_id = pg_fetch_assoc($query)['id'];
@@ -90,7 +91,12 @@ if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['st
   header('Location:'.$_SERVER['HTTP_REFERER']);
   exit();
 }
-
+*/
+if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action'] == 'reject') && ($_POST['assignment_id'] != 0)) {
+  $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
+  header('Location:'.$_SERVER['HTTP_REFERER']);
+  exit();
+}
 
 // if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
 //   $query = select_task_file(2, $task_id);

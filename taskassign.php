@@ -14,17 +14,22 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 }
 
 // Обработка некорректного перехода между страницами
-if (!isset($_GET['page']) || !is_numeric($_GET['page'])){
+if ((!isset($_GET['assignment_id']) || !is_numeric($_GET['assignment_id'])) 
+    && (!isset($_GET['task_id']) || !is_numeric($_GET['task_id']))) {
 	header('Location:mainpage.php');
 	exit;
 }
 
 // получение параметров запроса
-$page_id = 0;
-if (isset($_GET['page']))
-  $page_id = $_GET['page'];
+$assignment_id = 0;
+if (isset($_GET['assignment_id']))
+  $assignment_id = $_GET['assignment_id'];
 
+$task_id = 0;
+if (isset($_GET['task_id']))
+  $task_id = $_GET['task_id'];
 
+/*******
 $query = select_discipline_page($page_id);
 $result = pg_query($dbconnect, $query);
 $row = [];
@@ -36,7 +41,9 @@ if (!$result || pg_num_rows($result) < 1) {
   $row = pg_fetch_assoc($result);
   show_head("Задания по дисциплине: " . $row['disc_name']);
   show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));
-} ?>
+} 
+*******/
+?>
 
 <body>
   <main class="pt-2">
