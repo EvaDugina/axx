@@ -271,4 +271,47 @@ function convert_sem_from_number($id){
   if($id == 1) return 'Осень';
   else return 'Весна';
 }
+
+function show_accordion($name, $data)
+{
+			?>
+	            <div id="main-accordion-<?=$name?>" class="accordion accordion-flush" style="overflow-y: auto; height: 100%px; width: 100%;">
+				  <div class="accordion-item">
+			<?php
+				$i = 111;
+				foreach($data as $d) {
+			?>
+					<div id="accordion-<?=$name?>-gheader-<?=$i?>" class="accordion-header border">
+					  <button class="accordion-button p-1 collapsed" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-<?=$name?>-collapse-<?=$i?>" aria-expanded="true" aria-controls="accordion-<?=$name?>-collapse-<?=$i?>">
+                        <div class="form-check d-flex">
+						  <?=$d['header']?>
+                        </div>                   
+                      </button>
+                    </div>
+					
+	                <div id="accordion-<?=$name?>-collapse-<?=$i?>" class="accordion-collapse collapse" aria-labelledby="accordion-<?=$name?>-gheader-<?=$i?>" data-mdb-parent="#main-accordion-<?=$name?>">
+                      <div class="accordion-body">
+						<div id="group-accordion-<?=$name?>" class="accordion accordion-flush">
+		  			      <div id="item-from-<?=$name?>-group-<?=$i?>" class="accordion-item">
+							<div id="accordion-<?=$name?>-sheader-<?=$i?>" class="accordion-header">
+                              <div class="d-flex justify-content-between" type="button">
+								<div class="form-check ms-3" style="width:100%;">
+                                  <?=$d['body']?>
+								</div>
+							  </div>
+							</div>
+						  </div>
+						</div>
+					  </div>
+					</div>
+
+			<?php
+				  $i++;
+				}				
+			?>
+			      </div>
+                </div>
+			<?php
+}
+
 ?>

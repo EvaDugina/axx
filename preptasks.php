@@ -93,19 +93,42 @@ if (!$result || pg_num_rows($result) < 1) {
                           $result2 = pg_query($dbconnect, $query);
                           if ($result2 && pg_num_rows($result2) > 0) {
                             $i=0;?> 
+							
+							
                             <div class="small">Назначения:</div>
                             <div id="student_container">
-                              <?php while ($student_task = pg_fetch_assoc($result2)) { ?>
+                              <?php 
+							  
+							  $aarray = array();
+							  $prev_assign = 0;
+							  $studlist = "";
+							  $adate = "";
+							  while ($student_task = pg_fetch_assoc($result2)) {
+								if ($student_task['aid'] == $prev_assign)
+								  $studlist = $studlist.', '.$student_task['fio'];
+								else {
+								  if ($prev_assign != 0)
+									array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
+									
+								  $prev_assign = $student_task['aid'];
+								  $studlist = $student_task['fio'];
+								  $adate = $student_task['ts'];
+								}
+							  }
+							  if ($prev_assign != 0)
+								array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
+							  
+							  foreach($aarray as $a) { ?>
                                 <form id="form-rejectAssignment-<?=$i?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
                                   <input type="hidden" name="task_id" value="<?=$student_task['tid']?>"></input>
                                   <!-- <input type="hidden" name="student_id" value ="<?=$student_task['sid']?>"></input> -->
-                                  <input type="hidden" name="assignment_id" value ="<?=$student_task['aid']?>"></input>
+                                  <input type="hidden" name="assignment_id" value ="<?=$a['id']?>"></input>
                                   <input type="hidden" name="action" value="reject"></input>
 
                                   <div class="d-flex justify-content-between align-items-center me-2 mx-5 badge-primary text-wrap small">
-                                    <span class="mx-1"><?=$student_task['fio']?> (до <?=$student_task['ts']?>)</span>
+                                    <span class="mx-1"><?=$a['studlist']?> (до <?=$a['date']?>)</span>
 									<span>
-										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$student_task['aid']?>';">
+										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$a['id']?>';">
 											<i class="fas fa-pen fa-lg"></i>
 										</button>
 										<button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment('form-rejectAssignment-<?=$i?>')">
