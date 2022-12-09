@@ -1,5 +1,5 @@
 function sendMessage(userMessage, userFiles, typeMessage, 
-assignment_id, user_id, sender_user_type, mark=null, flag_preptable=false, func_success=console.log, func_complete=console.log) {
+assignment_id, user_id, mark=null, flag_preptable=false, func_success=console.log, func_complete=console.log) {
     if ($.trim(userMessage) == '' && userFiles.val() == '') { 
     //   console.log("ПОЛНОСТЬЮ ПУСТОЕ СООБЩЕНИЕ");
       return false; 

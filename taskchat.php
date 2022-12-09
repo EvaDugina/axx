@@ -264,6 +264,7 @@ $task_number = explode('.', $task_title)[0];
       let form_check = document.getElementById('form-check-task');
 
       let button_check = document.getElementById('button-check');
+      let button_answer = document.getElementById('submit-answer');
 
       // Отправка формы прикрепления ответа к заданию
       if (form_sendAnswer){
@@ -276,13 +277,15 @@ $task_number = explode('.', $task_title)[0];
             event.preventDefault();
             return false;
           } else {
-            var userMessage = 'Ответ на <<?=$task_number?>>:';
+            // var userMessage = 'Ответ на <<?=$task_number?>>:';
+            var userMessage = '';
             if(sendMessage(userMessage, userFiles, 1)) {
               // console.log("Сообщение было успешно отправлено");
             }
 
             userFiles.val("");
             $('#files-answer-count').html('');
+            button_answer.blur();
 
             // Первое обновление лога чата
             loadChatLog(true);
@@ -307,9 +310,9 @@ $task_number = explode('.', $task_title)[0];
           if(sendMessage(userMessage, null, 2, parseInt(mark))) {
             // console.log("Сообщение было успешно отправлено");
           }
-          selector_mark.prop('disabled', 'disabled');
-          button_check.setAttribute('disabled', '');
-
+          // selector_mark.prop('disabled', 'disabled');
+          // button_check.setAttribute('disabled', '');
+          button_check.blur();
           // Первое обновление лога чата
           loadChatLog(true);
           // Обновление лога чата раз в 5 секунд
@@ -417,10 +420,11 @@ $task_number = explode('.', $task_title)[0];
               $("#span-answer-date").text(formatDate(now));
             } else if (typeMessage == 2) {
               let now = new Date();
-              $("#flexCheckDisabled").prop("checked", true);
+              // $("#flexCheckDisabled").prop("checked", true);
               $("#label-task-status-text").text("Выполнено");
               $("#span-answer-date").text(formatDate(now));
-              $("#span-text-mark").text("Оценка: ");
+              $("#span-text-mark").html("Оценка: "+'<b id="b-mark">'+mark+'</b>');
+              console.log("Оценка: "+'<b id="b-mark">'+mark+'</b>');
             }
           },
           complete: function() {

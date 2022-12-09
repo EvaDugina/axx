@@ -3,13 +3,14 @@ require_once("settings.php");
 
 class auth_ssh
 {
-    function login($login, $pwd, $source)
-    {
-        $lg = pg_escape_string($login);
-        
-        $result = pg_query("SELECT * FROM students WHERE login='$lg'");
-        $found = pg_fetch_assoc($result);
-        if($found) {
+  function login($login, $pwd, $source)
+  {
+    session_start();
+    $lg = pg_escape_string($login);
+    
+    $result = pg_query("SELECT * FROM students WHERE login='$lg'");
+    $found = pg_fetch_assoc($result);
+    if($found) {
             $_SESSION['login'] = $login;
             $_SESSION['role'] = $found['role'];
             $_SESSION['hash'] = $found['id'];

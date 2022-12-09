@@ -31,7 +31,7 @@ $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . 
 $finish_limit = pg_fetch_assoc($result)['finish_limit'];
 
 
-if (!isset($_POST['message_text'])){
+if (!isset($_POST['message_text']) && $_POST['type'] != 1){
 //  echo "JUST UPDATE <br>";
 //  echo "ISSET: " . $_POST['message_text'] . "<br>";
   update_chat($assignment_id, $sender_user_type, $user_id);
@@ -48,6 +48,8 @@ $full_text = rtrim($_POST['message_text']);
 /*echo "FULL_TEXT: " . $full_text;
 echo "<br>";*/
 
+
+// ОТПРАВКА СООБЩЕНИЯ
 if ($_POST['type'] == 1){
   /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
   echo "<br>";*/
@@ -135,7 +137,7 @@ if ($_POST['type'] == 1 && isset($_FILES['files'])) {
 
 if (isset($_POST['mark'])) {
   // Оценивание задания
-  echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
+  // echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
   $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
   $result = pg_query($dbconnect, $query);
 }
