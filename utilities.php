@@ -210,11 +210,17 @@ function checkTask($assignment_id, $mark) {
 }
 
 
-function show_message($message) {
+function show_preptable_messages($message) {
   if ($message == null || $message['type'] == 0) 
     return;
   $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
-  $message_text = $message['mtext'];
+
+  if($message['type'] == 1){
+    $message_text = "Ответ на задание: ";
+    $message_text .= "<strong>".$message['task']."</strong>";
+  } else {
+    $message_text = $message['mtext'];
+  }
 
   // $message_files = get_message_attachments($message['mid']);
   // if (count($message_files) > 0) { 
@@ -244,6 +250,8 @@ function show_message($message) {
     class='btn btn-outline-primary'>
       Ответить
     </a>";
+  } else {
+    $message_text .= showAttachedFilesByMessageId($message['mid']);
   }
 
   $time_date = explode(" ", $message['mtime']);
@@ -253,7 +261,7 @@ function show_message($message) {
 
   <div class="popover message <?=$message_style?>" role="listitem">
     <div class="popover-arrow"></div>
-    <div class="p-3 popover-header">
+    <div class="p-3 popover-header" style="background-color: #80E08040;">
       <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
         <?=$message['mfio']. '<br>'?></h6>
       <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=$time_date_output?></p>

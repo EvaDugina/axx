@@ -87,10 +87,9 @@ $('.popover-dismiss').popover({
 var assignment_id = -1;
 var user_id = -1;
 var sender_user_type = -1;
-function answerPress(answer_type, message_id, max_mark=null, f_assignment_id=null, f_user_id=null, f_sender_user_type=null) {
+function answerPress(answer_type, message_id, max_mark=null, f_assignment_id=null, f_user_id=null) {
     assignment_id = f_assignment_id;
     user_id = f_user_id;
-    sender_user_type = f_sender_user_type;
     // TODO: implement answer
     // console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
     if (answer_type == 2) { // mark
@@ -129,7 +128,7 @@ form_taskCheck.addEventListener('submit', function (event) {
 
     let mark = document.getElementById('dialogMarkMarkInput').value;
     let messsage_text = document.getElementById('dialogMarkText').value;
-    sendMessage(messsage_text, null, 2, assignment_id, user_id, sender_user_type, mark, true);
+    sendMessage(messsage_text, null, 2, assignment_id, user_id, mark, true);
     //answerSend(form_taskCheck);
     return 1;
 });
