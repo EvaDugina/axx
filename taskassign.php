@@ -120,102 +120,102 @@ if (!$result || pg_num_rows($result) < 1) {
 				echo $studlist." (до ".$adate.")</br></br>";
 			?>
 
-			<h6>Параметры проверки</h6>
+			<h5>Параметры проверки</h5>
 			
 			<?php
 			
-			  $accord = array(array('header' => 'Общие параметры',
+			/*
+			array('header' => 'Общие параметры',
 									'body'   => '<div><input id="common_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="common_enabled" checked>'.
 												'<label class="form-check-label" for="common_enabled">выполнять проверки</label></div>'.
 												'<div><input id="common_show" class="accordion-input-item form-check-input" type="checkbox" value="1" name="common_show" checked>'.
 												'<label class="form-check-label" for="common_show">отображать результаты студенту</label></div>'
 												),
-							  array('header' => 'Valgrind',
-									'body'   => '<div><label class="form-check-label" for="valgrind_bin" style="width:20%;">команда</label>'.
-												'<input id="valgrind_bin" class="accordion-input-item mb-2" wrap="off" rows="1" name="valgrind_bin" value="valgrind" style="width:50%;"></div>'.
+							  */
+
+			
+			  $accord = array(array('header' => '<b>Valgrind</b>',
+			  
+									'label'	 => '<input id="common_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="common_enabled" checked>'.
+												'<label class="form-check-label" for="common_enabled" style="color:#4f4f4f;">выполнять проверки</label>'.
+												'<input id="common_show" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="common_show" checked>'.
+												'<label class="form-check-label" for="common_show" style="color:#4f4f4f;">отображать студенту</label>',
+												
+									'body'   => '<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>'.
+												'<input id="valgrind_arg" class="accordion-input-item mb-2" wrap="off" rows="1" name="valgrind_arg" value="" style="width:50%;"></div>'.
 												'<div><label class="form-check-label" for="valgrind_compiler" style="width:20%;">компилятор</label>'.
-												'<input id="valgrind_bin" class="accordion-input-item mb-2" wrap="off" rows="1" name="valgrind_compiler" value="gcc" style="width:50%;"></div>'.
-												'<div><input id="valgrind_errors" class="accordion-input-item form-check-input" type="checkbox" value="1" name="valgrind_errors" checked>'.
+												'<select id="plug_config" class="form-select mb-2" aria-label=".form-select" name="plug-config" style="width:50%; display: inline-block;">'.
+												'  <option value="gcc" selected>gcc</option>'.
+												'  <option value="g++">g++</option>'.
+												'</select></div>'.
+												add_check_param('valgrind', 'errors', 'ошибки памяти').
+												add_check_param('valgrind', 'leaks', 'утечки памяти')
+												
+/*												'<div><input id="valgrind_errors" class="accordion-input-item form-check-input" type="checkbox" value="1" name="valgrind_errors" checked>'.
 												'<label class="form-check-label" for="valgrind_errors" style="width:20%;">ошибки памяти</label>'.
 												'<label class="form-check-label me-3" for="valgrind_error_limit">порог</label>'.
-												'<input id="valgrind_error_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="valgrind_error_limit" value="0" style="width:10%;"></div>'.
-												'<div><input id="valgrind_leaks" class="accordion-input-item form-check-input" type="checkbox" value="1" name="valgrind_leaks" checked>'.
-												'<label class="form-check-label" for="valgrind_leaks" style="width:20%;">утечки памяти</label>'.
-												'<label class="form-check-label me-3" for="valgrind_leak_limit">порог</label>'.
-												'<input id="valgrind_leak_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="valgrind_leak_limit" value="0" style="width:10%;"></div>'
-												),
-							  array('header' => 'CppCheck',
-									'body'   => '<div><label class="form-check-label" for="cppcheck_bin" style="width:20%;">команда</label>'.
-												'<input id="cppcheck_bin" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_bin" value="cppcheck" style="width:50%;"></div>'.
+												'<input id="valgrind_error_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="valgrind_error_limit" value="0" style="width:10%;">'.
+												'<input id="valgrind_errors_reject" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="valgrind_errors_reject" checked style="float: none; margin-left:56px!important;margin-top:6px;">'.
+												'<label class="form-check-label" for="valgrind_errors_reject" style="width:20%;">отклонять при нарушении</label></div>'.
+*/												
+									),
+							  array('header' => '<div style="position: absolute;"><b>CppCheck</b></div>',
+							  
+									'label'	 => '<input id="cppcheck_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_enabled" checked>'.
+												'<label class="form-check-label" for="cppcheck_enabled" style="color:#4f4f4f;">выполнять проверки</label>'.
+												'<input id="cppcheck_show" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="cppcheck_show" checked>'.
+												'<label class="form-check-label" for="cppcheck_show" style="color:#4f4f4f;">отображать студенту</label>',												
 												
-												'<div><input id="cppcheck_errors" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_errors" checked>'.
-												'<label class="form-check-label" for="cppcheck_errors" style="width:20%;">errors</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_error_limit">порог</label>'.
-												'<input id="cppcheck_error_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_error_limit" value="0" style="width:10%;"></div>'.
+									'body'   => '<div><label class="form-check-label" for="cppcheck_arg" style="width:20%;">аргументы</label>'.
+												'<input id="cppcheck_arg" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_arg" value="" style="width:50%;"></div>'.
 												
-												'<div><input id="cppcheck_warnings" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_warnings" checked>'.
-												'<label class="form-check-label" for="cppcheck_warnings" style="width:20%;">warnings</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_warning_limit">порог</label>'.
-												'<input id="cppcheck_warning_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_warning_limit" value="0" style="width:10%;"></div>'.
-												
-												'<div><input id="cppcheck_style" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_style" checked>'.
-												'<label class="form-check-label" for="cppcheck_style" style="width:20%;">style</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_style_limit">порог</label>'.
-												'<input id="cppcheck_style_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_style_limit" value="0" style="width:10%;"></div>'.
-												
-												'<div><input id="cppcheck_performance" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_performance" checked>'.
-												'<label class="form-check-label" for="cppcheck_performance" style="width:20%;">performance</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_performance_limit">порог</label>'.
-												'<input id="cppcheck_leak_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_leak_limit" value="0" style="width:10%;"></div>'.
-												
-												'<div><input id="cppcheck_portability" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_portability" checked>'.
-												'<label class="form-check-label" for="cppcheck_portability" style="width:20%;">portability</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_portability_limit">порог</label>'.
-												'<input id="cppcheck_portability_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_portability_limit" value="0" style="width:10%;"></div>'.
-												
-												'<div><input id="cppcheck_info" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_info" checked>'.
-												'<label class="form-check-label" for="cppcheck_info" style="width:20%;">information</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_info_limit">порог</label>'.
-												'<input id="cppcheck_info_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_info_limit" value="0" style="width:10%;"></div>'.
-												
-												'<div><input id="cppcheck_unused" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_unused" checked>'.
-												'<label class="form-check-label" for="cppcheck_unused" style="width:20%;">unused functions</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_unused_limit">порог</label>'.
-												'<input id="cppcheck_include_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_include_limit" value="0" style="width:10%;"></div>'.
-												
-												'<div><input id="cppcheck_include" class="accordion-input-item form-check-input" type="checkbox" value="1" name="cppcheck_include" checked>'.
-												'<label class="form-check-label" for="cppcheck_include" style="width:20%;">missing include</label>'.
-												'<label class="form-check-label me-3" for="cppcheck_include_limit">порог</label>'.
-												'<input id="cppcheck_include_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="cppcheck_include_limit" value="0" style="width:10%;"></div>'
-												),
-							  array('header' => 'Clang-format',
-									'body'   => '<div><label class="form-check-label" for="clang_bin" style="width:20%;">команда</label>'.
-												'<input id="clang_bin" class="accordion-input-item mb-2" wrap="off" rows="1" name="clang_bin" value="clang-format" style="width:50%;"></div>'.
+												add_check_param('cppcheck', 'errors', 'errors').
+												add_check_param('cppcheck', 'warnings', 'warnings').
+												add_check_param('cppcheck', 'style', 'style').
+												add_check_param('cppcheck', 'performance', 'performance').
+												add_check_param('cppcheck', 'portability', 'portability').
+												add_check_param('cppcheck', 'information', 'information').
+												add_check_param('cppcheck', 'unused', 'unused functions').
+												add_check_param('cppcheck', 'include', 'missing include')
+									),
+							  array('header' => '<b>Clang-format</b>',
+									'label'	 => '<input id="clang_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="clang_enabled" checked>'.
+												'<label class="form-check-label" for="clang_enabled" style="color:#4f4f4f;">выполнять проверки</label>'.
+												'<input id="clang_show" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="clang_show" checked>'.
+												'<label class="form-check-label" for="clang_show" style="color:#4f4f4f;">отображать студенту</label>',
+									'body'   => '<div><label class="form-check-label" for="clang_arg" style="width:20%;">аргументы</label>'.
+												'<input id="clang_arg" class="accordion-input-item mb-2" wrap="off" rows="1" name="clang_arg" value="" style="width:50%;"></div>'.
 												'<div><label class="form-check-label" for="clang_compiler" style="width:20%;">соответствие</label>'.
 												'<select id="clang_config" class="form-select mb-2" aria-label=".form-select" name="clang-config" style="width:50%; display: inline-block;">'.
-												'  <option value="strict" selected>strict - can be diffrent checks, such as strict, less, minimal and so on</option>'.
+												'  <option value="strict">strict - need-to-comment</option>'.
+												'  <option value="less">less - need-to-comment</option>'.
+												'  <option value="minimal">minimal - need-to-comment</option>'.
+												'  <option value="so on" selected>so on - need-to-complete</option>'.
+												'  <option value="specific">specific - укажите свой файл с правилами оформления</option>'.
 												'</select></div>'.
-												'<div><label class="form-check-label mb-2" for="clang_file" style="width:20%;">правила оформления</label>'.
-												'<select id="clang_file" class="form-select mb-2" aria-label=".form-select" name="clang-file" style="width:50%; display: inline-block;">'.
-												'  <option value="1" selected>.clang-format</option>'.
-												'</select></div>'.
-												'<div><input id="clang_errors" class="accordion-input-item form-check-input mb-2" type="checkbox" value="1" name="clang_errors" checked>'.
+												'<div><label class="form-check-label mb-2" for="clang_file" style="width:20%;">файл с правилами</label>'.
+												'<input id="clang_file" class="accordion-input-item mb-2" wrap="off" rows="1" name="clang_file" value="" style="width:50%;"></div>'.
+												add_check_param('clang', 'errors', 'нарушения')
+												
+												/*'<div><input id="clang_errors" class="accordion-input-item form-check-input mb-2" type="checkbox" value="1" name="clang_errors" checked>'.
 												'<label class="form-check-label" for="clang_errors" style="width:20%;">нарушения</label>'.
 												'<label class="form-check-label me-3" for="clang_error_limit">порог</label>'.
-												'<input id="clang_error_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="clang_error_limit" value="0" style="width:10%;"></div>'
-												),
-							  array('header' => 'Антиплагиат',
-									'body'   => '<div><label class="form-check-label" for="plug_bin" style="width:20%;">команда</label>'.
-												'<input id="plug_bin" class="accordion-input-item mb-2" wrap="off" rows="1" name="plug_bin" value="copydetect" style="width:50%;"></div>'.
+												'<input id="clang_error_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="clang_error_limit" value="0" style="width:10%;"></div>'*/
+									),
+							  array('header' => '<b>Антиплагиат</b>',
+									'label'	 => '<input id="plug_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="plug_enabled" checked>'.
+												'<label class="form-check-label" for="plug_enabled" style="color:#4f4f4f;">выполнять проверки</label>'.
+												'<input id="plug_show" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="plug_show" checked>'.
+												'<label class="form-check-label" for="plug_show" style="color:#4f4f4f;">отображать студенту</label>',
+									'body'   => '<div><label class="form-check-label" for="plug_arg" style="width:20%;">аргументы</label>'.
+												'<input id="plug_arg" class="accordion-input-item mb-2" wrap="off" rows="1" name="plug_arg" value="" style="width:50%;"></div>'.
 												'<div><label class="form-check-label" for="plug_compiler" style="width:20%;">сравнивать</label>'.
 												'<select id="plug_config" class="form-select mb-2" aria-label=".form-select" name="plug-config" style="width:50%; display: inline-block;">'.
 												'  <option value="all" selected>со всеми ранее сданными работами</option>'.
+												'  <option value="group" selected>с работами студентов своей группы</option>'.
 												'</select></div>'.
-												'<div><input id="plug_enable" class="accordion-input-item form-check-input mb-2" type="checkbox" value="1" name="plug_enable" checked>'.
-												'<label class="form-check-label" for="plug_enable" style="width:20%;">проверять</label>'.
-												'<label class="form-check-label me-3" for="plug_limit">порог</label>'.
-												'<input id="plug_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="plug_limit" value="0" style="width:10%;"></div>'
-												)
+												add_check_param('plug', '', 'проверять')
+									)
 												
 							 ); 
 							 
