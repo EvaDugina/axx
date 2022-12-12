@@ -180,7 +180,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 		<div class="tab d-flex justify-content-between">
 		  <button id="defaultOpen" class="tablinks" onclick="openCity(event, 'Task')">Задача</button>
 		  <button class="tablinks" onclick="openCity(event, 'Console')">Консоль</button>
-		  <button class="tablinks" onclick="openCity(event, 'Test')">Тесты</button>
+		  <button class="tablinks" onclick="openCity(event, 'Test')">Проверки</button>
 		  <button class="tablinks" onclick="openCity(event, 'Chat')">Чат</button>
 		</div>
 
@@ -203,8 +203,63 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 		</div>
 
 		<div id="Test" class="tabcontent">
-		  <h3>Результаты тестов</h3>
-		  <p>Результаты тестов</p>
+		<?php
+			  function getcheckinfo($checkarr, $checkname)
+			  {
+				foreach ($checkarr as $c)
+				  if (@$c['check'] == $checkname)
+					return $c;
+			  }
+		
+			  $checkres = json_decode('{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 0,"autoreject": true,"result": 11,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 1,"outcome": "reject"}], "output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 3,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit":0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check":"unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}], "output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file":".clang-format","limit": 5,"autoreject": true,"result": 5,"outcome": "pass"}, "output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 44,"outcome": "pass"},"output": "<html>...</html>"}}}', true);
+			  
+			  if (!$last_commit_id || $last_commit_id == "") {
+				$resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+				$last_commit_id = pg_fetch_assoc($resAC)['id'];
+			  }
+
+			  if ($last_commit_id && $last_commit_id != "") {
+			    $resultC = pg_query($dbconnect, "select autotest_results res from ax_solution_commit where id = ".$last_commit_id);
+			    if ($resultC && pg_num_rows($resultC) > 0) {
+				  $rowC = pg_fetch_assoc($resultC);
+				  if (array_key_exists('res', $rowC) && $rowC['res'] != null)
+					$checkres = json_decode($rowC['res'], true);
+			    }
+			  }
+
+			  $accord = array(array('header' => '<b>Valgrind</b>',
+			  
+									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+												
+									'body'   => 'ошибок: '.getcheckinfo(@$checkres['tools']['valgrind']['checks'], 'errors')['result'].'<br>утечек: 33'
+									), 
+							  array('header' => '<b>CppCheck</b>',
+			  
+									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+												
+									'body'   => 'ошибок: 24<br>утечек: 33'
+									), 
+							  array('header' => '<b>Clang-format</b>',
+			  
+									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+												
+									'body'   => 'ошибок: 24<br>утечек: 33'
+									), 
+							  array('header' => '<b>Антиплагиат</b>',
+			  
+									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+												
+									'body'   => 'ошибок: 24<br>утечек: 33'
+									)
+							 );
+			  show_accordion('checkres', $accord, "5px");
+		?>
+		  <input type="hidden" name="commit" value="<?=$last_commit_id?>">
+		  <button id="checks-save" type="submit" class="btn btn-outline-primary mt-1 mb-2" name="action" value="save" style="">Запустить проверки</button>
 		</div>
 
 		<div id="Chat" class="tabcontent">

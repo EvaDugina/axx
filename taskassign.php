@@ -267,7 +267,7 @@ if (!$result || pg_num_rows($result) < 1) {
 												add_check_param('valgrind', 'errors', 'ошибки памяти', $checks).
 												add_check_param('valgrind', 'leaks', 'утечки памяти', $checks)
 									),
-							  array('header' => '<div style="position: absolute;"><b>CppCheck</b></div>',
+							  array('header' => '<b>CppCheck</b>',
 							  
 									'label'	 => '<input id="cppcheck_enabled" name="cppcheck_enabled" '.checked(@$checks['tools']['cppcheck']['enabled']).
 												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
@@ -335,7 +335,7 @@ if (!$result || pg_num_rows($result) < 1) {
 							 ); 
 							 
 			  
-			  show_accordion('students', $accord);
+			  show_accordion('checks', $accord, "310px");
 			?>
 			  <button id="checks-save" type="submit" class="btn btn-outline-primary mt-3" name="action" value="save" style="">Сохранить</button>
 			</form>

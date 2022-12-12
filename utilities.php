@@ -272,7 +272,7 @@ function convert_sem_from_number($id){
   else return 'Весна';
 }
 
-function show_accordion($name, $data)
+function show_accordion($name, $data, $labelshift = "0px")
 {
 			?>
 	            <div id="main-accordion-<?=$name?>" class="accordion accordion-flush" style="overflow-y: auto; height: 100%px; width: 100%;">
@@ -285,7 +285,7 @@ function show_accordion($name, $data)
 			<?php
 					if (array_key_exists('label', $d)) {
 			?>
-					  <div style="position:absolute;z-index:2;left:310px;">
+					  <div style="position:absolute;z-index:2;margin-left:<?=$labelshift?>;">
 					    <div style="position:relative;top:4px;">
 					      <?=$d['label']?>
 						</div>
