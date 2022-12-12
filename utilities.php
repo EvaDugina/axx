@@ -333,15 +333,5 @@ function show_accordion($name, $data)
 			<?php
 }
 
-function add_check_param($group, $param, $caption)
-{
-	return  '<div><input id="'.$group.'_'.$param.'" class="accordion-input-item form-check-input" type="checkbox" value="1" name="'.$group.'_'.$param.'" checked>'.
-			'<label class="form-check-label" for="'.$group.'_'.$param.'" style="width:20%;">'.$caption.'</label>'.
-			'<label class="form-check-label me-3" for="'.$group.'_'.$param.'_limit">порог</label>'.
-			'<input id="'.$group.'_'.$param.'_limit" class="accordion-input-item mb-2" wrap="off" rows="1" name="'.$group.'_'.$param.'_limit" value="0" style="width:10%;">'.
-			'<input id="'.$group.'_'.$param.'_reject" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="'.$group.'_'.$param.'_reject" checked style="float: none; margin-left:56px!important;margin-top:6px;">'.
-			'<label class="form-check-label" for="'.$group.'_'.$param.'_reject" style="width:40%;">автоматически отклонять при нарушении</label></div>';
-}
-
 ?>
 
