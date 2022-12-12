@@ -210,11 +210,144 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 				  if (@$c['check'] == $checkname)
 					return $c;
 			  }
+
+			  // Генерация цветного квадрата для элементов с проверками
+			  function generateColorBox($color, $val, $tag)
+			  {
+				return '<span id='.$tag.' class="rightbadge rb-'.$color.'">'.$val.'</span>';
+			  }
+
+			  // Разбор и преобразования результата проверки сборки в элемент массива для генерации аккордеона
+			  function parseBuildCheck($data)
+			  {
+				$result = 'Успешно';
+				$resBody = 'Not implemented yet';
+
+				$resColorBox = generateColorBox('green', $result, 'build_result');
+
+				$resArr = array('header' => '<div class="w-100"><b>Сборка</b>'.$resColorBox.'</div>',
+							 	
+								'label'	 => '<input id="buildcheck_enabled" name="buildcheck_enabled" checked'. // checked(@$checks['tools']['build']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+							 	'body'   => $resBody
+			  					);
+
+				return $resArr;
+			  }
+
+			  // Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
+			  function parseCppCheck($data)
+			  {
+				$result = 'Ок';
+				$resBody = 'Not implemented yet';
+
+				$resColorBox = generateColorBox('green', $result, 'cppcheck_result');
+
+				$resArr = array('header' => '<div class="w-100"><b>CppCheck</b>'.$resColorBox.'</div>',
+			  
+								'label'	 => '<input id="cppcheck_enabled" name="cppcheck_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+							
+								'body'   => $resBody
+			  					);
+
+				return $resArr;
+			  }
+
+			  // Разбор и преобразования результата проверки корректного форматирования кода в элемент массива для генерации аккордеона
+			  function parseClangFormat($data)
+			  {
+				$result = 'Успех';
+				$resBody = 'Not implemented yet';
+
+				$resColorBox = generateColorBox('red', "Плохо", 'clangformat_result');
+
+				$resArr = array('header' => '<div class="w-100"><b>Clang-format</b>'.$resColorBox.'</div>',
+			  
+								'label'	 => '<input id="clangformat_enabled" name="clangformat_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+							
+								'body'   => $resBody
+			  					);
+
+				return $resArr;
+			  }
+
+			  // Разбор и преобразования результата проверки ошибок работы с памятью в элемент массива для генерации аккордеона
+			  function parseValgrind($data)
+			  {
+				$result = 'Успех';
+				$resBody = '';
+
+				$resColorBox = '';
+
+				$resArr = array('header' => '<div class="w-100"><b>Valgrind</b>'.$resColorBox.'</div>',
+			  
+								'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+							
+								'body'   => $resBody
+			  					);
+
+				return $resArr;
+			  }
+
+			  // Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
+			  function parseAutoTests($data)
+			  {
+				$result = 'Успех';
+				$resBody = 'Not implemented yet';
+
+				$resColorBox = generateColorBox('green', 4, 'autotest_passed').generateColorBox('red', 12, 'autotest_failed');
+
+				$resArr = array('header' => '<div class="w-100"><b>Автотесты</b>'.$resColorBox.'</div>',
+			  
+								'label'	 => '<input id="autotest_enabled" name="autotest_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+							
+								'body'   => $resBody
+								);
+
+				return $resArr;
+			  }
+
+			  // Разбор и преобразования результата проверки антиплагиатом в элемент массива для генерации аккордеона
+			  function parseCopyDetect($data)
+			  {
+				$result = $data['check']['result'].'%';
+				$resBody =  $data['output'];
+
+				switch ($data['check']['outcome'])
+				{
+					case 'pass':
+						$resColorBox = generateColorBox('green', $result, 'copydetect_result');
+						break;	
+					case 'fail':
+						$resColorBox = generateColorBox('red', $result, 'copydetect_result');
+						break;	
+					case 'reject':
+						$resColorBox = generateColorBox('yellow', 'Rejected', 'copydetect_result');
+						break;	
+					case 'skipped':
+						$resColorBox = generateColorBox('yellow', 'Skipped', 'copydetect_result');
+						break;		
+				}
+				
+				$resArr = array('header' => '<div class="w-100"><b>Антиплагиат</b>'.$resColorBox.'</div>',
+			  
+								'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+							
+								'body'   => $resBody
+								);
+
+				return $resArr;
+			  }
 		
 			  $checkres = json_decode('{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 0,"autoreject": true,"result": 11,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 1,"outcome": "reject"}], "output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 3,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit":0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check":"unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}], "output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file":".clang-format","limit": 5,"autoreject": true,"result": 5,"outcome": "pass"}, "output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 44,"outcome": "pass"},"output": "<html>...</html>"}}}', true);
 			  
 			  if (!$last_commit_id || $last_commit_id == "") {
-				$resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+			    $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
 				$last_commit_id = pg_fetch_assoc($resAC)['id'];
 			  }
 
@@ -227,35 +360,12 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 			    }
 			  }
 //  line-height: 20px; color: #fff; text-align: center;
-			  $accord = array(array('header' => '<div class="w-100"><b>Valgrind</b><span class="rightbadge rb-red">11</span><span class="rightbadge rb-yellow">33</span><span class="rightbadge rb-green">12312</span></div>',
-			  
-									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
-												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
-												'',
-												
-									'body'   => 'ошибок: '.getcheckinfo(@$checkres['tools']['valgrind']['checks'], 'errors')['result'].'<br>утечек: 33'
-									), 
-							  array('header' => '<b>CppCheck</b>',
-			  
-									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
-												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-												
-									'body'   => 'ошибок: 24<br>утечек: 33'
-									), 
-							  array('header' => '<b>Clang-format</b>',
-			  
-									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
-												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-												
-									'body'   => 'ошибок: 24<br>утечек: 33'
-									), 
-							  array('header' => '<b>Антиплагиат</b>',
-			  
-									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
-												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-												
-									'body'   => 'ошибок: 24<br>утечек: 33'
-									)
+			  $accord = array(parseBuildCheck(0), 
+			  				  parseCppCheck(@$checkres['tools']['cppcheck']), 
+							  parseClangFormat(@$checkres['tools']['clang-format']),
+							  parseValgrind(@$checkres['tools']['valgrind']), 
+							  parseAutoTests(0),
+							  parseCopyDetect(@$checkres['tools']['copydetect'])
 							 );
 			  show_accordion('checkres', $accord, "5px");
 		?>
