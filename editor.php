@@ -226,11 +226,12 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 					$checkres = json_decode($rowC['res'], true);
 			    }
 			  }
-
-			  $accord = array(array('header' => '<b>Valgrind</b>',
+//  line-height: 20px; color: #fff; text-align: center;
+			  $accord = array(array('header' => '<div class="w-100"><b>Valgrind</b><span class="rightbadge rb-red">11</span><span class="rightbadge rb-yellow">33</span><span class="rightbadge rb-green">12312</span></div>',
 			  
 									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
-												' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
+												'',
 												
 									'body'   => 'ошибок: '.getcheckinfo(@$checkres['tools']['valgrind']['checks'], 'errors')['result'].'<br>утечек: 33'
 									), 

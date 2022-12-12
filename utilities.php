@@ -294,7 +294,7 @@ function show_accordion($name, $data, $labelshift = "0px")
 					}
 			?>
 					  <button class="accordion-button p-1 collapsed" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-<?=$name?>-collapse-<?=$i?>" aria-expanded="true" aria-controls="accordion-<?=$name?>-collapse-<?=$i?>" style="z-index:1;">
-                        <div class="form-check d-flex">
+                        <div class="form-check d-flex w-100">
 						  <?=$d['header']?>
                         </div>                   
                       </button>

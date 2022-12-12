@@ -137,3 +137,25 @@
   margin-right: 7px;
   color: #4f4f4f;
 }
+
+.rightbadge {
+  display: inline-block;
+  padding: 1px 6px;
+  white-space: nowrap;
+  border-radius: 4px;
+  float: right;
+  margin-right: 10px;
+  color: #000;
+}
+
+.rb-green {
+  background-color: #79df91;
+}
+
+.rb-yellow {
+  background-color: #ffc90e;
+}
+
+.rb-red {
+  background-color: #f4849a;
+}
