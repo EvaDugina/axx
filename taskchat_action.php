@@ -31,7 +31,7 @@ $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . 
 $finish_limit = pg_fetch_assoc($result)['finish_limit'];
 
 
-if (!isset($_POST['message_text']) && $_POST['type'] != 1){
+if (!isset($_POST['message_text']) && (!isset($_POST['type']) || $_POST['type'] != 1)){
 //  echo "JUST UPDATE <br>";
 //  echo "ISSET: " . $_POST['message_text'] . "<br>";
   update_chat($assignment_id, $sender_user_type, $user_id);
@@ -89,7 +89,10 @@ if ($_POST['type'] == 1){
     $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
     $message_id = $messageHandler->set_message($_POST['type'], 0, $full_text, null, $reply_to_id);
   } else if ($_POST['type'] == 0) {
-    $message_id = $messageHandler->set_message(0, 0, $full_text);
+    if(isset($_POST['flag-preptable']))
+      $message_id = $messageHandler->set_message(0, 0, $full_text, null, $POST['reply_id']);
+    else
+      $message_id = $messageHandler->set_message(0, 0, $full_text);
   }
 
 } else {

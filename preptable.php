@@ -206,15 +206,25 @@ if ($scripts) echo $scripts; ?>
 
                         // Задание требует проверки
                         if ($array_student_tasks[$now_index]['status_code'] == 5 && $task_message) { ?>
-                          <td tabindex="0" onclick="showPopover(this,'<?= $task_message['mid'] ?>')" 
-                          title="@<?= $task_message['mlogin'] ?> <?= $task_message['mtime'] ?>" 
+                          <td tabindex="0" onclick="showPopover(this)" 
+                          title="<?=$task_message['fio']?> <?=convert_mtime($task_message['mtime'])?>" 
                           data-mdb-content="<?=getPopoverContent($task_message, $user_id)?>">
-                            ?
+                            <?php if ($array_student_tasks[$now_index]['mark'] != null) {?>
+                              <?=$array_student_tasks[$now_index]['mark']?>
+                              <span class="badge rounded-pill badge-notification text-info m-0" style="font-size:.5rem">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                              </svg>
+                              </span>
+                            <?php } else {?>
+                              ?
+                            <?php }?>
                           </td>
                         <?php 
-                        } // Если есть оценка - ничего не надо
-                        else if ($array_student_tasks[$now_index]['mark'] != null) { ?>
-                          <td tabindex="1"><?= $array_student_tasks[$now_index]['mark'] ?></td>
+                        } // Если стоит оценка
+                        else if ($array_student_tasks[$now_index]['mark'] != null) {?>
+                            <td tabindex="1"><?= $array_student_tasks[$now_index]['mark'] ?></td>
                         <?php 
                         } else { ?>
                           <td tabindex="-1"></td>
@@ -330,15 +340,22 @@ if ($scripts) echo $scripts; ?>
             <div id="list-messages-id">
               <?php
               foreach ($messages as $message) {
-                if ($message['mtype'] != null && $message['type'] )
+                if ($message['mtype'] != null && $message['type'])?>
+                  <?php if ($message['mreply_id'] != null) {?>
+                    <div>
+                      <?php $query = pg_query($dbconnect, select_message_with_all_relations($message['mreply_id']));
+                      $message_reply = pg_fetch_assoc($query);
+                      show_preptable_message($message_reply, true);?>
+                    </div>
+                  <?php }
                   $float_class = $message['mtype'] == 2 ? 'd-flex justify-content-end' : ''; ?>
                   <div class="<?=$float_class?>">
-                    <?php show_preptable_messages($message);?>
+                    <?php show_preptable_message($message, false);?>
                 </div>
               <?php }
               // for ($m = 0; $m < count($messages); $m++) { // list all messages
               //   if ($messages[$m]['mtype'] != null)
-              //     show_preptable_messages($messages[$m]);
+              //     show_preptable_message($messages[$m]);
               // } ?>
             </div>
             <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div> -->
@@ -354,7 +371,7 @@ if ($scripts) echo $scripts; ?>
 
 <!-- Modal dialog answer -->
 <div class="modal fade" id="dialogAnswer" tabindex="-1" aria-labelledby="dialogAnswerLabel" aria-hidden="true">
-  <form class="needs-validation" onsubmit="answerSend(this)">
+  <form id="form-answer" class="needs-validation">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -365,6 +382,11 @@ if ($scripts) echo $scripts; ?>
           <div class="form-outline">
             <textarea class="form-control" id="dialogAnswerText" rows="4" name="text" required></textarea>
             <label class="form-label" for="dialogAnswerText">Текст ответа</label>
+            <div class="form-notch">
+              <div class="form-notch-leading" style="width: 9px;"></div>
+              <div class="form-notch-middle" style="width: 114.4px;"></div>
+              <div class="form-notch-trailing"></div>
+            </div>
           </div>
           <input type="hidden" id="dialogAnswerMessageId" name="message" />
           <input type="hidden" name="page" value="<?= $page_id ?>" />
@@ -383,6 +405,7 @@ if ($scripts) echo $scripts; ?>
 <!-- Modal dialog mark -->
 <div class="modal fade" id="dialogMark" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
   <form id="form-mark" class="needs-validation">
+    
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -425,20 +448,19 @@ if ($scripts) echo $scripts; ?>
 <?php }?>
 
 <?php
-function getPopoverContent($task_message, $user_id) { 
+function getPopoverContent($message, $user_id) {
 
   // $message_files = get_message_attachments($task_message['mid']);
   $data_mdb_content = "";
 
-  $data_mdb_content .= "<strong>". $task_message['mtext'] ."</strong>";
-  $data_mdb_content .= showAttachedFilesByMessageId($task_message['mid']);
+  $data_mdb_content .= generate_message_for_student_task_commit($message['task']);
+  $data_mdb_content .= showAttachedFilesByMessageId($message['mid']);
   $data_mdb_content .= "
-  <a href='javascript:answerPress(2,". $task_message['mid'] .", ". $task_message['max_mark'] .", " .
-  $task_message['aid'] . ", " . $user_id . ")'
+  <a href='javascript:answerPress(2,". $message['mid'].", " . $message['aid'] . ", " . $user_id .", ". $message['max_mark'].")'
   type='message' class='btn btn-outline-primary'>
     Зачесть
   </a> 
-  <a href='javascript:answerPress(0,". $task_message['mid'] .")' 
+  <a href='javascript:answerPress(0,". $message['mid'].", " . $message['aid'] . ", " . $user_id.")' 
   type='message' class='btn btn-outline-primary'>
     Ответить
   </a>";
@@ -449,7 +471,6 @@ function getPopoverContent($task_message, $user_id) {
   integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 
 <!-- Custom scripts -->
-<script type="text/javascript" src="js/messageHandler.js"></script>
 <script type="text/javascript" src="js/preptable.js"></script>
 
 
