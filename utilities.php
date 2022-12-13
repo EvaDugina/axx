@@ -40,6 +40,14 @@ function conver_calendar_to_timestamp($finish_limit) {
   return $timestamp;
 }
 
+function convert_mtime($mtime){
+  $time_date = explode(" ", $mtime);
+  $date = explode("-", $time_date[0]);
+  $time = explode(":", $time_date[1]);
+  $time_date_output = $date[0] .".". $date[1] ." ". $time[0] .":". $time[1];
+  return $time_date_output;
+}
+
 
 
 function add_random_prefix_to_file_name($real_file_name) {
@@ -210,68 +218,47 @@ function checkTask($assignment_id, $mark) {
 }
 
 
-function show_preptable_messages($message) {
+function show_preptable_message($message, $flag_marked_message = false) {
   if ($message == null || $message['type'] == 0) 
     return;
-  $message_style = ($message['mtype'] == 1) ? 'message-prep' : 'message-stud';
-
-  if($message['type'] == 1){
-    $message_text = "Ответ на задание: ";
-    $message_text .= "<strong>".$message['task']."</strong>";
-  } else {
+  
+  $message_style = ($message['mtype'] == 2) ? 'message-prep' : 'message-stud';
+    
+  $message_text = "";
+  if($message['type'] != 1){
     $message_text = $message['mtext'];
   }
-
-  // $message_files = get_message_attachments($message['mid']);
-  // if (count($message_files) > 0) { 
-  //   foreach ($message_files as $file) { 
-  //     $message_text .= "
-  //     <a target='_blank' download href='" . $file['download_url'] . "'>
-  //       <i class='fa fa-paperclip' aria-hidden='true'></i> " . 
-  //       $file['file_name']. "
-  //     </a><br/>" . $message_text;
-  //   }
-  // }
     
   if ($message['mreply_id'] != null){ // is reply message, add citing
-    $message_text .= "<p class='note note-light'>" . $message['mreply_text'];
+    $message_text .= "<p class='note note-light'>";
+    $message_text .= generate_message_for_student_task_commit($message['task']);
     $message_text .= showAttachedFilesByMessageId($message['mreply_id']);
     $message_text .= "</p>";
-  } else if ($message['amark'] == null && $message['type'] == 1) { 
-    // is student message not viewed/answered, no mark, add buttons answer/mark
-    $message_text .= showAttachedFilesByMessageId($message['mid']);
-    $message_text .= "
-    <br/>
-    <a href='javascript:answerPress(2," . $message['mid'] . "," . $message['max_mark'] . ")' type='message' 
-    class='btn btn-outline-primary'> 
-      Зачесть
-    </a> 
-    <a href='javascript:answerPress(0," . $message['mid'] . ")' type='message' 
-    class='btn btn-outline-primary'>
-      Ответить
-    </a>";
+  } else if ($message['status_code'] == 5 && $message['type'] == 1 && !$flag_marked_message) { 
+    // is student message need to be checked
+    $message_text .= getPopoverContent($message, $_SESSION['hash']);
   } else {
-    $message_text .= showAttachedFilesByMessageId($message['mid']);
-  }
-
-  $time_date = explode(" ", $message['mtime']);
-  $date = explode("-", $time_date[0]);
-  $time = explode(":", $time_date[1]);
-  $time_date_output = $date[0] .".". $date[1] ." ". $time[0] .":". $time[1]; ?>
+    $message_text .= generate_message_for_student_task_commit($message['task']);
+    $message_text .= showAttachedFilesByMessageId($message['mid']); 
+  }?>
 
   <div class="popover message <?=$message_style?>" role="listitem">
     <div class="popover-arrow"></div>
     <div class="p-3 popover-header" style="background-color: #80E08040;">
       <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
         <?=$message['mfio']. '<br>'?></h6>
-      <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=$time_date_output?></p>
+      <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=convert_mtime($message['mtime'])?></p>
     </div>
     <div class="popover-body"><?=$message_text?></div>
   </div>
 
 <?php        
-  } 
+} 
 
+function generate_message_for_student_task_commit($task_title){
+  $message_text = "<strong>".$task_title."</strong>";
+  return $message_text;
+}
 
 
 // ПРОЧЕЕ

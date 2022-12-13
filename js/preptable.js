@@ -73,23 +73,21 @@ $(element).popover({
     title: element.getAttribute('title'),
     content: element.getAttribute('data-mdb-content')
     })
-    //.on('inserted.bs.popover', function(e){
-    //    var p = document.getElementById(e.target.getAttribute('aria-describedby'));
-    //    $(p).find('a').click(function(args){answerPress(args.currentTarget,message_id);}); 
-    //    //$(element).popover('dispose');});
-    //})
     .popover('show');
 $('.popover-dismiss').popover({
     trigger: 'focus'
 });
 }
 
-var assignment_id = -1;
-var user_id = -1;
-var sender_user_type = -1;
-function answerPress(answer_type, message_id, max_mark=null, f_assignment_id=null, f_user_id=null) {
+var assignment_id = null;
+var user_id = null;
+var sender_user_type = null;
+var reply_id = null;
+
+function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_mark = null) {
     assignment_id = f_assignment_id;
     user_id = f_user_id;
+    reply_id = message_id;
     // TODO: implement answer
     // console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
     if (answer_type == 2) { // mark
@@ -110,49 +108,74 @@ function answerPress(answer_type, message_id, max_mark=null, f_assignment_id=nul
 let form_taskCheck = document.getElementById('form-mark');
 if(form_taskCheck){
 form_taskCheck.addEventListener('submit', function (event) {
+  event.preventDefault();
+  console.log("ОБРАБОТКА НАЖАТИЯ КНОПКИ SUBMIT");
+  // Проверка прикреплённых студентов
+  // Если задан finish_limit - должны быть и заданы студенты
+  let mark = checkMarkInputs('dialogMarkMarkInput');
+  if(mark == -1) {
+    let error_execution = document.getElementById('error-input-mark');
+    error_execution.textContent = "Некорректная оценка";
+    error_execution.className = 'error-input active';
+    return -1;
+  } 
 
-    console.log("ОБРАБОТКА НАЖАТИЯ КНОПКИ SUBMIT");
-    // Проверка прикреплённых студентов
-    // Если задан finish_limit - должны быть и заданы студенты
-    let check = checkInputs();
-    if(check == -1) {
-        let error_execution = document.getElementById('error-input-mark');
-        error_execution.textContent = "Некорректная оценка";
-        error_execution.className = 'error-input active';
-        event.preventDefault();
-        return -1;
-    } else if (check == -2) {
-        document.getElementById('label-dialogMarkText').innerHTML = "";
-        document.getElementById('dialogMarkText').value = "Задание проверено.";
-    } 
+  let message = checkMessageInput('dialogMarkText');
+  if (message == -1) {
+    document.getElementById('label-dialogMarkText').innerHTML = "";
+    document.getElementById('dialogMarkText').value = "Задание проверено.";
+  } 
 
-    let mark = document.getElementById('dialogMarkMarkInput').value;
-    let messsage_text = document.getElementById('dialogMarkText').value;
-    sendMessage(messsage_text, null, 2, assignment_id, user_id, mark, true);
-    //answerSend(form_taskCheck);
-    return 1;
+  sendMessage(form_taskCheck, message, 2, mark);
+  //answerSend(form_taskCheck);
+  return 1;
 });
 }
 
-function checkInputs(){
-    let input_mark = document.getElementById('dialogMarkMarkInput');
-    let input_text = document.getElementById('dialogMarkText');
+let form_taskAnswer = document.getElementById('form-answer');
+if(form_taskAnswer){
+  form_taskAnswer.addEventListener('submit', function (event) {
+    event.preventDefault();
 
+    let message = checkMessageInput('dialogAnswerText');
+    if(message == -1) {
+        let error_execution = document.getElementById('error-input-mark');
+        error_execution.textContent = "Пустое сообщение";
+        error_execution.className = 'error-input active';
+      return -1;
+  }
+
+  sendMessage(form_taskAnswer, message, 0, null);
+  //answerSend(form_taskCheck);
+  return 1;
+});
+}
+
+function checkMarkInputs(id){
+    let input_mark = document.getElementById(id);
+    
     let mark = input_mark.value;
     let max_mark = input_mark.max;
-    let message_text = input_text.value;
-
+    
     if (parseInt(mark) == NaN || mark <= 0 || mark > max_mark) {
-        console.log("Оценка заполнена неверно");
-        return -1;
+      console.log("Оценка заполнена неверно");
+      return -1;
     }
 
-    if (!message_text ||  message_text == ""){
-        console.log("Текст сообщения пустой");
-        return -2;
-    }
+    return mark;
+}
 
-    return 1;
+function checkMessageInput(id){
+  let input_text = document.getElementById(id);
+
+  let message_text = input_text.value;
+
+  if (!message_text ||  message_text == ""){
+      console.log("Текст сообщения пустой");
+      return -1;
+  }
+
+  return message_text;
 }
 
 // function answerSend(form) {
@@ -170,3 +193,39 @@ function answerText(answer_text, message_id) {
 function answerMark(answer_text, mark, message_id) {
     console.log('mark: ', answer_text, mark, message_id);
 }
+
+function sendMessage(form, userMessage, typeMessage, mark=null, func_success=console.log, func_complete=console.log) {
+      
+      var formData = new FormData();
+      formData.append('assignment_id', assignment_id);
+      formData.append('user_id', user_id);
+      formData.append('message_text', userMessage);
+      formData.append('type', typeMessage);
+      formData.append('flag_preptable', true);
+      if (reply_id != null) {
+        formData.append('reply_id', reply_id);
+      }
+      if (typeMessage == 2 && mark) {
+        formData.append('mark', mark);
+      }
+  
+      console.log('message_text =' + userMessage);
+      console.log('type =' + typeMessage);
+      console.log(Array.from(formData));
+  
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php #content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: console.log("SUCCESS!"),
+        complete: function() {
+          form.submit();
+        }
+      });
+  
+      return true;
+  }
