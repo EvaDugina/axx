@@ -9,7 +9,6 @@ $query = get_user_info($_SESSION['hash']);
 $result = pg_query($dbconnect, $query);
 $student_info = pg_fetch_assoc($result);
 
-
 $fio = "";
 if (isset($student_info['middle_name']))
   $fio .= $student_info['middle_name'] . " ";

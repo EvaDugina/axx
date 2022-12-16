@@ -126,7 +126,7 @@ if (!$result || pg_num_rows($result) < 1) {
                                   <input type="hidden" name="action" value="reject"></input>
 
                                   <div class="d-flex justify-content-between align-items-center me-2 mx-5 badge-primary text-wrap small">
-                                    <span class="mx-1"><?=$a['studlist']?> (до <?=$a['date']?>)</span>
+                                    <span class="mx-1"><?=$a['studlist']?><?=($a['date']=="" ?"" :" (до ".$a['date'].")")?></span>
 									<span>
 										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$a['id']?>';">
 											<i class="fas fa-pen fa-lg"></i>
@@ -146,13 +146,21 @@ if (!$result || pg_num_rows($result) < 1) {
 
                            
                         
-                          <div id="div-task-files" class="mb-3">
-                            <?php $task_files = getTaskFiles($dbconnect, $task['id']);
-                            if (count($task_files) > 0) {?>
-                              <div class="small"><strong>Приложения:</strong></div>
-                              <?php show_task_files($task_files);
-                            }?>
-                          </div>
+                          <!-- <div id="div-task-files" class="mb-3"> -->
+                            <?php 
+							/* 
+							$task_files = getTaskFiles($dbconnect, $task['id']);
+                            if (count($task_files) > 0) { 
+							*/
+							?>
+                            <!--  <div class="small"><strong>Приложения:</strong></div> -->
+                            <?php 
+							/*
+							show_task_files($task_files);
+                            }
+							*/ 
+							?>
+                          <!-- </div> -->
 
                         </td>
                         <td class="text-nowrap" style="--mdb-table-accent-bg:unset;">

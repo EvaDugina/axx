@@ -267,7 +267,7 @@ function convert_sem_from_number($id){
   else return 'Весна';
 }
 
-function show_accordion($name, $data)
+function show_accordion($name, $data, $labelshift = "0px")
 {
 			?>
 	            <div id="main-accordion-<?=$name?>" class="accordion accordion-flush" style="overflow-y: auto; height: 100%px; width: 100%;">
@@ -277,11 +277,30 @@ function show_accordion($name, $data)
 				foreach($data as $d) {
 			?>
 					<div id="accordion-<?=$name?>-gheader-<?=$i?>" class="accordion-header border">
-					  <button class="accordion-button p-1 collapsed" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-<?=$name?>-collapse-<?=$i?>" aria-expanded="true" aria-controls="accordion-<?=$name?>-collapse-<?=$i?>">
-                        <div class="form-check d-flex">
+			<?php
+					if (array_key_exists('label', $d)) {
+			?>
+					  <div style="position:absolute;z-index:2;margin-left:<?=$labelshift?>;">
+					    <div style="position:relative;top:4px;">
+					      <?=$d['label']?>
+						</div>
+					  </div>
+			<?php
+					}
+			?>
+					  <button class="accordion-button p-1 collapsed" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-<?=$name?>-collapse-<?=$i?>" aria-expanded="true" aria-controls="accordion-<?=$name?>-collapse-<?=$i?>" style="z-index:1;">
+                        <div class="form-check d-flex w-100">
 						  <?=$d['header']?>
                         </div>                   
                       </button>
+<!--
+  					  <div style="position:relative;">
+					    <input id="common_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="common_enabled" checked style="margin-left: 16.7em!important;">
+					    <label class="form-check-label" for="common_enabled" style="color:#4f4f4f;">выполнять проверки</label>
+					    <input id="common_show" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="common_show" checked>
+					    <label class="form-check-label" for="common_show" style="color:#4f4f4f;">отображать студенту</label>
+					  </div>
+-->
                     </div>
 					
 	                <div id="accordion-<?=$name?>-collapse-<?=$i?>" class="accordion-collapse collapse" aria-labelledby="accordion-<?=$name?>-gheader-<?=$i?>" data-mdb-parent="#main-accordion-<?=$name?>">
@@ -310,3 +329,4 @@ function show_accordion($name, $data)
 }
 
 ?>
+
