@@ -4,7 +4,7 @@
 	middle_name text,	-- фамилия
 	last_name text,		-- отчество (не верь глазам своим блин)
 	login text,		
-	role integer,		-- 1 - администратор, 2 - преподаватели, 3 - студенты (бывает, что в БД две записи для одного человека, как студент и как препод)
+	role integer,		-- 1 - администратор, 2 - преподаватель, 3 - студент (бывает, что в БД две записи для одного человека, как студент и как препод)
 	CONSTRAINT students_pkey PRIMARY KEY (id)
 ); ALTER TABLE students OWNER TO postgres;
 
@@ -75,7 +75,7 @@ CREATE TABLE ax_page (			-- страница дисциплины
 	disc_id integer,	-- --> discipline
 	short_name text,	-- краткое название страницы
 	year integer,		-- календаный год
-	semester integer,	-- номер семестра в учебном году (1/2)
+	semester integer,	-- номер семестра в учебном году (1 - Осень / 2 - Весна)
 	color_theme_id integer,	-- --> ax_color_theme
 	creator_id integer,	-- --> students
 	creation_date timestamp with time zone,
@@ -371,8 +371,9 @@ INSERT INTO public.ax_autotest_results(id, commit_id, order_num, test_name, test
 CREATE TABLE ax_message	(		-- сообщение в диалоге по заданию
 	id serial,
 	assignment_id integer,	-- --> ax_assignment
-	type integer, 		-- тип сообщения (0 - обычное сообщение (в т. ч. с приложениями), 1 - коммит, 2 - оценка)
-	sender_user_type integer,-- тип отправителя (0 - студент, 1 - преподаватель)
+	type integer, 		-- тип сообщения (0 - обычное сообщение (в т. ч. с приложениями), 1 - коммит, 2 - оценка, 3 - ссылка)
+  visibility integer, -- метка видимости сообщения (0 - видимо всем, 1 - видимо только админу, 2 - видимо только преподавателю, 3 - видимо только студенту)
+	sender_user_type integer,-- тип отправителя (1 - админ, 2 - преподаватель, 3 - студент)
 	sender_user_id integer, -- --> students
 	date_time timestamp with time zone,
 				-- дата и время отправки сообщения
@@ -383,22 +384,22 @@ CREATE TABLE ax_message	(		-- сообщение в диалоге по зада
 	CONSTRAINT ax_message_pkey PRIMARY KEY (id)
 ); ALTER TABLE ax_message OWNER TO postgres;
 
-INSERT INTO public.ax_message(id, assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status) VALUES 
-(-1, -5, 0,  0, -4, now() + '-10 days', null, 'А до какога нужно сдать?', null, 1),
-(-2, -5, 0,  1, -5, now() + '-8 days', null, 'До вчера', null, 1),
-(-3, -5, 0,  0, -4, now() + '-7 days', null, 'Я болел у меня справка', null, 2),
-(-4, -5, 1,  0, -4, now() + '-5 days', null, 'Ппроверьте пожалуйсто очень надо', -4, 1),
-(-5, -5, 2,  1, -6, now() + '-4 days', null, 'Содержание выходного файла не соответствует заданию', null, 0),
-(-6, -6, 1,  0, -3, now() + '-3 days', null, '', -1, 1),
-(-7, -6, 0,  0, -3, now() + '-1 day', -6, '', null, 1),
-(-8, -11, 0,  0, -3, now() + '-10 day', null, 'Посмотрите задание, все верно? Разработать грамматику, реализующую оператор IF-ELSE языка С. <br/>Пример: if (true) printf(1); else if (false) printf(2); else printf(3);', null, 1),
-(-9, -11, 2,  1, -5, now() + '-9 day', -8, 'Принято, делай на его основе следующие', null, 1),
-(-10, -12, 0,  0, -3, now() + '-8 day', null, 'А такая грамматика правильная? <br/>S::=if(b) S|if(b) S else S|printf(i);', null, 1),
-(-11, -12, 2,  1, -5, now() + '-7 day', -10, 'Да, продолжай с ней остальные', null, 0),
-(-12, -13, 0,  0, -3, now() + '-6 day', null, 'Грамматика и язык класса 2 (КС), грамматика неоднозначная, язык существенно неознозначный. Верно?', null, 1),
-(-13, -14, 0,  0, -3, now() + '-5 day', null, 'Во вложении дерево и вывод', null, 0),
-(-14, -16, 0,  0, -4, now() + '-4 day', null, 'А я не понял как делать, объясните!', null, 0),
-(-15, -17, 0,  0, -4, now() + '-4 day', null, 'Тупой препод иди в жопу почему так долго отвечаешь?!', null, 2);
+INSERT INTO public.ax_message(id, assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status) VALUES 
+(-1, -5, 0, 0,  3, -4, now() + '-10 days', null, 'А до какога нужно сдать?', null, 1),
+(-2, -5, 0, 0,  2, -5, now() + '-8 days', null, 'До вчера', null, 1),
+(-3, -5, 0, 0,  3, -4, now() + '-7 days', null, 'Я болел у меня справка', null, 2),
+(-4, -5, 1, 0, 3, now() + '-5 days', null, 'Ппроверьте пожалуйсто очень надо', -4, 1),
+(-5, -5, 2, 0,  2, -6, now() + '-4 days', null, 'Содержание выходного файла не соответствует заданию', null, 0),
+(-6, -6, 1, 0,  3, -3, now() + '-3 days', null, '', -1, 1),
+(-7, -6, 0, 0,  3, -3, now() + '-1 day', -6, '', null, 1),
+(-8, -11, 0, 0,  3, -3, now() + '-10 day', null, 'Посмотрите задание, все верно? Разработать грамматику, реализующую оператор IF-ELSE языка С. <br/>Пример: if (true) printf(1); else if (false) printf(2); else printf(3);', null, 1),
+(-9, -11, 2, 0,  2, -5, now() + '-9 day', -8, 'Принято, делай на его основе следующие', null, 1),
+(-10, -12, 0, 0,  3, -3, now() + '-8 day', null, 'А такая грамматика правильная? <br/>S::=if(b) S|if(b) S else S|printf(i);', null, 1),
+(-11, -12, 2, 0,  2, -5, now() + '-7 day', -10, 'Да, продолжай с ней остальные', null, 0),
+(-12, -13, 0, 0,  3, -3, now() + '-6 day', null, 'Грамматика и язык класса 2 (КС), грамматика неоднозначная, язык существенно неознозначный. Верно?', null, 1),
+(-13, -14, 0, 0,  3, -3, now() + '-5 day', null, 'Во вложении дерево и вывод', null, 0),
+(-14, -16, 0, 0,  3, -4, now() + '-4 day', null, 'А я не понял как делать, объясните!', null, 0),
+(-15, -17, 0, 0,  3, -4, now() + '-4 day', null, 'Тупой препод иди в жопу почему так долго отвечаешь?!', null, 2);
 
 
 

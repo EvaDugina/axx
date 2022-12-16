@@ -62,8 +62,6 @@ if (array_key_exists('page', $_REQUEST)) {
 		if($discipline['id'] == $page['disc_id'])
 			$name = $discipline['name'];
 	}
-
-	$semester = $page['year']."/".convert_sem_from_number($page['semester']);
 	$short_name = $page['short_name'];
 
 	$query = select_page_prep_name($page_id);
@@ -145,17 +143,21 @@ if (array_key_exists('page', $_REQUEST)) {
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="timestamp">           
 								<?php // echo $page['year'] . " " . $page['semester'];
-								for($year = $years['max']+1; $year >= $years['max']-4; $year--){
+								for($year = $years['max']; $year >= $years['max']-4; $year--){
                   echo "<option ";
                   if ($page && $year == $page['year'] && $page['semester'] == 1)
                     echo "selected";
-                  echo ">".($year-1)."/".$year." Весна</option>";
+                  echo ">".$year."/".($year+1)." Осень</option>";
 
                   echo "<option ";
-                  if ($page && $year == $page['year']+1 && $page['semester'] == 2)
+                  if ($page && $year == $page['year'] && $page['semester'] == 2)
                     echo "selected";
-                  echo ">".($year-1)."/".$year." Осень</option>";
+                  echo ">".$year."/".($year+1)." Весна</option>";
 								}?>
+
+                <!-- Добавление в новый, не существующий в бд семестр -->
+                <option class="text-info"><?=($years['max']+1)."/".($years['max']+2)." Осень"?></option>;
+                <option class="text-info"><?=($years['max']+1)."/".($years['max']+2)." Весна"?></option>;
 							</select>
 						</div>
 					</div>

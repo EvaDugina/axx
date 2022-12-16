@@ -119,97 +119,81 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) {
         <div class="collapse navbar-collapse row" id="navbarSupportedContent">
           <div class="d-none d-sm-block col-sm-8 col-md-8 col-xl-10">
 
-<?php
-          show_breadcrumbs($breadcrumbs);
-          if (count($breadcrumbs) < 1) echo '</div>';
+            <?php show_breadcrumbs($breadcrumbs);
+            if (count($breadcrumbs) < 1) echo '</div>';
 
-          if ($page_title != "Вход в систему"){ 
+            if ($page_title != "Вход в систему"){ 
+              if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
+                // Подгрузка уведомления для разных групп пользователей
+                $au = new auth_ssh();
+                $array_notify = array();
 
-            if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
+                if ($au->isTeacher())
+                  $query = select_notify_for_teacher_header($_SESSION['hash']);
+                else if ($au->loggedIn())
+                  $query = select_notify_for_student_header($_SESSION['hash']);
 
-              // Подгрузка уведомления для разных групп пользователей
-              $au = new auth_ssh();
-              $array_notify = array();
-              if ($au->isAdmin());
-              else if ($au->isTeacher()) {
-                $query_undone_tasks = select_notify_for_teacher_header($_SESSION['hash']);
-                $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
-                $array_notify = pg_fetch_all($result_undone_tasks);
-              }
-              else {
-                $query_undone_tasks = select_notify_for_student_header($_SESSION['hash']);
-                $result_undone_tasks = pg_query($dbconnect, $query_undone_tasks);
-                $array_notify = pg_fetch_all($result_undone_tasks);
-              }
+                $result = pg_query($dbconnect, $query);
+                $array_notify = pg_fetch_all($result);
+              }?>
+          </div>
 
-            } 
-?>
-            </div>
-
-            <div class="col-xs-12 col-sm-4 col-md-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
-              <!-- Icons -->
-              <ul class="navbar-nav me-1">
-                <!-- Notifications -->
-                <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-bell fa-lg"></i>
-                  <span class="badge rounded-pill badge-notification <?php if(!$array_notify || ($array_notify && count($array_notify) < 1)) echo 'd-none';?>" 
-                  style="background: #dc3545;"><?php if($array_notify) echo count($array_notify);?></span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
-                  <?php $i = 0;
-                  if ($array_notify){
-                    foreach ($array_notify as $notify) { $i++; 
-                      if($au->isTeacher()){
-                        $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
-                      } else {
-                        $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
-                      }
-                      $result = pg_query($query);
-                      $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
-                      <a <?php 
-                      if($au->isTeacher()){ 
-                        echo 'style="color: black;"';?>
-                        href="taskchat.php?task=<?php echo $notify['task_id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>" > 
-                      <?php
-                      } else if ($au->isAdmin());
-                      else {?> 
-                        href="taskchat.php?task=<?=$notify['task_id']?>&page=<?=$notify['page_id'];?>" > 
-                      <?php } ?>
-                          <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
-                            <div class="d-flex justify-content-between align-items-center">
-                              <div style="margin-right: 10px;">
-                                <?php if ($au->isTeacher()) {
-                                  echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
-                                  <br><?php echo $notify['title'];
-                                } else {
-                                  echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
-                                }?>
-                              </div>
-                              <span class="badge badge-primary badge-pill"
-                                <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> 
-                                  style="background: #dc3545; color: white;"
-                                <?php }?>><?=$count_unreaded_messages_by_notify['count']?>
-                              </span>
+          <div class="col-xs-12 col-sm-4 col-md-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
+            <!-- Icons -->
+            <ul class="navbar-nav me-1">
+              <!-- Notifications -->
+              <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell fa-lg"></i>
+                <span class="badge rounded-pill badge-notification <?php if(!$array_notify || ($array_notify && count($array_notify) < 1)) echo 'd-none';?>" 
+                style="background: #dc3545;"><?php if($array_notify) echo count($array_notify);?></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
+                <?php $i = 0;
+                if ($array_notify){
+                  foreach ($array_notify as $notify) { $i++; 
+                    if($au->isTeacher()){
+                      $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
+                    } else {
+                      $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
+                    }
+                    $result = pg_query($query);
+                    $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
+                    <a href="taskchat.php?assignment=<?=$notify['aid']?>"> 
+                        <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div style="margin-right: 10px;">
+                              <?php if ($au->isTeacher()) {
+                                echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
+                                <br><?php echo $notify['title'];
+                              } else {
+                                echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
+                              }?>
                             </div>
-                          </li>
-                      </a>
-                    <?php }
-                  }?>
-                </ul>
+                            <span class="badge badge-primary badge-pill"
+                              <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> 
+                                style="background: #dc3545; color: white;"
+                              <?php }?>><?=$count_unreaded_messages_by_notify['count']?>
+                            </span>
+                          </div>
+                        </li>
+                    </a>
+                  <?php }
+                }?>
               </ul>
+            </ul>
 
-              <ul class="navbar-nav d-flex flex-row me-1">
-                <!-- Avatar -->
-                <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                  <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                  <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
-                  <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
-                  <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
-                </ul>
+            <ul class="navbar-nav d-flex flex-row me-1">
+              <!-- Avatar -->
+              <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
+                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
+                <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
+                <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
               </ul>
-            </div>
+            </ul>
+          </div>
           <?php } 
 
           if (count($breadcrumbs) >= 1) echo '</div>'; ?>

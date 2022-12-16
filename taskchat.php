@@ -5,25 +5,69 @@ require_once("settings.php");
 require_once("utilities.php");
 
 // Обработка некорректного перехода между страницами
-if (!(isset($_REQUEST['task']) && isset($_REQUEST['page'])) && !isset($_REQUEST['assignment'])) {
+if (!(isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) && !isset($_REQUEST['assignment'])) {
 	header('Location:index.php');
-  	exit;
+  exit;
 }
 
 $user_id = $_SESSION['hash'];
 
-$task_id = 0;
-if (isset($_REQUEST['task']))
-	$task_id = $_REQUEST['task'];
+$au = new auth_ssh();
+if ($au->isAdmin() && isset($_REQUEST['id_student'])){
+	// Если на страницу чата зашёл АДМИН
+	$student_id = $_REQUEST['id_student'];
+  $sender_user_type = 1;
+} else if ($au->isTeacher() && isset($_REQUEST['id_student'])) {
+  // Если на страницу чата зашёл ПРЕПОД
+	$student_id = $_REQUEST['id_student'];
+  $sender_user_type = 2;
+} else if ($au->loggedIn()){
+	// Если на страницу чата зашёл студент
+	$student_id = $user_id;
+  $sender_user_type = 3;
+} else {
+  header('Location:index.php');
+  exit;
+}
 
-$assignment_id = 0;
-if (isset($_REQUEST['assignment']))
-	$assignment_id = $_REQUEST['assignment'];
+if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])){
+  $task_id = 0;
+  if (isset($_REQUEST['task']))
+    $task_id = $_REQUEST['task'];
+  
+  $page_id = 0;
+  if (isset($_REQUEST['page']))
+    $page_id = $_REQUEST['page'];
 
-$page_id = 0;
-if (isset($_REQUEST['page']))
-	$page_id = $_REQUEST['page'];
+  $query = select_task_assignment_student_id($student_id, $task_id);
+  $result = pg_query($dbconnect, $query);
+  $row = pg_fetch_assoc($result);
+  if ($row) {
+    $assignment_id = $row['id'];
+  } else {
+    echo 'TASK&PAGE НЕ НАЙДЕНЫ';
+		http_response_code(404);
+		exit;
+  }
+  
+} else if (isset($_REQUEST['assignment'])) {
+  $assignment_id = 0;
+  if (isset($_REQUEST['assignment']))
+    $assignment_id = $_REQUEST['assignment'];
 
+
+  $result = pg_query($dbconnect, "select task_id, page_id from ax_assignment a inner join ax_task t on a.task_id = t.id where a.id = $assignment_id");
+	$row = pg_fetch_assoc($result);
+	if ($row) {
+    $task_id = $row['task_id'];
+    $page_id = $row['page_id'];
+  } else {
+		echo 'ASSIGNMENT НЕ НАЙДЕН';
+		http_response_code(404);
+		exit;
+	}
+
+}
 
 $query = select_ax_page_short_name($page_id);
 $result = pg_query($dbconnect, $query);
@@ -32,45 +76,6 @@ $page_name = pg_fetch_assoc($result)['short_name'];
 
 $MAX_FILE_SIZE = 5242880;
 
-$au = new auth_ssh();
-$sender_user_type = 0;
-if ($au->isAdminOrTeacher() && isset($_REQUEST['id_student'])){
-	// Если на страницу чата зашёл преподаватель
-	$student_id = $_REQUEST['id_student'];
-  $sender_user_type = 1;
-
-} else if ($au->loggedIn()){
-	// Если на страницу чата зашёл студент
-	$student_id = $user_id;
-} else {
-  header('Location:index.php');
-  exit;
-}
-
-if ($assignment_id == 0) {
-	$query = select_task_assignment_student_id($student_id, $task_id);
-	$result = pg_query($dbconnect, $query);
-	$row = pg_fetch_assoc($result);
-	if ($row) {
-		$assignment_id = $row['id'];
-	} else {
-		echo '<p style="color:#f00">Задание не назначено данному студенту</p>';
-		exit;
-	}
-}
-else {
-	$result = pg_query($dbconnect, "select task_id, page_id from ax_assignment a inner join ax_task t on a.task_id = t.id where a.id = $assignment_id");
-	$row = pg_fetch_assoc($result);
-	if ($row == false) {
-		echo 'Задание не найдено';
-		http_response_code(404);
-		exit;
-	}
-	else {
-		$task_id = $row['task_id'];
-		$page_id = $row['page_id'];
-	}
-}
 
 $task_title = '';
 $task_description = '';
@@ -249,46 +254,11 @@ $task_number = explode('.', $task_title)[0];
 	
   <!-- <script type="text/javascript" src="js/messageHandler.js"></script> -->
   
-	<script type="text/javascript">
-		
-		// После первой загрузки скролим страницу вниз
-		$('body, html').scrollTop($('body, html').prop('scrollHeight'));
+	<script type="text/javascript" src="js/taskchat.js"></script>
 
-		$('#user-message').on('input', function() {
-   		 	if ($(this).val() != '') {
-				$(this).css('height', '88.8px');
-				$('body, html').scrollTop($('body, html').prop('scrollHeight'));
-			}
-			else {
-				$(this).css('height', '37.6px');
-			}
-		});
+  <script type="text/javascript">
 
-
-		/* Логика скрола на странице
-		Открываем страницу - страница скролится вниз, чат скролится до последнего непрочитанного сообщения
-		Отправляем сообщение - чат скролится вниз
-		Приходит сообщение от собеседника - появляется плашка "Новые сообщения"
-		*/
-
-
-    // Показывает количество прикрепленных для отправки файлов
-		$('#user-files').on('change', function() {
-      // TODO: Сделать удаление числа, если оно 0
-      if (this.files.length != 0)
-			  $('#files-count').html(this.files.length);
-      else
-        $('#files-count').html(this.files.length);
-		});
-
-    // Показывает количество прикрепленных для отправки файлов
-		$('#user-answer-files').on('change', function() {
-      // TODO: Сделать удаление числа, если оно 0
-			$('#files-answer-count').html(this.files.length);
-		});
-
-
-		$(document).ready(function() {
+    $(document).ready(function() {
 
       let form_sendAnswer = document.getElementById('form-send-answer');
       let form_check = document.getElementById('form-check-task');
@@ -332,8 +302,7 @@ $task_number = explode('.', $task_title)[0];
         if (mark == -1){
           // console.log("ОЦЕНКА НЕ ВЫБРАНА");
           return false;
-        }
-        else {
+        } else {
           var userMessage = "Задание проверено. Оценка: " + mark;
           if(sendMessage(userMessage, null, 2, parseInt(mark))) {
             // console.log("Сообщение было успешно отправлено");
@@ -348,15 +317,14 @@ $task_number = explode('.', $task_title)[0];
 
           return false;
         }
-      });
-
+        });
       }
 
 
-			// Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
-			$("#submit-message").click(function() {
-				var userMessage = $("#user-message").val();
-				var userFiles = $("#user-files");
+      // Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
+      $("#submit-message").click(function() {
+        var userMessage = $("#user-message").val();
+        var userFiles = $("#user-files");
 
         if(!sendMessage(userMessage, userFiles, 0)) {
           event.preventDefault();
@@ -365,37 +333,35 @@ $task_number = explode('.', $task_title)[0];
           // console.log("Сообщение не было отправлено");
         }
 
-				$("#user-message").val("");
-				$("#user-message").css('height', '37.6px');
-				$("#user-files").val("");
-				$('#files-count').html('');
-				return false;
-			});
+        $("#user-message").val("");
+        $("#user-message").css('height', '37.6px');
+        $("#user-files").val("");
+        $('#files-count').html('');
+        return false;
+      });
 
-
-			// Первое обновление лога чата
-			loadChatLog(true);
-			// Обновление лога чата раз в 5 секунд
-			setInterval(loadChatLog, 5000);
-		});
-
+      // Первое обновление лога чата
+      loadChatLog(true);
+      // Обновление лога чата раз в 5 секунд
+      setInterval(loadChatLog, 5000);
+    });
 
     // Обновляет лог чата из БД
-		function loadChatLog($first_scroll = false) {
+    function loadChatLog($first_scroll = false) {
       // console.log("LOAD_CHAT_LOG!");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
-			$('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
-				// После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
-				if ($first_scroll) {
-					if ($('#new-messages').length == 0) {
-						$('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
-					}
-					else {
-						$('#chat-box').scrollTop($('#new-messages').offset().top - $('#chat-box').offset().top - 10);
-					}
-				}	
-			})
-		}
+      $('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
+        // После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
+        if ($first_scroll) {
+          if ($('#new-messages').length == 0) {
+            $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+          }
+          else {
+            $('#chat-box').scrollTop($('#new-messages').offset().top - $('#chat-box').offset().top - 10);
+          }
+        }	
+      })
+    }
 
 
     function sendMessage(userMessage, userFiles, typeMessage, mark=null) {
@@ -466,55 +432,9 @@ $task_number = explode('.', $task_title)[0];
 
 
       return true;
-		}
-
-    function func_ajax_success(response){
-      $("#chat-box").html(response);
-          
-      if (typeMessage == 1) {
-        let now = new Date();
-        $("#label-task-status-text").text("Ожидает проверки");
-        $("#span-answer-date").text(formatDate(now));
-      } else if (typeMessage == 2) {
-        let now = new Date();
-        $("#flexCheckDisabled").prop("checked", true);
-        $("#label-task-status-text").text("Выполнено");
-        $("#span-answer-date").text(formatDate(now));
-        $("#span-text-mark").text("Оценка: ");
-      }
     }
 
-    function func_ajax_complete(){
-      // Скролим чат вниз после отправки сообщения
-      $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
-    }
-
-    function scrollChat(){
-
-    }
-
-    function formatDate(date) {
-      let dayOfMonth = date.getDate();
-      let month = date.getMonth() + 1;
-      let year = date.getFullYear();
-      let hour = date.getHours();
-      let minutes = date.getMinutes();
-      let diffMs = new Date() - date;
-      let diffSec = Math.round(diffMs / 1000);
-      let diffMin = diffSec / 60;
-      let diffHour = diffMin / 60;
-
-      // форматирование
-      year = year.toString().slice(-2);
-      month = month < 10 ? '0' + month : month;
-      dayOfMonth = dayOfMonth < 10 ? '0' + dayOfMonth : dayOfMonth;
-      hour = hour < 10 ? '0' + hour : hour;
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-
-      return `${dayOfMonth}.${month}.${year} ${hour}:${minutes}`;
-    }
-
-	</script>
+  </script>
 
 </body>
 

@@ -26,6 +26,8 @@ $task_id = -1;
 $page_id = -1;
 if (isset($_GET['task'])){
 	// Изменение текущего задания
+  $flag_new_task = false;
+
 	$task_id = $_REQUEST['task'];
 	$query = select_task($task_id);
 	$result = pg_query($dbconnect, $query);
@@ -36,10 +38,17 @@ if (isset($_GET['task'])){
 	  exit;
   }
 
+  $user_id = $_SESSION['hash'];
+
 	$page_id = $task['page_id'];
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
 	$page = pg_fetch_assoc($result);
+
+
+  $query = select_task_assignment_student_id($user_id, $task_id);
+  $result = pg_query($dbconnect, $query);
+  $assignment_id = pg_fetch_assoc($result)['id'];
 
   if (!$page) {
     header('Location:'.$_SERVER['HTTP_REFERER']);
@@ -56,6 +65,8 @@ if (isset($_GET['task'])){
 
 } else if (isset($_GET['page'])){
 	// Добавление новго задания
+  $flag_new_task = true;
+
 	$page_id = $_REQUEST['page'];
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
@@ -84,10 +95,13 @@ show_header($dbconnect, 'Редактор заданий',
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
       
-    <form id="form-taskEdit" name="form-taskEdit" class="pt-3" action="taskedit_action.php?page=<?=$page_id?>" method="POST" enctype="multipart/form-data">
+    <div class="pt-3">
       <div class="row gy-5">
-        <div class="col-8">
+        <form class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+          <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+          <input type="hidden" name="flag-editTaskInfo" value="true"></input>
+          <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
           <table class="table table-hover">
     
             <div class="pt-3">
@@ -120,9 +134,9 @@ show_header($dbconnect, 'Редактор заданий',
                 <textarea id="textArea-description" class="form-control <?php /*if ($task['description'])*/ echo 'active';?>" 
                 rows="5" name="task-description" style="resize: none;"><?=$task['description']?></textarea>
                 <label id="label-textArea-description" class="form-label" for="textArea-description">Описание задания</label>
-				<script>
-					const easyMDE = new EasyMDE({element: document.getElementById('textArea-description')});
-				</script>
+                <script>
+                  const easyMDE = new EasyMDE({element: document.getElementById('textArea-description')});
+                </script>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -160,19 +174,24 @@ show_header($dbconnect, 'Редактор заданий',
           </table>
 
           <button id="submit-save" type="submit" class="btn btn-outline-primary" name="action" value="save">Сохранить</button>
-          <?php if ($task_id != -1) {?>
-            <button id="submit-delete" type="submit" class="btn btn-outline-danger" name="action" value="delete">Удалить задание</button>
+          <?php if ($task_id != -1 && $task['status'] == 1) {?>
+            <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
+             name="action" value="archive">Архивировать задание</button>
+          <?php } else if($task_id != -1 && $task['status'] == 0){?>
+            <button id="submit-archive" type="submit" class="btn btn-outline-primary" name="action" value="re-archive">Разархивировать задание</button>
           <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
 
-        </div>
+        </form>
 
-        <div class="col-4">
-        <div class="p-3 border bg-light" style="max-height: calc(100vh - 80px);">
-          <!--<form id="form-choose-executors" class="p-2 border bg-light" name="form-taskEdit" 
-          action="taskedit_action.php?page=<?=$page_id?>" method="post">-->
-            <input type="hidden" name="task-id" value="<?=$task_id?>"></input>
-
+        <div class="col-4 <?php if($flag_new_task) echo 'd-none';?>">
+        <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
+        id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+          <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+          <input type="hidden" name="flag-editDeligation" value="true"></input>
+          <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
+          
             <div class="pt-1 pb-1">
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
             </div>
@@ -287,20 +306,34 @@ show_header($dbconnect, 'Редактор заданий',
             </div>
 
             <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
+          </form>
+
+          <div class="p-3 border bg-light">
 
             <div class="pt-1 pb-1">
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
-              <label class="btn btn-outline-default py-2 px-4">
-                <input id="task-files" type="file" name="task_files[]" style="display: none;" multiple>
-                  <i class="fa-solid fa-paperclip"></i>
-                  <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
-              </label>  
+                <?php if ($task_id != -1) {?>
+                  <div id="div-task-files" class="mb-3">
+                    <?php $task_files = getTaskFiles($dbconnect, $task_id);
+                    show_task_files($task_files, true, $task_id, $page_id);?>
+                  </div>
+                <?php }?>
+              
+              <form id="form-addTaskFiles" name="taskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+                <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+                <input type="hidden" name="flag-addFiles" value="true"></input>
+                <label class="btn btn-outline-default py-2 px-4">
+                  <input id="task-files" type="file" name="add-files[]" style="display: none;" multiple>
+                    <i class="fa-solid fa-paperclip"></i>
+                    <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
+                </label> 
+              </form>
             </div>
                 
           </div>
-        </div>
       </div>
-    </form>
+    </div>
 
   </div>
 </main>
@@ -308,6 +341,107 @@ show_header($dbconnect, 'Редактор заданий',
 
     <!-- СКРИПТ "СОЗДАНИЯ ЗАДАНИЯ" -->
   <script type="text/javascript" src="js/taskedit.js"></script>
+  
+  <script type="text/javascript">
+    let form_addFiles  = document.getElementById('form-addTaskFiles');
+    var added_files = <?=json_encode($task_files)?>;
+
+    // Показывает количество прикрепленных для отправки файлов
+    $('#task-files').on('change', function() {
+      //$('#files-count').html(this.files.length);
+      
+      let new_file = document.getElementById("task-files").files[0];
+      
+      if (added_files.find(file_name_check, new_file)){
+        alert("ФАЙЛ С ТАКИМ НАЗВАНИЕМ УЖЕ СУЩЕСТВУЕТ. ПЕРЕИМЕНУЙТЕ ПРИКРЕПЛЯЕМЫЙ ИЛИ ВЫБЕРИТЕ ДРУГОЙ");
+        return;
+      }
+
+      form_addFiles.submit();
+      
+      /*var formData = new FormData();
+      formData.append('task_id', <?=$task_id?>);
+      formData.append('page_id', <?=$page_id?>);
+      $.each($("#task-files")[0].files, function(key, input){
+        formData.append('add-files[]', input);
+      });
+
+      console.log(formData);
+
+      $.ajax({
+        type: "POST",
+        url: 'taskedit_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function (response){
+          location.reload();
+        },
+        complete: function() {}
+      });*/
+    });
+
+
+    function file_name_check(file) {
+      console.log(file['file_name']);
+      if (file['file_name'] == this.name){
+        return true;
+      }
+      return false;
+    }
+
+  </script>
+
+<script type="text/javascript">
+
+//   $(function() {
+//     $('#list.dropdown-item').on("click", function() { // when LI is clicked
+//       console.log("CLICKED!");
+//       var option = $(this).data("option");
+//       console.log("OPTION: " + option);
+//       let form_statusTaskFiles = $(this).parent().parent().parent();
+//       console.log("FORM-StatusTaskFiles: " + form_statusTaskFiles);
+    
+//       let input = document.createElement("input");
+//       input.setAttribute("type", "hidden");
+//       input.setAttribute("value", option);
+//       input.setAttribute("name", 'task-file-status');
+//       console.log(input);
+    
+//       form_statusTaskFiles.append(input);
+//       form_statusTaskFiles.submit();
+//     });
+
+    $('#list').click();
+    $('#123').click();
+// });
+
+
+  document.querySelectorAll("#div-task-files div").forEach(function (div) {
+    let form = div.getElementsByClassName("form-statusTaskFiles")[0];
+    let select = form.getElementsByClassName("select-statusTaskFile")[0];
+    select.addEventListener("change", function (e) {
+      console.log("SELECT CHANGED!");
+      var value = e.target.value;
+      console.log("OPTION: " + value);;
+      console.log("FORM-StatusTaskFiles: " + form);
+
+      let input = document.createElement("input");
+      input.setAttribute("type", "hidden");
+      input.setAttribute("value", value);
+      input.setAttribute("name", 'task-file-status');
+      console.log(input);
+
+      form.append(input);
+      form.submit();  
+    });
+  });
+
+
+</script>
+
 
   </body>
 

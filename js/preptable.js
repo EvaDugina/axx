@@ -62,7 +62,7 @@ if (value.trim() === '') {
 }
 }
 
-function showPopover(element, message_id) {
+function showPopover(element) {
 //console.log(element);
 $(element).popover({
     html: true,
@@ -87,7 +87,7 @@ $('.popover-dismiss').popover({
 var assignment_id = -1;
 var user_id = -1;
 var sender_user_type = -1;
-function answerPress(answer_type, message_id, max_mark, f_assignment_id, f_user_id, f_sender_user_type) {
+function answerPress(answer_type, message_id, max_mark=null, f_assignment_id=null, f_user_id=null, f_sender_user_type=null) {
     assignment_id = f_assignment_id;
     user_id = f_user_id;
     sender_user_type = f_sender_user_type;

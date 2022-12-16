@@ -1,0 +1,22 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: none
+  GIT_CLEAN_FLAGS: none
+  GIT_STRATEGY: none
+
+stages:
+  - deploy
+
+pull-site:
+    when: manual
+    stage: deploy
+    script:
+      - cd /var/vega.fcyb.mirea.ru/
+      - rm -rf accel || true
+      - git config --global user.email "gitlab-runner@lkdfjldjfgl324234.com"
+      - git config --global user.name  "gitlab-runner"
+      - git clone -b $CI_COMMIT_BRANCH http://gitlab-runner:rohv5Oad@vega.fcyb.mirea.ru/gitlab/avz/accelerator.git
+      - mv -v accelerator accel
+      - cd accel
+      - git checkout $CI_COMMIT_SHORT_SHA
+    tags:
+      - vega-site

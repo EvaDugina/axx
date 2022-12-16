@@ -26,7 +26,7 @@ if (isset($_GET['page']) && is_numeric($_GET['page'])){
 	$result = pg_fetch_assoc(pg_query($dbconnect, $query))['name'];
 	$discipline_name = strtoupper((string) "$result");
 
-	$semester = $page['year'] . "/" . convert_sem_from_number($page['semester']);
+	$semester = $page['year'] . "/" . ($page['year']+1).convert_sem_from_number($page['semester']);
 	$short_name = $page['short_name'];
 } else {
 	header('Location:mainpage_student.php');
@@ -60,7 +60,7 @@ else {
 <?php 
 show_head("Страница предмета ". $page['short_name']);
 show_header($dbconnect, 'Задания по дисциплине', 
-		array($page['disc_name'] => 'studtasks.php?page=' . $page_id)); ?>
+		array($page['short_name'] => 'studtasks.php?page=' . $page_id)); ?>
 
 <body style="overflow-x: hidden;">
 
@@ -68,7 +68,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 		<div class="pt-5 px-4">
 			<div class="row">
 				<div class="col-md-6 d-flex">
-					<h3><?php echo $discipline_name; ?></h4>
+					<h3><?php echo $short_name; ?></h4>
 					<p style="color: grey; margin-left: 10px; margin-top:17px; "><?php echo $count_succes_tasks . "/" . $count_tasks; ?></p>
 				</div>
 			</div>
@@ -110,7 +110,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 										
 										<button class="list-group-item list-group-item-action d-flex justify-content-between mb-3" 
 										<?php if($row_assignment['status_code'] == 1 || $row_assignment['status_code'] == 4) echo "disabled"; ?>
-										onclick="window.location='<?='taskchat.php?task='. $task['id'] . '&page=' . $page_id?>';"
+										onclick="window.location='<?='taskchat.php?assignment='. $row_assignment['id']?>';"
 										style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;"
 										id="studtasks-elem-<?php echo $key + 1; ?>">
 											<p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?php echo $task['title']; ?></p>
