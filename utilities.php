@@ -218,49 +218,6 @@ function checkTask($assignment_id, $mark) {
 }
 
 
-function show_preptable_message($message, $flag_marked_message = false) {
-  if ($message == null || $message['type'] == 0) 
-    return;
-  
-  $message_style = ($message['mtype'] == 2) ? 'message-prep' : 'message-stud';
-    
-  $message_text = "";
-  if($message['type'] != 1){
-    $message_text = $message['mtext'];
-  }
-    
-  if ($message['mreply_id'] != null){ // is reply message, add citing
-    $message_text .= "<p class='note note-light'>";
-    $message_text .= generate_message_for_student_task_commit($message['task']);
-    $message_text .= showAttachedFilesByMessageId($message['mreply_id']);
-    $message_text .= "</p>";
-  } else if ($message['status_code'] == 5 && $message['type'] == 1 && !$flag_marked_message) { 
-    // is student message need to be checked
-    $message_text .= getPopoverContent($message, $_SESSION['hash']);
-  } else {
-    $message_text .= generate_message_for_student_task_commit($message['task']);
-    $message_text .= showAttachedFilesByMessageId($message['mid']); 
-  }?>
-
-  <div class="popover message <?=$message_style?>" role="listitem">
-    <div class="popover-arrow"></div>
-    <div class="p-3 popover-header" style="background-color: #80E08040;">
-      <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
-        <?=$message['mfio']. '<br>'?></h6>
-      <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=convert_mtime($message['mtime'])?></p>
-    </div>
-    <div class="popover-body"><?=$message_text?></div>
-  </div>
-
-<?php        
-} 
-
-function generate_message_for_student_task_commit($task_title){
-  $message_text = "<strong>".$task_title."</strong>";
-  return $message_text;
-}
-
-
 // ПРОЧЕЕ
 function convert_sem_from_number($id){
   if($id == 1) return 'Осень';
