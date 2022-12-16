@@ -211,7 +211,7 @@ if ($scripts) echo $scripts; ?>
                           data-mdb-content="<?=getPopoverContent($task_message, $user_id)?>">
                             <?php if ($array_student_tasks[$now_index]['mark'] != null) {?>
                               <?=$array_student_tasks[$now_index]['mark']?>
-                              <span class="badge rounded-pill badge-notification text-info m-0" style="font-size:.5rem">
+                              <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
                               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
@@ -493,7 +493,7 @@ function show_preptable_message($message, $flag_marked_message = false) {
     $message_text .= showAttachedFilesByMessageId($message['mid']); 
   }?>
 
-  <div class="popover message <?=$message_style?>" role="listitem">
+  <div class="popover message <?=$message_style?> w-100" role="listitem">
     <div class="popover-arrow"></div>
     <div class="p-3 popover-header" style="background-color: #80E08040;">
       <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
