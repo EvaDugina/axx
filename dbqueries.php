@@ -278,6 +278,15 @@ function select_task_assignment_student_id($student_id, $task_id) {
     ";
 }
 
+function select_assignment_with_task($student_id, $task_id){
+  return "SELECT ax_assignment.id, ax_task.title, ax_task.status, ax_task.id as tid, ax_task.page_id as pid,
+    ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.mark, ax_task.max_mark, ax_assignment.status_text FROM ax_task 
+    INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
+    INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
+    INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
+    WHERE ax_task.id = '$task_id' AND students.id = '$student_id' ORDER BY id";
+}
+
 // - получение всех заданий по странице дисциплины
 function select_page_tasks($page_id, $status) {
     return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' ORDER BY id";
