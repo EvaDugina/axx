@@ -1,3 +1,7 @@
+// import {TEXT_WITH_MARK} from "STRING_CONSTANTS.js";
+
+TEXT_WITH_MARK = "Задание проверено. \nОценка: ";
+
 
 const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
 const value = document.getElementById("selectCourse").value;
@@ -65,9 +69,6 @@ if (value.trim() === '') {
 function showPopover(element) {
 //console.log(element);
 
-let popoverTemplate = [].join('<div class="popover" role="tooltip">', 
-'<div class="arrow"></div>', '<h3 class="popover-header"></h3>', '<div class="popover-body"></div>','</div>');
-
 $(element).popover({
     html: true,
     delay: 250,
@@ -127,7 +128,8 @@ form_taskCheck.addEventListener('submit', function (event) {
   let message = checkMessageInput('dialogMarkText');
   if (message == -1) {
     document.getElementById('label-dialogMarkText').innerHTML = "";
-    document.getElementById('dialogMarkText').value = "Задание проверено.\nОценка: " + mark;
+    document.getElementById('dialogMarkText').value = TEXT_WITH_MARK + mark;
+    message = TEXT_WITH_MARK + mark;
   } 
 
   sendMessage(form_taskCheck, message, 2, mark);

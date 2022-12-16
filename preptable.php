@@ -187,6 +187,9 @@ if ($scripts) echo $scripts; ?>
                       $now_index = 0;
                       foreach ($tasks as $key => $task) { // tasks cycle
                         $task_message = null;
+
+                        $query = pg_query($dbconnect, select_assignment_with_task($student['id'], $task['id']));
+                        $assignment = pg_fetch_assoc($query);
                         
                         if ($messages) {
                           foreach ($messages as $message) { // search for last student+task message
@@ -222,12 +225,12 @@ if ($scripts) echo $scripts; ?>
                             <?php }?>
                           </td>
                         <?php 
-                        } // Если стоит оценка
-                        else if ($array_student_tasks[$now_index]['mark'] != null) {?>
-                            <td tabindex="1"><?= $array_student_tasks[$now_index]['mark'] ?></td>
-                        <?php 
-                        } else { ?>
-                          <td tabindex="-1"></td>
+                        } else {?>
+                            <td onclick="answerPress(2,null,<?=$assignment['id']?>,<?=$user_id?>,<?=$assignment['max_mark']?>)">
+                              <?php if ($array_student_tasks[$now_index]['mark'] != null) {
+                                echo $array_student_tasks[$now_index]['mark'];
+                              } ?>
+                            </td>
                         <?php }
 
                         $now_index++;
