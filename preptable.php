@@ -175,7 +175,7 @@ if ($scripts) echo $scripts; ?>
                       <tr class="table-row-header">
                         <th scope="row" colspan="1"><?= $group ?></th>
                         <th colspan="1"> </th>
-                        <td colspan="<?= count($tasks) ?>"> </td>
+                        <td colspan="<?= count($tasks) ?>" style="background: var(--mdb-gray-200);"> </td>
                       </tr>
                     <?php
                     } ?>
@@ -199,7 +199,7 @@ if ($scripts) echo $scripts; ?>
                         // пометить клетки серыми, если задание недоступно для выполнения
                         if (!isset($array_student_tasks[$now_index]) || 
                         (isset($array_student_tasks[$now_index]) && $array_student_tasks[$now_index]['id'] != $task['id'])) { ?>
-                          <td tabindex="-1" style="background: #F5F5F5;"></td>
+                          <td tabindex="-1" style="background: var(--mdb-gray-100);"></td>
                           <?php
                           continue;
                         } 
@@ -455,6 +455,7 @@ function getPopoverContent($message, $user_id) {
 
   $data_mdb_content .= generate_message_for_student_task_commit($message['task']);
   $data_mdb_content .= showAttachedFilesByMessageId($message['mid']);
+
   $data_mdb_content .= "
   <a href='javascript:answerPress(2,". $message['mid'].", " . $message['aid'] . ", " . $user_id .", ". $message['max_mark'].")'
   type='message' class='btn btn-outline-primary'>
@@ -464,8 +465,66 @@ function getPopoverContent($message, $user_id) {
   type='message' class='btn btn-outline-primary'>
     Ответить
   </a>";
+
   return $data_mdb_content;
-} ?>
+} 
+
+function show_preptable_message($message, $flag_marked_message = false) {
+  if ($message == null || $message['type'] == 0) 
+    return;
+  
+  $message_style = ($message['mtype'] == 2) ? 'message-prep' : 'message-stud';
+    
+  $message_text = "";
+  if($message['type'] != 1){
+    $message_text = $message['mtext'];
+  }
+    
+  if ($message['mreply_id'] != null){ // is reply message, add citing
+    $message_text .= "<p class='note note-light'>";
+    $message_text .= generate_message_for_student_task_commit($message['task']);
+    $message_text .= showAttachedFilesByMessageId($message['mreply_id']);
+    $message_text .= "</p>";
+  } else if ($message['status_code'] == 5 && $message['type'] == 1 && !$flag_marked_message) { 
+    // is student message need to be checked
+    $message_text .= getPopoverContent($message, $_SESSION['hash']);
+  } else {
+    $message_text .= generate_message_for_student_task_commit($message['task']);
+    $message_text .= showAttachedFilesByMessageId($message['mid']); 
+  }?>
+
+  <div class="popover message <?=$message_style?>" role="listitem">
+    <div class="popover-arrow"></div>
+    <div class="p-3 popover-header" style="background-color: #80E08040;">
+      <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
+        <?=$message['mfio']. '<br>'?></h6>
+      <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=convert_mtime($message['mtime'])?></p>
+    </div>
+    <div class="popover-body"><?=$message_text?></div>
+  </div>
+
+<?php        
+} 
+
+function getPopoverHtml($message_fio, $message_group, $message_task_title, $message_time, $message_text){
+  $popover_html = "
+  <div class='popover message role='listitem'>
+    <div class='popover-arrow'></div>
+    <div class='p-3 popover-header' style='background-color: #80E08040;'>
+      <h6 style='margin-bottom: 0px;' title='".$message_group. "\nЗадание: " . $message_task_title ."'>".
+        $message_fio. "<br></h6>
+      <p style='text-align: right; font-size: 8pt; margin-bottom: 0px;'>".convert_mtime($message_time)."</p>
+    </div>
+    <div class='popover-body'>".$message_text."</div>
+  </div>";
+  return $popover_html;
+}
+
+function generate_message_for_student_task_commit($task_title){
+  $message_text = "<strong>".$task_title."</strong>";
+  return $message_text;
+}
+?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
   integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

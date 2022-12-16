@@ -315,7 +315,7 @@ $task_number = explode('.', $task_title)[0];
           // console.log("ОЦЕНКА НЕ ВЫБРАНА");
           return false;
         } else {
-          var userMessage = "Задание проверено. Оценка: " + mark;
+          var userMessage = "Задание проверено.\nОценка: " + mark;
           if(sendMessage(userMessage, null, 2, parseInt(mark))) {
             // console.log("Сообщение было успешно отправлено");
           }

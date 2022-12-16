@@ -64,6 +64,10 @@ if (value.trim() === '') {
 
 function showPopover(element) {
 //console.log(element);
+
+let popoverTemplate = [].join('<div class="popover" role="tooltip">', 
+'<div class="arrow"></div>', '<h3 class="popover-header"></h3>', '<div class="popover-body"></div>','</div>');
+
 $(element).popover({
     html: true,
     delay: 250,
@@ -72,8 +76,8 @@ $(element).popover({
     sanitize: false,
     title: element.getAttribute('title'),
     content: element.getAttribute('data-mdb-content')
-    })
-    .popover('show');
+}).popover('show');
+
 $('.popover-dismiss').popover({
     trigger: 'focus'
 });
@@ -123,7 +127,7 @@ form_taskCheck.addEventListener('submit', function (event) {
   let message = checkMessageInput('dialogMarkText');
   if (message == -1) {
     document.getElementById('label-dialogMarkText').innerHTML = "";
-    document.getElementById('dialogMarkText').value = "Задание проверено.";
+    document.getElementById('dialogMarkText').value = "Задание проверено.\nОценка: " + mark;
   } 
 
   sendMessage(form_taskCheck, message, 2, mark);
