@@ -14,33 +14,40 @@ e.preventDefault();
 
 console.log('Нажатие на элемент: ' + $(this).attr("class"));
 
-var $this = $(this);
-//var $id_icon = "icon-down-right-" + $(this).attr("id");
-//var $i = document.getElementById($id_icon);
+accordionClick($(this));
+});
 
-//console.log($id_icon);
-//console.log('Поиск: ' + $i.nodeName);
-
-if ($this.next().hasClass('show')) {
+function accordionClick($this){
+  if ($this.next().hasClass('show')) {
     console.log('Закрытие себя');
-    //$i.classList.remove('fa-caret-down');
-    //$i.classList.add('fa-caret-right');
     $this.next().removeClass('show');
     $this.next().slideUp();
 
-} else {
+  } else {
     console.log('Закрытие всех остальных элементов');
     $this.parent().parent().find('div .inner-accordion').removeClass('show');
     $this.parent().parent().find('div .inner-accordion').slideUp();
     
     console.log('Открытие себя');
     $this.next().toggleClass('show');
-    //$i.classList.remove('fa-caret-right');
-    //$i.classList.add('fa-caret-down');
     $this.next().slideToggle();
     
+  }
 }
-});
+
+function accordionShow($this){
+  if ($this.next().hasClass('show')) {
+  } else {
+    // console.log('Закрытие всех остальных элементов');
+    // $this.parent().parent().find('div .inner-accordion').removeClass('show');
+    // $this.parent().parent().find('div .inner-accordion').slideUp();
+    
+    console.log('Открытие себя');
+    $this.next().toggleClass('show');
+    $this.next().slideToggle();
+    
+  }
+}
 
 $(function() {
 //$('[data-toggle="tooltip"]').tooltip();
@@ -54,16 +61,28 @@ $(document).ready(function() {
 
 function filterTable(value) {
 if (value.trim() === '') {
+  console.log("пустое поле");
     $('#table-status-id').find('tbody>tr').show();
     $('#list-messages-id').find('.message').show();
+    $('#accordion-student-list').find('.toggle-accordion').each(function (){
+      $(this).parent().show();
+    });
 } else {
     $('#table-status-id').find('tbody>tr').each(function() {
-    $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
+      $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
     });
     $('#list-messages-id').find('.message').each(function() {
-    $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
+      $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
     });
-}
+    $('#accordion-student-list').find('.toggle-accordion').each(function () {
+      if ($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+        $(this).parent().show();
+        accordionShow($(this));
+      } else {
+        $(this).parent().hide();
+      }
+    });
+  }
 }
 
 function showPopover(element) {
@@ -108,6 +127,12 @@ function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_ma
         $('#dialogAnswer').modal('show');
     }
 }
+
+function popoverAssignment($task_id, $student_id){
+  
+}
+
+
 
 
 let form_taskCheck = document.getElementById('form-mark');
