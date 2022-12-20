@@ -202,7 +202,9 @@ if ($scripts) echo $scripts; ?>
                         // пометить клетки серыми, если задание недоступно для выполнения
                         if (!isset($array_student_tasks[$now_index]) || 
                         (isset($array_student_tasks[$now_index]) && $array_student_tasks[$now_index]['id'] != $task['id'])) { ?>
-                          <td tabindex="-1" style="background: var(--mdb-gray-100);"></td>
+                          <td onclick="popoverAssignment(<?=$task['id']?>, <?=$student['id']?>)"
+                          style="background: var(--mdb-gray-100);">
+                          </td>
                           <?php
                           continue;
                         } 
@@ -257,7 +259,7 @@ if ($scripts) echo $scripts; ?>
 
             <div class="my-4 pt-2">
               <h4 class="mx-3" style="color: black; font-style:normal;">История сообщений</h4>
-              <ul class="accordion list-group" style="margin-bottom: 40px;">
+              <ul class="accordion list-group" style="margin-bottom: 40px;" id="accordion-student-list">
                 <?php
                 // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
                 foreach ($students as $key => $student) { 
@@ -279,9 +281,9 @@ if ($scripts) echo $scripts; ?>
                     <li id="<?=$key+1?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
                       <div class="row">
                         <div class="d-flex justify-content-between align-items-center">
-                          <div>
+                          <div class="div-accordion-student-fio">
                             <!--<i id="icon-down-right-<?=$key+1?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
-                            <strong><?= $student['fio']?></strong>
+                            <strong class="strong-accordion-student-fio"><?= $student['fio']?></strong>
                           </div>
                           <span class="badge badge-primary badge-pill" 
                             <?php /* if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) { */
@@ -448,6 +450,25 @@ if ($scripts) echo $scripts; ?>
   </form>
 </div>
 
+
+<div class="modal fade" id="dialogAssignment" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
+  <form id="form-mark" class="needs-validation">
+    
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dialogMarkLabel">Назначить задание</h5>
+          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary">Назначить</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
 <?php }?>
 
 <?php
@@ -500,7 +521,7 @@ function show_preptable_message($message, $flag_marked_message = false) {
     <div class="popover-arrow"></div>
     <div class="p-3 popover-header" style="background-color: #80E08040;">
       <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
-        <?=$message['mfio']. '<br>'?></h6>
+        <?=$message['fio']. '<br>'?></h6>
       <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=convert_mtime($message['mtime'])?></p>
     </div>
     <div class="popover-body"><?=$message_text?></div>
