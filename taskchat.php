@@ -420,8 +420,8 @@ $task_number = explode('.', $task_title)[0];
               $("#span-answer-date").text(formatDate(now));
             } else if (typeMessage == 2) {
               let now = new Date();
-              // $("#flexCheckDisabled").prop("checked", true);
               $("#label-task-status-text").text("Выполнено");
+              $("#flexCheckDisabled").prop("checked", true);
               $("#span-answer-date").text(formatDate(now));
               $("#span-text-mark").html("Оценка: "+'<b id="b-mark">'+mark+'</b>');
               console.log("Оценка: "+'<b id="b-mark">'+mark+'</b>');
