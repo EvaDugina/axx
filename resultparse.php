@@ -10,16 +10,16 @@ function getcheckinfo($checkarr, $checkname)
 // Генерация цветного квадрата для элементов с проверками
 function generateColorBox($color, $val, $tag)
 {
-return '<span id='.$tag.' class="rightbadge rb-'.$color.'">'.$val.'</span>';
+    return '<span id='.$tag.' class="rightbadge rb-'.$color.'">'.$val.'</span>';
 }
 
 // Разбор и преобразования результата проверки сборки в элемент массива для генерации аккордеона
 function parseBuildCheck($data)
 {
-    $result = 'Успешно';
+    $result = 0;
     $resBody = '';
 
-    $resColorBox = generateColorBox('green', $result, 'build_result').generateColorBox('yellow', "Не реализовано", 'build_msg');
+    $resColorBox = generateColorBox('green', $result, 'build_result');
 
     $resArr = array('header' => '<div class="w-100"><b>Сборка</b>'.$resColorBox.'</div>',
                     
@@ -34,31 +34,29 @@ function parseBuildCheck($data)
 // Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
 function parseCppCheck($data)
 {
-    $resBody = 'Результаты проверок: <br><br>';
+    $resBody = '';
+    $sumOfErrors = 0;
 
     foreach ($data['checks'] as $check)
     {
         switch ($check['outcome'])
         {
             case 'pass':
-                $resBody .= 'Было обнаружено '.@$check['result'].' замечаний типа '.@$check['check'].'.<br>';
-                $resBody .= 'Количество замечаний типа '.@$check['check'].' не превышает допустимого значения.<br><br>';
+                $resBody .= @$check['check'].' : '.@$check['result'].'<br>';
                 break;	
             case 'fail':
-                $resBody .= 'Было обнаружено '.@$check['result'].' замечаний типа '.@$check['check'].'.<br>';
-                $resBody .= 'Количество замечаний типа '.@$check['check'].' превышает допустимое значение.<br><br>';
+                $resBody .= @$check['check'].' : '.@$check['result'].'<br>';
                 break;	
             case 'reject':
-                $resBody .= 'Не удалось выполнить проверку замечаний типа '.@$check['check'].'.<br><br>';
-                break;	
             case 'skipped':
                 $resBody .= 'Проверка была замечаний типа '.@$check['check'].' была пропущена.<br><br>';
                 break;		
         }
+        $sumOfErrors += @$check['result'];
     }
 
     $boxColor = 'green';
-    $boxText = 'Успех';
+    $boxText = $sumOfErrors;
 
     foreach ($data['checks'] as $check)
     {
@@ -66,11 +64,9 @@ function parseCppCheck($data)
         {
             case 'fail':
                 $boxColor = 'red';
-                $boxText = 'Провал проверки на замечания типа '.$check['check'];
                 break;	
             case 'reject':
                 $boxColor = 'yellow';
-                $boxText = 'Не удалось выполнить некоторые проверки';
                 break;		
         }
         if ($check['outcome'] == 'fail')
@@ -96,30 +92,21 @@ function parseCppCheck($data)
 function parseClangFormat($data)
 {
     $resBody = $data['output'];
-
     $check = $data['check']; 
+    $boxText = $check['result'];
 
     switch ($check['outcome'])
     {
         case 'pass':
-            $resBody .= 'Количество замечаний линтера не превышает допустимого значения.<br>';
             $boxColor = 'green';
-            $boxText = 'Успех';
-            break;	
-        case 'fail':
-            $resBody .= 'Количество замечаний линтера превышает допустимое значение.<br>';
-            $boxColor = 'red';
-            $boxText = 'Провал';
-            break;	
+            break;
         case 'reject':
-            $resBody .= 'Не удалось выполнить проверку.<br>';
-            $boxColor = 'yellow';
-            $boxText = 'Не удалось';
+        case 'fail':
+            $boxColor = 'red';
             break;	
         case 'skipped':
             $resBody .= 'Проверка была пропущена.<br>';
             $boxColor = 'yellow';
-            $boxText = 'Пропущен';
             break;		
     }
 
@@ -149,16 +136,11 @@ function parseValgrind($data)
     switch ($leaks['outcome'])
     {
         case 'pass':
-            $resBody .= 'Количество утечек памяти не превышает допустимого значения.<br>';
             $leaksColor = 'green';
-            break;	
+            break;
+        case 'reject':	
         case 'fail':
-            $resBody .= 'Количество утечек памяти превышает допустимое значение.<br>';
             $leaksColor = 'red';
-            break;	
-        case 'reject':
-            $resBody .= 'Не удалось выполнить проверку на утечки памяти.<br>';
-            $leaksColor = 'yellow';
             break;	
         case 'skipped':
             $resBody .= 'Этап проверки на утечки памяти был пропущен.<br>';
@@ -169,16 +151,11 @@ function parseValgrind($data)
     switch ($errors['outcome'])
     {
         case 'pass':
-            $resBody .= 'Количество ошибок памяти не превышает допустимого значения.<br>';
             $errorsColor = 'green';
             break;	
-        case 'fail':
-            $resBody .= 'Количество ошибок памяти превышает допустимое значение.<br>';
-            $errorsColor = 'red';
-            break;	
         case 'reject':
-            $resBody .= 'Не удалось выполнить проверку на ошибки памяти.<br>';
-            $errorsColor = 'yellow';
+        case 'fail':
+            $errorsColor = 'red';
             break;	
         case 'skipped':
             $resBody .= 'Этап проверки на ошибки памяти был пропущен.<br>';
@@ -186,12 +163,12 @@ function parseValgrind($data)
             break;		
     }
 
-    $resBody .= '<br>Утечки памяти: '.$leaks['result'].'<br>';
+    $resBody .= 'Утечки памяти: '.$leaks['result'].'<br>';
     $resBody .= 'Ошибки памяти: '.$errors['result'].'<br>';
     $resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
 
-    $resColorBox = generateColorBox($errorsColor, $errors['result'].' errors', 'valgrind_errors').
-                    generateColorBox($leaksColor, $leaks['result'].' leaks', 'valgrind_leaks');
+    $resColorBox = generateColorBox($errorsColor, $errors['result'], 'valgrind_errors').
+                    generateColorBox($leaksColor, $leaks['result'], 'valgrind_leaks');
 
     $resArr = array('header' => '<div class="w-100"><b>Valgrind</b>'.$resColorBox.'</div>',
 
@@ -207,10 +184,10 @@ function parseValgrind($data)
 // Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
 function parseAutoTests($data)
 {
-    $result = 'Успех';
+    $result = 0;
     $resBody = 'Not implemented yet';
 
-    $resColorBox = generateColorBox('green', 4, 'autotest_passed').generateColorBox('red', 12, 'autotest_failed').generateColorBox('yellow', "Не реализовано", 'autotest_msg');
+    $resColorBox = generateColorBox('green', 4, 'autotest_passed').generateColorBox('red', 12, 'autotest_failed');
 
     $resArr = array('header' => '<div class="w-100"><b>Автотесты</b>'.$resColorBox.'</div>',
 
@@ -227,29 +204,27 @@ function parseAutoTests($data)
 function parseCopyDetect($data)
 {
     $result = $data['check']['result'].'%';
+    $resBody = '';
 
 
     switch ($data['check']['outcome'])
     {
         case 'pass':
-            $resBody = 'Проверка пройдена успешно.';
             $resColorBox = generateColorBox('green', $result, 'copydetect_result');
             break;	
         case 'fail':
-            $resBody = 'Проверка провалена.';
             $resColorBox = generateColorBox('red', $result, 'copydetect_result');
             break;	
         case 'reject':
-            $resBody = 'Не удалось выполнить проверку.';
-            $resColorBox = generateColorBox('yellow', 'Не удалось', 'copydetect_result');
+            $resColorBox = generateColorBox('yellow', $result, 'copydetect_result');
             break;	
         case 'skipped':
-            $resBody = 'Проверка пропущена.';
-            $resColorBox = generateColorBox('yellow', 'Пропущен', 'copydetect_result');
+            $resBody .= 'Проверка пропущена<br>';
+            $resColorBox = generateColorBox('yellow', 0, 'copydetect_result');
             break;		
     }
 
-    $resBody .=  '<br><br>'.$data['output'];
+    $resBody .= $data['output'];
 
     $resArr = array('header' => '<div class="w-100"><b>Антиплагиат</b>'.$resColorBox.'</div>',
 
