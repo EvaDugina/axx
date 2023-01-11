@@ -334,4 +334,3 @@ function show_accordion($name, $data, $labelshift = "0px")
 }
 
 ?>
-
