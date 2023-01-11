@@ -72,12 +72,18 @@ function setEventListener(listItem) {
     listItem.querySelector("#delFile").addEventListener('click', delFile);
 }
 
-
 document.querySelector("#language").addEventListener('click', async e => {
 
     const sel = document.querySelector("#language").value;
     monaco.editor.setModelLanguage(editor.current.getModel(), sel);
 });
+
+document.querySelector("#startTools").addEventListener('click', async e => {
+    saveEditedFile();
+    var param = document.location.href.split("?")[1].split("#")[0];
+    makeRequest('textdb.php?' + param + "&type=tools", "tools");
+});
+
 
 function makeRequest(url, type) {
     var httpRequest = false;
@@ -131,6 +137,11 @@ function makeRequest(url, type) {
     }
     else if (type == "oncheck") {
         httpRequest.onreadystatechange = function() { alertContentsCheck(httpRequest, url); };  
+        httpRequest.open('POST', encodeURI(url), true);
+        httpRequest.send(null);
+    }
+    else if (type == "tools") {
+        httpRequest.onreadystatechange = function() { alertContentsTools(httpRequest, url); };  
         httpRequest.open('POST', encodeURI(url), true);
         httpRequest.send(null);
     }
@@ -242,6 +253,23 @@ async function alertContentsGet(httpRequest, name) {
         alert('Произошло исключение: ' + e.description);
     }
 
+}
+
+function alertContentsTools(httpRequest) {
+    try {
+        if (httpRequest.readyState == 4) {
+            if (httpRequest.status == 200) {
+                var span = document.querySelector("#build_result");
+                var results = JSON.parse(httpRequest.responseText);
+                span.innerHTML = results.valgrind.enabled;
+            } else {
+                alert('С запросом возникла проблема.' + httpRequest.status);
+            }
+        }
+    }
+    catch( e ) {
+        alert('Произошло исключение: ' + e.description);
+    }
 }
 
 document.querySelector("#newFile").addEventListener('click', async e => {
