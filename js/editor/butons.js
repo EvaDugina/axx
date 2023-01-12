@@ -255,13 +255,16 @@ async function alertContentsGet(httpRequest, name) {
 
 }
 
+function showCheckResults(jsonResults) {
+	var results = JSON.parse(jsonResults);	
+	document.querySelector("#build_result").innerHTML = results.tools.valgrind.enabled;
+}
+
 function alertContentsTools(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                var span = document.querySelector("#build_result");
-                var results = JSON.parse(httpRequest.responseText);
-                span.innerHTML = results.valgrind.enabled;
+				showCheckResults(httpRequest.responseText);
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
             }
