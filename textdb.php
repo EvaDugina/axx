@@ -216,10 +216,12 @@
 	if ($checks == null)
 	  $checks = $row['tchecks'];
 	if ($checks == null)
-	  $checks = '{"tools":{"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}}}}';
+	  $checks = '{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 0,"autoreject": true,"result": 6,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 10,"outcome": "reject"}], "output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 1,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit":0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check":"unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}], "output": ""},"clang_format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file":".clang-format","limit": 5,"autoreject": true,"result": 3,"outcome": "reject"}, "output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 11,"outcome": "skipped"},"output": "<html>...</html>"}}}';
 	
+	echo $checks; exit;
+
 	$sid = session_id();
-	$folder = "/var/vega.fcyb.mirea.ru/accel/share/".(($sid == false) ? "unknown" : $sid);
+	$folder = "/var/app/share/".(($sid == false) ? "unknown" : $sid);
 	
 	if (!file_exists($folder)) 
       mkdir($folder, 0777, true);
@@ -248,7 +250,7 @@
 	exec('docker run -it -net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
 	
 	$result = pg_query($dbconnect,  "select autotest_results from ax_solution_commit where id = ".$commit_id);
-	if (!($row = pg_fetch_assoc($result)) {
+	if (!($row = pg_fetch_assoc($result))) {
 	  echo "<pre>Ошибка при получении результатов проверок (".$retval."):\n";
 	  echo $output;
 	  echo "</pre>";
