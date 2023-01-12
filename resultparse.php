@@ -13,6 +13,11 @@ function generateColorBox($color, $val, $tag)
     return '<span id='.$tag.' class="rightbadge rb-'.$color.'">'.$val.'</span>';
 }
 
+function generateTaggedValue($tag, $val)
+{
+    return '<span id='.$tag.'>'.$val.'</span>';
+}
+
 // Разбор и преобразования результата проверки сборки в элемент массива для генерации аккордеона
 function parseBuildCheck($data)
 {
@@ -42,10 +47,8 @@ function parseCppCheck($data)
         switch ($check['outcome'])
         {
             case 'pass':
-                $resBody .= @$check['check'].' : '.@$check['result'].'<br>';
-                break;	
             case 'fail':
-                $resBody .= @$check['check'].' : '.@$check['result'].'<br>';
+                $resBody .= @$check['check'].' : '.generateTaggedValue('cppcheck_'.@$check['check'] , @$check['result']).'<br>';
                 break;	
             case 'reject':
             case 'skipped':
@@ -112,7 +115,7 @@ function parseClangFormat($data)
 
     $resColorBox = generateColorBox($boxColor, $boxText, 'clangformat_result');
 
-    $resBody .= 'Замечаний линтера: '.$check['result'].'<br>';
+    $resBody .= 'Замечаний линтера: '.generateTaggedValue('clangformat_result_inner', @$check['result']).'<br>';
 
     $resArr = array('header' => '<div class="w-100"><b>Clang-format</b>'.$resColorBox.'</div>',
 
@@ -163,8 +166,8 @@ function parseValgrind($data)
             break;		
     }
 
-    $resBody .= 'Утечки памяти: '.$leaks['result'].'<br>';
-    $resBody .= 'Ошибки памяти: '.$errors['result'].'<br>';
+    $resBody .= 'Утечки памяти: '.generateTaggedValue('valgrind_leaks_inner', @$leaks['result']).'<br>';
+    $resBody .= 'Ошибки памяти: '.generateTaggedValue('valgrind_errors_inner', @$errors['result']).'<br>';
     $resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
 
     $resColorBox = generateColorBox($errorsColor, $errors['result'], 'valgrind_errors').
@@ -224,7 +227,7 @@ function parseCopyDetect($data)
             break;		
     }
 
-    $resBody .= $data['output'];
+    $resBody .= generateTaggedValue('copydetect_result_inner', $data['output']);
 
     $resArr = array('header' => '<div class="w-100"><b>Антиплагиат</b>'.$resColorBox.'</div>',
 
