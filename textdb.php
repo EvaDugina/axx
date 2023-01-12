@@ -46,7 +46,7 @@
 	$result = pg_fetch_assoc($result);
 	$file_name = $result['file_name'];		  
   }
-  else if ($type != 'oncheck'){
+  else if ($type != 'oncheck' && $type != 'tools'){
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -202,6 +202,61 @@
 	}		
   }
   else if ($type == "tools") {
+	  
+  	if ($commit_id == 0) {
+      echo "Некорректное обращение";
+      http_response_code(400);
+      exit;
+    }
+
+	$result = pg_query($dbconnect,  "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks ".
+									" from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = ".$assignment);
+	$row = pg_fetch_assoc($result);
+	$checks = $row['achecks'];
+	if ($checks == null)
+	  $checks = $row['tchecks'];
+	if ($checks == null)
+	  $checks = '{"tools":{"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}}}}';
+	
+	$sid = session_id();
+	$folder = "/var/vega.fcyb.mirea.ru/accel/share/".(($sid == false) ? "unknown" : $sid);
+	
+	if (!file_exists($folder)) 
+      mkdir($folder, 0777, true);
+	$myfile = fopen($folder.'/config.json', "w") or die("Unable to open file!");
+	fwrite($myfile, $checks);
+	fclose($myfile);
+
+	$result = pg_query($dbconnect,  "select * from ax_solution_file where commit_id = ".$commit_id);
+	$files = array();
+	while ($row = pg_fetch_assoc($result)) {
+	  $myfile = fopen($folder.'/'.$row['file_name'], "w") or die("Unable to open file!");
+	  fwrite($myfile, $row['full_text']);
+	  fclose($myfile);
+	  array_push($files, $row['file_name']);
+	}
+
+	if (count($files) < 1) {
+	  echo "Не найдено файлов для коммита ".$commit_id;
+      http_response_code(400);
+      exit;
+	}
+	
+	$output=null;
+	$retval=null;
+	//$responce = 'docker run -it -net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
+	exec('docker run -it -net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
+	
+	$result = pg_query($dbconnect,  "select autotest_results from ax_solution_commit where id = ".$commit_id);
+	if (!($row = pg_fetch_assoc($result)) {
+	  echo "<pre>Ошибка при получении результатов проверок (".$retval."):\n";
+	  echo $output;
+	  echo "</pre>";
+      http_response_code(400);
+      exit;
+	}
+	header('Content-Type: application/json');
+	$responce = $row['autotest_results'];
   }
   
   //-----------------------------------------------------------------------------------------------------------------------------

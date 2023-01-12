@@ -232,7 +232,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 			  show_accordion('checkres', $accord, "5px");
 		?>
 		  <input type="hidden" name="commit" value="<?=$last_commit_id?>">
-		  <button id="startTools" type="submit" class="btn btn-outline-primary mt-1 mb-2" name="action" value="save" style="">Запустить проверки</button>
+		  <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
 		</div>
 
 		<div id="Chat" class="tabcontent">
