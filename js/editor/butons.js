@@ -270,6 +270,31 @@ function showCheckResults(jsonResults) {
         cppcheck_summ += check_struct.result;
     }
 
+    var cppcheck_result_color = 'green';
+
+    for (check in results.tools.cppcheck.checks)
+    {
+        var check_struct = results.tools.cppcheck.checks[check];
+        switch (check_struct.outcome)
+        {
+            case 'fail':
+                cppcheck_result_color = 'red';
+                break;	
+            case 'reject':
+                cppcheck_result_color = 'yellow';
+                break;		
+        }
+        if (check_struct.outcome == 'fail')
+        {
+            break;
+        }
+    }
+
+    document.querySelector("#cppcheck_result").className.replace("red", "");
+    document.querySelector("#cppcheck_result").className.replace("yellow", "");
+    document.querySelector("#cppcheck_result").className.replace("green", "");
+    document.querySelector("#cppcheck_result").className += cppcheck_result_color;
+
     document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
 
     // clang-format
