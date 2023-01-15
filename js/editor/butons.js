@@ -278,22 +278,21 @@ function showCheckResults(jsonResults) {
         switch (check_struct.outcome)
         {
             case 'fail':
-                cppcheck_result_color = 'red';
+                cppcheck_result_color = 'yellow';
                 break;	
             case 'reject':
-                cppcheck_result_color = 'yellow';
+                cppcheck_result_color = 'red';
                 break;		
         }
-        if (check_struct.outcome == 'fail')
+        if (check_struct.outcome == 'reject')
         {
             break;
         }
     }
 
-    document.querySelector("#cppcheck_result").className.replace("red", "");
-    document.querySelector("#cppcheck_result").className.replace("yellow", "");
-    document.querySelector("#cppcheck_result").className.replace("green", "");
-    document.querySelector("#cppcheck_result").className += cppcheck_result_color;
+    document.querySelector("#cppcheck_result").className = 
+	    document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
+		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + cppcheck_result_color;
 
     document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
 
