@@ -260,37 +260,35 @@ function showCheckResults(jsonResults) {
 	
     //document.querySelector("#build_result").innerHTML = results.tools.valgrind.enabled;
     // cpp-check
-    //document.querySelector("#cppcheck_result").innerHTML = results.tools.cppcheck.checks.error.result + results.tools.cppcheck.checks.warning.result 
-                                                            //+ results.tools.cppcheck.checks.style.result + results.tools.cppcheck.checks.perfomance.result 
-                                                            //+ results.tools.cppcheck.checks.portability.result + results.tools.cppcheck.checks.information.result 
-                                                            //+ results.tools.cppcheck.checks.unusedFunction.result + results.tools.cppcheck.checks.missingInclude.result;
 
-    //document.querySelector("#cppcheck_error").innerHTML = results.tools.cppcheck.checks.error.result;
-    //document.querySelector("#cppcheck_warning").innerHTML = results.tools.cppcheck.checks.warning.result;
-    //document.querySelector("#cppcheck_style").innerHTML = results.tools.cppcheck.checks.style.result;
-    //document.querySelector("#cppcheck_perfomance").innerHTML = results.tools.cppcheck.checks.perfomance.result;
-    //document.querySelector("#cppcheck_portability").innerHTML = results.tools.cppcheck.checks.portability.result;
-    //document.querySelector("#cppcheck_information").innerHTML = results.tools.cppcheck.checks.information.result;
-    //document.querySelector("#cppcheck_unusedFunction").innerHTML = results.tools.cppcheck.checks.unusedFunction.result;
-    //document.querySelector("#cppcheck_missingInclude").innerHTML = results.tools.cppcheck.checks.missingInclude.result;
+    var cppcheck_summ = 0;
+
+    for (check in results.tools.cppcheck.checks)
+    {
+        var check_struct = results.tools.cppcheck.checks[check];
+        document.querySelector("#cppcheck_" + check_struct.check).innerHTML = check_struct.result;
+        cppcheck_summ += check_struct.result;
+    }
+
+    document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
 
     // clang-format
     document.querySelector("#clangformat_result").innerHTML = results.tools.clang_format.check.result;
     document.querySelector("#clangformat_result_inner").innerHTML = results.tools.clang_format.check.result;
 
     // valgrind
-    //document.querySelector("#valgrind_errors").innerHTML = results.tools.valgrind.checks.errors.result;
-    //document.querySelector("#valgrind_leaks").innerHTML = results.tools.valgrind.checks.leaks.result;
-    //document.querySelector("#valgrind_errors_inner").innerHTML = results.tools.valgrind.checks.errors.result;
-    //document.querySelector("#valgrind_leaks_inner").innerHTML = results.tools.valgrind.checks.leaks.result;
+
+    for (check in results.tools.valgrind.checks)
+    {
+        var check_struct = results.tools.valgrind.checks[check];
+        document.querySelector("#valgrind_" + check_struct.check).innerHTML = check_struct.result;
+        document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = check_struct.result;
+    }
 
     // copydetect
     document.querySelector("#copydetect_result").innerHTML = results.tools.copydetect.check.result;
     document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect.output;
     //document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect_result.result;
-
-    
-    
 
 }
 
