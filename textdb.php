@@ -247,8 +247,10 @@
 	$output=null;
 	$retval=null;
 	//$responce = 'docker run -it -net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
-	exec('docker run -it -net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
+	//exec('docker run -it -net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
+	exec('docker run -it -net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files), $output, $retval);
 	
+/* Получение результатов проверки из БД
 	$result = pg_query($dbconnect,  "select autotest_results from ax_solution_commit where id = ".$commit_id);
 	if (!($row = pg_fetch_assoc($result))) {
 	  echo "<pre>Ошибка при получении результатов проверок (".$retval."):\n";
@@ -257,8 +259,22 @@
       http_response_code(400);
       exit;
 	}
-	header('Content-Type: application/json');
 	$responce = $row['autotest_results'];
+*/
+/* Получение результатов проверки из файла */
+	$myfile = fopen($folder.'/output.json', "r");
+	if (!$myfile) {
+      echo "Не удалось получить результаты проверки:<br>".$output;
+      http_response_code(500);
+      exit;
+	}	
+	$responce = fread($myfile, filesize($folder.'/output.json'));
+	fclose($myfile);
+	
+	pg_query($dbconnect, 'update ax_solution_commit set autotest_results = $accelquotes$'.$responce.'$accelquotes$ where id = '.$commit_id);
+/**/
+
+	header('Content-Type: application/json');	
   }
   
   //-----------------------------------------------------------------------------------------------------------------------------
