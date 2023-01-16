@@ -717,18 +717,18 @@ function select_student_role($user_id){
 
 // получения файлов для задание
 function select_task_file($type, $task_id) {
-    return 'SELECT * FROM ax_task_file WHERE type ='.$type.' AND task_id ='.$task_id;
+    return 'SELECT * FROM ax_task_file WHERE type = '.$type.' AND task_id = '.$task_id;
 }
 
 // обновление текста файла
 function update_file($type, $task_id, $full_text) {
-    return "UPDATE ax_task_file SET full_text = '$full_text' WHERE task_id = '$task_id' AND type = '$type'";
+    return "UPDATE ax_task_file SET full_text = $accelquotes$".$full_text."$accelquotes$ WHERE task_id = ".$task_id." AND type = ".$type;
 }
 
 // добавление файла
 function insert_file($type, $task_id, $file_name, $full_text) {
-    return "INSERT INTO ax_task_file(type, task_id, file_name, full_text)
-            VALUES ('$type', '$task_id', '$file_name', '$full_text')";
+    return "INSERT INTO ax_task_file(type, task_id, file_name, full_text) VALUES (".$type.
+                ", ".$task_id.", $accelquotes$".$file_name."$accelquotes$, $accelquotes$".$full_text."$accelquotes$)";
 }
 
 function insert_file_by_link($type, $task_id, $file_name){
