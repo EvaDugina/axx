@@ -79,6 +79,8 @@ document.querySelector("#language").addEventListener('click', async e => {
 });
 
 document.querySelector("#startTools").addEventListener('click', async e => {
+	document.querySelector('#startTools').innerText = "Идет проверка...";
+	document.querySelector('#startTools').disabled = true;
     saveEditedFile();
     var param = document.location.href.split("?")[1].split("#")[0];
     makeRequest('textdb.php?' + param + "&type=tools" +
@@ -329,8 +331,12 @@ function alertContentsTools(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
 				showCheckResults(httpRequest.responseText);
+				document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
+				document.querySelector('#startTools').disabled = false;
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
+				document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
+				document.querySelector('#startTools').disabled = false;
             }
         }
     }
