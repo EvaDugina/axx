@@ -19,7 +19,7 @@ function generateTaggedValue($tag, $val)
 }
 
 // Разбор и преобразования результата проверки сборки в элемент массива для генерации аккордеона
-function parseBuildCheck($data)
+function parseBuildCheck($data, $checks)
 {
     $result = 0;
     $resBody = '';
@@ -28,7 +28,7 @@ function parseBuildCheck($data)
 
     $resArr = array('header' => '<div class="w-100"><b>Сборка</b>'.$resColorBox.'</div>',
                     
-                    'label'	 => '<input id="buildcheck_enabled" name="buildcheck_enabled" checked'. // checked(@$checks['tools']['build']['enabled']).
+                    'label'	 => '<input id="buildcheck_enabled" name="buildcheck_enabled" '.((@$checks['tools']['build']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                     'body'   => $resBody
                     );
@@ -37,7 +37,7 @@ function parseBuildCheck($data)
 }
 
 // Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
-function parseCppCheck($data)
+function parseCppCheck($data, $checks)
 {
     $resBody = '';
     $sumOfErrors = 0;
@@ -82,7 +82,7 @@ function parseCppCheck($data)
 
     $resArr = array('header' => '<div class="w-100"><b>CppCheck</b>'.$resColorBox.'</div>',
 
-                    'label'	 => '<input id="cppcheck_enabled" name="cppcheck_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+                    'label'	 => '<input id="cppcheck_enabled" name="cppcheck_enabled" '. ((@$checks['tools']['cppcheck']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
                     'body'   => $resBody
@@ -92,7 +92,7 @@ function parseCppCheck($data)
 }
 
 // Разбор и преобразования результата проверки корректного форматирования кода в элемент массива для генерации аккордеона
-function parseClangFormat($data)
+function parseClangFormat($data, $checks)
 {
     $resBody = $data['output'];
     $check = $data['check']; 
@@ -119,7 +119,7 @@ function parseClangFormat($data)
 
     $resArr = array('header' => '<div class="w-100"><b>Clang-format</b>'.$resColorBox.'</div>',
 
-                    'label'	 => '<input id="clangformat_enabled" name="clangformat_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+                    'label'	 => '<input id="clangformat_enabled" name="clangformat_enabled" '.((@$checks['tools']['clang-format']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
                     'body'   => $resBody
@@ -129,7 +129,7 @@ function parseClangFormat($data)
 }
 
 // Разбор и преобразования результата проверки ошибок работы с памятью в элемент массива для генерации аккордеона
-function parseValgrind($data)
+function parseValgrind($data, $checks)
 {
     $leaks = getcheckinfo($data['checks'], 'leaks');
     $errors = getcheckinfo($data['checks'], 'errors');
@@ -175,7 +175,7 @@ function parseValgrind($data)
 
     $resArr = array('header' => '<div class="w-100"><b>Valgrind</b>'.$resColorBox.'</div>',
 
-                    'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+                    'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" '.((@$checks['tools']['valgrind']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
                     'body'   => $resBody
@@ -185,7 +185,7 @@ function parseValgrind($data)
 }
 
 // Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
-function parseAutoTests($data)
+function parseAutoTests($data, $checks)
 {
     $result = 0;
     $resBody = 'Not implemented yet';
@@ -194,7 +194,7 @@ function parseAutoTests($data)
 
     $resArr = array('header' => '<div class="w-100"><b>Автотесты</b>'.$resColorBox.'</div>',
 
-                    'label'	 => '<input id="autotest_enabled" name="autotest_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+                    'label'	 => '<input id="autotest_enabled" name="autotest_enabled" '. ((@$checks['tools']['autotest']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
                     'body'   => $resBody
@@ -204,7 +204,7 @@ function parseAutoTests($data)
 }
 
 // Разбор и преобразования результата проверки антиплагиатом в элемент массива для генерации аккордеона
-function parseCopyDetect($data)
+function parseCopyDetect($data, $checks)
 {
     $result = $data['check']['result'].'%';
     $resBody = '';
@@ -231,7 +231,7 @@ function parseCopyDetect($data)
 
     $resArr = array('header' => '<div class="w-100"><b>Антиплагиат</b>'.$resColorBox.'</div>',
 
-                    'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" checked'. // checked(@$checks['tools']['valgrind']['enabled']).
+                    'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" '. ((@$checks['tools']['copydetect']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
                     'body'   => $resBody

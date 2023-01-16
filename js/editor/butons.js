@@ -304,8 +304,9 @@ function showCheckResults(jsonResults) {
     document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
 
     // clang-format
-    document.querySelector("#clangformat_result").innerHTML = results.tools.clang_format.check.result;
-    document.querySelector("#clangformat_result_inner").innerHTML = results.tools.clang_format.check.result;
+	var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
+    document.querySelector("#clangformat_result").innerHTML = clang_format.check.result;
+    document.querySelector("#clangformat_result_inner").innerHTML = clang_format.check.result;
 
     // valgrind
 

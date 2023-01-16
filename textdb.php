@@ -216,27 +216,29 @@
 	if ($checks == null)
 	  $checks = $row['tchecks'];
 	if ($checks == null)
-	  $checks = '{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 3,"autoreject": true,"result": 6,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 10,"outcome": "reject"}],"output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 1,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}],"output": ""},"clang_format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file": ".clang-format","limit": 5,"autoreject": true,"result": 3,"outcome": "reject"},"output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 32,"outcome": "skipped"},"output": "<html>...</html>"}}}';
+	  $checks = '{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 3,"autoreject": true,"result": 6,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 10,"outcome": "reject"}],"output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 1,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}],"output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file": ".clang-format","limit": 5,"autoreject": true,"result": 3,"outcome": "reject"},"output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 32,"outcome": "skipped"},"output": "<html>...</html>"}}}';
 	
 	$checks = json_decode($checks, true);
 				
     if (array_key_exists('cppcheck', $_REQUEST))
       $checks['tools']['cppcheck']['enabled'] = $_REQUEST['cppcheck'];
     if (array_key_exists('clang', $_REQUEST))
-      $checks['tools']['clang_format']['enabled'] = $_REQUEST['clang'];
+      $checks['tools']['clang-format']['enabled'] = $_REQUEST['clang'];
     if (array_key_exists('valgrind', $_REQUEST))
       $checks['tools']['valgrind']['enabled'] = $_REQUEST['valgrind'];
     if (array_key_exists('copy', $_REQUEST))
       $checks['tools']['copydetect']['enabled'] = $_REQUEST['copy'];
     if (array_key_exists('build', $_REQUEST)) {
 	  if (!array_key_exists('build', $checks['tools'])) 
-		$checks['tools']['build'] = array();  
-      $checks['tools']['build']['enabled'] = $_REQUEST['build'];
+		; //$checks['tools']['build'] = array();  
+      else
+		$checks['tools']['build']['enabled'] = $_REQUEST['build'];
 	}
     if (array_key_exists('test', $_REQUEST)) {
 	  if (!array_key_exists('autotest', $checks['tools'])) 
-		$checks['tools']['autotest'] = array();  
-      $checks['tools']['autotest']['enabled'] = $_REQUEST['test'];
+		; //$checks['tools']['autotest'] = array();  
+	  else
+        $checks['tools']['autotest']['enabled'] = $_REQUEST['test'];
 	}
 	$checks = json_encode($checks);
 	
@@ -257,7 +259,8 @@
 	  $myfile = fopen($folder.'/'.$row['file_name'], "w") or die("Unable to open file!");
 	  fwrite($myfile, $row['full_text']);
 	  fclose($myfile);
-	  array_push($files, $row['file_name']);
+	  if (strtoupper($row['file_name']) != 'MAKEFILE')
+	    array_push($files, $row['file_name']);
 	}
 
 	if (count($files) < 1) {
@@ -271,6 +274,7 @@
 	//$responce = 'docker run -it -net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
 	//exec('docker run -it -net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
 	exec('docker run -it -net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files), $output, $retval);
+	//echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
 	
 /* Получение результатов проверки из БД
 	$result = pg_query($dbconnect,  "select autotest_results from ax_solution_commit where id = ".$commit_id);
@@ -286,7 +290,8 @@
 /* Получение результатов проверки из файла */
 	$myfile = fopen($folder.'/output.json', "r");
 	if (!$myfile) {
-      echo "Не удалось получить результаты проверки:<br>".$output;
+      echo "Не удалось получить результаты проверки:<br>";
+	  var_dump($output);
       http_response_code(500);
       exit;
 	}	

@@ -205,7 +205,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
 		<div id="Test" class="tabcontent">
 		<?php
-
+		
 			  $checkres = json_decode('{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 0,"autoreject": true,"result": 11,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 1,"outcome": "reject"}], "output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 3,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit":0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 0,"autoreject": false,"result": 1,"outcome": "fail"},{"check":"unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}], "output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file":".clang-format","limit": 5,"autoreject": true,"result": 5,"outcome": "reject"}, "output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 44,"outcome": "skipped"},"output": "<html>...</html>"}}}', true);
 			  
 			  if (!$last_commit_id || $last_commit_id == "") {
@@ -221,13 +221,24 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 					$checkres = json_decode($rowC['res'], true);
 			    }
 			  }
+			  
+			  $result = pg_query($dbconnect,  "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks ".
+									" from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = ".$assignment_id);
+			  $row = pg_fetch_assoc($result);
+			  $checks = $row['achecks'];
+			  if ($checks == null)
+				$checks = $row['tchecks'];
+			  if ($checks == null)
+				$checks = json_encode($checkres);
+			  $checks = json_decode($checks, true);
+			  
 //  line-height: 20px; color: #fff; text-align: center;
-			  $accord = array(parseBuildCheck(0), 
-			  				  parseCppCheck(@$checkres['tools']['cppcheck']), 
-							  parseClangFormat(@$checkres['tools']['clang-format']),
-							  parseValgrind(@$checkres['tools']['valgrind']), 
-							  parseAutoTests(0),
-							  parseCopyDetect(@$checkres['tools']['copydetect'])
+			  $accord = array(parseBuildCheck(0, $checks), 
+			  				  parseCppCheck(@$checkres['tools']['cppcheck'], $checks), 
+							  parseClangFormat(@$checkres['tools']['clang-format'], $checks),
+							  parseValgrind(@$checkres['tools']['valgrind'], $checks), 
+							  parseAutoTests(0, $checks),
+							  parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
 							 );
 			  show_accordion('checkres', $accord, "5px");
 		?>
