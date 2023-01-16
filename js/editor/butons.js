@@ -265,10 +265,12 @@ async function alertContentsGet(httpRequest, name) {
 }
 
 function showCheckResults(jsonResults) {
-	var results = JSON.parse(jsonResults);	
-	
-    //document.querySelector("#build_result").innerHTML = results.tools.valgrind.enabled;
-    // cpp-check
+
+	var results = JSON.parse(jsonResults);
+
+	////////////////////////////////////
+    //// cpp-check ///////////////////// 
+    ////////////////////////////////////
 
     var cppcheck_summ = 0;
 
@@ -305,25 +307,78 @@ function showCheckResults(jsonResults) {
 
     document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
 
-    // clang-format
+	////////////////////////////////////
+    //// clang-format ////////////////// 
+    ////////////////////////////////////
+
 	var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
+    var clang_format_result_color = 'green';
+
+    switch (clang_format.check.outcome)
+    {
+        case 'fail':
+            clang_format_result_color = 'yellow';
+            break;	
+        case 'reject':
+            clang_format_result_color = 'red';
+            break;		
+    }
+
+    document.querySelector("#clangformat_result").className = 
+	    document.querySelector("#clangformat_result").className.replace(" rb-red", "").
+		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + clang_format_result_color;
+
     document.querySelector("#clangformat_result").innerHTML = clang_format.check.result;
     document.querySelector("#clangformat_result_inner").innerHTML = clang_format.check.result;
 
-    // valgrind
+    ////////////////////////////////////
+    //// valgrind /// ////////////////// 
+    ////////////////////////////////////
 
     for (check in results.tools.valgrind.checks)
     {
         var check_struct = results.tools.valgrind.checks[check];
+        var valgrind_result_color = 'green';
+
         document.querySelector("#valgrind_" + check_struct.check).innerHTML = check_struct.result;
+
+        switch (check_struct.outcome)
+        {
+            case 'fail':
+                valgrind_result_color = 'yellow';
+                break;	
+            case 'reject':
+                valgrind_result_color = 'red';
+                break;		
+        }
+
+        document.querySelector("#valgrind_" + check_struct.check).className = 
+	    document.querySelector("#valgrind_" + check_struct.check).className.replace(" rb-red", "").
+		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + valgrind_result_color;
+
         document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = check_struct.result;
     }
 
-    // copydetect
+    ////////////////////////////////////
+    //// copydetect //////////////////// 
+    ////////////////////////////////////
+    var copydetect_result_color = 'green';
+    switch (results.tools.copydetect.check.outcome)
+    {
+        case 'fail':
+            copydetect_result_color = 'yellow';
+            break;	
+        case 'reject':
+            copydetect_result_color = 'red';
+            break;		
+    }
+
+    document.querySelector("#copydetect_result").className = 
+	    document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + copydetect_result_color;
+
     document.querySelector("#copydetect_result").innerHTML = results.tools.copydetect.check.result;
     document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect.output;
-    //document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect_result.result;
-
 }
 
 function alertContentsTools(httpRequest) {
