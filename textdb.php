@@ -269,6 +269,8 @@
       exit;
 	}
 	
+	unlink($folder.'/output.json');
+	
 	$output=null;
 	$retval=null;
 	//$responce = 'docker run -it --net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
