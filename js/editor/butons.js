@@ -81,7 +81,14 @@ document.querySelector("#language").addEventListener('click', async e => {
 document.querySelector("#startTools").addEventListener('click', async e => {
     saveEditedFile();
     var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&type=tools", "tools");
+    makeRequest('textdb.php?' + param + "&type=tools" +
+				"&build="+document.querySelector("#buildcheck_enabled").checked + 
+				"&cppcheck="+document.querySelector("#cppcheck_enabled").checked + 
+				"&clang="+document.querySelector("#clangformat_enabled").checked + 
+				"&valgrind="+document.querySelector("#valgrind_enabled").checked + 
+				"&test="+document.querySelector("#autotest_enabled").checked + 
+				"&copy="+document.querySelector("#copydetect_enabled").checked, 
+				"tools");
 });
 
 
