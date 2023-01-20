@@ -264,83 +264,101 @@ async function alertContentsGet(httpRequest, name) {
 
 }
 
-function showCheckResults(jsonResults) {
-
-	var results = JSON.parse(jsonResults);
-
-	////////////////////////////////////
-    //// cpp-check ///////////////////// 
-    ////////////////////////////////////
-
+function parseCppCheck(results)
+{
     var cppcheck_summ = 0;
 
-    for (check in results.tools.cppcheck.checks)
+    if (results.tools.cppcheck.enabled)
     {
-        var check_struct = results.tools.cppcheck.checks[check];
-        document.querySelector("#cppcheck_" + check_struct.check).innerHTML = check_struct.result;
-        cppcheck_summ += check_struct.result;
+        for (check in results.tools.cppcheck.checks)
+        {
+            var check_struct = results.tools.cppcheck.checks[check];
+            document.querySelector("#cppcheck_" + check_struct.check).innerHTML = check_struct.result;
+            cppcheck_summ += check_struct.result;
+        }
+
+        var cppcheck_result_color = 'green';
+
+        for (check in results.tools.cppcheck.checks)
+        {
+            var check_struct = results.tools.cppcheck.checks[check];
+            switch (check_struct.outcome)
+            {
+                case 'fail':
+                    cppcheck_result_color = 'yellow';
+                    break;	
+                case 'reject':
+                    cppcheck_result_color = 'red';
+                    break;		
+            }
+            if (check_struct.outcome == 'reject')
+            {
+                break;
+            }
+        }
+
+        document.querySelector("#cppcheck_result").className = 
+            document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + cppcheck_result_color;
+
+        document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
     }
-
-    var cppcheck_result_color = 'green';
-
-    for (check in results.tools.cppcheck.checks)
+    else
     {
-        var check_struct = results.tools.cppcheck.checks[check];
-        switch (check_struct.outcome)
+        for (check in results.tools.cppcheck.checks)
         {
-            case 'fail':
-                cppcheck_result_color = 'yellow';
-                break;	
-            case 'reject':
-                cppcheck_result_color = 'red';
-                break;		
+            var check_struct = results.tools.cppcheck.checks[check];
+            document.querySelector("#cppcheck_" + check_struct.check).innerHTML = "";
         }
-        if (check_struct.outcome == 'reject')
-        {
-            break;
-        }
+        document.querySelector("#cppcheck_result").className = 
+            document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+
+        document.querySelector("#cppcheck_result").innerHTML = "";
     }
+}
 
-    document.querySelector("#cppcheck_result").className = 
-	    document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
-		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + cppcheck_result_color;
-
-    document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
-
-	////////////////////////////////////
-    //// clang-format ////////////////// 
-    ////////////////////////////////////
-
+function parseClangFormat(results)
+{
 	var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
     var clang_format_result_color = 'green';
 
-    switch (clang_format.check.outcome)
+    if (clang_format.enabled)
     {
-        case 'fail':
-            clang_format_result_color = 'yellow';
-            break;	
-        case 'reject':
-            clang_format_result_color = 'red';
-            break;		
+        switch (clang_format.check.outcome)
+        {
+            case 'fail':
+                clang_format_result_color = 'yellow';
+                break;	
+            case 'reject':
+                clang_format_result_color = 'red';
+                break;		
+        }
+
+        document.querySelector("#clangformat_result").className = 
+            document.querySelector("#clangformat_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + clang_format_result_color;
+
+        document.querySelector("#clangformat_result").innerHTML = clang_format.check.result;
+        document.querySelector("#clangformat_result_inner").innerHTML = clang_format.check.result;
     }
+    else
+    {
+        document.querySelector("#clangformat_result").className = 
+            document.querySelector("#clangformat_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
 
-    document.querySelector("#clangformat_result").className = 
-	    document.querySelector("#clangformat_result").className.replace(" rb-red", "").
-		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + clang_format_result_color;
+        document.querySelector("#clangformat_result").innerHTML = "";
+        document.querySelector("#clangformat_result_inner").innerHTML = "";
+    }
+}
 
-    document.querySelector("#clangformat_result").innerHTML = clang_format.check.result;
-    document.querySelector("#clangformat_result_inner").innerHTML = clang_format.check.result;
-
-    ////////////////////////////////////
-    //// valgrind /// ////////////////// 
-    ////////////////////////////////////
-
+function parseValgrind(results)
+{
     for (check in results.tools.valgrind.checks)
     {
         var check_struct = results.tools.valgrind.checks[check];
         var valgrind_result_color = 'green';
-
-        document.querySelector("#valgrind_" + check_struct.check).innerHTML = check_struct.result;
 
         switch (check_struct.outcome)
         {
@@ -352,16 +370,29 @@ function showCheckResults(jsonResults) {
                 break;		
         }
 
-        document.querySelector("#valgrind_" + check_struct.check).className = 
-	    document.querySelector("#valgrind_" + check_struct.check).className.replace(" rb-red", "").
-		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + valgrind_result_color;
+        if(results.tools.valgrind.enabled)
+        {
+            document.querySelector("#valgrind_" + check_struct.check).innerHTML = check_struct.result;
+            document.querySelector("#valgrind_" + check_struct.check).className = 
+            document.querySelector("#valgrind_" + check_struct.check).className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + valgrind_result_color;
 
-        document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = check_struct.result;
+            document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = check_struct.result;
+        }
+        else
+        {
+            document.querySelector("#valgrind_" + check_struct.check).innerHTML = "";
+            document.querySelector("#valgrind_" + check_struct.check).className = 
+            document.querySelector("#valgrind_" + check_struct.check).className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+
+            document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = "";
+        }
     }
+}
 
-    ////////////////////////////////////
-    //// copydetect //////////////////// 
-    ////////////////////////////////////
+function parseCopydetect(results)
+{
     var copydetect_result_color = 'green';
     switch (results.tools.copydetect.check.outcome)
     {
@@ -373,12 +404,34 @@ function showCheckResults(jsonResults) {
             break;		
     }
 
-    document.querySelector("#copydetect_result").className = 
-	    document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-		    replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + copydetect_result_color;
+    if(results.tools.copydetect.enabled)
+    {
+        document.querySelector("#copydetect_result").className = 
+            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + copydetect_result_color;
 
-    document.querySelector("#copydetect_result").innerHTML = results.tools.copydetect.check.result;
-    document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect.output;
+        document.querySelector("#copydetect_result").innerHTML = results.tools.copydetect.check.result;
+        document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect.output;
+    }
+    else
+    {
+        document.querySelector("#copydetect_result").className = 
+            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+
+        document.querySelector("#copydetect_result").innerHTML = "";
+        document.querySelector("#copydetect_result_inner").innerHTML = "";
+    }
+}
+
+function showCheckResults(jsonResults) {
+
+	var results = JSON.parse(jsonResults);
+
+    parseCppCheck(results);
+    parseClangFormat(results);
+	parseValgrind(results);
+    parseCopydetect(results);
 }
 
 function alertContentsTools(httpRequest) {
