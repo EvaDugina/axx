@@ -249,9 +249,9 @@
 	// получение файла проверки
 	$result = pg_query($dbconnect,  "select * from ax_task_file f inner join ax_assignment a on f.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
 	$result = pg_fetch_assoc($result);
-	if (!$result && array_key_exists('autotest', $checks['tools'])
-	  $checks["tools"]["autotest"]["enabled"] = false;
-	else if (array_key_exists('autotest', $checks['tools']) {
+	if (!$result && array_key_exists('autotest', $checks['tools']))
+	  $checks['tools']['autotest']['enabled'] = false;
+	else if (array_key_exists('autotest', $checks['tools'])) {
 	  $checks["tools"]["autotest"]["test_path"] = $result["file_name"];
 	  $myfile = fopen($folder.'/'.$result['file_name'], "w") or die("Unable to open file!");
 	  fwrite($myfile, $result['full_text']);
