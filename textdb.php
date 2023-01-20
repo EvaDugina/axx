@@ -221,18 +221,18 @@
 	$checks = json_decode($checks, true);
 				
     if (array_key_exists('cppcheck', $_REQUEST))
-      $checks['tools']['cppcheck']['enabled'] = $_REQUEST['cppcheck'];
+      $checks['tools']['cppcheck']['enabled'] = ($_REQUEST['cppcheck'] == "true") ? true : false;
     if (array_key_exists('clang', $_REQUEST))
-      $checks['tools']['clang-format']['enabled'] = $_REQUEST['clang'];
+      $checks['tools']['clang-format']['enabled'] = ($_REQUEST['clang'] == "true") ? true : false;
     if (array_key_exists('valgrind', $_REQUEST))
-      $checks['tools']['valgrind']['enabled'] = $_REQUEST['valgrind'];
+      $checks['tools']['valgrind']['enabled'] = ($_REQUEST['valgrind'] == "true") ? true : false;
     if (array_key_exists('copy', $_REQUEST))
-      $checks['tools']['copydetect']['enabled'] = $_REQUEST['copy'];
+      $checks['tools']['copydetect']['enabled'] = ($_REQUEST['copy'] == "true") ? true : false;
     if (array_key_exists('build', $_REQUEST)) {
 	  if (!array_key_exists('build', $checks['tools'])) 
 		; //$checks['tools']['build'] = array();  
       else
-		$checks['tools']['build']['enabled'] = $_REQUEST['build'];
+		$checks['tools']['build']['enabled'] = ($_REQUEST['build'] == "true") ? true : false;
 	}
     if (array_key_exists('test', $_REQUEST)) {
 	  if (!array_key_exists('autotests', $checks['tools'])) 
