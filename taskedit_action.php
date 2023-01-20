@@ -98,27 +98,27 @@ if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action
   exit();
 }
 
-// if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
-//   $query = select_task_file(2, $task_id);
-//   $result = pg_query($dbconnect, $query);
-//   $file = pg_fetch_all($result);
-//   if (empty($file))
-//     $query = insert_file(2, $task_id, "test.cpp", $_POST['full_text_test']);
-//   else
-//     $query = update_file(2, $task_id, $_POST['full_text_test']);
+if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
+  $query = select_task_file(2, $task_id);
+  $result = pg_query($dbconnect, $query);
+  $file = pg_fetch_all($result);
+  if (empty($file))
+    $query = insert_file(2, $task_id, "test.cpp", $_POST['full_text_test']);
+  else
+    $query = update_file(2, $task_id, $_POST['full_text_test']);
 
-//   $result = pg_query($dbconnect, $query);
+  $result = pg_query($dbconnect, $query);
 
-//   $query = select_task_file(3, $task_id);
-//   $result = pg_query($dbconnect, $query);
-//   $file = pg_fetch_all($result);
-//   if (empty($file))
-//     $query = insert_file(3, $task_id, "checktest.cpp", $_POST['full_text_test_of_test']);
-//   else
-//     $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
+  $query = select_task_file(3, $task_id);
+  $result = pg_query($dbconnect, $query);
+  $file = pg_fetch_all($result);
+  if (empty($file))
+    $query = insert_file(3, $task_id, "checktest.cpp", $_POST['full_text_test_of_test']);
+  else
+    $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
 
-//   $result = pg_query($dbconnect, $query);
-// }
+  $result = pg_query($dbconnect, $query);
+}
 
 
 
