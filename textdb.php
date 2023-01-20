@@ -238,7 +238,7 @@
 	  if (!array_key_exists('autotests', $checks['tools'])) 
 		; //$checks['tools']['autotests'] = array();  
 	  else
-        $checks['tools']['autotests']['enabled'] = $_REQUEST['test'];
+        $checks['tools']['autotests']['enabled'] = ($_REQUEST['test'] == "true") ? true : false;
 	}
 	
 	/*echo $checks; exit;*/
