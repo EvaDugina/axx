@@ -396,13 +396,13 @@ function parseAutoTests(results)
     var autotest_result_color = 'green';
     var autotest_result_str = 'Passed'
 
-    if (results.tools.autotest.check.failures > 0)
+    if (results.tools.autotests.check.failures > 0)
     {
         autotest_result_color = 'red';	
         autotest_result_str = 'Failed';
     }
 
-    if(results.tools.autotest.enabled)
+    if(results.tools.autotests.enabled)
     {
         document.querySelector("#autotest_result").className = 
             document.querySelector("#autotest_result").className.replace(" rb-red", "").
@@ -410,7 +410,7 @@ function parseAutoTests(results)
 
         
         document.querySelector("#autotest_result").innerHTML = autotest_result_str;
-        document.querySelector("#autotest_result_inner").innerHTML = results.tools.autotest.check.failures;
+        document.querySelector("#autotest_result_inner").innerHTML = results.tools.autotests.check.failures;
     }
     else
     {
@@ -471,13 +471,13 @@ function alertContentsTools(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
+				document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
+				document.querySelector('#startTools').disabled = false;
 				showCheckResults(httpRequest.responseText);
-				document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
-				document.querySelector('#startTools').disabled = false;
             } else {
-                alert('С запросом возникла проблема.' + httpRequest.status);
 				document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
 				document.querySelector('#startTools').disabled = false;
+                alert('С запросом возникла проблема.' + httpRequest.status);
             }
         }
     }
