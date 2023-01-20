@@ -179,13 +179,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 	<div class="col-md-4">
 		<div class="d-none d-sm-block d-print-block">
 		<div class="tab d-flex justify-content-between">
-		  <button id="defaultOpen" class="tablinks" onclick="openCity(event, 'Task')">Задача</button>
+		  <button id="defaultOpen" class="tablinks" onclick="openCity(event, 'Task')">Задание</button>
 		  <button class="tablinks" onclick="openCity(event, 'Console')">Консоль</button>
 		  <button class="tablinks" onclick="openCity(event, 'Test')">Проверки</button>
 		  <button class="tablinks" onclick="openCity(event, 'Chat')">Чат</button>
 		</div>
 
-		<div id="Task" class="tabcontent" style="height: 88%;">
+		<div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
+		  <small>
 		  <p id="TaskDescr"><?=$task_description?></p>
 		  <script>
 			document.getElementById('TaskDescr').innerHTML =
@@ -199,7 +200,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           show_task_files($task_files);
 		}
 	  ?>
-      </p>
+          </p>
+	      </small>
 		</div>
 
 		<div id="Console" class="tabcontent">

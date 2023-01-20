@@ -48,7 +48,8 @@ if (isset($_GET['task'])){
 
   $query = select_task_assignment_student_id($user_id, $task_id);
   $result = pg_query($dbconnect, $query);
-  $assignment_id = pg_fetch_assoc($result)['id'];
+  $result = pg_fetch_assoc($result);
+//  $assignment_id = $result['id'];
 
   if (!$page) {
     header('Location:'.$_SERVER['HTTP_REFERER']);
@@ -148,9 +149,9 @@ show_header($dbconnect, 'Редактор заданий',
 				
             <div class="pt-3 d-flex" id="tools">
               
-              <div class="form-outline col-5">
-                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($task['type'] == 1) echo $test[0]['full_text'];?></textarea>
-                  <label class="form-label" for="textArea-testCode">Код теста</label>
+              <div class="col-7">
+                <label class="form-label" for="textArea-testCode">Код теста</label>
+                <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test"><?php if(($task['type'] == 1) && $test) echo $test[0]['full_text'];?></textarea>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -160,9 +161,9 @@ show_header($dbconnect, 'Редактор заданий',
 
               <div class="col-1"></div>
 
-              <div class="form-outline col-6">
-                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($task['type'] == 1) echo $test_of_test[0]['full_text'];?></textarea>
-                  <label class="form-label" for="textArea-checkCode">Код проверки</label>
+              <div class="col-4">
+                <label class="form-label" for="textArea-checkCode">Код проверки</label>
+                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test"><?php if(($task['type'] == 1) && $test_of_test) echo $test_of_test[0]['full_text'];?></textarea>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>

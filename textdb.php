@@ -216,7 +216,7 @@
 	if ($checks == null)
 	  $checks = $row['tchecks'];
 	if ($checks == null)
-	  $checks = '{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 3,"autoreject": true,"result": 6,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 10,"outcome": "reject"}],"output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 1,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}],"output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file": ".clang-format","limit": 5,"autoreject": true,"result": 3,"outcome": "reject"},"output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 32,"outcome": "skipped"},"output": "<html>...</html>"}}}';
+	  $checks = '{"tools": {"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 3,"autoreject": true,"result": 6,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 10,"outcome": "reject"}],"output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 1,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}],"output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file": ".clang-format","limit": 5,"autoreject": true,"result": 3,"outcome": "reject"},"output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"result": 32,"outcome": "skipped"},"output": "<html>...</html>"},  "autotests": {"enabled": true,"show_to_student": false,"language": "C","test_path": "accel_autotest.cpp","check": {"limit": 0,"autoreject": true}}}}';
 	
 	$checks = json_decode($checks, true);
 				
@@ -240,13 +240,25 @@
 	  else
         $checks['tools']['autotest']['enabled'] = $_REQUEST['test'];
 	}
-	$checks = json_encode($checks);
 	
 	/*echo $checks; exit;*/
 
 	$sid = session_id();
 	$folder = "/var/app/share/".(($sid == false) ? "unknown" : $sid);
-	
+
+	// получение файла проверки
+	$result = pg_query($dbconnect,  "select * from ax_task_file f inner join ax_assignment a on f.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
+	$result = pg_fetch_assoc($result);
+	if (!$result && array_key_exists('autotest', $checks['tools'])
+	  $checks["tools"]["autotest"]["enabled"] = false;
+	else if (array_key_exists('autotest', $checks['tools']) {
+	  $checks["tools"]["autotest"]["test_path"] = $result["file_name"];
+	  $myfile = fopen($folder.'/'.$result['file_name'], "w") or die("Unable to open file!");
+	  fwrite($myfile, $result['full_text']);
+	  fclose($myfile);
+	}
+	$checks = json_encode($checks);
+
 	if (!file_exists($folder)) 
       mkdir($folder, 0777, true);
 	$myfile = fopen($folder.'/config.json', "w") or die("Unable to open file!");
@@ -275,7 +287,7 @@
 	$retval=null;
 	//$responce = 'docker run -it --net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
 	//exec('docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
-	exec('docker run --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files).' 2>&1', $output, $retval);
+	exec('docker run --net=host --rm -v '.$folder.':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files).' 2>&1', $output, $retval);
 	//echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
 	
 /* Получение результатов проверки из БД

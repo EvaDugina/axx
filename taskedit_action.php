@@ -57,31 +57,6 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
 }
 
 
-
-if ($_POST['task_id'] != -1) {
-  //echo "РЕДАКТИРОВАНИЕ СУЩЕСТВУЮЩЕГО ЗАДАНИЯ";
-  if (isset($_POST['flag-editTaskInfo'])) {
-    $query = update_ax_task($_POST['task_id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
-    $result = pg_query($dbconnect, $query);
-    header('Location:'.$_SERVER['HTTP_REFERER']);
-    exit();
-  }
-  $task_id = $_POST['task_id'];
-} else {
-  //echo "СОЗДАНИЕ ЗАДАНИЯ";
-  if (isset($_POST['flag-editTaskInfo'])) {
-    $query = insert_ax_task($page_id, $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
-  } else {
-    $query = insert_ax_task($page_id, 1, "", "");
-  }
-  $result = pg_query($dbconnect, $query);
-  $task_id = pg_fetch_assoc($result)['id'];
-  header('Location: taskedit.php?task='.$task_id);
-  exit();
-}
-
-
-
 // ОТМЕНА НАЗНАЧЕНИЯ СТУДЕНТА
 /*
 if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['student_id'])) {
@@ -98,29 +73,29 @@ if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action
   exit();
 }
 
-if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
-  $query = select_task_file(2, $task_id);
+if ($_POST['task_id'] != -1) {
+  //echo "РЕДАКТИРОВАНИЕ СУЩЕСТВУЮЩЕГО ЗАДАНИЯ";
+  $task_id = $_POST['task_id'];
+  if (isset($_POST['flag-editTaskInfo'])) {
+    $query = update_ax_task($_POST['task_id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+    $result = pg_query($dbconnect, $query);
+    save_test_files($dbconnect, $task_id);
+    header('Location:'.$_SERVER['HTTP_REFERER']);
+    exit();
+  }
+} else {
+  //echo "СОЗДАНИЕ ЗАДАНИЯ";
+  if (isset($_POST['flag-editTaskInfo'])) {
+    $query = insert_ax_task($page_id, $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
+  } else {
+    $query = insert_ax_task($page_id, 1, "", "");
+  }
   $result = pg_query($dbconnect, $query);
-  $file = pg_fetch_all($result);
-  if (empty($file))
-    $query = insert_file(2, $task_id, "test.cpp", $_POST['full_text_test']);
-  else
-    $query = update_file(2, $task_id, $_POST['full_text_test']);
-
-  $result = pg_query($dbconnect, $query);
-
-  $query = select_task_file(3, $task_id);
-  $result = pg_query($dbconnect, $query);
-  $file = pg_fetch_all($result);
-  if (empty($file))
-    $query = insert_file(3, $task_id, "checktest.cpp", $_POST['full_text_test_of_test']);
-  else
-    $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
-
-  $result = pg_query($dbconnect, $query);
+  $task_id = pg_fetch_assoc($result)['id'];
+  save_test_files($dbconnect, $task_id);
+  header('Location: taskedit.php?task='.$task_id);
+  exit();
 }
-
-
 
 // Прикрепление файлов к заданию
 if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
@@ -298,5 +273,28 @@ function add_assignment_to_students($student_id, $task_id)
   return $assignment_id;
 }
 
-
+function save_test_files($dbconnect, $task_id)
+{
+  if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
+    $query = select_task_file(2, $task_id);
+    $result = pg_query($dbconnect, $query);
+    $file = pg_fetch_all($result);
+    if (empty($file))
+      $query = insert_file(2, $task_id, "accel_autotest.cpp", $_POST['full_text_test']);
+    else
+      $query = update_file(2, $task_id, $_POST['full_text_test']);
+  
+    $result = pg_query($dbconnect, $query);
+  
+    $query = select_task_file(3, $task_id);
+    $result = pg_query($dbconnect, $query);
+    $file = pg_fetch_all($result);
+    if (empty($file))
+      $query = insert_file(3, $task_id, "accel_checktest.cpp", $_POST['full_text_test_of_test']);
+    else
+      $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
+  
+    $result = pg_query($dbconnect, $query);
+  }
+}
 ?>
