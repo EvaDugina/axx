@@ -268,7 +268,7 @@ function parseCppCheck(results)
 {
     var cppcheck_summ = 0;
 
-    if (results.tools.cppcheck.enabled == 'true')
+    if (results.tools.cppcheck.enabled)
     {
         for (check in results.tools.cppcheck.checks)
         {
@@ -323,7 +323,7 @@ function parseClangFormat(results)
 	var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
     var clang_format_result_color = 'green';
 
-    if (clang_format.enabled == 'true')
+    if (clang_format.enabled)
     {
         switch (clang_format.check.outcome)
         {
@@ -370,7 +370,7 @@ function parseValgrind(results)
                 break;		
         }
 
-        if(results.tools.valgrind.enabled == 'true')
+        if(results.tools.valgrind.enabled)
         {
             document.querySelector("#valgrind_" + check_struct.check).innerHTML = check_struct.result;
             document.querySelector("#valgrind_" + check_struct.check).className = 
@@ -402,7 +402,7 @@ function parseAutoTests(results)
         autotest_result_str = 'Failed';
     }
 
-    if(results.tools.autotest.enabled == 'true')
+    if(results.tools.autotest.enabled)
     {
         document.querySelector("#autotest_result").className = 
             document.querySelector("#autotest_result").className.replace(" rb-red", "").
@@ -436,7 +436,7 @@ function parseCopydetect(results)
             break;		
     }
 
-    if(results.tools.copydetect.enabled == 'true')
+    if(results.tools.copydetect.enabled)
     {
         document.querySelector("#copydetect_result").className = 
             document.querySelector("#copydetect_result").className.replace(" rb-red", "").
