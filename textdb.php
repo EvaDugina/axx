@@ -245,6 +245,8 @@
 
 	$sid = session_id();
 	$folder = "/var/app/share/".(($sid == false) ? "unknown" : $sid);
+	if (!file_exists($folder)) 
+      mkdir($folder, 0777, true);
 
 	// получение файла проверки
 	$result = pg_query($dbconnect,  "select * from ax_task_file f inner join ax_assignment a on f.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
@@ -260,8 +262,6 @@
 	}
 	$checks = json_encode($checks);
 
-	if (!file_exists($folder)) 
-      mkdir($folder, 0777, true);
 	$myfile = fopen($folder.'/config.json', "w") or die("Unable to open file!");
 	fwrite($myfile, $checks);
 	fclose($myfile);
