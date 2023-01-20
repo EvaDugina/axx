@@ -235,10 +235,10 @@
 		$checks['tools']['build']['enabled'] = $_REQUEST['build'];
 	}
     if (array_key_exists('test', $_REQUEST)) {
-	  if (!array_key_exists('autotest', $checks['tools'])) 
-		; //$checks['tools']['autotest'] = array();  
+	  if (!array_key_exists('autotests', $checks['tools'])) 
+		; //$checks['tools']['autotests'] = array();  
 	  else
-        $checks['tools']['autotest']['enabled'] = $_REQUEST['test'];
+        $checks['tools']['autotests']['enabled'] = $_REQUEST['test'];
 	}
 	
 	/*echo $checks; exit;*/
@@ -249,10 +249,10 @@
 	// получение файла проверки
 	$result = pg_query($dbconnect,  "select * from ax_task_file f inner join ax_assignment a on f.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
 	$result = pg_fetch_assoc($result);
-	if (!$result && array_key_exists('autotest', $checks['tools']))
-	  $checks['tools']['autotest']['enabled'] = false;
-	else if (array_key_exists('autotest', $checks['tools'])) {
-	  $checks["tools"]["autotest"]["test_path"] = $result["file_name"];
+	if (!$result && array_key_exists('autotests', $checks['tools']))
+	  $checks['tools']['autotests']['enabled'] = false;
+	else if (array_key_exists('autotests', $checks['tools'])) {
+	  $checks["tools"]["autotests"]["test_path"] = $result["file_name"];
 	  $myfile = fopen($folder.'/'.$result['file_name'], "w") or die("Unable to open file!");
 	  fwrite($myfile, $result['full_text']);
 	  fclose($myfile);
