@@ -391,6 +391,38 @@ function parseValgrind(results)
     }
 }
 
+function parseAutoTests(results)
+{
+    var autotest_result_color = 'green';
+    var autotest_result_str = 'Passed'
+
+    if (results.tools.autotest.check.failures > 0)
+    {
+        autotest_result_color = 'red';	
+        autotest_result_str = 'Failed';
+    }
+
+    if(results.tools.autotest.enabled == 'true')
+    {
+        document.querySelector("#autotest_result").className = 
+            document.querySelector("#autotest_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + autotest_result_color;
+
+        
+        document.querySelector("#autotest_result").innerHTML = autotest_result_str;
+        document.querySelector("#autotest_result_inner").innerHTML = results.tools.autotest.check.failures;
+    }
+    else
+    {
+        document.querySelector("#autotest_result").className = 
+            document.querySelector("#autotest_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+
+        document.querySelector("#autotest_result").innerHTML = "";
+        document.querySelector("#autotest_result_inner").innerHTML = "";
+    }
+}
+
 function parseCopydetect(results)
 {
     var copydetect_result_color = 'green';
@@ -431,6 +463,7 @@ function showCheckResults(jsonResults) {
     parseCppCheck(results);
     parseClangFormat(results);
 	parseValgrind(results);
+    parseAutoTests(results);
     parseCopydetect(results);
 }
 

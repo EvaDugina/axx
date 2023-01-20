@@ -243,7 +243,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 			  				  parseCppCheck(@$checkres['tools']['cppcheck'], $checks), 
 							  parseClangFormat(@$checkres['tools']['clang-format'], $checks),
 							  parseValgrind(@$checkres['tools']['valgrind'], $checks), 
-							  parseAutoTests(0, $checks),
+							  parseAutoTests(@$checkres['tools']['autotests'], $checks),
 							  parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
 							 );
 			  show_accordion('checkres', $accord, "5px");

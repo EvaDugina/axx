@@ -188,9 +188,10 @@ function parseValgrind($data, $checks)
 function parseAutoTests($data, $checks)
 {
     $result = 0;
-    $resBody = 'Not implemented yet';
+    $check = $data['check']; 
+    $resBody = 'Проверок провалено: '.generateTaggedValue('autotest_result_inner', $check['failures']).'<br>';;
 
-    $resColorBox = generateColorBox('green', 4, 'autotest_passed').generateColorBox('red', 12, 'autotest_failed');
+    $resColorBox = generateColorBox('green', "Passed", 'autotest_result');
 
     $resArr = array('header' => '<div class="w-100"><b>Автотесты</b>'.$resColorBox.'</div>',
 
