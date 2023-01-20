@@ -253,6 +253,7 @@
 	  $checks['tools']['autotests']['enabled'] = false;
 	else if (array_key_exists('autotests', $checks['tools'])) {
 	  $checks["tools"]["autotests"]["test_path"] = $result["file_name"];
+	  unlink($folder.'/'.$result['file_name']);
 	  $myfile = fopen($folder.'/'.$result['file_name'], "w") or die("Unable to open file!");
 	  fwrite($myfile, $result['full_text']);
 	  fclose($myfile);
