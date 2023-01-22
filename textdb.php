@@ -46,7 +46,7 @@
 	$result = pg_fetch_assoc($result);
 	$file_name = $result['file_name'];		  
   }
-  else if ($type != 'oncheck' && $type != 'tools'){
+  else if ($type != 'oncheck' && $type != 'tools' && $type != 'console'){
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -201,6 +201,8 @@
 	  }		  
 	}		
   }
+
+  //---------------------------------------------------------------TOOLS-------------------------------------------------------
   else if ($type == "tools") {
 	  
   	if ($commit_id == 0) {
@@ -255,7 +257,7 @@
 	  $checks['tools']['autotests']['enabled'] = false;
 	else if (array_key_exists('autotests', $checks['tools'])) {
 	  $checks["tools"]["autotests"]["test_path"] = $result["file_name"];
-	  unlink($folder.'/'.$result['file_name']);
+	  @unlink($folder.'/'.$result['file_name']);
 	  $myfile = fopen($folder.'/'.$result['file_name'], "w") or die("Unable to open file!");
 	  fwrite($myfile, $result['full_text']);
 	  fclose($myfile);
@@ -282,7 +284,7 @@
       exit;
 	}
 	
-	unlink($folder.'/output.json');
+	@unlink($folder.'/output.json');
 	
 	$output=null;
 	$retval=null;
@@ -317,6 +319,38 @@
 /**/
 
 	header('Content-Type: application/json');	
+  } 
+
+  //---------------------------------------------------------------CONSOLE-------------------------------------------------------
+  else if ($type == "console") {
+	$sid = session_id();
+	if (!array_key_exists('tool', $_REQUEST)) {
+  	  http_response_code(400);
+	  exit;
+	}
+	$tool =  $_REQUEST['tool'];
+
+	$folder = "/var/app/share/".(($sid == false) ? "unknown" : $sid);
+	if (!file_exists($folder)) {
+	  echo "Перезапустите проверку!";
+	  http_response_code(200);
+	  exit;
+	}	
+	$ext = "txt";
+	if ($tool =='cppcheck' || $tool =='format') 
+	  $ext = "xml";
+
+	$myfile = fopen($folder.'/output_'.$tool.'.'.$ext, "r");
+	if (!$myfile) {
+	  echo "Перезапустите проверку!";
+	  http_response_code(200);
+	  exit;
+	}	
+
+	$responce .= fread($myfile, filesize($folder.'/output.json'));
+	fclose($myfile);
+
+	header('Content-Type: text/plain');	
   }
   
   //-----------------------------------------------------------------------------------------------------------------------------

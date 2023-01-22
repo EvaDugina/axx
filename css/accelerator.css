@@ -153,9 +153,22 @@
 }
 
 .rb-yellow {
-  background-color: #ffc90e;
+  background-color: #ffd641;
 }
 
 .rb-red {
   background-color: #f4849a;
+}
+
+.axconsole {
+    border: #505050 4px solid;
+    background: #505050;
+    height: 200px;
+    overflow: auto;
+
+    font-family: courier-new, courier, monospace;
+    font-size: 15px;
+    color: #ffd641;
+
+    display: none;
 }

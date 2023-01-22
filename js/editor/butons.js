@@ -9,6 +9,14 @@ for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
 
+var conlist = document.querySelectorAll(".switchcon");
+for (var i = 0; i < conlist.length; i++) {
+    conlist[i].addEventListener('click', async e => {
+        if (e.target.className == 'switchcon')
+          switchCon(e.target.id);
+    });
+}
+
 function openFile(event) {
     var id = this.parentNode.querySelector(".validationCustom").id;
     if (id != editor.id){
@@ -159,8 +167,14 @@ function makeRequest(url, type) {
         httpRequest.onreadystatechange = function() { alertContents2(httpRequest, url); };  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
+    } else {
+        httpRequest.onreadystatechange = function() { 
+            var con = document.getElementById(type);
+            con.innerHTML = httpRequest.responseText;
+        }
+        httpRequest.open('POST', encodeURI(url), true);
+        httpRequest.send(null);
     }
-
 }
 
 function alertContents(httpRequest) {
@@ -505,5 +519,22 @@ document.querySelector("#newFile").addEventListener('click', async e => {
     listItems = list.querySelectorAll(".tasks__item");
     makeRequest('textdb.php?' + param + "&type=new&file_name=" + name, "new");
 });
+
+function switchCon(n) {
+    var label = document.getElementById(n);
+    var con = document.getElementById(label.attributes.for.value);
+    var displaySetting = con.style.display;
+  
+    if (displaySetting == 'block') {
+      label.innerHTML = '+ показать полный вывод';
+      con.style.display = 'none';
+    } else {
+      label.innerHTML = '&ndash; скрыть полный вывод';
+      var param = document.location.href.split("?")[1].split("#")[0];
+      makeRequest('textdb.php?' + param + "&type=console&tool=" + label.attributes.for.value, 
+                  label.attributes.for.value); 
+      con.style.display = 'block';
+    }
+}
 
 export {makeRequest, saveEditedFile};

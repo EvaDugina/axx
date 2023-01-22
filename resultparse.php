@@ -24,6 +24,9 @@ function parseBuildCheck($data, $checks)
     $result = 0;
     $resBody = '';
 
+    $resBody .= '<label for="build" id="buildlabel" class="switchcon">+ показать полный вывод</label>'.
+    '<div id="build" class="axconsole">Загрузка...</div>';
+
     $resColorBox = generateColorBox('green', $result, 'build_result');
 
     $resArr = array('header' => '<div class="w-100"><b>Сборка</b>'.$resColorBox.'</div>',
@@ -57,6 +60,9 @@ function parseCppCheck($data, $checks)
         }
         $sumOfErrors += @$check['result'];
     }
+
+    $resBody .= '<label for="cppcheck" id="cppchecklabel" class="switchcon">+ показать полный вывод</label>'.
+                '<div id="cppcheck" class="axconsole">Загрузка...</div>';
 
     $boxColor = 'green';
     $boxText = $sumOfErrors;
@@ -117,6 +123,9 @@ function parseClangFormat($data, $checks)
 
     $resBody .= 'Замечаний линтера: '.generateTaggedValue('clangformat_result_inner', @$check['result']).'<br>';
 
+    $resBody .= '<label for="format" id="formatlabel" class="switchcon">+ показать полный вывод</label>'.
+    '<div id="format" class="axconsole">Загрузка...</div>';
+
     $resArr = array('header' => '<div class="w-100"><b>Clang-format</b>'.$resColorBox.'</div>',
 
                     'label'	 => '<input id="clangformat_enabled" name="clangformat_enabled" '.((@$checks['tools']['clang-format']['enabled'] == 'true') ? 'checked' : '').
@@ -168,7 +177,9 @@ function parseValgrind($data, $checks)
 
     $resBody .= 'Утечки памяти: '.generateTaggedValue('valgrind_leaks_inner', @$leaks['result']).'<br>';
     $resBody .= 'Ошибки памяти: '.generateTaggedValue('valgrind_errors_inner', @$errors['result']).'<br>';
-    $resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
+    //$resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
+    $resBody .= '<label for="valgrind" id="valgrindlabel" class="switchcon">+ показать полный вывод</label>'.
+    '<div id="valgrind" class="axconsole">Загрузка...</div>';
 
     $resColorBox = generateColorBox($errorsColor, $errors['result'], 'valgrind_errors').
                     generateColorBox($leaksColor, $leaks['result'], 'valgrind_leaks');
@@ -190,7 +201,9 @@ function parseAutoTests($data, $checks)
     $result = 0;
     $check = $data['check']; 
     $resBody = 'Проверок провалено: '.generateTaggedValue('autotest_result_inner', $check['failures']).'<br>';;
-
+    $resBody .= '<label for="tests" id="testslabel" class="switchcon">+ показать полный вывод</label>'.
+    '<div id="tests" class="axconsole">Загрузка...</div>';
+    
     $resColorBox = generateColorBox('green', "Passed", 'autotest_result');
 
     $resArr = array('header' => '<div class="w-100"><b>Автотесты</b>'.$resColorBox.'</div>',
