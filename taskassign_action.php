@@ -82,7 +82,15 @@
 																			  "autoreject" => (@$_POST["clang_errors_reject"] == "true") ?"true" :"false"
 																			 )
 															),
-									 "copydetect" => array("enabled" => (@$_POST["plug_enabled"] == "true") ?"true" :"false",
+									 "autotests" => array("enabled" => (@$_POST["test_enabled"] == "true") ?"true" :"false",
+															"show_to_student" => (@$_POST["test_show"] == "true") ?"true" :"false",
+															"language" => @$_POST["language"],
+															"test_path" => "accel_autotest.cpp",
+															"check" => array("limit" => @$_POST["test_check_limit"],
+																			 "autoreject" => (@$_POST["test_check_reject"] == "true") ?"true" :"false"
+																			)
+														   ),
+									"copydetect" => array("enabled" => (@$_POST["plug_enabled"] == "true") ?"true" :"false",
 															 "show_to_student" => (@$_POST["plug_show"] == "true") ?"true" :"false",
 															 "bin" => "copydetect", 
 															 "arguments" => @$_POST["plug_arg"],

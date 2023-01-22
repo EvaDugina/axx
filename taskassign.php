@@ -196,7 +196,7 @@ if (!$result || pg_num_rows($result) < 1) {
 			  if ($checks == null)
 				$checks = $row['tchecks'];
 			  if ($checks == null)
-			    $checks = '{"tools":{"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}}}}';
+			    $checks = '{"tools":{"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}},"autotests": {"enabled": false,"show_to_student": false,"language": "C","test_path": "accel_autotest.cpp","check": {"limit": 0,"autoreject": true}}}}';
 		      
 			  $checks = json_decode($checks, true);
 			  
@@ -221,9 +221,13 @@ if (!$result || pg_num_rows($result) < 1) {
 				  $limit = @$checks['tools']['clang-format']['check']['limit'];
 				  $reject = @$checks['tools']['clang-format']['check']['autoreject'];
 				} else if ($group == 'plug') {
-				  $enabled = @$checks['tools']['copydetect']['enabled'];
-				  $limit = @$checks['tools']['copydetect']['check']['limit'];
-				  $reject = @$checks['tools']['copydetect']['check']['autoreject'];
+					$enabled = @$checks['tools']['copydetect']['enabled'];
+					$limit = @$checks['tools']['copydetect']['check']['limit'];
+					$reject = @$checks['tools']['copydetect']['check']['autoreject'];
+				} else if ($group == 'test') {
+					$enabled = @$checks['tools']['autotests']['enabled'];
+					$limit = @$checks['tools']['autotests']['check']['limit'];
+					$reject = @$checks['tools']['autotests']['check']['autoreject'];
 				} else {
 				  $arr = @$checks['tools'][$group]['checks'];
 				  foreach($arr as $a) {
@@ -313,6 +317,22 @@ if (!$result || pg_num_rows($result) < 1) {
 												'" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>'.
 												add_check_param('clang', 'errors', 'нарушения', $checks)
 									),
+							  array('header' => '<b>Автотесты</b>',
+									'label'	 => '<input id="test_enabled" name="test_enabled" '.checked(@$checks['tools']['autotests']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
+												'<label class="form-check-label" for="test_enabled" style="color:#4f4f4f;">выполнять проверки</label>'.
+												'<input id="test_show" name="test_show" '.checked(@$checks['tools']['autotests']['show_to_student']).
+												' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" >'.
+												'<label class="form-check-label" for="test_show" style="color:#4f4f4f;">отображать студенту</label>',
+												
+									'body'   => '<div><label class="form-check-label" for="test_lang" style="width:20%;">сравнивать</label>'.
+												'<select id="test_lang" class="form-select mb-2" aria-label=".form-select" name="test_lang" style="width:50%; display: inline-block;">'.
+												'  <option value="С" '.selected(@$checks['tools']['autotests']['language'], 'C').'>C</option>'.
+												'  <option value="С++" '.selected(@$checks['tools']['autotests']['language'], 'C++').'>C++</option>'.
+												'  <option value="Python" '.selected(@$checks['tools']['autotests']['language'], 'Python').'>Python</option>'.
+												'</select></div>'.
+												add_check_param('test', 'check', 'проверять', $checks)
+										),
 							  array('header' => '<b>Антиплагиат</b>',
 									'label'	 => '<input id="plug_enabled" name="plug_enabled" '.checked(@$checks['tools']['copydetect']['enabled']).
 												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
@@ -346,7 +366,7 @@ if (!$result || pg_num_rows($result) < 1) {
           <div class="p-3 border ">
 
 			<h6>Задание</h6>
-			<div id="Task" class="tabcontent border bg-light p-2 small" style="overflow-y: auto; width: 100%; height: 100%;">
+			<div id="Task" class="tabcontent border bg-light p-2 small" style="overflow: auto; width: 100%; height: 100%;">
 			  <p id="TaskDescr"><?=$row['description']?></p>
 			  <script>
 				document.getElementById('TaskDescr').innerHTML = marked.parse(document.getElementById('TaskDescr').innerHTML);
