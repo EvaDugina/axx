@@ -155,11 +155,13 @@ $task_number = explode('.', $task_title)[0];
 			<h2><?= $task_title ?></h2>
 			<div>
 				<div class="task-desc-wrapper">
-					<p id="TaskDescr"><?= $task_description ?></p>
-   				    <script>
-						document.getElementById('TaskDescr').innerHTML =
-							marked.parse(document.getElementById('TaskDescr').innerHTML);
-					</script>
+          <small>
+					  <p id="TaskDescr" style="overflow: auto;"><?= $task_description ?></p>
+   				  <script>
+  						document.getElementById('TaskDescr').innerHTML =
+							  marked.parse(document.getElementById('TaskDescr').innerHTML);
+					  </script>
+          </small>
 
 					<p style="line-height: 0.5em;"><b>Требования к выполнению и результату:</b><br> <?php show_task_files($task_files);?> </p>
 					<div>
