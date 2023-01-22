@@ -294,33 +294,33 @@ function show_accordion($name, $data, $labelshift = "0px")
 					}
 			?>
 					  <button class="accordion-button p-1 collapsed" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-<?=$name?>-collapse-<?=$i?>" aria-expanded="true" aria-controls="accordion-<?=$name?>-collapse-<?=$i?>" style="z-index:1;">
-                        <div class="form-check d-flex w-100">
-						  <?=$d['header']?>
-                        </div>                   
-                      </button>
+              <div class="form-check d-flex w-100">
+						    <?=$d['header']?>
+              </div>                   
+            </button>
 <!--
-  					  <div style="position:relative;">
+  					<div style="position:relative;">
 					    <input id="common_enabled" class="accordion-input-item form-check-input" type="checkbox" value="1" name="common_enabled" checked style="margin-left: 16.7em!important;">
 					    <label class="form-check-label" for="common_enabled" style="color:#4f4f4f;">выполнять проверки</label>
 					    <input id="common_show" class="accordion-input-item form-check-input ms-5" type="checkbox" value="1" name="common_show" checked>
 					    <label class="form-check-label" for="common_show" style="color:#4f4f4f;">отображать студенту</label>
 					  </div>
 -->
-                    </div>
-					
-	                <div id="accordion-<?=$name?>-collapse-<?=$i?>" class="accordion-collapse collapse" aria-labelledby="accordion-<?=$name?>-gheader-<?=$i?>" data-mdb-parent="#main-accordion-<?=$name?>">
-                      <div class="accordion-body">
-						<div id="group-accordion-<?=$name?>" class="accordion accordion-flush">
-		  			      <div id="item-from-<?=$name?>-group-<?=$i?>" class="accordion-item">
-							<div id="accordion-<?=$name?>-sheader-<?=$i?>" class="accordion-header">
-                              <div class="d-flex justify-content-between" type="button">
-								<div class="form-check ms-3" style="width:100%;">
-                                  <?=$d['body']?>
-								</div>
-							  </div>
-							</div>
+          </div>
+					<div id="accordion-<?=$name?>-collapse-<?=$i?>" class="accordion-collapse collapse" aria-labelledby="accordion-<?=$name?>-gheader-<?=$i?>" data-mdb-parent="#main-accordion-<?=$name?>">
+            <div class="accordion-body">
+						  <div id="group-accordion-<?=$name?>" class="accordion accordion-flush">
+		  			    <div id="item-from-<?=$name?>-group-<?=$i?>" class="accordion-item">
+							    <div id="accordion-<?=$name?>-sheader-<?=$i?>" class="accordion-header">
+                    <div class="d-flex justify-content-between" type="button">
+								      <div class="form-check ms-3" style="width:100%;">
+                        <?=$d['body']?>
+								      </div>
+							      </div>
+                    <?=@$d['footer']?>
+							    </div>
+						    </div>
 						  </div>
-						</div>
 					  </div>
 					</div>
 
@@ -328,8 +328,8 @@ function show_accordion($name, $data, $labelshift = "0px")
 				  $i++;
 				}				
 			?>
-			      </div>
-                </div>
+			  </div>
+      </div>
 			<?php
 }
 

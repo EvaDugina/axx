@@ -24,7 +24,7 @@ function parseBuildCheck($data, $checks)
     $result = 0;
     $resBody = '';
 
-    $resBody .= '<label for="build" id="buildlabel" class="switchcon">+ показать полный вывод</label>'.
+    $resFooter = '<label for="build" id="buildlabel" class="switchcon">+ показать полный вывод</label>'.
                 '<pre id="build" class="axconsole">Загрузка...</pre>';
 
     $resColorBox = generateColorBox('green', $result, 'build_result');
@@ -33,7 +33,8 @@ function parseBuildCheck($data, $checks)
                     
                     'label'	 => '<input id="buildcheck_enabled" name="buildcheck_enabled" '.((@$checks['tools']['build']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                    'body'   => $resBody
+                    'body'   => $resBody,
+                    'footer' => $resFooter
                     );
 
     return $resArr;
@@ -61,7 +62,7 @@ function parseCppCheck($data, $checks)
         $sumOfErrors += @$check['result'];
     }
 
-    $resBody .= '<label for="cppcheck" id="cppchecklabel" class="switchcon">+ показать полный вывод</label>'.
+    $resFooter = '<label for="cppcheck" id="cppchecklabel" class="switchcon">+ показать полный вывод</label>'.
                 '<pre id="cppcheck" class="axconsole">Загрузка...</pre>';
 
     $boxColor = 'green';
@@ -91,7 +92,8 @@ function parseCppCheck($data, $checks)
                     'label'	 => '<input id="cppcheck_enabled" name="cppcheck_enabled" '. ((@$checks['tools']['cppcheck']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
-                    'body'   => $resBody
+                    'body'   => $resBody,
+                    'footer' => $resFooter
                     );
 
     return $resArr;
@@ -123,7 +125,7 @@ function parseClangFormat($data, $checks)
 
     $resBody .= 'Замечаний линтера: '.generateTaggedValue('clangformat_result_inner', @$check['result']).'<br>';
 
-    $resBody .= '<label for="format" id="formatlabel" class="switchcon">+ показать полный вывод</label>'.
+    $resFooter = '<label for="format" id="formatlabel" class="switchcon">+ показать полный вывод</label>'.
                 '<pre id="format" class="axconsole">Загрузка...</pre>';
 
     $resArr = array('header' => '<div class="w-100"><b>Clang-format</b>'.$resColorBox.'</div>',
@@ -131,7 +133,8 @@ function parseClangFormat($data, $checks)
                     'label'	 => '<input id="clangformat_enabled" name="clangformat_enabled" '.((@$checks['tools']['clang-format']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
-                    'body'   => $resBody
+                    'body'   => $resBody,
+                    'footer' => $resFooter
                     );
 
     return $resArr;
@@ -178,7 +181,7 @@ function parseValgrind($data, $checks)
     $resBody .= 'Утечки памяти: '.generateTaggedValue('valgrind_leaks_inner', @$leaks['result']).'<br>';
     $resBody .= 'Ошибки памяти: '.generateTaggedValue('valgrind_errors_inner', @$errors['result']).'<br>';
     //$resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
-    $resBody .= '<label for="valgrind" id="valgrindlabel" class="switchcon">+ показать полный вывод</label>'.
+    $resFooter = '<label for="valgrind" id="valgrindlabel" class="switchcon">+ показать полный вывод</label>'.
                 '<pre id="valgrind" class="axconsole">Загрузка...</pre>';
 
     $resColorBox = generateColorBox($errorsColor, $errors['result'], 'valgrind_errors').
@@ -189,7 +192,8 @@ function parseValgrind($data, $checks)
                     'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" '.((@$checks['tools']['valgrind']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
-                    'body'   => $resBody
+                    'body'   => $resBody, 
+                    'footer' => $resFooter
                     );
 
     return $resArr;
@@ -201,7 +205,7 @@ function parseAutoTests($data, $checks)
     $result = 0;
     $check = $data['check']; 
     $resBody = 'Проверок провалено: '.generateTaggedValue('autotest_result_inner', $check['failures']).'<br>';;
-    $resBody .= '<label for="tests" id="testslabel" class="switchcon">+ показать полный вывод</label>'.
+    $resFooter = '<label for="tests" id="testslabel" class="switchcon">+ показать полный вывод</label>'.
                 '<pre id="tests" class="axconsole">Загрузка...</pre>';
     
     $resColorBox = generateColorBox('green', "Passed", 'autotest_result');
@@ -211,7 +215,8 @@ function parseAutoTests($data, $checks)
                     'label'	 => '<input id="autotest_enabled" name="autotest_enabled" '. ((@$checks['tools']['autotest']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
-                    'body'   => $resBody
+                    'body'   => $resBody,
+                    'footer' => $resFooter
                     );
 
     return $resArr;
@@ -248,7 +253,8 @@ function parseCopyDetect($data, $checks)
                     'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" '. ((@$checks['tools']['copydetect']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
-                    'body'   => $resBody
+                    'body'   => $resBody,
+                    'footer' => ''
                     );
 
     return $resArr;

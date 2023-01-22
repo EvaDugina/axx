@@ -348,7 +348,7 @@
 	  exit;
 	}	
 
-	$responce .= htmlspecialchars(fread($myfile, filesize($filename)));
+	$responce = htmlspecialchars(fread($myfile, filesize($filename)));
 	fclose($myfile);
 
 	header('Content-Type: text/plain');	
