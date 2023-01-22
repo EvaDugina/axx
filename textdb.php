@@ -340,14 +340,15 @@
 	if ($tool =='cppcheck' || $tool =='format') 
 	  $ext = "xml";
 
-	$myfile = fopen($folder.'/output_'.$tool.'.'.$ext, "r");
+	$filename = $folder.'/output_'.$tool.'.'.$ext;
+	$myfile = fopen($filename, "r");
 	if (!$myfile) {
 	  echo "Перезапустите проверку!";
 	  http_response_code(200);
 	  exit;
 	}	
 
-	$responce .= fread($myfile, filesize($folder.'/output.json'));
+	$responce .= htmlspecialchars(fread($myfile, filesize($filename)));
 	fclose($myfile);
 
 	header('Content-Type: text/plain');	
