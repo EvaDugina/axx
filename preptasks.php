@@ -168,17 +168,17 @@ if (!$result || pg_num_rows($result) < 1) {
                           <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="archive">
                             <input type="hidden" name="task_id" value="<?=$task['id']?>">
-                            <button type="submit" class="btn btn-secondary px-3 me-1">
+                            <button type="submit" class="btn btn-secondary px-3 me-1" title="Перенести в архив">
                               <i class="fas fa-ban"></i>
                             </button>
                           </form>
-                          <button type="submit" class="btn btn-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';">
+                          <button type="submit" class="btn btn-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';" title="Редактировать">
                             <i class="fas fa-pen fa-lg"></i>
                           </button>
-                          <button type="submit" class="btn btn-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?=$task['id']?>';">
+                          <button type="submit" class="btn btn-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?=$task['id']?>';" title="Назначить">
                             <i class="fas fa-person fa-lg"></i>
                           </button>
-                          <button type="button" class="btn btn-primary px-3" disabled>
+                          <button type="button" class="btn btn-primary px-3" title="Скачать" disabled>
                               <i class="fas fa-download fa-lg"></i>
                           </button>
                           </div>
