@@ -25,7 +25,7 @@ function parseBuildCheck($data, $checks)
     $resBody = '';
 
     $resBody .= '<label for="build" id="buildlabel" class="switchcon">+ показать полный вывод</label>'.
-    '<div id="build" class="axconsole">Загрузка...</div>';
+                '<pre id="build" class="axconsole">Загрузка...</pre>';
 
     $resColorBox = generateColorBox('green', $result, 'build_result');
 
@@ -62,7 +62,7 @@ function parseCppCheck($data, $checks)
     }
 
     $resBody .= '<label for="cppcheck" id="cppchecklabel" class="switchcon">+ показать полный вывод</label>'.
-                '<div id="cppcheck" class="axconsole">Загрузка...</div>';
+                '<pre id="cppcheck" class="axconsole">Загрузка...</pre>';
 
     $boxColor = 'green';
     $boxText = $sumOfErrors;
@@ -124,7 +124,7 @@ function parseClangFormat($data, $checks)
     $resBody .= 'Замечаний линтера: '.generateTaggedValue('clangformat_result_inner', @$check['result']).'<br>';
 
     $resBody .= '<label for="format" id="formatlabel" class="switchcon">+ показать полный вывод</label>'.
-    '<div id="format" class="axconsole">Загрузка...</div>';
+                '<pre id="format" class="axconsole">Загрузка...</pre>';
 
     $resArr = array('header' => '<div class="w-100"><b>Clang-format</b>'.$resColorBox.'</div>',
 
@@ -179,7 +179,7 @@ function parseValgrind($data, $checks)
     $resBody .= 'Ошибки памяти: '.generateTaggedValue('valgrind_errors_inner', @$errors['result']).'<br>';
     //$resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
     $resBody .= '<label for="valgrind" id="valgrindlabel" class="switchcon">+ показать полный вывод</label>'.
-    '<div id="valgrind" class="axconsole">Загрузка...</div>';
+                '<pre id="valgrind" class="axconsole">Загрузка...</pre>';
 
     $resColorBox = generateColorBox($errorsColor, $errors['result'], 'valgrind_errors').
                     generateColorBox($leaksColor, $leaks['result'], 'valgrind_leaks');
@@ -202,7 +202,7 @@ function parseAutoTests($data, $checks)
     $check = $data['check']; 
     $resBody = 'Проверок провалено: '.generateTaggedValue('autotest_result_inner', $check['failures']).'<br>';;
     $resBody .= '<label for="tests" id="testslabel" class="switchcon">+ показать полный вывод</label>'.
-    '<div id="tests" class="axconsole">Загрузка...</div>';
+                '<pre id="tests" class="axconsole">Загрузка...</pre>';
     
     $resColorBox = generateColorBox('green', "Passed", 'autotest_result');
 
