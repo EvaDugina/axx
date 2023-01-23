@@ -162,8 +162,15 @@ $task_number = explode('.', $task_title)[0];
 							  marked.parse(document.getElementById('TaskDescr').innerHTML);
 					  </script>
           </small>
-
-					<p style="line-height: 0.5em;"><b>Требования к выполнению и результату:</b><br> <?php show_task_files($task_files);?> </p>
+					<p style="line-height: 0.5em;">
+          <?php
+			      if ($task_files)
+			      {
+			        echo '<b>Файлы, приложенные к заданию:</b>';
+			        show_task_files($task_files);
+			      }
+			    ?> 
+          </p>
 					<div>
 						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
 						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 

@@ -192,15 +192,15 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 			document.getElementById('TaskDescr').innerHTML =
 				marked.parse(document.getElementById('TaskDescr').innerHTML);
 		  </script>
-      <p>
-	  <?php
-	    if ($task_files)
-		{
-          echo '<b>Файлы, приложенные к заданию:</b>';
-          show_task_files($task_files);
-		}
-	  ?>
-          </p>
+			<p>
+			  <?php
+			    if ($task_files)
+			    {
+			      echo '<b>Файлы, приложенные к заданию:</b>';
+			      show_task_files($task_files);
+			    }
+			  ?>
+			</p>
 	      </small>
 		</div>
 
