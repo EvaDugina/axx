@@ -372,12 +372,14 @@ if (!$result || pg_num_rows($result) < 1) {
 				document.getElementById('TaskDescr').innerHTML = marked.parse(document.getElementById('TaskDescr').innerHTML);
 			  </script>
 			  <p>
-				<b>Файлы, приложенные к заданию:</b> 
-				<br>
-				<?php 
-				  $task_files = getTaskFiles($dbconnect, $task_id);
-				  show_task_files($task_files); 
-				?>
+			  <?php
+				$task_files = getTaskFiles($dbconnect, $task_id);
+				if ($task_files)
+				{
+				  echo '<b>Файлы, приложенные к заданию:</b><br>';
+				  show_task_files($task_files);
+				}
+			  ?>
 			  </p>
 			</div>
 
