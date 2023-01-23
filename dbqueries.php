@@ -316,6 +316,26 @@ function select_assigned_students($task_id) {
           ORDER BY ax_assignment.id";
 }
 
+// - получение студентов по коммитам аналогичного задания
+function select_prev_students($assignment_id) {
+  return "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,
+                  ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts 
+        FROM ax_task 
+        INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id 
+        INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
+        INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
+        WHERE ax_assignment.id in (select a.id from ax_assignment sa inner join ax_assignment a on sa.task_id = a.task_id and sa.id != a.id where sa.id = $assignment_id)
+        ORDER BY ax_assignment.id";
+}
+
+// - получение файлов по коммитам аналогичного задания
+function select_prev_files($assignment_id) {
+  return "SELECT id, assignment_id, commit_id, file_name, full_text 
+            from ax_solution_file 
+           where assignment_id in (select a.id from ax_assignment sa inner join ax_assignment a on sa.task_id = a.task_id and sa.id != a.id where sa.id = $assignment_id) 
+             and commit_id in (select max(id) from ax_solution_commit group by assignment_id)";
+}
+
 // получение файлов к заданию
 function select_task_files($task_id) {
     return 'SELECT ax_task_file.* '.

@@ -9,6 +9,57 @@
   $commit_id = 0;
   $file_id = 0;
 
+
+  function get_prev_assignments($assignment)
+  {
+	global $dbconnect;	
+	$aarray = array();
+
+	$query = select_prev_students($assignment);
+	$result = pg_query($dbconnect, $query);
+
+	if ($result && pg_num_rows($result) > 0) {
+	  $i=0;
+	  $prev_assign = 0;
+	  $studlist = "";
+	  
+	  while ($ass = pg_fetch_assoc($result)) {
+		if ($ass['aid'] == $prev_assign) {
+		  $studlist = $studlist.' '.$ass['fio'];
+		} else {
+		  if ($prev_assign != 0) 
+			$aarray[$prev_assign] = $studlist;
+
+  		  $prev_assign = $ass['aid'];
+		  $studlist = $ass['fio'];
+		}
+	  }
+	  if ($prev_assign != 0)
+	    $aarray[$prev_assign] = $studlist;
+	}
+
+	return $aarray;
+  }
+
+  function get_prev_files($assignment)
+  {
+	global $dbconnect;
+	
+	$farray = array();
+	$aarray = get_prev_assignments($assignment);
+
+	$query = select_prev_files($assignment);
+	$result = pg_query($dbconnect, $query);
+
+	while ($file = pg_fetch_assoc($result)) {
+	  $filename = $file['assignment_id'].' '.$aarray[$file['assignment_id']].' '.$file['file_name'];
+	  $fulltext = $file['full_text'];
+	  array_push($farray, array("name" => $filename, "text" => $fulltext));
+	}
+
+	return $farray;
+  }
+
   if (array_key_exists('type', $_REQUEST))
     $type= urldecode($_REQUEST['type']);
   else {
@@ -284,6 +335,20 @@
       exit;
 	}
 	
+	@unlink($folder.'/copydetect_input');
+	mkdir($folder.'/copydetect_input', 0777, true);
+	$prev_files = get_prev_files($assignment);
+	foreach($prev_files as $pf) {
+	  $myfile = fopen($folder.'/copydetect_input/'.$pf["name"], "w");
+	  if (!$myfile) {
+		echo "Ошибка создания файлов для проверки";
+		http_response_code(500);
+		exit;
+	  }
+	  fwrite($myfile, $pf["text"]);
+	  fclose($myfile);
+	}
+
 	@unlink($folder.'/output.json');
 	
 	$output=null;
