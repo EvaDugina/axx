@@ -103,12 +103,14 @@ if (!$result || pg_num_rows($result) < 1) {
 							  $prev_assign = 0;
 							  $studlist = "";
 							  $adate = "";
+                $multiuser = false;
 							  while ($student_task = pg_fetch_assoc($result2)) {
-								if ($student_task['aid'] == $prev_assign)
+								if ($student_task['aid'] == $prev_assign) {
 								  $studlist = $studlist.', '.$student_task['fio'];
-								else {
+                  $multiuser = true;
+                } else {
 								  if ($prev_assign != 0)
-									array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
+									array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate, 'multi' => $multiuser));
 									
 								  $prev_assign = $student_task['aid'];
 								  $studlist = $student_task['fio'];
@@ -116,7 +118,7 @@ if (!$result || pg_num_rows($result) < 1) {
 								}
 							  }
 							  if ($prev_assign != 0)
-								array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
+								array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate, 'multi' => $multiuser));
 							  
 							  foreach($aarray as $a) { ?>
                                 <form id="form-rejectAssignment-<?=$i?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
@@ -126,7 +128,7 @@ if (!$result || pg_num_rows($result) < 1) {
                                   <input type="hidden" name="action" value="reject"></input>
 
                                   <div class="d-flex justify-content-between align-items-center me-2 mx-5 badge-primary text-wrap small">
-                                    <span class="mx-1"><?=$a['studlist']?><?=($a['date']=="" ?"" :" (до ".$a['date'].")")?></span>
+                                    <span class="mx-1"><i class="fas fa-user<?=(($a['multi'])?"s" :"")?>"></i> <?=$a['studlist']?><?=($a['date']=="" ?"" :" (до ".$a['date'].")")?></span>
 									<span>
 										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$a['id']?>';">
 											<i class="fas fa-pen fa-lg"></i>
