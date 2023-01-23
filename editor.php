@@ -333,7 +333,7 @@ fun();
 </div>	
 </div>	
 </main> 
-<script type="text/javascript"></script>
+
 <script type="module" src="./src/js/sandbox.js"></script>
 <script src="js/drag.js"></script>
 <script src="js/tab.js"></script>
@@ -341,7 +341,18 @@ fun();
 <script src="js/editorloader.js" type="module"></script>
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
-
+<script type="text/javascript">
+function showBorders()
+{
+	var list = document.querySelector("#TaskDescr").querySelectorAll("table");
+	for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
+	list = document.querySelector("#TaskDescr").querySelectorAll("th");
+	for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
+	list = document.querySelector("#TaskDescr").querySelectorAll("td");
+	for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
+}
+showBorders();
+</script>
 <?php
   show_footer();
 ?>

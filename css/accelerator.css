@@ -161,15 +161,21 @@
 }
 
 .axconsole {
-    border: #505050 4px solid;
-    background: #505050;
-    height: 300px;
-    overflow: auto;
+  border: #505050 4px solid;
+  background: #505050;
+  height: 300px;
+  overflow: auto;
 
-    font-family: courier-new, courier, monospace;
-    font-size: 15px;
-    color: #ffd641;
-    line-height: 1.1;
+  font-family: courier-new, courier, monospace;
+  font-size: 15px;
+  color: #ffd641;
+  line-height: 1.1;
 
-    display: none;
+  display: none;
+}
+
+.mdtable {
+  border: 1px solid #c9c9c9;
+  border-collapse: collapse;  
+  padding: 3px;
 }
