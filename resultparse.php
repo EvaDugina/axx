@@ -52,7 +52,7 @@ function parseBuildCheck($data, $checks)
     {
         case 'pass':
             $boxColor = 'green';
-            $boxText = 'Успех'
+            $boxText = 'Успех';
             break;
         case 'reject':
             $boxColor = 'red';
