@@ -239,7 +239,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 			  $checks = json_decode($checks, true);
 			  
 //  line-height: 20px; color: #fff; text-align: center;
-			  $accord = array(parseBuildCheck(0, $checks), 
+			  $accord = array(parseBuildCheck(@$checkres['tools']['build'], $checks), 
 			  				  parseCppCheck(@$checkres['tools']['cppcheck'], $checks), 
 							  parseClangFormat(@$checkres['tools']['clang-format'], $checks),
 							  parseValgrind(@$checkres['tools']['valgrind'], $checks), 
