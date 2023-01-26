@@ -9,7 +9,12 @@
 		die("Неверное обращение");
 	}
 	
-	$params = array("tools" => array("valgrind" => array("enabled" => (@$_POST["valgrind_enabled"] == "true") ?"true" :"false",
+	$params = array("tools" => array("build" => array("enabled" => (@$_POST["build_enabled"] == "true") ?true :false,
+													  "show_to_student" => (@$_POST["build_show"] == "true") ?true :false,
+													  "language" => @$_POST["build_language"],
+													  "check" => array("autoreject" => (@$_POST["build_autoreject"] == "true") ?true :false)
+													 ),
+									 "valgrind" => array("enabled" => (@$_POST["valgrind_enabled"] == "true") ?"true" :"false",
 														 "show_to_student" => (@$_POST["valgrind_show"] == "true") ?"true" :"false",
 														 "bin" => "valgrind", 
 														 "arguments" => @$_POST["valgrind_arg"],
@@ -84,7 +89,6 @@
 															),
 									 "autotests" => array("enabled" => (@$_POST["test_enabled"] == "true") ?"true" :"false",
 															"show_to_student" => (@$_POST["test_show"] == "true") ?"true" :"false",
-															"language" => @$_POST["language"],
 															"test_path" => "accel_autotest.cpp",
 															"check" => array("limit" => @$_POST["test_check_limit"],
 																			 "autoreject" => (@$_POST["test_check_reject"] == "true") ?"true" :"false"

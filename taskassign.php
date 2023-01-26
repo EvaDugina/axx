@@ -196,7 +196,7 @@ if (!$result || pg_num_rows($result) < 1) {
 			  if ($checks == null)
 				$checks = $row['tchecks'];
 			  if ($checks == null)
-			    $checks = '{"tools":{"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}},"autotests": {"enabled": false,"show_to_student": false,"language": "C","test_path": "accel_autotest.cpp","check": {"limit": 0,"autoreject": true}}}}';
+			    $checks = '{"tools":{"build":{"enabled":true,"show_to_student":false,"language":"C++","check":{"autoreject":true}},"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}},"autotests": {"enabled": false,"show_to_student": false,"test_path": "accel_autotest.cpp","check": {"limit": 0,"autoreject": true}}}}';
 		      
 			  $checks = json_decode($checks, true);
 			  
@@ -250,7 +250,30 @@ if (!$result || pg_num_rows($result) < 1) {
 						'<label class="form-check-label" for="'.$group.'_'.$param.'_reject" style="width:40%;">автоматически отклонять при нарушении</label></div>';
 			  }
 			  
-			  $accord = array(array('header' => '<b>Valgrind</b>',
+			  $accord = array(array('header' => '<b>Сборка</b>',
+			  
+									'label'	 => '<input id="build_enabled" name="build_enabled" '.checked(@$checks['tools']['build']['enabled']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
+												'<label class="form-check-label" for="build_enabled" style="color:#4f4f4f;">выполнять сборку</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.
+												'<input id="build_show" name="build_show" '.checked(@$checks['tools']['build']['show_to_student']).
+												' class="accordion-input-item form-check-input ms-5" type="checkbox" value="false">'.
+												'<label class="form-check-label" for="build_show" style="color:#4f4f4f;">отображать студенту</label>',
+												
+									'body'   => //'<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>'.
+												//'<input id="valgrind_arg" name="valgrind_arg" value="'.@$checks['tools']['valgrind']['arguments'].
+												//'" style="width:50%;" class="accordion-input-item mb-2" wrap="off" rows="1"></div>'.
+												'<div><label class="form-check-label" for="build_language" style="width:20%;">Язык</label>'.
+												'<select id="build_language" name="build_language"'.
+												' class="form-select mb-2" aria-label=".form-select" style="width:50%; display: inline-block;">'.
+												'  <option value="С" '.selected(@$checks['tools']['build']['language'], 'C').'>C</option>'.
+												'  <option value="С++" '.selected(@$checks['tools']['build']['language'], 'C++').'>C++</option>'.
+												'  <option value="Python" '.selected(@$checks['tools']['build']['language'], 'Python').'>Python</option>'.
+												'</select></div>'.
+												'<div><input id="build_autoreject" name="build_autoreject" '.checked(@$checks['tools']['build']['check']['autoreject']).
+												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
+												'<label class="form-check-label" for="build_autoreject" style="color:#4f4f4f;">автоматически отклонять при нарушении</label></div>'
+									),
+							  array('header' => '<b>Valgrind</b>',
 			  
 									'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" '.checked(@$checks['tools']['valgrind']['enabled']).
 												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
@@ -325,12 +348,12 @@ if (!$result || pg_num_rows($result) < 1) {
 												' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" >'.
 												'<label class="form-check-label" for="test_show" style="color:#4f4f4f;">отображать студенту</label>',
 												
-									'body'   => '<div><label class="form-check-label" for="test_lang" style="width:20%;">сравнивать</label>'.
-												'<select id="test_lang" class="form-select mb-2" aria-label=".form-select" name="test_lang" style="width:50%; display: inline-block;">'.
-												'  <option value="С" '.selected(@$checks['tools']['autotests']['language'], 'C').'>C</option>'.
-												'  <option value="С++" '.selected(@$checks['tools']['autotests']['language'], 'C++').'>C++</option>'.
-												'  <option value="Python" '.selected(@$checks['tools']['autotests']['language'], 'Python').'>Python</option>'.
-												'</select></div>'.
+									'body'   => //'<div><label class="form-check-label" for="test_lang" style="width:20%;">сравнивать</label>'.
+												//'<select id="test_lang" class="form-select mb-2" aria-label=".form-select" name="test_lang" style="width:50%; display: inline-block;">'.
+												//'  <option value="С" '.selected(@$checks['tools']['autotests']['language'], 'C').'>C</option>'.
+												//'  <option value="С++" '.selected(@$checks['tools']['autotests']['language'], 'C++').'>C++</option>'.
+												//'  <option value="Python" '.selected(@$checks['tools']['autotests']['language'], 'Python').'>Python</option>'.
+												//'</select></div>'.
 												add_check_param('test', 'check', 'проверять', $checks)
 										),
 							  array('header' => '<b>Антиплагиат</b>',
