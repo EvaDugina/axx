@@ -241,13 +241,13 @@ function parseValgrind($data, $checks)
     switch ($leaks['outcome'])
     {
         case 'pass':
-            $errorsColor = 'green';
+            $leaksColor = 'green';
             break;	
         case 'reject':
-            $errorsColor = 'red';
+            $leaksColor = 'red';
             break;	
         case 'fail':
-            $errorsColor = 'yellow';
+            $leaksColor = 'yellow';
             break;		
     }
 
@@ -346,9 +346,6 @@ function parseAutoTests($data, $checks)
 // Разбор и преобразования результата проверки антиплагиатом в элемент массива для генерации аккордеона
 function parseCopyDetect($data, $checks)
 {
-    $resFooter = '<label for="copydetect" id="copydetect" class="switchcon">+ показать полный вывод</label>'.
-    '<pre id="copydetect" class="axconsole">Загрузка...</pre>';
-
     switch ($data['outcome'])
     {
         case 'pass':
@@ -358,14 +355,14 @@ function parseCopyDetect($data, $checks)
                     'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" '. ((@$checks['tools']['copydetect']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',         
                     'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),
-                    'footer' => $resFooter
+                    'footer' => ''
                     );
         case 'skipped':
             return array('header' => '<div class="w-100"><b>Антиплагиат</b><span id="copydetect_result" class="rightbadge"></span></div>',
                     'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" '. ((@$checks['tools']['copydetect']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                     'body'   => generateTaggedValue("copydetect_body", "Проверка пропущена или инструмент проверки не установлен."),
-                    'footer' => $resFooter
+                    'footer' => ''
                     );
             break;		
     }
@@ -391,7 +388,7 @@ function parseCopyDetect($data, $checks)
                     'label'	 => '<input id="copydetect_enabled" name="copydetect_enabled" '. ((@$checks['tools']['copydetect']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',                
                     'body'   => generateTaggedValue("copydetect_body", $resBody),
-                    'footer' => $resFooter
+                    'footer' => ''
                     );
 
     return $resArr;
