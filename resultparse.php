@@ -293,17 +293,17 @@ function parseAutoTests($data, $checks)
         case 'pass':
             break;
         case 'fail':
-            return array('header' => '<div class="w-100"><b>Автотесты</b>'.generateColorBox('red', 'Ошибка исполнения', 'autotest_result').'</div>',
-                    'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" '. ((@$checks['tools']['autotest']['enabled'] == 'true') ? 'checked' : '').
+            return array('header' => '<div class="w-100"><b>Автотесты</b>'.generateColorBox('red', 'Ошибка исполнения', 'autotests_result').'</div>',
+                    'label'	 => '<input id="autotests_enabled" name="autotests_enabled" '. ((@$checks['tools']['autotests']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',         
-                    'body'   => generateTaggedValue("autotest_body", "При выполнении проверки произошла критическая ошибка."),
+                    'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
                     'footer' => $resFooter
                     );
         case 'skipped':
-            return array('header' => '<div class="w-100"><b>Автотесты</b><span id="autotest_result" class="rightbadge"></span></div>',
-                    'label'	 => '<input id="valgrind_enabled" name="valgrind_enabled" '. ((@$checks['tools']['autotest']['enabled'] == 'true') ? 'checked' : '').
+            return array('header' => '<div class="w-100"><b>Автотесты</b><span id="autotests_result" class="rightbadge"></span></div>',
+                    'label'	 => '<input id="autotests_enabled" name="autotests_enabled" '. ((@$checks['tools']['autotests']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                    'body'   => generateTaggedValue("autotest_body", "Проверка пропущена или инструмент проверки не установлен."),
+                    'body'   => generateTaggedValue("autotests_body", "Проверка пропущена или инструмент проверки не установлен."),
                     'footer' => $resFooter
                     );
             break;		
@@ -328,15 +328,16 @@ function parseAutoTests($data, $checks)
             break;			
     }
 
-    $resBody = 'Проверок провалено: '.$check['failures'].'<br>';
-    $resColorBox = generateColorBox($boxColor, $boxText, 'autotest_result');
+    $resBody .= 'Тестов провалено: '.$check['errors'].'<br>';
+    $resBody .= 'Проверок провалено: '.$check['failures'].'<br>';
+    $resColorBox = generateColorBox($boxColor, $boxText, 'autotests_result');
 
     $resArr = array('header' => '<div class="w-100"><b>Автотесты</b>'.$resColorBox.'</div>',
 
-                    'label'	 => '<input id="autotest_enabled" name="autotest_enabled" '. ((@$checks['tools']['autotest']['enabled'] == 'true') ? 'checked' : '').
+                    'label'	 => '<input id="autotests_enabled" name="autotests_enabled" '. ((@$checks['tools']['autotests']['enabled'] == 'true') ? 'checked' : '').
                                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 
-                    'body'   => generateTaggedValue("autotest_body", $resBody),
+                    'body'   => generateTaggedValue("autotests_body", $resBody),
                     'footer' => $resFooter
                     );
 

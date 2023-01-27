@@ -261,8 +261,6 @@ async function alertContentsGet(httpRequest, name) {
                 const content = new Blob([httpRequest.responseText], {
                     type: 'text/plain'
                 });
-
-
                 const body = new FormData();
                 body.append('files', content, name);
                 const user = "sandbox";
@@ -278,202 +276,360 @@ async function alertContentsGet(httpRequest, name) {
 
 }
 
+function getCheckInfo(results, checkname)
+{
+    for (check in results.tools.cppcheck.checks)
+    {
+        var check_struct = results.tools.cppcheck.checks[check];
+        if (check_struct.check == checkname)
+        {
+            return check_struct;
+        }
+    }
+}
+
+function parseBuild(results)
+{
+    switch (results.tools.build.outcome)
+    {
+        case 'pass':
+            break;
+        case 'fail':
+            document.querySelector("#build_result").className = 
+            document.querySelector("#build_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+            document.querySelector("#build_result").innerHTML = 'Ошибка исполнения';
+            document.querySelector("#build_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+            return;
+        case 'skipped':
+            document.querySelector("#build_result").className = 
+            document.querySelector("#build_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+            document.querySelector("#build_result").innerHTML = '';
+            document.querySelector("#build_body").innerHTML = 'Проверка пропущена.';
+            return;		
+    }
+
+    var check_struct = results.tools.build.check;
+    var boxColor = '';
+    var boxText = '';
+    var bodyText = '';
+
+    switch (check_struct.outcome)
+    {
+        case 'pass':
+            boxColor = 'green';
+            boxText = 'Успех';
+            bodyText = 'Проект был собран успешно.'
+            break;
+        case 'reject':
+            boxColor = 'red';
+            boxText = 'Неудача';
+            bodyText = 'В процессе сборки были обнаружены ошибки.'
+            break;
+        case 'fail':
+            boxColor = 'yellow';
+            boxText = 'Неудача';
+            bodyText = 'Ошибка проверки.'
+            break;
+    }
+
+    document.querySelector("#build_result").className = 
+            document.querySelector("#build_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + boxColor;
+    document.querySelector("#build_result").innerHTML = boxText;
+    document.querySelector("#build_body").innerHTML = bodyText;
+}
+
 function parseCppCheck(results)
 {
-    var cppcheck_summ = 0;
-
-    if (results.tools.cppcheck.enabled)
+    switch (results.tools.cppcheck.outcome)
     {
-        for (check in results.tools.cppcheck.checks)
-        {
-            var check_struct = results.tools.cppcheck.checks[check];
-            document.querySelector("#cppcheck_" + check_struct.check).innerHTML = check_struct.result;
-            cppcheck_summ += check_struct.result;
-        }
-
-        var cppcheck_result_color = 'green';
-
-        for (check in results.tools.cppcheck.checks)
-        {
-            var check_struct = results.tools.cppcheck.checks[check];
-            switch (check_struct.outcome)
-            {
-                case 'fail':
-                    cppcheck_result_color = 'yellow';
-                    break;	
-                case 'reject':
-                    cppcheck_result_color = 'red';
-                    break;		
-            }
-            if (check_struct.outcome == 'reject')
-            {
-                break;
-            }
-        }
-
-        document.querySelector("#cppcheck_result").className = 
+        case 'pass':
+            break;
+        case 'fail':
+            document.querySelector("#cppcheck_result").className = 
             document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
-                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + cppcheck_result_color;
-
-        document.querySelector("#cppcheck_result").innerHTML = cppcheck_summ;
-    }
-    else
-    {
-        for (check in results.tools.cppcheck.checks)
-        {
-            var check_struct = results.tools.cppcheck.checks[check];
-            document.querySelector("#cppcheck_" + check_struct.check).innerHTML = "";
-        }
-        document.querySelector("#cppcheck_result").className = 
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+            document.querySelector("#cppcheck_result").innerHTML = 'Ошибка исполнения';
+            document.querySelector("#cppcheck_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+            return;
+        case 'skipped':
+            document.querySelector("#cppcheck_result").className = 
             document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
                 replace(" rb-yellow", "").replace(" rb-green", "");
-
-        document.querySelector("#cppcheck_result").innerHTML = "";
+            document.querySelector("#cppcheck_result").innerHTML = '';
+            document.querySelector("#cppcheck_body").innerHTML = 'Проверка пропущена.';
+            return;	
     }
+
+    var bodyText = '';
+    var sumOfErrors = 0;
+    var boxColor = 'green';
+
+    for (check in results.tools.cppcheck.checks)
+    {
+        var check_struct = results.tools.cppcheck.checks[check];
+        bodyText += check_struct.check + ' : ' + check_struct.result + '<br>';
+        sumOfErrors += check_struct.result;
+    }
+
+    for (check in results.tools.cppcheck.checks)
+    {
+        var check_struct = results.tools.cppcheck.checks[check];
+        switch (check_struct.outcome)
+        {
+            case 'fail':
+                boxColor = 'yellow';
+                break;	
+            case 'reject':
+                boxColor = 'red';
+                break;		
+        }
+        if (check_struct.outcome == 'reject')
+        {
+            break;
+        }
+    }
+
+    document.querySelector("#cppcheck_result").className = 
+    document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
+        replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + boxColor;
+    document.querySelector("#cppcheck_result").innerHTML = sumOfErrors;
+    document.querySelector("#cppcheck_body").innerHTML = bodyText;
 }
 
 function parseClangFormat(results)
 {
-	var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
-    var clang_format_result_color = 'green';
-
-    if (clang_format.enabled)
+    switch (results.tools.cppcheck.outcome)
     {
-        switch (clang_format.check.outcome)
-        {
-            case 'fail':
-                clang_format_result_color = 'yellow';
-                break;	
-            case 'reject':
-                clang_format_result_color = 'red';
-                break;		
-        }
-
-        document.querySelector("#clangformat_result").className = 
+        case 'pass':
+            break;
+        case 'fail':
+            document.querySelector("#clangformat_result").className = 
             document.querySelector("#clangformat_result").className.replace(" rb-red", "").
-                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + clang_format_result_color;
-
-        document.querySelector("#clangformat_result").innerHTML = clang_format.check.result;
-        document.querySelector("#clangformat_result_inner").innerHTML = clang_format.check.result;
-    }
-    else
-    {
-        document.querySelector("#clangformat_result").className = 
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+            document.querySelector("#clangformat_result").innerHTML = 'Ошибка исполнения';
+            document.querySelector("#clangformat_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+            return;
+        case 'skipped':
+            document.querySelector("#clangformat_result").className = 
             document.querySelector("#clangformat_result").className.replace(" rb-red", "").
                 replace(" rb-yellow", "").replace(" rb-green", "");
-
-        document.querySelector("#clangformat_result").innerHTML = "";
-        document.querySelector("#clangformat_result_inner").innerHTML = "";
+            document.querySelector("#clangformat_result").innerHTML = '';
+            document.querySelector("#clangformat_body").innerHTML = 'Проверка пропущена.';
+            return;		
     }
+
+	var check_struct = (new Map(Object.entries(results.tools))).get("clang-format");
+    var boxColor = '';
+
+    switch (clang_format.outcome)
+    {
+        case 'pass':
+            boxColor = 'green';
+            break;
+        case 'reject':
+            boxColor = 'red';
+            break;
+        case 'fail':
+            boxColor = 'yellow';
+            break;			
+    }
+
+    document.querySelector("#clangformat_result").className = 
+    document.querySelector("#clangformat_result").className.replace(" rb-red", "").
+        replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + boxColor;
+    document.querySelector("#clangformat_result").innerHTML = check_struct.result;
+    document.querySelector("#clangformat_body").innerHTML = 'Замечаний линтера: ' + check_struct.result + '<br>';
 }
 
 function parseValgrind(results)
 {
-    for (check in results.tools.valgrind.checks)
+    switch (results.tools.cppcheck.outcome)
     {
-        var check_struct = results.tools.valgrind.checks[check];
-        var valgrind_result_color = 'green';
-
-        switch (check_struct.outcome)
-        {
-            case 'fail':
-                valgrind_result_color = 'yellow';
-                break;	
-            case 'reject':
-                valgrind_result_color = 'red';
-                break;		
-        }
-
-        if(results.tools.valgrind.enabled)
-        {
-            document.querySelector("#valgrind_" + check_struct.check).innerHTML = check_struct.result;
-            document.querySelector("#valgrind_" + check_struct.check).className = 
-            document.querySelector("#valgrind_" + check_struct.check).className.replace(" rb-red", "").
-                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + valgrind_result_color;
-
-            document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = check_struct.result;
-        }
-        else
-        {
-            document.querySelector("#valgrind_" + check_struct.check).innerHTML = "";
-            document.querySelector("#valgrind_" + check_struct.check).className = 
-            document.querySelector("#valgrind_" + check_struct.check).className.replace(" rb-red", "").
+        case 'pass':
+            break;
+        case 'fail':
+            document.querySelector("#valgrind_leaks").className = 
+            document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
                 replace(" rb-yellow", "").replace(" rb-green", "");
-
-            document.querySelector("#valgrind_" + check_struct.check + "_inner").innerHTML = "";
-        }
+            document.querySelector("#valgrind_leaks").innerHTML = '';
+            document.querySelector("#valgrind_errors").className = 
+            document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+            document.querySelector("#valgrind_errors").innerHTML = 'Ошибка исполнения';
+            document.querySelector("#valgrind_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+            return;
+        case 'skipped':
+            document.querySelector("#valgrind_leaks").className = 
+            document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+            document.querySelector("#valgrind_leaks").innerHTML = '';
+            document.querySelector("#valgrind_errors").className = 
+            document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+            document.querySelector("#valgrind_errors").innerHTML = '';
+            document.querySelector("#valgrind_body").innerHTML = 'Проверка пропущена.';
+            return;		
     }
+
+    var leaks = getCheckInfo(results, 'leaks');
+    var errors = getCheckInfo(results, 'errors');
+    var leaksColor = '';
+    var errorsColor = '';
+
+    var resBody = '';
+
+    switch (leaks.outcome)
+    {
+        case 'pass':
+            leaksColor = 'green';
+            break;	
+        case 'reject':
+            leaksColor = 'red';
+            break;	
+        case 'fail':
+            leaksColor = 'yellow';
+            break;		
+    }
+
+    switch (errors.outcome)
+    {
+        case 'pass':
+            errorsColor = 'green';
+            break;	
+        case 'reject':
+            errorsColor = 'red';
+            break;	
+        case 'fail':
+            errorsColor = 'yellow';
+            break;		
+    }
+
+    resBody += 'Утечки памяти: ' + leaks.result + '<br>';
+    resBody += 'Ошибки памяти: ' + errors.result + '<br>';
+
+    document.querySelector("#valgrind_leaks").className = 
+    document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
+        replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + leaksColor;
+    document.querySelector("#valgrind_leaks").innerHTML = leaks.result;
+    document.querySelector("#valgrind_errors").className = 
+    document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
+        replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + errorsColor;;
+    document.querySelector("#valgrind_errors").innerHTML = errors.result;
+    document.querySelector("#valgrind_body").innerHTML = resBody;
 }
 
 function parseAutoTests(results)
 {
-    var autotest_result_color = 'green';
-    var autotest_result_str = 'Passed'
-
-    if (results.tools.autotests.check.failures > 0)
+    switch (results.tools.autotests.outcome)
     {
-        autotest_result_color = 'red';	
-        autotest_result_str = 'Failed';
-    }
-
-    if(results.tools.autotests.enabled)
-    {
-        document.querySelector("#autotest_result").className = 
-            document.querySelector("#autotest_result").className.replace(" rb-red", "").
-                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + autotest_result_color;
-
-        
-        document.querySelector("#autotest_result").innerHTML = autotest_result_str;
-        document.querySelector("#autotest_result_inner").innerHTML = results.tools.autotests.check.failures;
-    }
-    else
-    {
-        document.querySelector("#autotest_result").className = 
-            document.querySelector("#autotest_result").className.replace(" rb-red", "").
+        case 'pass':
+            break;
+        case 'fail':
+            document.querySelector("#autotests_result").className = 
+            document.querySelector("#autotests_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+            document.querySelector("#autotests_result").innerHTML = 'Ошибка исполнения';
+            document.querySelector("#autotests_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+            return;
+        case 'skipped':
+            document.querySelector("#autotests_result").className = 
+            document.querySelector("#autotests_result").className.replace(" rb-red", "").
                 replace(" rb-yellow", "").replace(" rb-green", "");
-
-        document.querySelector("#autotest_result").innerHTML = "";
-        document.querySelector("#autotest_result_inner").innerHTML = "";
+            document.querySelector("#autotests_result").innerHTML = '';
+            document.querySelector("#autotests_body").innerHTML = 'Проверка пропущена.';
+            return;		
     }
+
+    var boxColor = '';
+    var boxText = '';
+    var bodyText = '';
+
+    var check_struct = results.tools.autotests.check;
+
+    switch (check_struct.outcome)
+    {
+        case 'pass':
+            boxColor = 'green';
+            boxText = 'Успех';
+            break;	
+        case 'reject':
+            boxColor = 'red';
+            boxText = 'Неудача';
+            break;	
+        case 'fail':
+            boxColor = 'yellow';
+            boxText = 'Неудача';
+            break;		
+    }
+
+    bodyText += 'Тестов провалено: ' + check_struct.errors + '<br>';
+    bodyText += 'Проверок провалено: ' + check_struct.failures + '<br>';
+
+    document.querySelector("#autotests_result").className = 
+    document.querySelector("#autotests_result").className.replace(" rb-red", "").
+        replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + boxColor;
+    document.querySelector("#autotests_result").innerHTML = boxText;
+    document.querySelector("#autotests_body").innerHTML = bodyText;
 }
 
 function parseCopydetect(results)
 {
-    var copydetect_result_color = 'green';
-    switch (results.tools.copydetect.check.outcome)
+    switch (results.tools.autotests.outcome)
     {
+        case 'pass':
+            break;
         case 'fail':
-            copydetect_result_color = 'yellow';
+            document.querySelector("#copydetect_result").className = 
+            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+            document.querySelector("#copydetect_result").innerHTML = 'Ошибка исполнения';
+            document.querySelector("#copydetect_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+            return;
+        case 'skipped':
+            document.querySelector("#copydetect_result").className = 
+            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+            document.querySelector("#copydetect_result").innerHTML = '';
+            document.querySelector("#copydetect_body").innerHTML = 'Проверка пропущена.';
+            return;		
+    }
+
+    var boxColor = '';
+    var boxText = '';
+    var bodyText = 'Пока что тут пусто.';
+
+    var check_struct = results.tools.copydetect.check;
+
+    switch (check_struct.outcome)
+    {
+        case 'pass':
+            boxColor = 'green';
             break;	
         case 'reject':
-            copydetect_result_color = 'red';
+            boxColor = 'red';
+            break;	
+        case 'fail':
+            boxColor = 'yellow';
             break;		
     }
 
-    if(results.tools.copydetect.enabled)
-    {
-        document.querySelector("#copydetect_result").className = 
-            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + copydetect_result_color;
+    boxText = check_struct.result;
 
-        document.querySelector("#copydetect_result").innerHTML = results.tools.copydetect.check.result;
-        document.querySelector("#copydetect_result_inner").innerHTML = results.tools.copydetect.output;
-    }
-    else
-    {
-        document.querySelector("#copydetect_result").className = 
-            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-                replace(" rb-yellow", "").replace(" rb-green", "");
-
-        document.querySelector("#copydetect_result").innerHTML = "";
-        document.querySelector("#copydetect_result_inner").innerHTML = "";
-    }
+    document.querySelector("#copydetect_result").className = 
+    document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+        replace(" rb-yellow", "").replace(" rb-green", "") + " rb-" + boxColor;
+    document.querySelector("#copydetect_result").innerHTML = boxText;
+    document.querySelector("#copydetect_body").innerHTML = bodyText;
 }
 
 function showCheckResults(jsonResults) {
 
 	var results = JSON.parse(jsonResults);
 
+    parseBuild(results);
     parseCppCheck(results);
     parseClangFormat(results);
 	parseValgrind(results);
