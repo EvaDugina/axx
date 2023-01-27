@@ -96,7 +96,7 @@ document.querySelector("#startTools").addEventListener('click', async e => {
 				"&cppcheck="+document.querySelector("#cppcheck_enabled").checked + 
 				"&clang="+document.querySelector("#clangformat_enabled").checked + 
 				"&valgrind="+document.querySelector("#valgrind_enabled").checked + 
-				"&test="+document.querySelector("#autotest_enabled").checked + 
+				"&test="+document.querySelector("#autotests_enabled").checked + 
 				"&copy="+document.querySelector("#copydetect_enabled").checked, 
 				"tools");
 });
@@ -276,11 +276,11 @@ async function alertContentsGet(httpRequest, name) {
 
 }
 
-function getCheckInfo(results, checkname)
+function getCheckInfo(checks, checkname)
 {
-    for (check in results.tools.cppcheck.checks)
+    for (check in checks)
     {
-        var check_struct = results.tools.cppcheck.checks[check];
+        var check_struct = checks[check];
         if (check_struct.check == checkname)
         {
             return check_struct;
@@ -401,7 +401,9 @@ function parseCppCheck(results)
 
 function parseClangFormat(results)
 {
-    switch (results.tools.cppcheck.outcome)
+    var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
+
+    switch (clang_format.outcome)
     {
         case 'pass':
             break;
@@ -421,10 +423,10 @@ function parseClangFormat(results)
             return;		
     }
 
-	var check_struct = (new Map(Object.entries(results.tools))).get("clang-format");
+    var check_struct = clang_format.check; 
     var boxColor = '';
 
-    switch (clang_format.outcome)
+    switch (check_struct.outcome)
     {
         case 'pass':
             boxColor = 'green';
@@ -446,7 +448,7 @@ function parseClangFormat(results)
 
 function parseValgrind(results)
 {
-    switch (results.tools.cppcheck.outcome)
+    switch (results.tools.valgrind.outcome)
     {
         case 'pass':
             break;
@@ -474,8 +476,8 @@ function parseValgrind(results)
             return;		
     }
 
-    var leaks = getCheckInfo(results, 'leaks');
-    var errors = getCheckInfo(results, 'errors');
+    var leaks = getCheckInfo(results.tools.valgrind.checks, 'leaks');
+    var errors = getCheckInfo(results.tools.valgrind.checks, 'errors');
     var leaksColor = '';
     var errorsColor = '';
 
@@ -577,7 +579,7 @@ function parseAutoTests(results)
 
 function parseCopydetect(results)
 {
-    switch (results.tools.autotests.outcome)
+    switch (results.tools.copydetect.outcome)
     {
         case 'pass':
             break;
