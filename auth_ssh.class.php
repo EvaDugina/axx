@@ -5,10 +5,11 @@ class auth_ssh
 {
   function login($login, $pwd, $source)
   {
+    global $dbconnect;
     session_start();
     $lg = pg_escape_string($login);
     
-    $result = pg_query("SELECT * FROM students WHERE login='$lg'");
+    $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg'");
     $found = pg_fetch_assoc($result);
     if($found) {
             $_SESSION['login'] = $login;
