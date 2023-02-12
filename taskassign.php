@@ -265,8 +265,8 @@ if (!$result || pg_num_rows($result) < 1) {
 												'<div><label class="form-check-label" for="build_language" style="width:20%;">Язык</label>'.
 												'<select id="build_language" name="build_language"'.
 												' class="form-select mb-2" aria-label=".form-select" style="width:50%; display: inline-block;">'.
-												'  <option value="С" '.selected(@$checks['tools']['build']['language'], 'C').'>C</option>'.
-												'  <option value="С++" '.selected(@$checks['tools']['build']['language'], 'C++').'>C++</option>'.
+												'  <option value="C" '.selected(@$checks['tools']['build']['language'], 'C').'>C</option>'.
+												'  <option value="C++" '.selected(@$checks['tools']['build']['language'], 'C++').'>C++</option>'.
 												'  <option value="Python" '.selected(@$checks['tools']['build']['language'], 'Python').'>Python</option>'.
 												'</select></div>'.
 												'<div><input id="build_autoreject" name="build_autoreject" '.checked(@$checks['tools']['build']['check']['autoreject']).
