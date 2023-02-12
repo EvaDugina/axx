@@ -87,9 +87,9 @@ if (array_key_exists('page', $_REQUEST)) {
 <html lang="en">
 
 	<?php
-	show_head("Добавление/Редактирование предмета");
-  if ($short_name) show_header($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета: '.$short_name  => $_SERVER['REQUEST_URI'])); 
-  else show_header($dbconnect, 'Добавление/Редактирование предмета', array('Редактор карточки предмета' => $_SERVER['REQUEST_URI'])); 
+	show_head("Добавление/Редактирование раздела");
+  if ($short_name) show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела: '.$short_name  => $_SERVER['REQUEST_URI'])); 
+  else show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI'])); 
   ?>
 
 	<body>
@@ -99,9 +99,9 @@ if (array_key_exists('page', $_REQUEST)) {
 					<div class="col-lg-12">
 						<?php
 						if ($page_id == 0)
-							echo '<h2>Добавление предмета</h2>';
+							echo '<h2>Добавление раздела</h2>';
 						else 
-							echo '<h2>Редактирование предмета</h2>';
+							echo '<h2>Редактирование раздела</h2>';
 						?>
 					</div>
 				</div>
@@ -110,14 +110,14 @@ if (array_key_exists('page', $_REQUEST)) {
 				<input type = "hidden" name = "id" value = "<?=$page_id?>"></input>
 
 				<div class="row align-items-center m-3">
-					<div class="col-lg-3 row justify-content-left">Краткое название предмета:</div>
+					<div class="col-lg-2 row justify-content-left">Название раздела:</div>
 					<div class="col-lg-2">
 						<input type="text" id="form12" class="form-control" maxlength="19" value="<?=$short_name?>" name="short_name" autocomplete="off" required/>
 					</div>
 				</div>
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
-					<div class="col-lg-3 row justify-content-left">Полное название дисциплины:</div>
+					<div class="col-lg-2 row justify-content-left">Полное название дисциплины:</div>
 					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
 						<select id="selectDiscipline" class="form-select" name="disc_id" required>
@@ -138,41 +138,41 @@ if (array_key_exists('page', $_REQUEST)) {
 
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
-					<div class="col-lg-3 row justify-content-left">Семестр:</div>
+					<div class="col-lg-2 row justify-content-left">Семестр:</div>
 					<div class="col-lg-4">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="timestamp">           
-								<?php // echo $page['year'] . " " . $page['semester'];
-								for($year = $years['max']; $year >= $years['max']-4; $year--){
-                  echo "<option ";
-                  if ($page && $year == $page['year'] && $page['semester'] == 1)
-                    echo "selected";
-                  echo ">".$year."/".($year+1)." Осень</option>";
+							<?php // echo $page['year'] . " " . $page['semester'];
+								for($year = $years['max']-4; $year <= $years['max']; $year++) {
+								  echo "<option ";
+								  if ($page && $year == $page['year'] && $page['semester'] == 1)
+									echo "selected";
+								  echo ">".$year."/".($year+1)." Осень</option>";
 
-                  echo "<option ";
-                  if ($page && $year == $page['year'] && $page['semester'] == 2)
-                    echo "selected";
-                  echo ">".$year."/".($year+1)." Весна</option>";
-								}?>
+								  echo "<option ";
+								  if ($page && $year == $page['year'] && $page['semester'] == 2)
+									echo "selected";
+								  echo ">".$year."/".($year+1)." Весна</option>";
+								}
+							?>
 
-                <!-- Добавление в новый, не существующий в бд семестр -->
-                <option class="text-info"><?=($years['max']+1)."/".($years['max']+2)." Осень"?></option>;
-                <option class="text-info"><?=($years['max']+1)."/".($years['max']+2)." Весна"?></option>;
+								<!-- Добавление в новый, не существующий в бд семестр -->
+								<option class="text-info"><?=($years['max']+1)."/".($years['max']+2)." Осень"?></option>;
+								<option class="text-info"><?=($years['max']+1)."/".($years['max']+2)." Весна"?></option>;
 							</select>
 						</div>
 					</div>
 				</div>
 
 				
-				<div class="row align-items-center m-3">
+				<div class="row align-items-center mx-3 pe-group-upper">
 					<div class="col-lg-2 row justify-content-left">Преподаватели:</div>
-
-					<div class="col-lg-1">
-						<button id="add_teachers" type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
-							Добавить 
-						</button>
-					</div>
-					<div class="col-lg-2">
+					<div id="teachers_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
+				</div>
+				
+				<div class="row align-items-center mx-3 pe-group-lower">
+					<div class="col-lg-2 row"></div>
+					<div class="col-lg-10">
 						<div class="btn-group shadow-0">
 							<select class="form-select" id = "select_teacher">
 								<?php
@@ -180,26 +180,24 @@ if (array_key_exists('page', $_REQUEST)) {
 										<option><?=$teacher['first_name'].' '.$teacher['middle_name']?></option>;
 									<?php }
 								?>
-							</select>
+							</select>&nbsp;
+							<button id="add_teachers" type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
+								Добавить 
+							</button>
 						</div>
 					</div>
-				
-				</div>
-				
-				<div class="row align-items-center m-3">
-					<div class="col-lg-2 row"></div>
-					<div id="teachers_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start;"></div>
-				</div>
-				
-				<div class="row align-items-center m-3">
-					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
-
 					<div class="col-lg-1">
-						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
-							Добавить 
-						</button>
 					</div>
-					<div class="col-lg-2">
+				</div>
+				
+				<div class="row align-items-center mx-3 pe-group-upper">
+					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
+					<div id="groups_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
+				</div>
+				
+				<div class="row align-items-center mx-3 pe-group-lower">
+					<div class="col-lg-2 row"></div>
+					<div class="col-lg-10">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
@@ -208,15 +206,11 @@ if (array_key_exists('page', $_REQUEST)) {
 									}
 									echo "<option>Нет учебной группы</option>";
 								?>
-							</select>
+							</select>&nbsp;
+							<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
+								Добавить 
+							</button>
 						</div>
-					</div>
-				
-				</div>
-				
-				<div class="row align-items-center m-3">
-					<div class="col-lg-2 row"></div>
-					<div id="groups_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start;">
 					</div>
 				</div>
 					
@@ -261,7 +255,7 @@ if (array_key_exists('page', $_REQUEST)) {
 					<?php if ($page_id != 0) {?>
 						<div class="col-lg-2">
 							<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
-								Удалить предмет
+								Удалить раздел
 							</button>
 						</div>
 					<?php }?>
@@ -369,7 +363,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	</script>
 
 	<script type="text/javascript">
-		// Скрипт синхронизации выбора дисциплины и оформления для предмета
+		// Скрипт синхронизации выбора дисциплины и оформления для раздела
 		var select = document.querySelector('#selectDiscipline');
 		select.addEventListener('click', function(){
 

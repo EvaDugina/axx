@@ -67,7 +67,7 @@ function full_name($discipline_id, $dbconnect) {
                 style="width: 100%; height: 100%; padding-top: 20%;">
                   <div class="row">
                     <i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
-                    <span class="align-self-center">Добавить новый предмет</span>
+                    <span class="align-self-center">Добавить новый раздел</span>
                   </div>
                 </a>
               </div>
@@ -149,7 +149,7 @@ function full_name($discipline_id, $dbconnect) {
 							style="width: 100%; height: 100%; padding-top: 20%;">
 								<div class="row">
 									<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
-									<span class="align-self-center">Добавить новый предмет</span>
+									<span class="align-self-center">Добавить новый раздел</span>
 								</div>
 							</a>
 						</div>

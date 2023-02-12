@@ -179,3 +179,13 @@
   border-collapse: collapse;  
   padding: 3px;
 }
+
+.pe-group-upper {
+  padding:8px 0px 8px 0px; 
+  margin-bottom:0px !important;
+}
+
+.pe-group-lower {
+  padding-bottom:8px; 
+  margin-top:0px !important;
+}
