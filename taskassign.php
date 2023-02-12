@@ -256,7 +256,7 @@ if (!$result || pg_num_rows($result) < 1) {
 												' class="accordion-input-item form-check-input" type="checkbox" value="true">'.
 												'<label class="form-check-label" for="build_enabled" style="color:#4f4f4f;">выполнять сборку</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.
 												'<input id="build_show" name="build_show" '.checked(@$checks['tools']['build']['show_to_student']).
-												' class="accordion-input-item form-check-input ms-5" type="checkbox" value="false">'.
+												' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true">'.
 												'<label class="form-check-label" for="build_show" style="color:#4f4f4f;">отображать студенту</label>',
 												
 									'body'   => //'<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>'.
