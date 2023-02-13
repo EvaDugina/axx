@@ -1,14 +1,12 @@
 <?php 
 require_once("./settings.php");
-require_once("./dbqueries.php");
-require_once("./utilities.php");
 
 class User {
 
   private $id; 
   private $first_name, $middle_name, $last_name;
   private $login, $role;
-  private $group_id, $group_name;
+  private $group_id, $group_name; // Должны меняться одновременно
   private $email, $notify_status;
 
   
@@ -37,7 +35,13 @@ class User {
   }
 
 
-  // GETTERS
+
+  
+  // GETTERS --------------------
+
+  public function getId() {
+    return $this->id;
+  }
 
   public function getFI() {
     if (empty($this->first_name))
@@ -117,9 +121,8 @@ class User {
 
 
 
-
   
-  // SETTERS
+  // SETTERS --------------------
 
   public function setFIO($first_name, $middle_name, $last_name) {
     global $dbconnect;
@@ -146,8 +149,10 @@ class User {
 
     $this->group_id = $group_id;
 
-    $query = "UPDATE students_to_groups SET group_id = $group_id WHERE student_id = $this->id";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $query = querySetGroupId($this->id, $this->group_id);
+    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+    $this->group_name = pg_fetch_assoc($result)['name'];
   }
 
   public function setEmail($email) {
@@ -177,7 +182,7 @@ class User {
 
 
 
-// ФУНКЦИИ РАБОТЫ С БД 
+// ФУНКЦИИ ЗАПРОСОВ К БД 
 
 function queryGetUserInfo($id){
   return "SELECT first_name, middle_name, last_name, login, role, groups.id as group_id,
@@ -192,6 +197,12 @@ function queryGetUserInfo($id){
 
 
 
+
+function querySetGroupId($user_id, $group_id) {
+  return "UPDATE students_to_groups SET group_id = $group_id 
+          WHERE student_id = $user_id; 
+          SELECT name FROM groups WHERE id = $group_id;";
+}
 
 function querySetNotifyStatus($id, $notify_type) {
   return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
