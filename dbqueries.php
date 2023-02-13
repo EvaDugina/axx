@@ -163,6 +163,7 @@ function insert_page($discipline) {
 // ДЕЙСТВИЯ С УВЕДОМЛЕНИЯМИ
 
 // получение уведомлений, отсортированных по message_id для студента по невыполненным заданиям
+//[x]: убрать функцию, как только не будет использоваться
 function select_notify_for_student_header($student_id){
     return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
               teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.id as message_id, ax_message.full_text FROM ax_task
@@ -178,6 +179,7 @@ function select_notify_for_student_header($student_id){
 }
 
 // получение уведомлений для преподавателя по непроверенным заданиям
+//[x]: убрать функцию, как только не будет использоваться
 function select_notify_for_teacher_header($teacher_id){
     return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
                 ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment_student.student_user_id,
@@ -229,6 +231,7 @@ function select_unchecked_by_page($teacher_id, $page_id){
     ";
 }
 
+//[x]: убрать
 function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_id){
     return "SELECT COUNT(*) FROM ax_message
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
@@ -239,6 +242,8 @@ function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_i
     ";
 }
 
+
+//[x]: убрать
 function select_count_unreaded_messages_by_task_for_student($student_id, $task_id){
     return "SELECT COUNT(*) FROM ax_message
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id

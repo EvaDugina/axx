@@ -13,13 +13,15 @@ $user = new User($_SESSION['hash']);
 <html lang="en">
 
 <?php 
-show_head(); ?>
+show_head('Профиль'); ?>
 
 <body>
-        <?php
-        $au = new auth_ssh();
-        show_header($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Профиль' => 'profile.php') 
-                : array('Дэшборд студента' => 'mainpage_student.php', 'Профиль' => 'profile.php')); ?>
+  <?php
+  $au = new auth_ssh();
+  show_header($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Профиль' => 'profile.php') 
+          : array('Дэшборд студента' => 'mainpage_student.php', 'Профиль' => 'profile.php')); 
+  ?>
+
 	<main style="max-width: 1000px; width:100%; margin: 0 auto;">
 		<div class="pt-5 px-4">
 			<div class="row">
