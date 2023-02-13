@@ -5,6 +5,8 @@ require_once("../utilities.php");
 
 class Group {
 
+  // getByName()
+  // getById()
 }
 
 ?>

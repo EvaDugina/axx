@@ -1,9 +1,9 @@
 <?php 
-require_once("../settings.php");
-require_once("../dbqueries.php");
-require_once("../Task.class.php");
-require_once("../User.class.php");
-require_once("../Group.class.php");
+require_once("./settings.php");
+
+require_once("Task.class.php");
+require_once("User.class.php");
+require_once("Group.class.php");
 
 
 class Page {
