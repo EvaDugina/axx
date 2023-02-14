@@ -5,12 +5,12 @@
 	require_once("common.php");	
 	
 	
-	function str2bool($str = ''): bool
+	function str2bool($str = '')
 	{
 	    return ($str == "true") ? true : false;
 	}
 	
-	function str2int($str = ''): integer
+	function str2int($str = '')
 	{
 		if (settype($str)) 
 			return $str;
