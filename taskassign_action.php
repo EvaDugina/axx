@@ -4,103 +4,117 @@
 	
 	require_once("common.php");	
 	
+	
+	function str2bool($str = ''): bool
+	{
+	    return ($str == "true") ? true : false;
+	}
+	
+	function str2int($str = ''): integer
+	{
+		if (settype($str)) 
+			return $str;
+		else
+			return 0;
+	}
+	
 	if (!array_key_exists("assignment_id", $_POST) || !array_key_exists("from", $_POST)) {
 		http_response_code(401);
 		die("Неверное обращение");
 	}
 	
-	$params = array("tools" => array("build" => array("enabled" => (@$_POST["build_enabled"] == "true") ?true :false,
-													  "show_to_student" => (@$_POST["build_show"] == "true") ?true :false,
+	$params = array("tools" => array("build" => array("enabled" => str2bool(@$_POST["build_enabled"]),
+													  "show_to_student" => str2bool(@$_POST["build_show"]),
 													  "language" => @$_POST["build_language"],
-													  "check" => array("autoreject" => (@$_POST["build_autoreject"] == "true") ?true :false)
+													  "check" => array("autoreject" => str2bool(@$_POST["build_autoreject"]))
 													 ),
-									 "valgrind" => array("enabled" => (@$_POST["valgrind_enabled"] == "true") ?"true" :"false",
-														 "show_to_student" => (@$_POST["valgrind_show"] == "true") ?"true" :"false",
+									 "valgrind" => array("enabled" => str2bool(@$_POST["valgrind_enabled"]),
+														 "show_to_student" => str2bool(@$_POST["valgrind_show"]),
 														 "bin" => "valgrind", 
 														 "arguments" => @$_POST["valgrind_arg"],
 														 "compiler" => @$_POST["valgrind_compiler"], 
 														 "checks" => array(array("check" => "errors",
-																				 "enabled" => (@$_POST["valgrind_errors"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["valgrind_errors_limit"],
-																				 "autoreject" => (@$_POST["valgrind_errors_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["valgrind_errors"]),
+																				 "limit" => str2int(@$_POST["valgrind_errors_limit"]),
+																				 "autoreject" => str2bool(@$_POST["valgrind_errors_reject"])
 																				),
 																		   array("check" => "leaks",
-																				 "enabled" => (@$_POST["valgrind_leaks"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["valgrind_leaks_limit"],
-																				 "autoreject" => (@$_POST["valgrind_leaks_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["valgrind_leaks"]),
+																				 "limit" => str2int(@$_POST["valgrind_leaks_limit"]),
+																				 "autoreject" => str2bool(@$_POST["valgrind_leaks_reject"])
 																				)	
 																		  )
 														),
-									 "cppcheck" => array("enabled" => (@$_POST["cppcheck_enabled"] == "true") ?"true" :"false",
-														 "show_to_student" => (@$_POST["cppcheck_show"] == "true") ?"true" :"false",
+									 "cppcheck" => array("enabled" => str2bool(@$_POST["cppcheck_enabled"]),
+														 "show_to_student" => str2bool(@$_POST["cppcheck_show"]),
 														 "bin" => "cppcheck", 
 														 "arguments" => @$_POST["cppcheck_arg"],
 														 "checks" => array(array("check" => "error",
-																				 "enabled" => (@$_POST["cppcheck_error"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_error_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_error_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_error"]),
+																				 "limit" => str2int(@$_POST["cppcheck_error_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_error_reject"])
 																				),
 																		   array("check" => "warning",
-																				 "enabled" => (@$_POST["cppcheck_warning"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_warning_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_warning_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_warning"]),
+																				 "limit" => str2int(@$_POST["cppcheck_warning_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_warning_reject"])
 																				),
 																			array("check" => "style",
-																				 "enabled" => (@$_POST["cppcheck_style"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_style_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_style_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_style"]),
+																				 "limit" => str2int(@$_POST["cppcheck_style_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_style_reject"])
 																				),																				
 																			array("check" => "performance",
-																				 "enabled" => (@$_POST["cppcheck_performance"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_performance_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_performance_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_performance"]),
+																				 "limit" => str2int(@$_POST["cppcheck_performance_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_performance_reject"])
 																				),
 																			array("check" => "portability",
-																				 "enabled" => (@$_POST["cppcheck_portability"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_portability_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_portability_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_portability"]),
+																				 "limit" => str2int(@$_POST["cppcheck_portability_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_portability_reject"])
 																				),
 																			array("check" => "information",
-																				 "enabled" => (@$_POST["cppcheck_information"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_information_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_information_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_information"]),
+																				 "limit" => str2int(@$_POST["cppcheck_information_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_information_reject"])
 																				),
 																			array("check" => "unusedFunction",
-																				 "enabled" => (@$_POST["cppcheck_unused"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_unused_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_unused_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_unused"]),
+																				 "limit" => str2int(@$_POST["cppcheck_unused_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_unused_reject"])
 																				),
 																			array("check" => "missingInclude",
-																				 "enabled" => (@$_POST["cppcheck_include"] == "true") ?"true" :"false",
-																				 "limit" => @$_POST["cppcheck_include_limit"],
-																				 "autoreject" => (@$_POST["cppcheck_include_reject"] == "true") ?"true" :"false"
+																				 "enabled" => str2bool(@$_POST["cppcheck_include"]),
+																				 "limit" => str2int(@$_POST["cppcheck_include_limit"]),
+																				 "autoreject" => str2bool(@$_POST["cppcheck_include_reject"])
 																				)
 																		  )
 														),
-									 "clang-format" => array("enabled" => (@$_POST["clang_enabled"] == "true") ?"true" :"false",
-															 "show_to_student" => (@$_POST["clang_show"] == "true") ?"true" :"false",
+									 "clang-format" => array("enabled" => str2bool(@$_POST["clang_enabled"]),
+															 "show_to_student" => str2bool(@$_POST["clang_show"]),
 															 "bin" => "clang-format", 
 															 "arguments" => @$_POST["clang_arg"],
 															 "check" => array("level" => @$_POST["clang-config"],
 																			  "file" => "",
-																			  "limit" => @$_POST["clang_errors_limit"],
-																			  "autoreject" => (@$_POST["clang_errors_reject"] == "true") ?"true" :"false"
+																			  "limit" => str2int(@$_POST["clang_errors_limit"]),
+																			  "autoreject" => str2bool(@$_POST["clang_errors_reject"])
 																			 )
 															),
-									 "autotests" => array("enabled" => (@$_POST["test_enabled"] == "true") ?"true" :"false",
-															"show_to_student" => (@$_POST["test_show"] == "true") ?"true" :"false",
+									 "autotests" => array("enabled" => str2bool(@$_POST["test_enabled"]),
+															"show_to_student" => str2bool(@$_POST["test_show"]),
 															"test_path" => "accel_autotest.cpp",
-															"check" => array("limit" => @$_POST["test_check_limit"],
-																			 "autoreject" => (@$_POST["test_check_reject"] == "true") ?"true" :"false"
+															"check" => array("limit" => str2int(@$_POST["test_check_limit"]),
+																			 "autoreject" => str2bool(@$_POST["test_check_reject"])
 																			)
 														   ),
-									"copydetect" => array("enabled" => (@$_POST["plug_enabled"] == "true") ?"true" :"false",
-															 "show_to_student" => (@$_POST["plug_show"] == "true") ?"true" :"false",
+									"copydetect" => array("enabled" => str2bool(@$_POST["plug_enabled"]),
+															 "show_to_student" => str2bool(@$_POST["plug_show"]),
 															 "bin" => "copydetect", 
 															 "arguments" => @$_POST["plug_arg"],
 															 "check" => array("type" => @$_POST["plug_config"],
-																			  "limit" => @$_POST["plug_check_limit"],
-																			  "autoreject" => (@$_POST["plug_check_reject"] == "true") ?"true" :"false"
+																			  "limit" => str2int(@$_POST["plug_check_limit"]),
+																			  "autoreject" => str2bool(@$_POST["plug_check_reject"])
 																			 )
 														  )
 									)
