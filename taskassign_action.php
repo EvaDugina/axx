@@ -3,20 +3,8 @@
 	exit; */
 	
 	require_once("common.php");	
+	require_once("utilities.php");	
 	
-	
-	function str2bool($str = '')
-	{
-	    return ($str == "true") ? true : false;
-	}
-	
-	function str2int($str = '')
-	{
-		if (settype($str)) 
-			return $str;
-		else
-			return 0;
-	}
 	
 	if (!array_key_exists("assignment_id", $_POST) || !array_key_exists("from", $_POST)) {
 		http_response_code(401);

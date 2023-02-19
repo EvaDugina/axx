@@ -285,4 +285,17 @@ function show_accordion($name, $data, $labelshift = "0px")
 			<?php
 }
 
+function str2bool($str = '')
+{
+	return ($str == "true") ? true : false;
+}
+
+function str2int($str = '')
+{
+	if (settype($str)) 
+		return $str;
+	else
+		return 0;
+}
+
 ?>

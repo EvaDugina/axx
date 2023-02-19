@@ -273,25 +273,38 @@
 	
 	$checks = json_decode($checks, true);
 				
-    if (array_key_exists('cppcheck', $_REQUEST))
-      $checks['tools']['cppcheck']['enabled'] = ($_REQUEST['cppcheck'] == "true") ? true : false;
-    if (array_key_exists('clang', $_REQUEST))
-      $checks['tools']['clang-format']['enabled'] = ($_REQUEST['clang'] == "true") ? true : false;
-    if (array_key_exists('valgrind', $_REQUEST))
-      $checks['tools']['valgrind']['enabled'] = ($_REQUEST['valgrind'] == "true") ? true : false;
-    if (array_key_exists('copy', $_REQUEST))
-      $checks['tools']['copydetect']['enabled'] = ($_REQUEST['copy'] == "true") ? true : false;
+    if (array_key_exists('cppcheck', $_REQUEST)) {
+      $checks['tools']['cppcheck']['enabled'] = str2bool(@$_REQUEST['cppcheck']);
+	  $checks['tools']['cppcheck']['bin'] = "cppcheck";
+	}
+    if (array_key_exists('clang', $_REQUEST)) {
+      $checks['tools']['clang-format']['enabled'] = str2bool(@$_REQUEST['clang']);
+	  $checks['tools']['clang-format']['bin'] = "clang-format";
+	  $checks['tools']['clang-format']['check']['file'] = ".clang-format";
+	}
+    if (array_key_exists('valgrind', $_REQUEST)) {
+      $checks['tools']['valgrind']['enabled'] = str2bool(@$_REQUEST['valgrind']);
+	  $checks['tools']['valgrind']['bin'] = "valgrind";
+	}
+    if (array_key_exists('copy', $_REQUEST)) {
+      $checks['tools']['copydetect']['enabled'] = str2bool(@$_REQUEST['copy']);
+	  $checks['tools']['copydetect']['bin'] = "copydetect";
+	  $checks['tools']['copydetect']['check']['reference_directory'] = "copydetect_input";
+	}
     if (array_key_exists('build', $_REQUEST)) {
-	  if (!array_key_exists('build', $checks['tools'])) 
+	  //if (!array_key_exists('build', $checks['tools'])) 
 		; //$checks['tools']['build'] = array();  
-      else
-		$checks['tools']['build']['enabled'] = ($_REQUEST['build'] == "true") ? true : false;
+      //else
+      
+      $checks['tools']['build']['enabled'] = str2bool(@$_REQUEST['build']);
 	}
     if (array_key_exists('test', $_REQUEST)) {
-	  if (!array_key_exists('autotests', $checks['tools'])) 
-		; //$checks['tools']['autotests'] = array();  
-	  else
-        $checks['tools']['autotests']['enabled'] = ($_REQUEST['test'] == "true") ? true : false;
+	  //if (!array_key_exists('autotests', $checks['tools'])) 
+	  //	; //$checks['tools']['autotests'] = array();  
+	  //else
+      
+	  $checks['tools']['autotests']['enabled'] = str2bool(@$_REQUEST['test']);
+	  $checks['tools']['autotests']['test_path'] = "accel_autotest.cpp";
 	}
 	
 	/*echo $checks; exit;*/
