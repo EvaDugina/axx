@@ -34,11 +34,11 @@ if (!$result || pg_num_rows($result) < 1) {
   exit;
 } else {
   $row = pg_fetch_assoc($result);
-  show_head("Задания по дисциплине: " . $row['disc_name']);
+  show_head("Задания по дисциплине: " . $row['disc_name'], array('js/preptasks.js'));
   show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));
 } ?>
 
-<body>
+<body onload="enableOps(false);">
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">
       <div class="row gy-5">
@@ -67,7 +67,7 @@ if (!$result || pg_num_rows($result) < 1) {
                   <thead>
                     <tr>
                       <th scope="col"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="checkAllActive"
-                        onChange="$('#checkActiveForm').find('input:checkbox').not(this).prop('checked', this.checked);"/></div></th>
+                        onChange="$('#checkActiveForm').find('input:checkbox').not(this).prop('checked', this.checked);updateOps();"/></div></th>
                       <th scope="col" style="width:100%;">Название</th>
                       <th scope="col"></th>
                     </tr>
@@ -76,7 +76,7 @@ if (!$result || pg_num_rows($result) < 1) {
                     <?php
                     while ($task = pg_fetch_assoc($result)) {?>
                       <tr>
-                        <td scope="row" style="--mdb-table-accent-bg:unset;"><div class="form-check"><input class="form-check-input" type="checkbox" value="<?=$task['id']?>" name="activeTasks[]" id="checkActive" /></div></td>
+                        <td scope="row" style="--mdb-table-accent-bg:unset;"><div class="form-check"><input class="form-check-input enabler" type="checkbox" value="<?=$task['id']?>" name="activeTasks[]" id="checkActive" onChange="updateOps();"/></div></td>
                         <td style="--mdb-table-accent-bg:unset;">
                           <h6>
                             <?php if ($task['type'] == 1) {?>
@@ -253,8 +253,8 @@ if (!$result || pg_num_rows($result) < 1) {
         </div>
 
         <div class="col-4">
-          <div class="p-3 border bg-light">
-            <h6>Массовые операции</h6>
+          <div class="p-3 border bg-light" id="mutable">
+            <h6>Массовые операции <span id="hint" class="hint">Выберите задания</span></h6>
             <form method="get" action="preptasks_edit.php" name="linkFileForm" id="linkFileForm" enctype="multipart/form-data" >
               <input type="hidden" name="action" value="linkFile" />
               <input type="hidden" name="page" value="<?=$page_id?>" />
@@ -338,9 +338,9 @@ if (!$result || pg_num_rows($result) < 1) {
               </select>
             </div>
             <div class="pt-1 pb-1 align-items-center ps-5">
-                <button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-copy fa-lg"></i> Копировать</button> 
+                <button type="button" class="btn btn-outline-primary always-disabled" disabled><i class="fas fa-copy fa-lg"></i> Копировать</button> 
             </div>
-            <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
+            <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary always-disabled" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
             <form method="get" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
@@ -357,7 +357,7 @@ if (!$result || pg_num_rows($result) < 1) {
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
-              <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-danger" disabled
+              <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-danger always-disabled" disabled
                     onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
                               $(deleteForm).find(groupped).val(0);"
                     onChange="$(deleteForm).trigger('submit')">

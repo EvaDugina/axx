@@ -189,3 +189,12 @@
   padding-bottom:8px; 
   margin-top:0px !important;
 }
+
+.hint {
+  display: inline-block;
+  padding: 0px 6px;
+  white-space: nowrap;
+  background-color: #ffe187;
+  font-weight: normal;
+  color: #666666;
+}
