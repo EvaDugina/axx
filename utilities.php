@@ -49,7 +49,7 @@ function convert_mtime($mtime){
 }
 
 
-
+// [x]: Убрать, тк это есть в классе File
 function add_random_prefix_to_file_name($real_file_name) {
   //return rand_prefix() . basename($real_file_name);
   return $real_file_name;

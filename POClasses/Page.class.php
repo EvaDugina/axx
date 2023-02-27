@@ -250,10 +250,9 @@ function getTasksByPage($page_id) {
 
   $query = queryGetTasksByPage($page_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $task_ids = pg_fetch_all($result);
 
-  foreach($task_ids as $task_id) {
-    array_push($tasks, new Task($task_id));
+  while($task_row = pg_fetch_assoc($result)) {
+    array_push($tasks, new Task($task_row['row']));
   }
 
   return $tasks;
@@ -266,10 +265,9 @@ function getGroupsByPage($page_id) {
 
   $query = queryGetGroupsByPage($page_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $group_ids = pg_fetch_all($result);
 
-  foreach($group_ids as $group_id) {
-    array_push($tasks, new Group($group_id));
+  while($group_row = pg_fetch_assoc($result)){
+    array_push($tasks, new Group($group_row['id']));
   }
 
   return $groups;
@@ -282,10 +280,9 @@ function getTeachersByPage($page_id) {
 
   $query = queryGetTeachersByPage($page_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $teacher_ids = pg_fetch_all($result);
 
-  foreach($teacher_ids as $teacher_id) {
-    array_push($tasks, new User($teacher_id));
+  while($teacher_row = pg_fetch_assoc($result)){
+    array_push($tasks, new User($teacher_row['id']));
   }
 
   return $teachers;
@@ -306,16 +303,17 @@ function queryGetPageInfo($page_id) {
 }
 
 function queryGetTasksByPage($page_id) {
-  return "SELECT ax_task.id FROM ax_task WHERE page_id = $page_id ORDER BY id";
+  return "SELECT ax_task.id as id FROM ax_task WHERE page_id = $page_id ORDER BY id";
 } 
 
 function queryGetGroupsByPage($page_id) {
-  return "SELECT ax_page_group.group_id FROM ax_page_group WHERE page_id = $page_id ORDER BY group_id";
+  return "SELECT ax_page_group.group_id as id FROM ax_page_group WHERE page_id = $page_id ORDER BY group_id";
 } 
 
 function queryGetTeachersByPage($page_id) {
-  return "SELECT ax_page_prep.prep_user_id FROM ax_page_prep WHERE page_id = $page_id ORDER BY prep_user_id";
+  return "SELECT ax_page_prep.prep_user_id as id FROM ax_page_prep WHERE page_id = $page_id ORDER BY prep_user_id";
 } 
+
 
 function querySetColorThemeId($page_id, $color_theme_id) {
   return "UPDATE ax_page SET color_theme_id = $color_theme_id WHERE id = $page_id;

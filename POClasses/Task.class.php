@@ -37,9 +37,10 @@ class Task {
   }
   
 
-  //TODO: getAssignmentById
-  //TODO: getFileById
-  //TODO: getAutoTestById
+  // TODO: getAssignmentById
+  // TODO: getFileById
+  // TODO: getAutoTestById
+  // TODO: addTaskFile
   // by else...
   
 }
