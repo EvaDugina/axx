@@ -31,13 +31,13 @@ class File {
       
     } 
     
-    else if ($count_args == 5) {
+    else if ($count_args == 4) {
       $this->type = $args[0];
       $this->name = $args[1];
       $this->download_url = $args[2];
       $this->full_text = $args[3];
 
-      $this->id = $this->pushNewToDB();
+      $this->pushNewToDB();
 
     } 
     
@@ -143,12 +143,20 @@ class File {
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
-    return $result['id'];
+
+    $this->id = $result['id'];
+  }
+
+  public function deleteFromDB() {
+    global $dbconnect;
+  
+    $query = "DELETE FROM ax_file WHERE file_id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  
   }
 
 
 }
-
 
 
 // Добавление рандомного префикса к названию файла, чтобы избежать оибки добавления файлов с одинаковым названием
