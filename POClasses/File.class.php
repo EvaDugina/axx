@@ -117,15 +117,6 @@ class File {
   public function pushChangesToDB() {
     global $dbconnect;
 
-    // $query = "UPDATE ax_file SET name = '$this->name', download_url = '$this->download_url', full_text = '$this->full_text', type = $this->type WHERE id = $this->id;";
-    // $pg_query = pg_query($dbconnect, $query);
-
-    // if (!$pg_query) {
-    //   $query = "INSERT INTO ax_file (id, type, name, download_url, full_text) 
-    //   VALUES ($this->id, $this->type, '$this->name', '$this->download_url', '$this->full_text');
-    //   ";
-    // }
-
     $query = "UPDATE ax_file SET type = $this->type, name = '$this->name', download_url = '$this->download_url', full_text = '$this->full_text' 
               WHERE id = $this->id;
     ";

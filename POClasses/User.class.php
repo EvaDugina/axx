@@ -3,180 +3,108 @@ require_once("./settings.php");
 
 class User {
 
-  private $id; 
-  private $first_name, $middle_name, $last_name;
-  private $login, $role;
-  private $group_id, $group_name; // Должны меняться одновременно
-  private $email, $notify_status;
+  public $id; 
+  public $first_name, $middle_name, $last_name;
+  public $login, $role;
+  public $email, $notify_status;
+
+  public $Group = null;
 
   
-  function __construct($user_id) {
+  function __construct() {
     global $dbconnect;
 
-    $this->id = $user_id;
+    $count_args = func_num_args();
+    $args = func_get_args();
 
-    $query = queryGetUserInfo($this->id);
-    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $user = pg_fetch_assoc($result);
+    // Перегружаем конструктор по количеству подданых параметров
 
-    $this->first_name = $user['first_name'];
-    $this->middle_name = $user['middle_name'];
-    $this->last_name = $user['last_name'];
+    if ($count_args == 1 && is_int($args[0])) {
+      $this->id = $args[0];
 
-    $this->login = $user['login'];
-    $this->role = $user['role'];
+      $query = queryGetUserInfo($this->id);
+      $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      $user = pg_fetch_assoc($result);
 
-    $this->group_id = $user['group_id'];
-    $this->group_name = $user['group_name'];
+      $this->first_name = $user['first_name'];
+      $this->middle_name = $user['middle_name'];
+      $this->last_name = $user['last_name'];
 
-    $this->email = $user['email'];
-    $this->notify_status = $user['notification_type'];
+      $this->login = $user['login'];
+      $this->role = $user['role'];
 
-  }
+      $this->email = $user['email'];
+      $this->notify_status = $user['notification_type'];
 
-
-
-  
-  // GETTERS --------------------
-
-  public function getId() {
-    return $this->id;
-  }
-
-  public function getFI() {
-    if (empty($this->first_name))
-      return $this->middle_name;
-    else
-      return $this->first_name + " " + $this->middle_name;
-  }
-
-  public function getFIO() {
-    if (empty($this->first_name) && empty($this->middle_name))
-      return $this->last_name;
-    if (empty($this->first_name))
-        return $this->middle_name . " " . $this->last_name;
-    if (empty($this->middle_name))
-      return $this->first_name . " " . $this->last_name;
-    return $this->first_name . " " . $this->middle_name . " " . $this->last_name; 
-  }
-
-  public function getLogin() {
-    return $this->login;
-  }
-
-  public function getRole() {
-    return $this->role;
-  }
-
-  public function getGroupId() {
-    return $this->group_id;
-  }
-  
-  public function getGroupName() {
-    return $this->group_name;
-  }
-
-  public function getEmail() {
-    return $this->email;
-  }
-
-  public function getNotifyStatus() {
-    return $this->notify_status;
-  }
-  
-
-
-
-  // Нетривиальные GETTERS
-
-  public function getNotifications() {
-    global $dbconnect;
-
-    // TODO: получить список уведомлений пользователя
-    if ($this->role == 1);
-    else if ($this->role == 2) // Уведомления для преподавателя
-      $query = queryGetNotifiesForTeacherHeader($this->id);
-    else if ($this->role == 3) // Уведомления для студента
-      $query = queryGetNotifiesForStudentHeader($this->id);
-
-    $result = pg_query($dbconnect, $query);
-    $array_notify = pg_fetch_all($result);
-
-    return $array_notify;
-  }
-
-  public function getCountUnreadedMessagesByTask($assignment_id) {
-    global $dbconnect;
-
-    if ($this->role == 1);
-    else if($this->role == 2){
-      $query = queryGetCountUnreadedMessagesBytaskForTeacher($assignment_id);
-    } else if ($this->role == 3){
-      $query = queryGetCountUnreadedMessagesBytaskForStudent($assignment_id);
+      $this->Group = new Group($user['group_id']);
     }
-    $result = pg_query($dbconnect, $query);
-    $count_unreaded_messages_by_notify = pg_fetch_assoc($result);
-    return $count_unreaded_messages_by_notify;
+
+    // Раскомментировать, когда понадобится создавать студента в БД
+    // else if ($count_args == 7) { 
+    //   $this->first_name = $args[0];
+    //   $this->middle_name = $args[1];
+    //   $this->last_name = $args[2];
+
+    //   $this->login = $args[3];
+    //   $this->role = $args[4];
+
+    //   $this->email = $args[5];
+    //   $this->notify_status = $args[6];
+
+    //   $this->pushNewToDB();
+    // }
+
+    else {
+      die('Неверное число аргументов, или неверный id');
+    }
+
   }
 
-
-
-  
-  // SETTERS --------------------
-
-  public function setFIO($first_name, $middle_name, $last_name) {
+  public function pushStudentChangesToDB() {
     global $dbconnect;
 
-    $this->first_name = $first_name;
-    $this->middle_name = $middle_name;
-    $this->last_name = $last_name;
-
-    $query = "UPDATE students SET first_name = $first_name, middle_name = $middle_name, last_name = $last_name WHERE id = $this->id";
+    $query = "UPDATE students SET first_name = '$this->first_name', middle_name = '$this->middle_name', last_name = '$this->last_name', 
+              login = '$this->login', role = $this->role  
+              WHERE id = $this->id;
+    ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setLogin($login) {
+
+  public function pushSettingChangesToDB() {
     global $dbconnect;
 
-    $this->login = $login;
-
-    $query = "UPDATE students SET login = $login WHERE id = $this->id";
+    $query = "UPDATE ax_settings SET email = '$this->email', notification_type = '$this->notify_status'
+              WHERE user_id = $this->id;
+    ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setGroupId($group_id) {
-    global $dbconnect;
+  // public function pushGroupChangesToDB() {
 
-    $this->group_id = $group_id;
+  // }
 
-    $query = querySetGroupId($this->id, $this->group_id);
-    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  // public function deleteFromDB() {
+  //   global $dbconnect;
 
-    $this->group_name = pg_fetch_assoc($result)['name'];
-  }
-
-  public function setEmail($email) {
-    global $dbconnect;
-
-    if($this->email != $email) {
-      $this->email = $email;
-
-      $query = querySetEmail($this->id, $this->email);
-      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    }
-  }
-
-  public function setNotificationStatus($notify_status) {
-    global $dbconnect;
-
-    if (intval($this->notify_status) != intval($notify_status)) {
-      $this->notify_status = $notify_status;
-
-      $query = querySetNotifyStatus($this->id, $this->notify_status);
-      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    }
-  }
+  //   $query = "DELETE FROM students_to_groups WHERE student_id = $this->id;";
+  //   $query .= "DELETE FROM ax_assignment_student WHERE student_user_id = $this->id;";
+  //   $query .= "DELETE FROM students WHERE id = $this->id;";
+    
+  //   pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  // }
  
+}
+
+
+function getGroupByStudent($student_id) {
+  global $dbconnect;
+
+  $query = queryGetGroupByStudent($student_id);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $group_id = pg_fetch_all($result)['group_id'];
+
+  return new Group($group_id);
 }
 
 
@@ -185,14 +113,17 @@ class User {
 // ФУНКЦИИ ЗАПРОСОВ К БД 
 
 function queryGetUserInfo($id){
-  return "SELECT first_name, middle_name, last_name, login, role, groups.id as group_id,
-      groups.name as group_name, ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
-      FROM students
-      LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
-      LEFT JOIN groups ON groups.id = students_to_groups.group_id
-      LEFT JOIN ax_settings ON ax_settings.user_id = students.id
-      WHERE students.id = $id;
+  return "SELECT first_name, middle_name, last_name, login, role, students_to_groups.group_id as group_id,
+          ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
+          FROM students
+          LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
+          LEFT JOIN ax_settings ON ax_settings.user_id = students.id
+          WHERE students.id = $id;
   ";
+}
+
+function queryGetGroupByStudent($student_id) {
+  return "SELECT group_id FROM students_to_groups WHERE student_id = $student_id;";
 }
 
 

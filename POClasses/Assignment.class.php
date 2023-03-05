@@ -67,6 +67,52 @@ class Assignment {
       $this->pushNewToDB($task_id);
     }
 
+    else {
+      die('Неверные аргументы в конструкторе');
+    }
+
+  }
+
+
+  public function pushNewToDB($task_id) {
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, 
+              status_code, delay, status_text, mark, checks)
+              VALUES ($task_id, '$this->variant_comment', '$this->start_limit', '$this->finish_limit', 
+              $this->status_code, $this->delay, '$this->status_text', '$this->mark', '$this->checks') 
+              RETURNING id;";
+
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $result = pg_fetch_assoc($pg_query);
+
+    $this->id = $result['id'];
+  }
+  public function pushAssignmentChangesToDB(){
+    global $dbconnect;
+
+    $query = "UPDATE ax_assignment SET variant_comment='$this->variant_comment', start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
+              status_code=$this->status_code, delay=$this->delay, status_text='$this->status_text', mark='$this->mark', checks='$this->checks' 
+              WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteFromDB() {
+    global $dbconnect;
+  
+    foreach($this->Students as $Student) {
+      $Student->deleteFromDB();
+    }
+    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
+
+    foreach($this->Messages as $Message) {
+      $Message->deleteFromDB();
+    }
+    foreach($this->Commits as $Commit) {
+      $Commit->deleteFromDB();
+    }
+
+    $query .= "DELETE FROM ax_assignment WHERE id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
 
@@ -171,6 +217,9 @@ class Assignment {
 
   // -- END SETTERS
 
+
+// WORK WITH STUDENTS 
+
   public function addStudent($student_id) {
     $Student = new User($student_id);
     $this->pushStudentToAssignmentDB($student_id);
@@ -194,6 +243,44 @@ class Assignment {
     return -1;
   }
 
+  public function pushStudentToAssignmentDB($student_id){
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteStudentFromAssignmentDB($student_id) {
+    global $dbconnect;
+
+    $query = "DELETE FROM ax_assignment_student WHERE student_user_id = $student_id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function pushStudentsToAssignmentDB() {
+    global $dbconnect;
+
+    $this->deleteStudentsFromAssignmentDB();
+
+    $query = "";
+    if (!empty($this->Students)) {
+      foreach($this->Students as $Student) {
+        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->getId());";
+      }
+    }
+    
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteStudentsFromAssignmentDB() {
+    global $dbconnect;
+
+    // Удаляем предыдущие прикрепления студентов
+    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+// -- END WORK WITH STUDENTS 
+
+
+// WORK WITH MESSAGES
 
   public function addMessage($message_id) {
     $Message = new Message($message_id);
@@ -216,6 +303,10 @@ class Assignment {
     return -1;
   }
 
+// -- END WORK WITH MESSAGES 
+
+
+// WORK WITH COMMITS
 
   public function addCommit($commit_id) {
     $Commit = new Commit($commit_id);
@@ -238,82 +329,7 @@ class Assignment {
     return -1;
   }
 
-
-
-  public function pushNewToDB($task_id) {
-    global $dbconnect;
-
-    $query = "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, 
-              status_code, delay, status_text, mark, checks)
-              VALUES ($task_id, '$this->variant_comment', '$this->start_limit', '$this->finish_limit', 
-              $this->status_code, $this->delay, '$this->status_text', '$this->mark', '$this->checks') 
-              RETURNING id;";
-
-    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $result = pg_fetch_assoc($pg_query);
-
-    $this->id = $result['id'];
-  }
-  public function pushAssignmentChangesToDB(){
-    global $dbconnect;
-
-    $query = "UPDATE ax_assignment SET variant_comment='$this->variant_comment', start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
-              status_code=$this->status_code, delay=$this->delay, status_text='$this->status_text', mark='$this->mark', checks='$this->checks' 
-              WHERE id = $this->id";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-  public function deleteFromDB() {
-    global $dbconnect;
-  
-    foreach($this->Students as $Student) {
-      $Student->deleteFromDB();
-    }
-    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
-
-    foreach($this->Messages as $Message) {
-      $Message->deleteFromDB();
-    }
-    foreach($this->Commits as $Commit) {
-      $Commit->deleteFromDB();
-    }
-
-    $query .= "DELETE FROM ax_assignment WHERE id = $this->id;";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-
-  public function pushStudentToAssignmentDB($student_id){
-    global $dbconnect;
-
-    $query = "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-  public function deleteStudentFromAssignmentDB($student_id) {
-    global $dbconnect;
-
-    $query = "DELETE FROM ax_assignment_student WHERE student_user_id = $student_id;";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-  public function pushStudentsToDB() {
-    global $dbconnect;
-
-    $this->deleteStudentsFromDB();
-
-    $query = "";
-    if (!empty($this->Students)) {
-      foreach($this->Students as $Student) {
-        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->getId());";
-      }
-    }
-    
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-  public function deleteStudentsFromDB() {
-    global $dbconnect;
-
-    // Удаляем предыдущие прикрепления студентов
-    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
+  // -- END WORK WITH MESSAGES 
   
 }
 

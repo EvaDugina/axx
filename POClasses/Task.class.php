@@ -5,132 +5,110 @@ require_once("File.class.php");
 
 class Task {
 
-  private $id;
-  private $page_id, $type, $title, $description;
-  private $max_mark, $status, $checks;
+  public $id;
+  public $type, $title, $description;
+  public $max_mark, $status, $checks;
 
-  private $Assignments = array(); 
-  private $Files = array();
+  public $Assignments = array(); 
+  public $Files = array();
 
-  function __construct($task_id) {
+  function __construct() {
     global $dbconnect;
 
-    $this->id = $task_id;
+    $count_args = func_num_args();
+    $args = func_get_args();
 
-    $query = queryGetTaskInfo($this->id);
-    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $task = pg_fetch_assoc($result);
+    // Перегружаем конструктор по количеству подданых параметров
 
-    $this->page_id = $task['page_id'];
-    $this->type = $task['type'];
-    $this->title = $task['title'];
-    $this->description = $task['description'];
+    if ($count_args == 1 && is_int($args[0])) {
+      $this->id = $args[0];
 
-    $this->max_mark = $task['max_mark'];
-    $this->status = $task['status'];
-    $this->checks = $task['checks'];
+      $query = queryGetTaskInfo($this->id);
+      $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      $task = pg_fetch_assoc($result);
 
-    $this->Assignments = getAssignmentsByTask($this->id);
-    $this->Files = getFilesByTask($this->id);
-    // $this->AutoTests = getAutoTestsByTask($this->id);
+      $this->type = $task['type'];
+      $this->title = $task['title'];
+      $this->description = $task['description'];
+
+      $this->max_mark = $task['max_mark'];
+      $this->status = $task['status'];
+      $this->checks = $task['checks'];
+
+      $this->Assignments = getAssignmentsByTask($this->id);
+      $this->Files = getFilesByTask($this->id);
+      // $this->AutoTests = getAutoTestsByTask($this->id);
+    }
+
+    else if ($count_args == 7) {
+      $page_id = $args[0];
+
+      $this->type = $args[1];
+      $this->title = $args[2];
+      $this->description = $args[3];
+
+      $this->max_mark = $args[4];
+      $this->status = $args[5];
+      $this->checks = $args[6];
+
+      $this->pushNewToDB($page_id);
+    }
+
+    else {
+      die('Неверные аргументы в конструкторе');
+    }
+
+  }
+
+  public function pushNewToDB($page_id) {
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
+              VALUES ('$page_id', '$this->type', '$this->title', '$this->description', $this->max_mark, '$this->status')
+              RETURNING id;";
+
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $result = pg_fetch_assoc($pg_query);
+
+    $this->id = $result['id'];
+  }
+  public function pushChangesToDB() {
+    global $dbconnect;
+
+    $query = "UPDATE ax_task SET type = $this->type, title = '$this->title', description = '$this->description', 
+              max_mark = '$this->max_mark', status = $this->status
+              WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteFromDB() {
+    global $dbconnect;
+
+    foreach($this->Assignments as $Assignment) {
+      $Assignment->deleteFromDB();
+    }
+    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
+
+    foreach($this->Files as $File) {
+      $File->deleteFromDB();
+    }
+    $query = "DELETE FROM ax_task_file WHERE task_id = $this->id;";
+
+    $query .= "DELETE FROM ax_task WHERE id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
 
-// GETTERS
-
-  public function getId(){
-    return $this->id;
-  }
-
-  public function getPageId(){
-    return $this->page_id;
-  }
-
-  public function getType(){
-    return $this->type;
-  }
-
-  public function getTitle(){
-    return $this->title;
-  }
-
-  public function getDescription(){
-    return $this->description;
-  }
-
-  public function getMaxMark(){
-    return $this->max_mark;
-  }
-
-  public function getStatus(){
-    return $this->status;
-  }
-
-  public function getChecks(){
-    return $this->checks;
-  }
-
-  public function getAssignments(){
-    return $this->Assignments;
-  }
-
-  public function getFiles(){
-    return $this->Files;
-  }
-
-// -- END GETTERS
-
-
-// SETTERS
-
-  public function setPageId($page_id) {
-    $this->page_id = $page_id;
-  }
-
-  public function setType($type) {
-    $this->type = $type;
-  }
-
-  public function setTitle($title) {
-    $this->title = $title;
-  }
-
-  public function setDescription($description) {
-    $this->description = $description;
-  }
-
-  public function setMaxMark($max_mark) {
-    $this->max_mark = $max_mark;
-  }
-
-  public function setStatus($status) {
-    $this->status = $status;
-  }
-
-  public function setChecks($checks) {
-    $this->checks = $checks;
-  }
-
-  public function setAssignments($Assignments) {
-    $this->Assignments = $Assignments;
-  }
-
-  public function setFiles($Files) {
-    $this->Files = $Files;
-  }
-
-// -- END SETTERS
-
+// WORK WITH ASSIGNMENT
 
   public function addAssignment($assignment_id) {
     $Assignment = new Assignment($assignment_id);
-    //$this->pushAssignmentToAssignmentDB($assignment_id);
     array_push($this->Assignments, $Assignment);
   }
   public function deleteAssignment($assignment_id) {
     $index = $this->findAssignmentById($assignment_id);
     if ($index != -1) {
-      //$this->deleteStudentFromAssignmentDB($student_id);
       $this->Assignments[$index]->deleteFromDB();
       unset($this->Assignments[$index]);
     }
@@ -144,6 +122,11 @@ class Task {
     }
     return -1;
   }
+
+// -- END WORK WITH ASSIGNMENT
+
+
+// WORK WITH FILE
 
   public function addFile($file_id) {
     $File = new File($file_id);
@@ -167,39 +150,20 @@ class Task {
     }
     return -1;
   }
-
-
-  public function deleteFromDB() {
-    global $dbconnect;
-
-    foreach($this->Assignments as $Assignment) {
-      $Assignment->deleteFromDB();
-    }
-    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
-
-    foreach($this->Files as $File) {
-      $File->deleteFromDB();
-    }
-    $query = "DELETE FROM ax_task_file WHERE task_id = $this->id;";
-
-    $query .= "DELETE FROM ax_task WHERE id = $this->id;";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-
-
   public function pushFileToTaskDB($file_id) {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $file_id);";
+    $query = "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function deleteFileFromTaskDB($file_id) {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_message_file WHERE file_id = $file_id;";
+    $query = "DELETE FROM ax_task_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+// -- END WORK WITH FILE
   
 }
 
