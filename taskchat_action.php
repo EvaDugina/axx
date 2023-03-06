@@ -3,6 +3,7 @@ require_once("settings.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("messageHandler.php");
+require_once("POClasses/Commit.class.php.php");
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
   exit;
@@ -54,9 +55,12 @@ if ($_POST['type'] == 1){
   /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
   echo "<br>";*/
 
-  $query = insert_answer_commit($assignment_id, $user_id);
-	$result = pg_query($dbconnect, $query) ;
-	$commit_id = pg_fetch_assoc($result)['id'];
+  // TODO: ПРОВЕРИТЬ!
+  $Commit = new Commit($assignment_id, null, $user_id, null, null);
+  $commit_id = $Commit->id;
+  // $query = insert_answer_commit($assignment_id, $user_id);
+	// $result = pg_query($dbconnect, $query) ;
+	// $commit_id = pg_fetch_assoc($result)['id'];
 
   /*echo "COMMIT_ID: ".$commit_id;
   echo "<br>";*/

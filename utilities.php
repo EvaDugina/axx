@@ -2,6 +2,7 @@
 require_once("settings.php");
 require_once("dbqueries.php");
 require_once("messageHandler.php");
+require_once("POClasses/Message.class.php");
 
 // Работа с TIMESTAMP
 date_default_timezone_set('Europe/Moscow');
@@ -78,21 +79,41 @@ function delete_prefix($str) {
 // ОБЩИЕ ФУНКЦИИ РАБОТЫ С ЗАДАНИЯМИ
 // $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
 function getTaskFiles($dbconnect, $task_id){
-  $query = "SELECT id, type, file_name, download_url FROM ax_task_file WHERE task_id = $task_id AND type < 2 order by id";
-  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $task_files = [];
-  for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+  $Task = new Task($task_id);
+  $Files = $Task->getFiles();
+
+  // $query = "SELECT id, type, file_name, download_url FROM ax_task_file WHERE task_id = $task_id AND type < 2 order by id";
+  // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  // $task_files = [];
+
+  // for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+  //   // Если текст файла лежит в БД
+  //   if ($row['download_url'] == null) {
+  //     $row['download_url'] = 'download_file.php?task_file_id=' . $row['id'];
+  //   }
+  //   // Если файл лежит на сервере
+  //   else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
+  //     $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
+  //   }
+  //   $file_name = delete_random_prefix_from_file_name($row['file_name']);
+  //   $task_files[] = ['id' => $row['id'], 'type' => $row['type'], 'file_name' => $file_name, 'download_url' => $row['download_url']];
+  // }
+
+  // TODO: ПРОВЕРИТЬ!
+  $task_files = array();
+  foreach ($Files as $File) {
     // Если текст файла лежит в БД
-    if ($row['download_url'] == null) {
-      $row['download_url'] = 'download_file.php?task_file_id=' . $row['id'];
+    if ($File->download_url == null) {
+      $File->download_url = 'download_file.php?file_id=' . $File->id;
     }
     // Если файл лежит на сервере
-    else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-      $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
+    else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+      $File->download_url = 'download_file.php?file_path=' . $File->download_url;
     }
-    $file_name = delete_random_prefix_from_file_name($row['file_name']);
-    $task_files[] = ['id' => $row['id'], 'type' => $row['type'], 'file_name' => $file_name, 'download_url' => $row['download_url']];
+    $file_name = delete_random_prefix_from_file_name($File->file_name);
+    array_push($task_files, array('id' => $File->id, 'type' => $File->type, 'file_name' => $file_name, 'download_url' => $File->download_url));
   }
+
   return $task_files;
 }
 
@@ -115,24 +136,38 @@ function showAttachedFilesByMessageId($message_id){
 
   // Возвращает двумерный массив вложений для сообщения по message_id
   function get_message_attachments($message_id) {
-    global $dbconnect;
-    $query = select_message_attachment($message_id);
-    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+    // TODO: ПРОВЕРИТЬ!
+    $Message = new Message($message_id);
+    // $query = select_message_attachment($message_id);
+    // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     
-    $messages = [];
-    for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+    $files = [];
+    foreach ($Message->getFiles() as $File) {
       // Если текст файла лежит в БД
-      if ($row['download_url'] == null) {
-        $row['download_url'] = 'download_file.php?attachment_id=' . $row['id'];
+      if ($File->download_url == null) {
+        $File->download_url = 'download_file.php?file_id=' . $File->id;
       }
       // Если файл лежит на сервере
-      else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-        if (strpos($row['download_url'], 'editor.php') === false)
-          $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
+      else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+        if (strpos($File->download_url, 'editor.php') === false)
+        $File->download_url = 'download_file.php?file_path=' . $File->download_url . '&with_prefix=';
       }
-      $messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
+      $files[] = ['id' => $File->id, 'file_name' => delete_prefix($File->name), 'download_url' => $File->download_url];
     }
-    return $messages;
+    // for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+    //   // Если текст файла лежит в БД
+    //   if ($row['download_url'] == null) {
+    //     $row['download_url'] = 'download_file.php?attachment_id=' . $row['id'];
+    //   }
+    //   // Если файл лежит на сервере
+    //   else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
+    //     if (strpos($row['download_url'], 'editor.php') === false)
+    //       $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
+    //   }
+    //   $messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
+    // }
+    return $files;
   }
 
 // Выводит прикрепленные к странице с заданием файлы
@@ -182,7 +217,7 @@ function special_for_taskedit($f, $task_id, $page_id){?>
   class="d-inline-flex justify-content-between align-items-center form-statusTaskFiles">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
     <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-    <input type="hidden" name="task_file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="file_id" value="<?=$f['id']?>"></input>
     <input type="hidden" name="flag-statusFile" value="true"></input>
     
     <select id="select-statusTaskFile" class="form-select me-2 select-statusTaskFile" id="select-statusFile">
@@ -199,7 +234,7 @@ function special_for_taskedit($f, $task_id, $page_id){?>
   <form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
     <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-    <input type="hidden" name="task_file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="file_id" value="<?=$f['id']?>"></input>
     <input type="hidden" name="flag-deleteFile" value="true"></input>
 
     <button class="btn btn-link bg-danger text-white me-0 p-1" type="submit">

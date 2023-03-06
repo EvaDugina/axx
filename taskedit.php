@@ -55,13 +55,19 @@ if (isset($_GET['task'])){
 	  exit;
   }
 
-	$query = select_task_file(2, $task_id);
-	$result = pg_query($dbconnect, $query);
-	$test = pg_fetch_all($result);
+  // TODO: Протестировать!
+  $Task = new Task($task_id);
+  $TestFiles = $Task->getFilesByType(2);
+  $TestOfTestFiles = $Task->getFilesByType(3);
 
-	$query = select_task_file(3, $task_id);
-	$result = pg_query($dbconnect, $query);
-	$test_of_test = pg_fetch_all($result);
+
+	// $query = select_task_file(2, $task_id);
+	// $result = pg_query($dbconnect, $query);
+	// $test = pg_fetch_all($result);
+
+	// $query = select_task_file(3, $task_id);
+	// $result = pg_query($dbconnect, $query);
+	// $test_of_test = pg_fetch_all($result);
 
 } else if (isset($_GET['page'])){
 	// Добавление новго задания
@@ -149,7 +155,7 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-3 d-flex" id="tools">
               
               <div class="form-outline col-5">
-                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($task['type'] == 1) echo $test[0]['full_text'];?></textarea>
+                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($task['type'] == 1) echo $TestFiles[0]['full_text'];?></textarea>
                   <label class="form-label" for="textArea-testCode">Код теста</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -161,7 +167,7 @@ show_header($dbconnect, 'Редактор заданий',
               <div class="col-1"></div>
 
               <div class="form-outline col-6">
-                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($task['type'] == 1) echo $test_of_test[0]['full_text'];?></textarea>
+                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($task['type'] == 1) echo $TestOfTestFiles[0]['full_text'];?></textarea>
                   <label class="form-label" for="textArea-checkCode">Код проверки</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>

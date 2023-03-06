@@ -1,7 +1,7 @@
 CREATE TABLE ax_file (		
 	id serial,
 	type integer,		-- тип файла (из ax_task_file: 0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста | из ax_solution_file: 10 - просто файл с результатами, 11 - файл проекта)
-	name text,		-- отображаемое имя файла
+	file_name text,		-- отображаемое имя файла
 	download_url text,	-- URL для скачивания, если файл лежит на диске 
 	full_text text,		-- полный текст файла, если он лежит в БД
 	CONSTRAINT ax_file_pkey PRIMARY KEY (id)

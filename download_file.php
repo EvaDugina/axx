@@ -1,5 +1,7 @@
 <?php
 require_once('settings.php'); 
+require_once('POClasses/File.class.php'); 
+require_once('POClasses/Task.class.php'); 
 
 function delete_prefix($str) {
 	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
@@ -11,8 +13,10 @@ if (ob_get_level()) {
 
 // Скачивание архива всех файлов к странице с заданием
 if (isset($_GET['download_task_files'])) {
-    $query = "SELECT file_name, download_url, full_text FROM ax_task_file WHERE task_id = {$_GET['task_id']} AND type < 2";
-    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    // TODO: Проверить!
+    $Task = new Task($_GET['task_id']);
+    // $query = "SELECT file_name, download_url, full_text FROM ax_task_file WHERE task_id = {$_GET['task_id']} AND type < 2";
+    // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
     $zip = new ZipArchive();
     $file_dir = 'upload_files/';
@@ -21,16 +25,29 @@ if (isset($_GET['download_task_files'])) {
         exit("Невозможно открыть <$file_path>");
     }
 
-    for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-        // Если текст файла лежит в БД
-		if ($row['download_url'] == null) {
-			$zip->addFromString($row['file_name'], $row['full_text']);
-		}
-		// Если файл лежит на сервере
-		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-			$zip->addFile($row['download_url'], $row['file_name']);
-		}
+    // for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
+    //     // Если текст файла лежит в БД
+    //   if ($row['download_url'] == null) {
+    //     $zip->addFromString($row['file_name'], $row['full_text']);
+    //   }
+    //   // Если файл лежит на сервере
+    //   else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
+    //     $zip->addFile($row['download_url'], $row['file_name']);
+    //   }
+    // }
+
+    // TODO: Проверить!
+    foreach($Task->getFiles() as $File) {
+      // Если текст файла лежит в БД
+      if ($File->download_url == null) {
+        $zip->addFromString($File->file_name, $File->full_text);
+      }
+      // Если файл лежит на сервере
+      else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+        $zip->addFile($File->download_url, $File->file_name);
+      }
     }
+
     $zip->close();
     if (!file_exists($file_path)) {
         exit("Архива не существует");
@@ -47,30 +64,37 @@ if (isset($_GET['download_task_files'])) {
     exit();
 }
 
-else if (isset($_GET['attachment_id']) || isset($_GET['task_file_id'])) {
+else if (isset($_GET['file_id']) /*|| isset($_GET['task_file_id'])*/) {
+
+    $File = null;
 
     // Скачивание файла из БД по attachment_id из ax_message_attachment
-    if (isset($_GET['attachment_id'])) {
+    if (isset($_GET['file_id'])) {
         // Достаем название и полный текст файла по attachment_id
-        $query = "SELECT file_name, full_text from ax_message_attachment where id = {$_GET['attachment_id']}";
-        $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        $row = pg_fetch_assoc($result);
+        // TODO: ПРОВЕРИТЬ!
+        $File = new File($_GET['file_id']);
+        // $query = "SELECT file_name, full_text from ax_message_attachment where id = {$_GET['attachment_id']}";
+        // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        // $row = pg_fetch_assoc($result);
     }
 
     // Скачивание файла из БД по task_file_id из ax_task_file
-    else if (isset($_GET['task_file_id'])) {
-        // Достаем название и полный текст файла по task_file_id
-        $query = "SELECT file_name, full_text from ax_task_file where id = {$_GET['task_file_id']}";
-        $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        $row = pg_fetch_assoc($result);
-    }
+    // else if (isset($_GET['task_file_id'])) {
+    //     // Достаем название и полный текст файла по task_file_id
+    //     // TODO: ПРОВЕРИТЬ!
+    //     $query = "SELECT file_id from ax_task_file where ax_task_file.id = {$_GET['task_file_id']}";
+    //     $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    //     $row = pg_fetch_assoc($result);
 
-    if (!$row) { exit("Файл не существует"); }
+    //     $File = new File($row['file_id']);
+    // }
+
+    if ($File == null) { exit("Файл не существует"); }
 
     // Создаем файл в папке сервера 'upload_files'
     $file_dir = 'upload_files/';
-    $file_path = $file_dir . $row['file_name'];
-    file_put_contents($file_path, $row['full_text']);
+    $file_path = $file_dir . $File->name;
+    file_put_contents($file_path, $File->full_text);
 
     // Даем пользователю скачать файл и удаляем его с сервера
     header('Content-Description: File Transfer');

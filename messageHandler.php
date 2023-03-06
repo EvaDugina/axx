@@ -3,6 +3,9 @@ require_once("settings.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
+require_once("POClasses/File.class.php");
+require_once("POClasses/Commit.class.php");
+
 // В этом файле реализована вся общая логика отправки сообщения, 
 // отправки ответа на сообщения и тд.
 
@@ -75,17 +78,26 @@ class messageHandler {
     /*echo "Добавление файла в ax_solution_file: ".$file_name;
     echo "<br>";*/
   
+    // TODO: ПРОВЕРИТЬ!
     // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
     if (move_uploaded_file($file_tmp_name, $file_path)) {
       // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
       if (!in_array($file_ext, $store_in_db)) {
         //echo "Добавление download_url<br>";
-        $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
-        pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        $File = new File(0, $file_name, $file_path, null);
+        $Message = new Message($message_id);
+        $Message->addFile($File->id);
+        // $query = insert_ax_message_attachment_with_url($message_id, $file_name, $file_path);
+        // pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
         if ($type == 1) {
-          // Добавление файлаа в ax_solution_file, если сообщение - ответ на задание
-          $query = insert_ax_solution_file($this->assignment_id, $commit_id, $file_name, $file_path, 0);
-          pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+          // Добавление файла в ax_solution_file, если сообщение - ответ на задание
+          $File = new File(0, $file_name, $file_path, null);
+          $Commit = new Commit($commit_id);
+          $Commit->addFile($File->id);
+
+          $Message->setCommit($Commit->id);
+          /*$query = insert_ax_solution_file($this->assignment_id, $commit_id, $file_name, $file_path, 0);
+          pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());*/
         }
       } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
         // echo "Добавление file_text<br>";
@@ -93,14 +105,24 @@ class messageHandler {
         $file_full_text = file_get_contents($file_path);
         $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
         // echo $file_full_text;
-        $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
-        pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        
+        $File = new File(0, $file_name_without_prefix, null, $file_full_text);
+        $Message = new Message($message_id);
+        $Message->addFile($File->id);
+        // $query = insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text);
+        // pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
         unlink($file_path);
         if ($type == 1) {
           // Добавление файла в ax_solution_file, если сообщение - ответ на задание
           // echo "ДОБАВЛЕНИЕ ФАЙЛА В ax_solution_file";
-          $query = insert_ax_solution_file($this->assignment_id, $commit_id, $file_name, $file_full_text, 1);
-          pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+          // TODO: ПРОВЕРИТЬ!
+          $File = new File(1, $file_name, null, $file_full_text);
+          $Commit = new Commit($commit_id);
+          $Commit->addFile($File->id);
+          
+          $Message->setCommit($Commit->id);
+          /*$query = insert_ax_solution_file($this->assignment_id, $commit_id, $file_name, $file_full_text, 1);
+          pg_query($this->dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());*/
         }
       }
     } else {

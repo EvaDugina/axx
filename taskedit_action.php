@@ -3,6 +3,9 @@
 require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
+require_once("POClasses/Assignment.class.php");
+require_once("POClasses/Task.class.php");
+require_once("POClasses/File.class.php");
 
 
 // Проверка на корректный запрос
@@ -11,6 +14,9 @@ if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   exit;
 } else if (isset($_POST['page_id'])) {
   $page_id = $_POST['page_id'];
+  $Page = new Page($page_id);
+} else if (isset($_POST['page_id'])) {
+  $Task = new Task($_POST['task_id']);
 }
 
 
@@ -29,18 +35,29 @@ if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'
 }
 
 
-if(isset($_POST['flag-deleteFile'])) {
-  $task_file_id = $_POST['task_file_id'];
-  $query = pg_query($dbconnect, delete_ax_task_file($task_file_id));
+if(isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
+  // TODO: ПРОВЕРИТЬ!
+  $file_id = $_POST['file_id'];
+  $Task->deleteFile($file_id);
+  // $query = pg_query($dbconnect, delete_ax_task_file($task_file_id));
   header('Location: taskedit.php?task='.$_POST['task_id']);
   exit();
 }
 
-if(isset($_POST['flag-statusFile'])) {
-  $task_file_id = $_POST['task_file_id'];
-  $new_statusFile = $_POST['task-file-status'];
-  $sdjl = update_ax_task_file_status($task_file_id, $new_statusFile);
-  $query = pg_query($dbconnect, update_ax_task_file_status($task_file_id, $new_statusFile));
+if(isset($_POST['flag-statusFile']) && $_POST['task_id']) {
+  // $task_file_id = $_POST['task_file_id'];
+  $file_type = $_POST['task-file-status'];
+
+  // TODO: ПРОВЕРИТЬ!
+  $file_id = $_POST['file_id'];
+  $Task = new Task($_POST['task_id']);
+  $File = $Task->getFileById($file_id);
+  $File->type = $file_type;
+  $File->pushChangesToDB();
+
+  // $sdjl = update_ax_task_file_status($task_file_id, $new_statusFile);
+  // $query = pg_query($dbconnect, update_ax_task_file_status($task_file_id, $new_statusFile));
+
   header('Location: taskedit.php?task='.$_POST['task_id']);
   exit();
 }
@@ -50,8 +67,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
   //echo "УДАЛЕНИЕ ЗАДАНИЯ";
   $query = pg_query($dbconnect, select_page_by_task_id($_POST['task_id']));
   $page_id = pg_fetch_assoc($query)['page_id'];
-  $query = delete_task($_POST['task_id']);
-  $result = pg_query($dbconnect, $query);
+
+  // TODO: ПРОВЕРИТь!
+  $Task = new Task($_POST['task_id']);
+  $Task->deleteFromDB();
+  // $query = delete_task($_POST['task_id']);
+  // $result = pg_query($dbconnect, $query);
+  
   header('Location: preptasks.php?page=' . $page_id);
   exit();
 }
@@ -93,7 +115,10 @@ if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['st
 }
 */
 if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action'] == 'reject') && ($_POST['assignment_id'] != 0)) {
-  $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
+  // TODO: Проверить!
+  $Asssignment = new Assignment($_POST['assignment_id']);
+  // $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
+  $Asssignment->deleteFromDB();
   header('Location:'.$_SERVER['HTTP_REFERER']);
   exit();
 }
@@ -140,18 +165,26 @@ if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
     /*echo "Добавление файла в ax_solution_file: ".$file_name;
     echo "<br>";*/
 
+    // TODO: Проверить!
+    $Task = new Task($task_id);
+
     // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
     if (move_uploaded_file($file_tmp_name, $file_path)) {
       // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
       if (!in_array($file_ext, $store_in_db)) {
-        $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
-        $id_new_file = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+        $File = new File(0, $file_name, $file_path, null);
+        $Task->addFile($File->id);
+        // $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
+        // $id_new_file = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
         $file_name_without_prefix = delete_random_prefix_from_file_name($file_name);
         $file_full_text = file_get_contents($file_path);
         $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-        $query = insert_ax_task_file_with_full_file_text($task_id, 0, $file_name, $file_full_text);
-        $id_new_file = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+        $File = new File(0, $file_name, null, $file_full_text);
+        $Task->addFile($File->id);
+        // $query = insert_ax_task_file_with_full_file_text($task_id, 0, $file_name, $file_full_text);
+        // $id_new_file = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
         unlink($file_path);
       }
       //      echo " - ПРИКРЕПЛЕНИЕ ФАЙЛОВ ПРОШЛО УСПЕШНО<br>";
