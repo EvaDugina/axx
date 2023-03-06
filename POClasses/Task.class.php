@@ -99,7 +99,6 @@ class Task {
     foreach($this->Assignments as $Assignment) {
       $Assignment->deleteFromDB();
     }
-    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
 
     foreach($this->Files as $File) {
       $File->deleteFromDB();
@@ -185,14 +184,22 @@ class Task {
     }
     return null;
   }
+  public function getFilesByType($type) {
+    $Files = array();
+    foreach($this->Files as $File) {
+      if ($File->type == $type)
+        array_push($Files, $File);
+    }
+    return $Files;
+  }
 
-  public function pushFileToTaskDB($file_id) {
+  private function pushFileToTaskDB($file_id) {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushFilesToTaskDB($Files) {
+  private function pushFilesToTaskDB($Files) {
     global $dbconnect;
 
     $query = "";
@@ -200,13 +207,13 @@ class Task {
     $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFileFromTaskDB($file_id) {
+  private function deleteFileFromTaskDB($file_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_task_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function synchFilesToTaskDB() {
+  private function synchFilesToTaskDB() {
     global $dbconnect;
 
     $this->deleteFilesFromTaskDB();
@@ -220,7 +227,7 @@ class Task {
       
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFilesFromTaskDB() {
+  private function deleteFilesFromTaskDB() {
     global $dbconnect;
   
     $query = "DELETE FROM ax_task_file WHERE task_id = $this->id";

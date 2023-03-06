@@ -112,12 +112,13 @@ public function pushChangesToDB() {
 public function deleteFromDB() {
   global $dbconnect;
 
+  $this->deleteFilesFromMessageDB();
+
   foreach($this->Files as $File) {
     $File->deleteFromDB();
   }
   
-  $query = "DELETE FROM ax_message_file WHERE message_id = $this->id;";
-  $query .= "DELETE FROM ax_message WHERE id = $this->id;";
+  $query = "DELETE FROM ax_message WHERE id = $this->id;";
   pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 }
 
@@ -163,13 +164,13 @@ public function deleteFromDB() {
     return null;
   }
 
-  public function pushFileToMessageDB($file_id) {
+  private function pushFileToMessageDB($file_id) {
     global $dbconnect;
 
     $query = "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushFilesToMessageDB($Files) {
+  private function pushFilesToMessageDB($Files) {
     global $dbconnect;
 
     $query = "";
@@ -180,13 +181,13 @@ public function deleteFromDB() {
     }
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFileFromMessageDB($file_id) {
+  private function deleteFileFromMessageDB($file_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_message_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function synchFilesToMessageDB() {
+  private function synchFilesToMessageDB() {
     global $dbconnect;
 
     $this->deleteFilesFromMessageDB();
@@ -199,7 +200,7 @@ public function deleteFromDB() {
     }
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFilesFromMessageDB() {
+  private function deleteFilesFromMessageDB() {
     global $dbconnect;
   
     // Удаляем предыдущие прикрепления файлов
@@ -213,7 +214,11 @@ public function deleteFromDB() {
 
 // WORK WITH COMMIT
 
-  public function pushCommitToDB() {
+  public function setCommit($commit_id) {
+    $this->Commit = new Commit($commit_id);
+    $this->pushCommitToDB();
+  }
+  private function pushCommitToDB() {
     global $dbconnect;
 
     if ($this->Commit != null) {

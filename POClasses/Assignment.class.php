@@ -111,10 +111,7 @@ class Assignment {
   public function deleteFromDB() {
     global $dbconnect;
   
-    foreach($this->Students as $Student) {
-      $Student->deleteFromDB();
-    }
-    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
+    $this->deleteStudentsFromAssignmentDB();
 
     foreach($this->Messages as $Message) {
       $Message->deleteFromDB();
@@ -123,7 +120,7 @@ class Assignment {
       $Commit->deleteFromDB();
     }
 
-    $query .= "DELETE FROM ax_assignment WHERE id = $this->id;";
+    $query = "DELETE FROM ax_assignment WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -169,13 +166,13 @@ class Assignment {
     return null;
   }
 
-  public function pushStudentToAssignmentDB($student_id){
+  private function pushStudentToAssignmentDB($student_id){
     global $dbconnect;
 
     $query = "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushStudentsToAssignmentDB($Students) {
+  private function pushStudentsToAssignmentDB($Students) {
     global $dbconnect;
 
     $query = "";
@@ -187,13 +184,13 @@ class Assignment {
     
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteStudentFromAssignmentDB($student_id) {
+  private function deleteStudentFromAssignmentDB($student_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_assignment_student WHERE student_user_id = $student_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function synchStudentsToAssignmentDB() {
+  private function synchStudentsToAssignmentDB() {
     global $dbconnect;
 
     $this->deleteStudentsFromAssignmentDB();
@@ -207,7 +204,7 @@ class Assignment {
     
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteStudentsFromAssignmentDB() {
+  private function deleteStudentsFromAssignmentDB() {
     global $dbconnect;
 
     // Удаляем предыдущие прикрепления студентов

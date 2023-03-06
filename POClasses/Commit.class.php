@@ -78,12 +78,13 @@ class Commit {
   public function deleteFromDB() {
     global $dbconnect;
   
+    $this->deleteFilesFromCommitDB();
+
     foreach($this->Files as $File) {
       $File->deleteFromDB();
     }
     
-    $query = "DELETE FROM ax_commit_file WHERE commit_id = $this->id;";
-    $query .= "DELETE FROM ax_solution_commit WHERE id = $this->id;";
+    $query = "DELETE FROM ax_solution_commit WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function pushChangesToDB() {
@@ -131,13 +132,13 @@ class Commit {
     return null;
   }
 
-  public function pushFileToCommitDB($file_id) {
+  private function pushFileToCommitDB($file_id) {
     global $dbconnect;
 
     $query = "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function synchFilesToCommitDB() {
+  private function synchFilesToCommitDB() {
     global $dbconnect;
 
     $this->deleteFilesFromCommitDB();
@@ -150,13 +151,13 @@ class Commit {
     }
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFileFromCommitDB($file_id) {
+  private function deleteFileFromCommitDB($file_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_commit_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFilesFromCommitDB() {
+  private function deleteFilesFromCommitDB() {
     global $dbconnect;
   
     // Удаляем предыдущие прикрепления файлов
