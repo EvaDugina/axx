@@ -9,10 +9,10 @@ class Task {
   public $type, $title, $description;
   public $max_mark, $status, $checks;
 
-  public $Assignments = array(); 
-  public $Files = array();
+  private $Assignments = array(); 
+  private $Files = array();
 
-  function __construct() {
+  public function __construct() {
     global $dbconnect;
 
     $count_args = func_num_args();
@@ -60,6 +60,17 @@ class Task {
 
   }
 
+  public function getAssignments() {
+    return $this->Assignments;
+  }
+  public function getFiles() {
+    return $this->Files;
+  }
+
+
+
+// WORK WITH TASK
+
   public function pushNewToDB($page_id) {
     global $dbconnect;
 
@@ -99,6 +110,9 @@ class Task {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+// -- END WORK WITH TASK
+
+
 
 // WORK WITH ASSIGNMENT
 
@@ -116,14 +130,22 @@ class Task {
   private function findAssignmentById($assignment_id) {
     $index = 0;
     foreach($this->Assignments as $Assignment) {
-      if ($Assignment->getId() == $assignment_id)
+      if ($Assignment->id == $assignment_id)
         return $index;
       $index++;
     }
     return -1;
   }
+  public function getAssignmentById($assignment_id) {
+    foreach($this->Assignments as $Assignment) {
+      if ($Assignment->id == $assignment_id)
+        return $Assignment;
+    }
+    return null;
+  }
 
 // -- END WORK WITH ASSIGNMENT
+
 
 
 // WORK WITH FILE
@@ -132,6 +154,12 @@ class Task {
     $File = new File($file_id);
     $this->pushFileToTaskDB($file_id);
     array_push($this->Files, $File);
+  }
+  public function addFiles($Files) {
+    $this->pushFilesToTaskDB($Files);
+    foreach ($Files as $File) {
+      array_push($this->Files, $File);
+    }
   }
   public function deleteFile($file_id) {
     $index = $this->findFileById($file_id);
@@ -144,22 +172,58 @@ class Task {
   private function findFileById($file_id) {
     $index = 0;
     foreach($this->Files as $File) {
-      if ($File->getId() == $file_id)
+      if ($File->id == $file_id)
         return $index;
       $index++;
     }
     return -1;
   }
+  public function getFileById($file_id) {
+    foreach($this->Files as $File) {
+      if ($File->id == $file_id)
+        return $File;
+    }
+    return null;
+  }
+
   public function pushFileToTaskDB($file_id) {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function pushFilesToTaskDB($Files) {
+    global $dbconnect;
+
+    $query = "";
+    foreach ($Files as $File)
+    $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteFileFromTaskDB($file_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_task_file WHERE file_id = $file_id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function synchFilesToTaskDB() {
+    global $dbconnect;
+
+    $this->deleteFilesFromTaskDB();
+  
+    $query = "";
+      if (!empty($this->Files)) {
+        foreach($this->Files as $File) {
+          $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
+        }
+      }
+      
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteFilesFromTaskDB() {
+    global $dbconnect;
+  
+    $query = "DELETE FROM ax_task_file WHERE task_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 

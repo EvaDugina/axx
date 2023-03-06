@@ -3,10 +3,10 @@ require_once("./settings.php");
 
 class File {
 
-  private $id = null;
-  private $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
-  // 10 - просто файл с результатами, 11 - файл проекта)
-  private $name = null, $download_url = null, $full_text = null;
+  public $id = null;
+  public $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
+                        // 10 - просто файл с результатами, 11 - файл проекта)
+  public $name = null, $download_url = null, $full_text = null;
 
           
   function __construct() {
@@ -49,86 +49,13 @@ class File {
   }
   
 
-
-// GETTERS:
-
-  public function getId() {
-    return $this->id;
-  }
-
-  public function getType() {
-    return $this->type;
-  }
-
-  public function getName() {
-    return $this->name;
-  }
-
-  public function getDownloadUrl() {
-    return $this->download_url;
-  }
-
-  public function getFullText() {
-    return $this->full_text;
-  }
-
-
-  // public function getAll() {
-  //   return array(
-  //     'id' => $this->id, 
-  //     'name' => $this->name,
-  //     'download_url' => $this->download_url, 
-  //     'full_text' => $this->full_text, 
-  //     'type' => $this->type
-  //   );
-  // }
-
-// -- END GETTERS
-
-
-// SETTERS:
-
-  public function setType($type) {
-    $this->type = $type;
-  } 
-
-  public function setName($name) {
-    $this->name = $name;
-  } 
-
-  public function setDownloadUrl($download_url) {
-    $this->download_url = $download_url;
-  } 
-
-  public function setFullText($full_text) {
-    $this->full_text = $full_text;
-  } 
-
-  public function setAll($name, $download_url, $full_text, $type) {
-    $this->name = $name;
-    $this->download_url = $download_url;
-    $this->full_text = $full_text;
-    $this->type = $type;
-  }
-
-// -- END SETTERS
-
-
-  public function pushChangesToDB() {
-    global $dbconnect;
-
-    $query = "UPDATE ax_file SET type = $this->type, name = '$this->name', download_url = '$this->download_url', full_text = '$this->full_text' 
-              WHERE id = $this->id;
-    ";
-
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
+// WORK WITH FILE
 
   public function pushNewToDB() {
     global $dbconnect;
 
     $query = "INSERT INTO ax_file (type, name, download_url, full_text) 
-              VALUES ($this->type, '$this->name', '$this->download_url', '$this->full_text') 
+              VALUES ($this->type, '$this->name', '$this->download_url', \$antihype1\$$this->full_text\$antihype1\$) 
               RETURNING id;
     ";
 
@@ -137,7 +64,16 @@ class File {
 
     $this->id = $result['id'];
   }
+  public function pushChangesToDB() {
+    global $dbconnect;
 
+    $query = "UPDATE ax_file SET type = $this->type, name = '$this->name', download_url = '$this->download_url', 
+              full_text = \$antihype1\$$this->full_text\$antihype1\$
+              WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteFromDB() {
     global $dbconnect;
   
@@ -145,6 +81,8 @@ class File {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   
   }
+
+// -- END WORK WITH FILE
 
 
 }

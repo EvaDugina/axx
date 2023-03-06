@@ -8,7 +8,7 @@ class Group {
   public $id;
   public $name, $year;
 
-  public $Students = array();
+  private $Students = array();
 
 
   function __construct() {
@@ -31,13 +31,6 @@ class Group {
       
       $this->Students = getStudentsByGroup($this->id);
     }
-    
-    else if ($count_args == 2) {
-      $this->name = $args[0];
-      $this->year = $args[1];
-
-      $this->pushNewToDB();
-    }
 
     else {
       die('Неверное число аргументов, или неверный id');
@@ -45,19 +38,8 @@ class Group {
 
   }
 
-
-  public function pushNewToDB() {
-    global $dbconnect;
-
-    $query = "INSERT INTO groups (name, year) 
-              VALUES ('$this->name', $this->year) 
-              RETURNING id;
-    ";
-
-    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $result = pg_fetch_assoc($pg_query);
-
-    $this->id = $result['id'];
+  public function getStudents() {
+    return $this->Students;
   }
 
 }

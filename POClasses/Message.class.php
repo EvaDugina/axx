@@ -6,10 +6,10 @@ require_once("Commit.class.php");
 
 class Message {
 
-  private $id = null;
-  private $type = null, $sender_user_id = null, $sender_user_type = null;
-  private $date_time = null, $reply_to_id = null, $full_text = null;
-  private $status = null, $visibility = null;
+  public $id = null;
+  public $type = null, $sender_user_id = null, $sender_user_type = null;
+  public $date_time = null, $reply_to_id = null, $full_text = null;
+  public $status = null, $visibility = null;
 
   private $Commit = null;
   private $Files = array();
@@ -71,46 +71,9 @@ class Message {
 
 // GETTERS:
 
-  public function getId() {
-    return $this->id;
-  }
-
-  public function getType() {
-    return $this->type;
-  }
-
-  public function getSenderUserId() {
-    return $this->sender_user_id;
-  }
-
-  public function getSenderUserType() {
-    return $this->sender_user_type;
-  }
-
-  public function getDateTime() {
-    return $this->date_time;
-  }
-
-  public function getReplyToId() {
-    return $this->reply_to_id;
-  }
-
-  public function getFullText() {
-    return $this->full_text;
-  }
-
-  public function getStatus() {
-    return $this->status;
-  }
-
-  public function getVisibility() {
-    return $this->visibility;
-  }
-
   public function getCommit() {
     return $this->Commit;
   }
-
   public function getFiles() {
     return $this->Files;
   }
@@ -118,116 +81,62 @@ class Message {
 // -- END GETTERS
 
 
-// SETTERS: 
 
-  public function setType($type) {
-    // global $dbconnect;
+// WORK WITH MESSAGE
 
-    // $query = "UPDATE ax_message SET type = $type WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    
-    $this->type = $type;
+public function pushNewToDB($assignment_id) {
+  global $dbconnect;
+
+  $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
+            date_time, reply_to_id, full_text, status, visibility) 
+            VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
+            '$this->date_time', $this->reply_to_id, '$this->full_text', $this->status, $this->visibility)
+            RETURNING id;";
+
+  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $result = pg_fetch_assoc($pg_query);
+
+  $this->id = $result['id'];
+
+}
+public function pushChangesToDB() {
+  global $dbconnect;
+
+  $query = "UPDATE ax_message SET type = $this->type, sender_user_id = $this->sender_user_id, 
+    sender_user_type = $this->sender_user_type, date_time = '$this->date_time', 
+    reply_to_id = $this->reply_to_id, full_text = '$this->full_text', status = $this->status, 
+    visibility = $this->visibility WHERE id = $this->id;
+  ";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
+public function deleteFromDB() {
+  global $dbconnect;
+
+  foreach($this->Files as $File) {
+    $File->deleteFromDB();
   }
+  
+  $query = "DELETE FROM ax_message_file WHERE message_id = $this->id;";
+  $query .= "DELETE FROM ax_message WHERE id = $this->id;";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
 
-  public function setSenderUserId($sender_user_id) {
-    // global $dbconnect;
-    
-    // $query = "UPDATE ax_message SET sender_user_id = $sender_user_id WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+// -- END WORK WITH MESSAGE
 
-    $this->sender_user_id = $sender_user_id;
-  }
 
-  public function setSenderUserType($sender_user_type) {
-    // global $dbconnect;
-    
-    // $query = "UPDATE ax_message SET sender_user_type = $sender_user_type WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-    $this->sender_user_type = $sender_user_type;
-  }
-
-  public function setDateTime($date_time) {
-    // global $dbconnect;
-
-    // $query = "UPDATE ax_message SET date_time = '$date_time' WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-    $this->date_time = $date_time;
-  }
-
-  public function setReplyToId($reply_to_id) {
-    // global $dbconnect;
-    
-    // $query = "UPDATE ax_message SET reply_to_id = $reply_to_id WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-    $this->reply_to_id = $reply_to_id;
-  }
-
-  public function setFullText($full_text) {
-    // global $dbconnect;
-
-    // $query = "UPDATE ax_message SET full_text = '$full_text' WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-    $this->full_text = $full_text;
-  }
-
-  public function setStatus($status) {
-    // global $dbconnect;
-    
-    // $query = "UPDATE ax_message SET status = $status WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-    $this->status = $status;
-  }
-
-  public function setVisibility($visibility) {
-    // global $dbconnect;
-    
-    // $query = "UPDATE ax_message SET visibility = $visibility WHERE id = $this->id;";
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-    $this->visibility = $visibility;
-  }
-
-  public function setAll($type, $sender_user_id, $sender_user_type, $date_time, $reply_to_id, $full_text, $status, $visibility){
-    // global $dbconnect;
-
-    //TODO: ПРОВЕРИТЬ, КАК РАБОТАЕТ, КОГДА НЕТ reply_to_id
-    // $query = "UPDATE ax_message SET type = $type, sender_user_id = $sender_user_id, sender_user_type = $sender_user_type,
-    // date_time = $date_time, reply_to_id = $reply_to_id, full_text = $full_text, status = $status, visibility = $visibility 
-    // WHERE id = $this->id;";
-
-    // pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-    $this->type = $type;
-    $this->sender_user_id = $sender_user_id;
-    $this->sender_user_type = $sender_user_type;
-    
-    $this->date_time = $date_time;
-    $this->reply_to_id = $reply_to_id;
-    $this->full_text = $full_text;
-    
-    $this->status = $status;
-    $this->visibility = $visibility;
-  }
-
-  public function setCommit($Commit) {
-    $this->Commit = $Commit;
-  }
-
-  public function setFiles($Files) {
-    $this->Files = $Files; 
-  }
-
-// -- END SETTERS
+// WORK WITH FILE
 
   public function addFile($file_id) {
     $File = new File($file_id);
     $this->pushFileToMessageDB($file_id);
     array_push($this->Files, $File);
+  }
+  public function addFiles($Files) {
+    $this->pushFilesToMessageDB($Files);
+    foreach ($Files as $File) {
+      array_push($this->Files, $File);
+    }
   }
   public function deleteFile($file_id) {
     $index = $this->findFileById($file_id);
@@ -240,39 +149,18 @@ class Message {
   private function findFileById($file_id) {
     $index = 0;
     foreach($this->Files as $File) {
-      if ($File->getId() == $file_id)
+      if ($File->id == $file_id)
         return $index;
       $index++;
     }
     return -1;
   }
-
-
-
-
-  public function pushMessageChangesToDB() {
-    global $dbconnect;
-
-    $query = "UPDATE ax_message SET type = $this->type, sender_user_id = $this->sender_user_id, 
-      sender_user_type = $this->sender_user_type, date_time = '$this->date_time', 
-      reply_to_id = $this->reply_to_id, full_text = '$this->full_text', status = $this->status, 
-      visibility = $this->visibility WHERE id = $this->id;
-    ";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-
-  public function pushFileChangesToDB() {
-    global $dbconnect;
-
-    $this->deleteFilesFromDB();
-
-    $query = "";
-    if (!empty($this->Files)) {
-      foreach($this->Files as $File) {
-        $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->getId());";
-      }
+  public function getFileById($file_id) {
+    foreach($this->Files as $File) {
+      if ($File->id == $file_id)
+        return $File;
     }
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    return null;
   }
 
   public function pushFileToMessageDB($file_id) {
@@ -281,68 +169,67 @@ class Message {
     $query = "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function pushFilesToMessageDB($Files) {
+    global $dbconnect;
+
+    $query = "";
+    if (!empty($Files)) {
+      foreach($Files as $File) {
+        $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
+      }
+    }
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteFileFromMessageDB($file_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_message_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function synchFilesToMessageDB() {
+    global $dbconnect;
 
-  public function pushCommitChangesToDB() {
+    $this->deleteFilesFromMessageDB();
+
+    $query = "";
+    if (!empty($this->Files)) {
+      foreach($this->Files as $File) {
+        $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
+      }
+    }
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteFilesFromMessageDB() {
+    global $dbconnect;
+  
+    // Удаляем предыдущие прикрепления файлов
+    $query = "DELETE FROM ax_message_file WHERE message_id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+// -- END WORK WITH FILE
+
+
+
+// WORK WITH COMMIT
+
+  public function pushCommitToDB() {
     global $dbconnect;
 
     if ($this->Commit != null) {
-      $commit_id = $this->Commit->getId();
+      $commit_id = $this->Commit->id;
       $query = "UPDATE ax_message SET commit_id = $commit_id WHERE id = $this->id;";
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     } 
   }
 
-  public function pushNewToDB($assignment_id) {
-    global $dbconnect;
+// -- END WORK WITH COMMIT
 
-    $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
-              date_time, reply_to_id, full_text, status, visibility) 
-              VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
-              '$this->date_time', $this->reply_to_id, '$this->full_text', $this->status, $this->visibility)
-              RETURNING id;";
-
-    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $result = pg_fetch_assoc($pg_query);
-
-    $this->id = $result['id'];
-
-  }
-  public function deleteFromDB() {
-    global $dbconnect;
-  
-    foreach($this->Files as $File) {
-      $File->deleteFromDB();
-    }
-    
-    $query = "DELETE FROM ax_message_file WHERE message_id = $this->id;";
-    $query .= "DELETE FROM ax_message WHERE id = $this->id;";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
-
-
-  // КАК УДАЛЯТЬ?!
-  public function deleteFilesFromDB() {
-    global $dbconnect;
-
-    // Удаляем предыдущие прикрепления файлов
-    $query = "DELETE FROM ax_file USING ax_message_file WHERE message_id = $this->id;";
-    $query .= "DELETE FROM ax_message_file WHERE message_id = $this->id;";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  }
 
   
 }
 
 
-function deleteMessageFromDB() {
-
-}
 
 
 

@@ -8,7 +8,7 @@ class User {
   public $login, $role;
   public $email, $notify_status;
 
-  public $Group = null;
+  private $Group = null;
 
   
   function __construct() {
@@ -39,26 +39,48 @@ class User {
       $this->Group = new Group($user['group_id']);
     }
 
-    // Раскомментировать, когда понадобится создавать студента в БД
-    // else if ($count_args == 7) { 
-    //   $this->first_name = $args[0];
-    //   $this->middle_name = $args[1];
-    //   $this->last_name = $args[2];
-
-    //   $this->login = $args[3];
-    //   $this->role = $args[4];
-
-    //   $this->email = $args[5];
-    //   $this->notify_status = $args[6];
-
-    //   $this->pushNewToDB();
-    // }
-
     else {
       die('Неверное число аргументов, или неверный id');
     }
 
   }
+
+
+  public function getFI() {
+    if (empty($this->first_name))
+      return $this->middle_name;
+    else
+      return $this->first_name + " " + $this->middle_name;
+  }
+  public function getFIO() {
+    if (empty($this->first_name) && empty($this->middle_name))
+      return $this->last_name;
+    if (empty($this->first_name))
+        return $this->middle_name . " " . $this->last_name;
+    if (empty($this->middle_name))
+      return $this->first_name . " " . $this->last_name;
+    return $this->first_name . " " . $this->middle_name . " " . $this->last_name; 
+  }
+  public function getNotifications() {
+    global $dbconnect;
+
+    // TODO: получить список уведомлений пользователя
+    if ($this->role == 1);
+    else if ($this->role == 2) // Уведомления для преподавателя
+      $query = queryGetNotifiesForTeacherHeader($this->id);
+    else if ($this->role == 3) // Уведомления для студента
+      $query = queryGetNotifiesForStudentHeader($this->id);
+    
+    $result = pg_query($dbconnect, $query);
+    $array_notify = pg_fetch_all($result);
+
+    return $array_notify;
+  }
+  public function getGroup() {
+    return $this->Group;
+  }
+  
+
 
   public function pushStudentChangesToDB() {
     global $dbconnect;
@@ -69,8 +91,6 @@ class User {
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-
-
   public function pushSettingChangesToDB() {
     global $dbconnect;
 
@@ -79,20 +99,6 @@ class User {
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-
-  // public function pushGroupChangesToDB() {
-
-  // }
-
-  // public function deleteFromDB() {
-  //   global $dbconnect;
-
-  //   $query = "DELETE FROM students_to_groups WHERE student_id = $this->id;";
-  //   $query .= "DELETE FROM ax_assignment_student WHERE student_user_id = $this->id;";
-  //   $query .= "DELETE FROM students WHERE id = $this->id;";
-    
-  //   pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  // }
  
 }
 

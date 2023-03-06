@@ -15,9 +15,9 @@ class Page {
   public $creator_id, $creation_date;
   public $status;
   
-  public $Tasks = array(); // Массив Task
-  public $Groups = array(); // Массив Group
-  public $Teachers = array(); // Массив User
+  private $Tasks = array(); // Массив Task
+  private $Groups = array(); // Массив Group
+  private $Teachers = array(); // Массив User
 
   function __construct($page_id) {
     global $dbconnect;
@@ -76,6 +76,19 @@ class Page {
 
   }
 
+  public function getTasks() {
+    return $this->Tasks;
+  }
+  public function getGroups() {
+    return $this->Groups;
+  }
+  public function getTeachers() {
+    return $this->Teachers;
+  }
+
+
+
+// WORK WITH PAGE
 
   public function pushNewToDB() {
     global $dbconnect;
@@ -116,7 +129,9 @@ class Page {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+// -- END WORK WITH PAGE
   
+
 
 // WORK WITH TASKS
 
@@ -134,14 +149,22 @@ public function deleteTask($task_id) {
 private function findTaskById($task_id) {
   $index = 0;
   foreach($this->Tasks as $Task) {
-    if ($Task->getId() == $task_id)
+    if ($Task->id == $task_id)
       return $index;
     $index++;
   }
   return -1;
 }
+public function getTaskById($task_id) {
+  foreach($this->Tasks as $Task) {
+    if ($Task->id == $task_id)
+      return $Task;
+  }
+  return null;
+}
 
 // -- END WORK WITH TASKS
+
 
 
 // WORK WITH GROUPS
@@ -160,12 +183,19 @@ public function deleteGroup($group_id) {
 }
 private function findGroupById($group_id) {
   $index = 0;
-  foreach($this->Groups as $Student) {
-    if ($Student->getId() == $group_id)
+  foreach($this->Groups as $Group) {
+    if ($Group->id == $group_id)
       return $index;
     $index++;
   }
   return -1;
+}
+public function getGroupById($group_id) {
+  foreach($this->Groups as $Group) {
+    if ($Group->id == $group_id)
+      return $Group;
+  }
+  return null;
 }
 
 public function pushGroupToPageDB($group_id) {
@@ -181,8 +211,10 @@ public function deleteGroupFromPageDB($group_id) {
   $query = "DELETE FROM ax_page_group WHERE group_id = $group_id";
   pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 }
-public function pushGroupsToPageDB() {
+public function synchGroupsToPageDB() {
   global $dbconnect;
+
+  $this->deleteGroupsFromPageDB();
 
   $query = "";
     if (!empty($this->Groups)) {
@@ -202,37 +234,75 @@ public function deleteGroupsFromPageDB() {
 
 // -- END WORK WITH GROUPS
 
+
+
 // WORK WITH TEACHERS
 
+public function addTeacher($teacher_id) {
+  $Teacher = new User($teacher_id);
+  $this->pushTeacherToPageDB($teacher_id);
+  array_push($this->Teachers, $Teacher);
+}
+public function deleteTeacher($teacher_id) {
+  $index = $this->findTeacherById($teacher_id);
+  if ($index != -1) {
+    $this->deleteTeacherFromPageDB($teacher_id);
+    unset($this->Teachers[$index]);
+  }
+}
+private function findTeacherById($teacher_id) {
+  $index = 0;
+  foreach($this->Teachers as $Teacher) {
+    if ($Teacher->id == $teacher_id)
+      return $index;
+    $index++;
+  }
+  return -1;
+}
+public function getTeacherById($teacher_id) {
+  foreach($this->Teachers as $Teacher) {
+    if ($Teacher->id == $teacher_id)
+      return $Teacher;
+  }
+  return null;
+}
 
+public function pushTeacherToPageDB($teacher_id) {
+  global $dbconnect;
 
-public function pushTeacherToPageDB() {
+  $query = "INSERT INTO ax_page_prep(page_id, prep_user_id)
+            VALUES ($this->id, $teacher_id)";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
+public function deleteTeacherFromPageDB($teacher_id) {
+  global $dbconnect;
 
+  $query = "DELETE FROM ax_page_prep WHERE prep_user_id = $teacher_id";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
+public function synchTeachersToPageDB() {
+  global $dbconnect;
+
+  $this->deleteTeachersFromPageDB();
+
+  $query = "";
+    if (!empty($this->Teachers)) {
+      foreach($this->Teachers as $Teacher) {
+        $query .= "INSERT INTO ax_page_prep (page_id, prep_user_id) VALUES ($this->id, $Teacher->id);";
+      }
+    }
+    
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
+public function deleteTeachersFromPageDB() {
+  global $dbconnect;
+
+  $query = "DELETE FROM ax_page_prep WHERE page_id = $this->id";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 }
 
 // -- END WORK WITH TEACHERS
 
-
-
-
-
-
-
-  public function getTaskById($task_id) {
-    foreach($this->Tasks as $Task) {
-      if ($Task->getId == $task_id)
-        return $Task;
-    }
-    return null;
-  }
-
-  public function getStudentsByGroupId() {
-    // TODO
-  }
-
-  public function getStudents() {
-    // TODO
-  }
 
   public function getSemesterName() {
     if ($this->semester == 1)

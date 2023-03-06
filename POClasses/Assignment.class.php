@@ -6,13 +6,13 @@ require_once("User.class.php");
 
 class Assignment {
 
-  private $id = null;
-  private $variant_comment = null;
-  private $start_limit = null, $finish_limit = null;
-  private $status_code = null, $status_text = null;
-  private $delay = null; // не понятно, зачем нужно
-  private $mark = null;
-  private $checks = null;
+  public $id = null;
+  public $variant_comment = null;
+  public $start_limit = null, $finish_limit = null;
+  public $status_code = null, $status_text = null;
+  public $delay = null; // не понятно, зачем нужно
+  public $mark = null;
+  public $checks = null;
 
   private $Students = array();
   private $Messages = array();
@@ -21,7 +21,6 @@ class Assignment {
   function __construct() {
     global $dbconnect;
 
-    
     $count_args = func_num_args();
     $args = func_get_args();
     
@@ -73,6 +72,19 @@ class Assignment {
 
   }
 
+  public function getStudents() {
+    return $this->Students;
+  }
+  public function getMessages() {
+    return $this->Messages;
+  }
+  public function getCommits() {
+    return $this->Commits;
+  }
+
+
+
+// WORK WITH ASSIGNMENT
 
   public function pushNewToDB($task_id) {
     global $dbconnect;
@@ -88,7 +100,7 @@ class Assignment {
 
     $this->id = $result['id'];
   }
-  public function pushAssignmentChangesToDB(){
+  public function pushChangesToDB(){
     global $dbconnect;
 
     $query = "UPDATE ax_assignment SET variant_comment='$this->variant_comment', start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
@@ -115,107 +127,8 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+// -- END WORK WITH ASSIGNMENT
 
-  // GETTERS
-
-    public function getId(){
-      return $this->id;
-    }
-
-    public function getVariantComment(){
-      return $this->variant_comment;
-    }
-
-    public function getStartLimit(){
-      return $this->start_limit;
-    }
-
-    public function getFinishLimit(){
-      return $this->finish_limit;
-    }
-
-    public function getStatusCode(){
-      return $this->status_code;
-    }
-
-    public function getStatusText(){
-      return $this->status_text;
-    }
-
-    public function getDelay(){
-      return $this->delay;
-    }
-
-    public function getMark(){
-      return $this->mark;
-    }
-
-    public function getChecks(){
-      return $this->checks;
-    }
-
-    public function getStudents(){
-      return $this->Students;
-    }
-
-    public function getMessages(){
-      return $this->Messages;
-    }
-
-    public function getCommits(){
-      return $this->Commits;
-    }
-
-  // -- END GETTERS
-
-
-  // SETTERS
-
-    public function setVariantComment($variant_comment){
-      $this->variant_comment = $variant_comment;
-    }
-
-    public function setStartLimit($start_limit){
-      $this->start_limit = $start_limit;
-    }
-
-    public function setFinishLimit($finish_limit){
-      $this->finish_limit = $finish_limit;
-    }
-
-    public function setStatusCode($status_code){
-      $this->status_code = $status_code;
-    }
-
-    public function setStatusText($status_text){
-      $this->status_text = $status_text;
-    }
-
-    public function setDelay($delay){
-      $this->delay = $delay;
-    }
-
-    public function setMark($mark){
-      $this->mark = $mark;
-    }
-
-    public function setChecks($checks){
-      $this->checks = $checks;
-    }
-
-    public function setStudents($Students){
-      $this->Students = $Students;
-    }
-
-    public function setMessages($Messages){
-      $this->Messages = $Messages;
-    }
-
-    public function setCommits($Commits){
-      $this->Commits = $Commits;
-    }
-
-  // -- END SETTERS
 
 
 // WORK WITH STUDENTS 
@@ -224,6 +137,12 @@ class Assignment {
     $Student = new User($student_id);
     $this->pushStudentToAssignmentDB($student_id);
     array_push($this->Students, $Student);
+  }
+  public function addStudents($Students) {
+    $this->pushStudentsToAssignmentDB($Students);
+    foreach ($Students as $Student) {
+      array_push($this->Students, $Student);
+    }
   }
   public function deleteStudent($student_id) {
     $index = $this->findStudentById($student_id);
@@ -236,11 +155,18 @@ class Assignment {
   private function findStudentById($student_id) {
     $index = 0;
     foreach($this->Students as $Student) {
-      if ($Student->getId() == $student_id)
+      if ($Student->id == $student_id)
         return $index;
       $index++;
     }
     return -1;
+  }
+  public function getStudentById($student_id) {
+    foreach($this->Students as $Student) {
+      if ($Student->id == $student_id)
+        return $Student;
+    }
+    return null;
   }
 
   public function pushStudentToAssignmentDB($student_id){
@@ -249,13 +175,25 @@ class Assignment {
     $query = "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function pushStudentsToAssignmentDB($Students) {
+    global $dbconnect;
+
+    $query = "";
+    if (!empty($Students)) {
+      foreach($Students as $Student) {
+        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
+      }
+    }
+    
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteStudentFromAssignmentDB($student_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_assignment_student WHERE student_user_id = $student_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushStudentsToAssignmentDB() {
+  public function synchStudentsToAssignmentDB() {
     global $dbconnect;
 
     $this->deleteStudentsFromAssignmentDB();
@@ -263,7 +201,7 @@ class Assignment {
     $query = "";
     if (!empty($this->Students)) {
       foreach($this->Students as $Student) {
-        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->getId());";
+        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
     }
     
@@ -278,6 +216,7 @@ class Assignment {
   }
 
 // -- END WORK WITH STUDENTS 
+
 
 
 // WORK WITH MESSAGES
@@ -296,14 +235,22 @@ class Assignment {
   private function findMessageById($message_id) {
     $index = 0;
     foreach($this->Messages as $Message) {
-      if ($Message->getId() == $message_id)
+      if ($Message->id == $message_id)
         return $index;
       $index++;
     }
     return -1;
   }
+  public function getMessageById($message_id) {
+    foreach($this->Messages as $Message) {
+      if ($Message->id == $message_id)
+        return $Message;
+    }
+    return null;
+  }
 
 // -- END WORK WITH MESSAGES 
+
 
 
 // WORK WITH COMMITS
@@ -322,16 +269,26 @@ class Assignment {
   private function findCommitById($commit_id) {
     $index = 0;
     foreach($this->Commits as $Commit) {
-      if ($Commit->getId() == $commit_id)
+      if ($Commit->id == $commit_id)
         return $index;
       $index++;
     }
     return -1;
   }
+  public function getCommitById($commit_id) {
+    foreach($this->Commits as $Commit) {
+      if ($Commit->id == $commit_id)
+        return $Commit;
+    }
+    return null;
+  }
 
-  // -- END WORK WITH MESSAGES 
+// -- END WORK WITH MESSAGES 
   
+
 }
+
+
 
 
 function getStudentsByAssignment($assignment_id) {

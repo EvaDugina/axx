@@ -4,14 +4,14 @@ require_once("File.class.php");
 
 class Commit {
 
-  private $id;
-  private $session_id, $student_user_id, $type, $autotest_result;
+  public $id;
+  public $session_id, $student_user_id, $type, $autotest_result;
   //private $comment; можно реализовать
   
   private $Files = array();
 
 
-  function __construct() {
+  public function __construct() {
     global $dbconnect;
 
     $count_args = func_num_args();
@@ -54,91 +54,14 @@ class Commit {
 
   }
 
-  
-// GETTERS:
 
-  public function getId(){
-    return $this->id;
-  }
-
-  public function getSessionId(){
-    return $this->session_id;
-  }
-
-  public function getStudentUserId(){
-    return $this->student_user_id;
-  }
-
-  public function getType(){
-    return $this->type;
-  }
-
-  public function getAutoTestResult(){
-    return $this->autotest_result;
-  }
-
-  // public function getComment(){
-  //   return $this->comment;
-  // }
-
-  public function getFiles(){
+  public function getFiles() {
     return $this->Files;
   }
 
-// -- END GETTERS
 
 
-
-// SETTERS:
-
-  public function setSessionId($session_id){
-    $this->session_id = $session_id;
-  }
-
-  public function setStudentUserId($student_user_id){
-    $this->student_user_id = $student_user_id;
-  }
-
-  public function setType($type){
-    $this->type = $type;
-  }
-
-  public function setAutoTestResult($autotest_result){
-    $this->autotest_result = $autotest_result;
-  }
-
-  // public function setComment($comment){
-  //   $this->comment = $comment;
-  // }
-
-// -- END SETTERS
-
-
-
-  public function addFile($file_id) {
-    $File = new File($file_id);
-    $this->pushFileToCommitDB($file_id);
-    array_push($this->Files, $File);
-  }
-  public function deleteFile($file_id) {
-    $index = $this->findFileById($file_id);
-    if ($index != -1) {
-      $this->deleteFileFromCommitDB($file_id);
-      $this->Files[$index]->deleteFromDB();
-      unset($this->Files[$index]);
-    }
-  }
-  private function findFileById($file_id) {
-    $index = 0;
-    foreach($this->Files as $File) {
-      if ($File->getId() == $file_id)
-        return $index;
-      $index++;
-    }
-    return -1;
-  }
-
-
+// WORK WITH COMMIT 
 
   public function pushNewToDB($assignment_id) {
     global $dbconnect;
@@ -163,8 +86,7 @@ class Commit {
     $query .= "DELETE FROM ax_solution_commit WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-
-  public function pushCommitChangesToDB() {
+  public function pushChangesToDB() {
     global $dbconnect;
 
     $query = "UPDATE ax_solution_commit SET session_id = $this->session_id, student_user_id = $this->student_user_id, 
@@ -173,18 +95,40 @@ class Commit {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function pushFileChangesToDB() {
-    global $dbconnect;
+// -- END WORK WITH COMMIT 
 
-    $this->deleteFilesFromDB();
 
-    $query = "";
-    if (!empty($this->Files)) {
-      foreach($this->Files as $File) {
-        $query .= "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $File->getId());";
-      }
+
+// WORK WITH FILE 
+
+  public function addFile($file_id) {
+    $File = new File($file_id);
+    $this->pushFileToCommitDB($file_id);
+    array_push($this->Files, $File);
+  }
+  public function deleteFile($file_id) {
+    $index = $this->findFileById($file_id);
+    if ($index != -1) {
+      $this->deleteFileFromCommitDB($file_id);
+      $this->Files[$index]->deleteFromDB();
+      unset($this->Files[$index]);
     }
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  private function findFileById($file_id) {
+    $index = 0;
+    foreach($this->Files as $File) {
+      if ($File->id == $file_id)
+        return $index;
+      $index++;
+    }
+    return -1;
+  }
+  public function getFileById($file_id) {
+    foreach($this->Files as $File) {
+      if ($File->id == $file_id)
+        return $File;
+    }
+    return null;
   }
 
   public function pushFileToCommitDB($file_id) {
@@ -193,23 +137,36 @@ class Commit {
     $query = "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function synchFilesToCommitDB() {
+    global $dbconnect;
+
+    $this->deleteFilesFromCommitDB();
+
+    $query = "";
+    if (!empty($this->Files)) {
+      foreach($this->Files as $File) {
+        $query .= "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $File->id);";
+      }
+    }
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteFileFromCommitDB($file_id) {
     global $dbconnect;
 
     $query = "DELETE FROM ax_commit_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-
-
-  // КАК УДАЛЯТЬ?!
-  public function deleteFilesFromDB() {
+  public function deleteFilesFromCommitDB() {
     global $dbconnect;
-
+  
     // Удаляем предыдущие прикрепления файлов
-    $query = "DELETE FROM ax_file USING ax_commit_file WHERE commit_id = $this->id;";
-    $query .= "DELETE FROM ax_commit_file WHERE commit_id = $this->id;";
+    $query = "DELETE FROM ax_commit_file WHERE commit_id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+
+// -- END WORK WITH FILE 
+
+
 
 }
 
