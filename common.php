@@ -4,6 +4,7 @@
 require_once("settings.php");
 require_once("dbqueries.php");
 require_once("messageHandler.php");
+require_once("POClasses/User.class.php");
 
 $pageurl = explode('/', $_SERVER['REQUEST_URI']);
 $pageurl = $pageurl[count($pageurl) - 1];

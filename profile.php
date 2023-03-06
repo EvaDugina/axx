@@ -39,14 +39,14 @@ show_head('Профиль'); ?>
 
           <form clacc="col-md-6 form-check" action="profile_edit.php" method="POST">
             <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?=$user->getFIO()?></span> </p>
-            <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$user->getLogin()?></span> </p>
-            <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$user->getGroupName()?></span> </p>
+            <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$user->login?></span> </p>
+            <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$user->getGroup()->name?></span> </p>
             <p> <span class="font-weight-bold">ПОЧТА: </span> 
-                    <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?=$user->getEmail()?>">        
+                    <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?=$user->email?>">        
             </p>
             
             <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" 
-                    <?php if($user->getNotifyStatus()==1) echo "checked"; ?>> <span class="font-weight-normal">
+                    <?php if($user->notify_status==1) echo "checked"; ?>> <span class="font-weight-normal">
                       Получать уведомления на почту</span> </p>
 
             <button type="submit" class="btn btn-primary">CОХРАНИТЬ</button>

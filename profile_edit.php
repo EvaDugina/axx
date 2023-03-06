@@ -8,16 +8,18 @@ $user = new User($_SESSION['hash']);
 
 
 if (isset($_POST['email'])){
-  $user->setEmail($_POST['email']);
+  $user->email = $_POST['email'];
 }
 
 
 if (isset($_POST['checkbox_notify'])){
-  $user->setNotificationStatus(1);
+  $user->notify_status = 1;
 
 } else { // тк. если чекбокс не 'ON' он не передаётся методом POST
-  $user->setNotificationStatus(0);
+  $user->notify_status = 0;
 }
+
+$user->pushSettingChangesToDB();
 
 header('Location: profile.php');
 ?>
