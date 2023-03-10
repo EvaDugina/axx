@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 
 <?php
-
-//[x]: Убрать ненужное
 require_once("common.php");
-require_once("dbqueries.php");
-require_once("utilities.php"); 
 require_once("POClasses\User.class.php");
 
 $user = new User($_SESSION['hash']);
