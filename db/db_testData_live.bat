@@ -1,0 +1,1 @@
+psql -d accelerator -h localhost -p 5432 -U accelerator -W -F p -E < testData_live_221212.sql

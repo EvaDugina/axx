@@ -5,6 +5,7 @@ update ax_assignment_student set student_user_id = -2 where id in (-2, -10, -12)
 
 update ax_page_group set group_id = -1 where id in (-1, -2, -3);
 
+-- (удалить строчку, ели уже есть)
 ALTER TABLE ax_student_page_info ADD COLUMN variant_num text;
 
 --truncate public.ax_student_page_info;
