@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 
 <?php
+require_once("settings.php");
 require_once("common.php");
 require_once("POClasses\User.class.php");
+require_once("POClasses\Group.class.php");
 
-$user = new User($_SESSION['hash']);
+$user = new User((int)$_SESSION['hash']);
+$group = new Group((int)$user->group_id);
 
 ?>
 
@@ -36,7 +39,7 @@ show_head('Профиль'); ?>
           <form clacc="col-md-6 form-check" action="profile_edit.php" method="POST">
             <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?=$user->getFIO()?></span> </p>
             <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$user->login?></span> </p>
-            <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$user->getGroup()->name?></span> </p>
+            <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$group->name?></span> </p>
             <p> <span class="font-weight-bold">ПОЧТА: </span> 
                     <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?=$user->email?>">        
             </p>

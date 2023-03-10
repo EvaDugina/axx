@@ -3,9 +3,9 @@
 
   require_once("common.php");
   require_once("dbqueries.php");
-  require_once("POClasses/File.class.php.php");
-  require_once("POClasses/Commit.class.php.php");
-  require_once("POClasses/Message.class.php.php");
+  require_once("POClasses/File.class.php");
+  require_once("POClasses/Commit.class.php");
+  require_once("POClasses/Message.class.php");
 
   $file_name = 0;
   $assignment = 0;
@@ -122,7 +122,7 @@
 
     // TODO: Проверить!
     $File = new File(11, $file_name, null, null);
-    $Commit = new Commit($commit_id);
+    $Commit = new Commit((int)$commit_id);
     $Commit->addFile($File->id);
     $responce = $File->id;
   //   $result = pg_query($dbconnect, "INSERT INTO ax_solution_file (assignment_id, commit_id, file_name, type) VALUES ('$assignment', $commit_id, '$file_name', '11') returning id;");
@@ -193,8 +193,8 @@
     // TODO: Проверить!
     $pg_query = pg_query($dbconnect, "SELECT * from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
     while ($file = pg_fetch_assoc($pg_query)) {
-      $File = new File($file['type'], $file['file_name'], $file['download_url'], $file['full_text']);
-      $Commit = new Commit($new_id);
+      $File = new File((int)$file['type'], $file['file_name'], $file['download_url'], $file['full_text']);
+      $Commit = new Commit((int)$new_id);
       $Commit->addFile($File->id);
     }
 
@@ -211,7 +211,7 @@
 	    $msg_id = $result['id'];
 	  
       // TODO: Проверить!
-      $Message = new Message($msg_id);
+      $Message = new Message((int)$msg_id);
       $File = new File(null, 'проверить', "editor.php?assignment=$assignment&commit=$new_id", null);
 	    // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
 			// 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
@@ -224,7 +224,7 @@
 	    $msg_id = $result['id'];
 	  
       // TODO: Проверить!
-      $Message = new Message($msg_id);
+      $Message = new Message((int)$msg_id);
       $File = new File(null, 'проверенная версия', "editor.php?assignment=$assignment&commit=$new_id", null);
 	    // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
 			// 				 "     values ($msg_id, 'проверенная версия', 'editor.php?assignment=$assignment&commit=$new_id', null)");

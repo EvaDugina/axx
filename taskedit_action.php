@@ -14,9 +14,9 @@ if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   exit;
 } else if (isset($_POST['page_id'])) {
   $page_id = $_POST['page_id'];
-  $Page = new Page($page_id);
+  $Page = new Page((int)$page_id);
 } else if (isset($_POST['page_id'])) {
-  $Task = new Task($_POST['task_id']);
+  $Task = new Task((int)$_POST['task_id']);
 }
 
 
@@ -50,7 +50,7 @@ if(isset($_POST['flag-statusFile']) && $_POST['task_id']) {
 
   // TODO: ПРОВЕРИТЬ!
   $file_id = $_POST['file_id'];
-  $Task = new Task($_POST['task_id']);
+  $Task = new Task((int)$_POST['task_id']);
   $File = $Task->getFileById($file_id);
   $File->type = $file_type;
   $File->pushChangesToDB();
@@ -69,7 +69,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
   $page_id = pg_fetch_assoc($query)['page_id'];
 
   // TODO: ПРОВЕРИТь!
-  $Task = new Task($_POST['task_id']);
+  $Task = new Task((int)$_POST['task_id']);
   $Task->deleteFromDB();
   // $query = delete_task($_POST['task_id']);
   // $result = pg_query($dbconnect, $query);
@@ -116,7 +116,7 @@ if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['st
 */
 if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action'] == 'reject') && ($_POST['assignment_id'] != 0)) {
   // TODO: Проверить!
-  $Asssignment = new Assignment($_POST['assignment_id']);
+  $Asssignment = new Assignment((int)$_POST['assignment_id']);
   // $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
   $Asssignment->deleteFromDB();
   header('Location:'.$_SERVER['HTTP_REFERER']);
@@ -166,7 +166,7 @@ if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
     echo "<br>";*/
 
     // TODO: Проверить!
-    $Task = new Task($task_id);
+    $Task = new Task((int)$task_id);
 
     // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
     if (move_uploaded_file($file_tmp_name, $file_path)) {

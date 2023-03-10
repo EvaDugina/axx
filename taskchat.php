@@ -188,12 +188,12 @@ $task_number = explode('.', $task_title)[0];
                 <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;Онлайн редактор кода</a>
             </div>
 
-            <?php if($au->isAdminOrTeacher()) { // Отправить задание на проверку ?>
+            <?php if($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание ?>
               <form id="form-check-task" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-1">
                   <div class="file-input-wrapper me-1">
                     <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
-                      <option hiddenb value="-1"></option>
+                      <option hidden value="-1"></option>
                       <?php for($i=1; $i<=$task_max_mark; $i++) {?>
                         <option value="<?=$i?>"><?=$i?></option>
                       <?php }?>
@@ -204,7 +204,7 @@ $task_number = explode('.', $task_title)[0];
                     <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
                 </div>
               </form>
-            <?php } else { // Оценить отправленное на проверку задание?>
+            <?php } else { // Отправить задание на проверку ?>
               <form id="form-send-answer" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-2">
                   <div class="file-input-wrapper me-1">

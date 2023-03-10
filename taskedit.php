@@ -56,7 +56,7 @@ if (isset($_GET['task'])){
   }
 
   // TODO: Протестировать!
-  $Task = new Task($task_id);
+  $Task = new Task((int)$task_id);
   $TestFiles = $Task->getFilesByType(2);
   $TestOfTestFiles = $Task->getFilesByType(3);
 

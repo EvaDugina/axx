@@ -13,7 +13,7 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 
 if (isset($_GET['task_id']) && isset($_GET['page_id'])) {
   // TODO: ПРОВЕРИТь!
-  $Task = new Task($_GET['task_id']);
+  $Task = new Task((int)$_GET['task_id']);
   $Task->deleteFromDB();
   // $query = delete_task($_GET['task_id']);
   // $result = pg_query($dbconnect, $query);
@@ -64,7 +64,7 @@ switch($action)
             // $items = array();
             foreach($tasknums as $tn) {
                 // array_push($items, '(0, '.$tn.', \''.$filename.'\', \''.$uploadfile.'\', null)');
-                $Task = new Task($tn);
+                $Task = new Task((int)$tn);
                 $File = new File(0, $filename, $uploadfile, null);
                 $Task->addFile($File->id);
             }

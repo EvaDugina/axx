@@ -3,6 +3,7 @@ require_once("settings.php");
 require_once("dbqueries.php");
 require_once("messageHandler.php");
 require_once("POClasses/Message.class.php");
+require_once("POClasses/Task.class.php");
 
 // Работа с TIMESTAMP
 date_default_timezone_set('Europe/Moscow');
@@ -79,7 +80,7 @@ function delete_prefix($str) {
 // ОБЩИЕ ФУНКЦИИ РАБОТЫ С ЗАДАНИЯМИ
 // $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
 function getTaskFiles($dbconnect, $task_id){
-  $Task = new Task($task_id);
+  $Task = new Task((int)$task_id);
   $Files = $Task->getFiles();
 
   // $query = "SELECT id, type, file_name, download_url FROM ax_task_file WHERE task_id = $task_id AND type < 2 order by id";
@@ -110,7 +111,7 @@ function getTaskFiles($dbconnect, $task_id){
     else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
       $File->download_url = 'download_file.php?file_path=' . $File->download_url;
     }
-    $file_name = delete_random_prefix_from_file_name($File->file_name);
+    $file_name = $File->name;
     array_push($task_files, array('id' => $File->id, 'type' => $File->type, 'file_name' => $file_name, 'download_url' => $File->download_url));
   }
 
@@ -138,7 +139,7 @@ function showAttachedFilesByMessageId($message_id){
   function get_message_attachments($message_id) {
 
     // TODO: ПРОВЕРИТЬ!
-    $Message = new Message($message_id);
+    $Message = new Message((int)$message_id);
     // $query = select_message_attachment($message_id);
     // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     

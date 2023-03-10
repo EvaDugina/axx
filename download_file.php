@@ -14,7 +14,7 @@ if (ob_get_level()) {
 // Скачивание архива всех файлов к странице с заданием
 if (isset($_GET['download_task_files'])) {
     // TODO: Проверить!
-    $Task = new Task($_GET['task_id']);
+    $Task = new Task((int)$_GET['task_id']);
     // $query = "SELECT file_name, download_url, full_text FROM ax_task_file WHERE task_id = {$_GET['task_id']} AND type < 2";
     // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
@@ -40,11 +40,11 @@ if (isset($_GET['download_task_files'])) {
     foreach($Task->getFiles() as $File) {
       // Если текст файла лежит в БД
       if ($File->download_url == null) {
-        $zip->addFromString($File->file_name, $File->full_text);
+        $zip->addFromString($File->name, $File->full_text);
       }
       // Если файл лежит на сервере
       else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
-        $zip->addFile($File->download_url, $File->file_name);
+        $zip->addFile($File->download_url, $File->name);
       }
     }
 
@@ -71,23 +71,8 @@ else if (isset($_GET['file_id']) /*|| isset($_GET['task_file_id'])*/) {
     // Скачивание файла из БД по attachment_id из ax_message_attachment
     if (isset($_GET['file_id'])) {
         // Достаем название и полный текст файла по attachment_id
-        // TODO: ПРОВЕРИТЬ!
-        $File = new File($_GET['file_id']);
-        // $query = "SELECT file_name, full_text from ax_message_attachment where id = {$_GET['attachment_id']}";
-        // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        // $row = pg_fetch_assoc($result);
+        $File = new File((int)$_GET['file_id']);
     }
-
-    // Скачивание файла из БД по task_file_id из ax_task_file
-    // else if (isset($_GET['task_file_id'])) {
-    //     // Достаем название и полный текст файла по task_file_id
-    //     // TODO: ПРОВЕРИТЬ!
-    //     $query = "SELECT file_id from ax_task_file where ax_task_file.id = {$_GET['task_file_id']}";
-    //     $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    //     $row = pg_fetch_assoc($result);
-
-    //     $File = new File($row['file_id']);
-    // }
 
     if ($File == null) { exit("Файл не существует"); }
 

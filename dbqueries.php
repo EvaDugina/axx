@@ -876,7 +876,7 @@ function select_last_ax_solution_file_by_commit_id($commit_id) {
   return "SELECT * FROM ax_commit_file
           INNER JOIN ax_file ON ax_file.id = ax_commit_file.file_id
           WHERE commit_id = $commit_id
-          ORDER BY id;
+          ORDER BY commit_id;
   ";
 }
 

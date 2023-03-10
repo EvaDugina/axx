@@ -3,7 +3,7 @@ require_once("settings.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("messageHandler.php");
-require_once("POClasses/Commit.class.php.php");
+require_once("POClasses/Commit.class.php");
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
   exit;
@@ -55,12 +55,8 @@ if ($_POST['type'] == 1){
   /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
   echo "<br>";*/
 
-  // TODO: ПРОВЕРИТЬ!
-  $Commit = new Commit($assignment_id, null, $user_id, null, null);
+  $Commit = new Commit((int)$assignment_id, null, (int)$user_id, null, null);
   $commit_id = $Commit->id;
-  // $query = insert_answer_commit($assignment_id, $user_id);
-	// $result = pg_query($dbconnect, $query) ;
-	// $commit_id = pg_fetch_assoc($result)['id'];
 
   /*echo "COMMIT_ID: ".$commit_id;
   echo "<br>";*/
@@ -138,7 +134,7 @@ if ($_POST['type'] == 1 && isset($_FILES['files'])) {
       
     }
   }
-  $messageHandler->add_files_to_message($commit_id, $message_id, $files, $_POST['type']);
+  $messageHandler->add_files_to_message(null, $message_id, $files, $_POST['type']);
 }
 
 

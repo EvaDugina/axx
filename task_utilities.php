@@ -5,7 +5,7 @@ require_once("dbqueries.php");
 
 
 // TODO: ПРОВЕРИТЬ!
-$Task = new Task($_POST['task_id']);
+$Task = new Task((int)$_POST['task_id']);
 
 if($_POST['type'] == 1){
 

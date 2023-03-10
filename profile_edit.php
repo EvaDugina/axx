@@ -4,7 +4,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("POClasses\User.class.php");
 
-$user = new User($_SESSION['hash']);
+$user = new User((int)$_SESSION['hash']);
 
 
 if (isset($_POST['email'])){
