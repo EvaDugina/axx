@@ -67,4 +67,3 @@ DROP TABLE ax_solution_file;
 
 ALTER TABLE ax_task_files RENAME TO ax_task_file;
 
-
