@@ -136,7 +136,7 @@ class Page {
 // WORK WITH TASKS
 
 public function addTask($task_id) {
-  $Task = new Task($task_id);
+  $Task = new Task((int)$task_id);
   array_push($this->Tasks, $Task);
 }
 public function deleteTask($task_id) {
@@ -170,7 +170,7 @@ public function getTaskById($task_id) {
 // WORK WITH GROUPS
 
 public function addGroup($group_id) {
-  $Group = new Group($group_id);
+  $Group = new Group((int)$group_id);
   $this->pushGroupToPageDB($group_id);
   array_push($this->Groups, $Group);
 }
@@ -239,7 +239,7 @@ public function deleteGroupsFromPageDB() {
 // WORK WITH TEACHERS
 
 public function addTeacher($teacher_id) {
-  $Teacher = new User($teacher_id);
+  $Teacher = new User((int)$teacher_id);
   $this->pushTeacherToPageDB($teacher_id);
   array_push($this->Teachers, $Teacher);
 }
@@ -332,7 +332,7 @@ function getTasksByPage($page_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($task_row = pg_fetch_assoc($result)) {
-    array_push($tasks, new Task($task_row['row']));
+    array_push($tasks, new Task((int)$task_row['id']));
   }
 
   return $tasks;
@@ -347,7 +347,7 @@ function getGroupsByPage($page_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($group_row = pg_fetch_assoc($result)){
-    array_push($tasks, new Group($group_row['id']));
+    array_push($tasks, new Group((int)$group_row['id']));
   }
 
   return $groups;
@@ -362,7 +362,7 @@ function getTeachersByPage($page_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($teacher_row = pg_fetch_assoc($result)){
-    array_push($tasks, new User($teacher_row['id']));
+    array_push($tasks, new User((int)$teacher_row['id']));
   }
 
   return $teachers;

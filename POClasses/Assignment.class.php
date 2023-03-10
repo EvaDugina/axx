@@ -131,7 +131,7 @@ class Assignment {
 // WORK WITH STUDENTS 
 
   public function addStudent($student_id) {
-    $Student = new User($student_id);
+    $Student = new User((int)$student_id);
     $this->pushStudentToAssignmentDB($student_id);
     array_push($this->Students, $Student);
   }
@@ -219,7 +219,7 @@ class Assignment {
 // WORK WITH MESSAGES
 
   public function addMessage($message_id) {
-    $Message = new Message($message_id);
+    $Message = new Message((int)$message_id);
     array_push($this->Messages, $Message);
   }
   public function deleteMessage($message_id) {
@@ -253,7 +253,7 @@ class Assignment {
 // WORK WITH COMMITS
 
   public function addCommit($commit_id) {
-    $Commit = new Commit($commit_id);
+    $Commit = new Commit((int)$commit_id);
     array_push($this->Commits, $Commit);
   }
   public function deleteCommit($commit_id) {
@@ -297,7 +297,7 @@ function getStudentsByAssignment($assignment_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($student_row = pg_fetch_assoc($result)){
-    array_push($students, new User($student_row['id']));
+    array_push($students, new User((int)$student_row['id']));
   }
 
   return $students;
@@ -312,7 +312,7 @@ function getMessagesByAssignment($assignment_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($message_row = pg_fetch_assoc($result)){
-    array_push($messages, new Message($message_row['id']));
+    array_push($messages, new Message((int)$message_row['id']));
   }
 
   return $messages;
@@ -327,7 +327,7 @@ function getCommitsByAssignment($assignment_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($commit_row = pg_fetch_assoc($result)){
-    array_push($commits, new Commit($commit_row['id']));
+    array_push($commits, new Commit((int)$commit_row['id']));
   }
 
   return $commits;

@@ -7,6 +7,7 @@ class File {
   public $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
                         // 10 - просто файл с результатами, 11 - файл проекта)
   public $name = null, $download_url = null, $full_text = null;
+  public $name_with_prefix = null;
 
           
   public function __construct() {
@@ -25,7 +26,8 @@ class File {
       $file = pg_fetch_assoc($result);
 
       if ($file) {
-        $this->name = $file['file_name'];
+        $this->name = deleteRandomPrefix($file['file_name']);
+        $this->name_with_prefix = $file['file_name'];
         $this->download_url = $file['download_url'];
         $this->full_text = $file['full_text'];
         $this->type = $file['type'];
@@ -33,10 +35,21 @@ class File {
       
     } 
     
+    // TODO: Доделать
+    else if ($count_args == 2) {
+      $this->type = $args[0];
+      $this->name = $args[1];
+      $this->name_with_prefix = addRandomPrefix($this->name);
+
+      $this->pushNewToDB();
+    }
+    
     else if ($count_args == 4) {
       $this->type = $args[0];
       $this->name = $args[1];
-      $this->download_url = $args[2];
+      $this->name_with_prefix = addRandomPrefix($this->name);
+
+      $this->download_url = $args[2];      
       $this->full_text = $args[3];
 
       $this->pushNewToDB();
@@ -58,16 +71,19 @@ class File {
 
     if ($this->full_text == null && $this->download_url != null) {
       $query = "INSERT INTO ax_file (type, file_name, download_url) 
-                VALUES ($this->type, '$this->name', '$this->download_url') 
+                VALUES ($this->type, '$this->name_with_prefix', '$this->download_url') 
                 RETURNING id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
       $query = "INSERT INTO ax_file (type, file_name, full_text) 
-                VALUES ($this->type, '$this->name', \$antihype1\$$this->full_text\$antihype1\$) 
+                VALUES ($this->type, '$this->name_with_prefix', \$antihype1\$$this->full_text\$antihype1\$) 
                 RETURNING id;
       ";
     } else {
-      exit("Incorrect File->pushNewToDB()");
+      $query = "INSERT INTO ax_file (type, file_name) 
+                VALUES ($this->type, '$this->name') 
+                RETURNING id;
+      ";
     }
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -79,12 +95,12 @@ class File {
     global $dbconnect;
 
     if ($this->full_text == null && $this->download_url != null) {
-      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name', 
+      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name_with_prefix', 
                 download_url = '$this->download_url'
                 WHERE id = $this->id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
-      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name',  
+      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name_with_prefix',  
                 full_text = \$antihype1\$$this->full_text\$antihype1\$
                 WHERE id = $this->id;
       ";

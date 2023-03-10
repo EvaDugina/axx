@@ -4,8 +4,8 @@ require_once("File.class.php");
 
 class Commit {
 
-  public $id;
-  public $session_id, $student_user_id, $type, $autotest_result;
+  public $id = null;
+  public $session_id = null, $student_user_id = null, $type = null, $autotest_results = null;
   //private $comment; можно реализовать
   
   private $Files = array();
@@ -24,12 +24,12 @@ class Commit {
   
       $query = queryGetCommitInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-      $file = pg_fetch_assoc($result);
+      $commit = pg_fetch_assoc($result);
   
-      $this->session_id = $file['session_id'];
-      $this->student_user_id = $file['student_user_id'];
-      $this->type = $file['type'];
-      $this->autotest_result = $file['autotest_result'];
+      $this->session_id = $commit['session_id'];
+      $this->student_user_id = $commit['student_user_id'];
+      $this->type = $commit['type'];
+      $this->autotest_results = $commit['autotest_results'];
       //$this->comment = $file[''];
 
       $this->Files = getFilesByCommit($this->id);
@@ -39,10 +39,22 @@ class Commit {
     else if ($count_args == 5) {
       $assignment_id = $args[0];
 
-      $this->session_id = $args[1];
+      if ($args[1] == null)
+        $this->session_id = "null";
+      else
+        $this->session_id = $args[1];
+
       $this->student_user_id = $args[2];
-      $this->type = $args[3];
-      $this->autotest_result = $args[4];
+    
+      if ($args[3] == null)
+        $this->type = 1;
+      else
+        $this->type = $args[3];
+
+      if ($args[4] == null)
+        $this->autotest_results = "null";
+      else
+        $this->autotest_results = $args[4];
 
       $this->pushNewToDB($assignment_id);
 
@@ -66,8 +78,8 @@ class Commit {
   public function pushNewToDB($assignment_id) {
     global $dbconnect;
 
-    $query = "INSERT INT ax_solution_commit (assignment_id, session_id, student_user_id, type, autotest_result)
-              VALUES ($assignment_id, $this->session_id, $this->student_user_id, $this->type, $this->autotest_result)
+    $query = "INSERT INTO ax_solution_commit (assignment_id, session_id, student_user_id, type, autotest_results)
+              VALUES ($assignment_id, $this->session_id, $this->student_user_id, $this->type, $this->autotest_results)
               RETURNING id";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -91,7 +103,7 @@ class Commit {
     global $dbconnect;
 
     $query = "UPDATE ax_solution_commit SET session_id = $this->session_id, student_user_id = $this->student_user_id, 
-      type = $this->type, autotest_result = '$this->autotest_result' WHERE id = $this->id;
+      type = $this->type, autotest_results = '$this->autotest_results' WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -103,7 +115,7 @@ class Commit {
 // WORK WITH FILE 
 
   public function addFile($file_id) {
-    $File = new File($file_id);
+    $File = new File((int)$file_id);
     $this->pushFileToCommitDB($file_id);
     array_push($this->Files, $File);
   }
@@ -181,7 +193,7 @@ function getFilesByCommit($commit_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($file_row = pg_fetch_assoc($result)){
-    array_push($files, new File($file_row['id']));
+    array_push($files, new File((int)$file_row['id']));
   }
 
   return $files;

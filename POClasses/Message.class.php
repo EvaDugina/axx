@@ -44,7 +44,7 @@ class Message {
       $this->status = $message['status'];
       $this->visibility = $message['visibility'];
 
-      $this->Commit = new Commit($message['commit_id']);
+      $this->Commit = new Commit((int)$message['commit_id']);
       $this->Files = getFilesByMessage($this->id);
 
     }
@@ -129,7 +129,7 @@ public function deleteFromDB() {
 // WORK WITH FILE
 
   public function addFile($file_id) {
-    $File = new File($file_id);
+    $File = new File((int)$file_id);
     $this->pushFileToMessageDB($file_id);
     array_push($this->Files, $File);
   }
@@ -215,7 +215,7 @@ public function deleteFromDB() {
 // WORK WITH COMMIT
 
   public function setCommit($commit_id) {
-    $this->Commit = new Commit($commit_id);
+    $this->Commit = new Commit((int)$commit_id);
     $this->pushCommitToDB();
   }
   private function pushCommitToDB() {
@@ -247,7 +247,7 @@ function getCommitByMessage($message_id) {
   $commit_row = pg_fetch_assoc($result);
 
   if($commit_row)
-    return new Commit($commit_row['id']);
+    return new Commit((int)$commit_row['id']);
   else 
     return null;
 }
@@ -261,7 +261,7 @@ function getFilesByMessage($message_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($file_row = pg_fetch_assoc($result)){
-    array_push($files, new File($file_row['id']));
+    array_push($files, new File((int)$file_row['id']));
   }
 
   return $files;

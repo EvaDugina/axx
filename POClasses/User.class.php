@@ -8,7 +8,9 @@ class User {
   public $login, $role;
   public $email, $notify_status;
 
-  private $Group = null;
+  public $group_id;
+
+  // private $Group = null;
 
   
   function __construct() {
@@ -36,7 +38,9 @@ class User {
       $this->email = $user['email'];
       $this->notify_status = $user['notification_type'];
 
-      $this->Group = new Group($user['group_id']);
+      $this->group_id = $user['group_id'];
+
+      // $this->Group = new Group((int)$user['group_id']);
     }
 
     else {
@@ -76,9 +80,9 @@ class User {
 
     return $array_notify;
   }
-  public function getGroup() {
-    return $this->Group;
-  }
+  // public function getGroup() {
+  //   return $this->Group;
+  // }
   
 
 
@@ -110,7 +114,7 @@ function getGroupByStudent($student_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $group_id = pg_fetch_all($result)['group_id'];
 
-  return new Group($group_id);
+  return new Group((int)$group_id);
 }
 
 

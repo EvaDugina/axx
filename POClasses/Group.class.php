@@ -1,7 +1,5 @@
 <?php 
-require_once("../settings.php");
-require_once("../dbqueries.php");
-require_once("../utilities.php");
+require_once("./settings.php");
 
 class Group {
 
@@ -52,10 +50,9 @@ function getStudentsByGroup($group_id) {
 
   $query = queryGetStudentsByGroup($group_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $students_id = pg_fetch_all($result);
 
-  foreach($students_id as $student_id) {
-    array_push($students, new User($student_id));
+  while ($student = pg_fetch_assoc($result)) {
+    array_push($students, new User((int)$student['id']));
   }
 
   return $students;
@@ -70,7 +67,7 @@ function queryGetGroupInfo($group_id){
 }
 
 function queryGetStudentsByGroup($group_id) {
-  return "SELECT student_id FROM students_to_groups WHERE group_id = $group_id;";
+  return "SELECT student_id as id FROM students_to_groups WHERE group_id = $group_id;";
 }
 
 ?>

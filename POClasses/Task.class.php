@@ -116,7 +116,7 @@ class Task {
 // WORK WITH ASSIGNMENT
 
   public function addAssignment($assignment_id) {
-    $Assignment = new Assignment($assignment_id);
+    $Assignment = new Assignment((int)$assignment_id);
     array_push($this->Assignments, $Assignment);
   }
   public function deleteAssignment($assignment_id) {
@@ -150,7 +150,7 @@ class Task {
 // WORK WITH FILE
 
   public function addFile($file_id) {
-    $File = new File($file_id);
+    $File = new File((int)$file_id);
     $this->pushFileToTaskDB($file_id);
     array_push($this->Files, $File);
   }
@@ -252,7 +252,7 @@ function getAssignmentsByTask($task_id) {
   $assignment_ids = pg_fetch_all($result);
 
   foreach($assignment_ids as $assignment_id) {
-    array_push($assignments, new Assignment($assignment_id));
+    array_push($assignments, new Assignment((int)$assignment_id));
   }
 
   return $assignments;
@@ -268,7 +268,7 @@ function getFilesByTask($task_id) {
   $task_files = pg_fetch_all($result);
 
   foreach($task_files as $file) {
-    array_push($files, new File($file['file_name'], $file['download_url'], $file['download_url']));
+    array_push($files, new File((int)$file['file_id']));
   }
 
   return $files;
