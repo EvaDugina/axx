@@ -7,7 +7,8 @@ class File {
   public $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
                         // 10 - просто файл с результатами, 11 - файл проекта)
   public $name = null, $download_url = null, $full_text = null;
-  public $name_with_prefix = null;
+
+  public $name_without_prefix = null;
 
           
   public function __construct() {
@@ -26,8 +27,8 @@ class File {
       $file = pg_fetch_assoc($result);
 
       if ($file) {
-        $this->name = deleteRandomPrefix($file['file_name']);
-        $this->name_with_prefix = $file['file_name'];
+        $this->name = $file['file_name'];
+        $this->name_without_prefix = deleteRandomPrefix($this->name);
         $this->download_url = $file['download_url'];
         $this->full_text = $file['full_text'];
         $this->type = $file['type'];
@@ -38,16 +39,16 @@ class File {
     // TODO: Доделать
     else if ($count_args == 2) {
       $this->type = $args[0];
-      $this->name = $args[1];
-      $this->name_with_prefix = addRandomPrefix($this->name);
+      $this->name_without_prefix = $args[1];
+      $this->name = addRandomPrefix($this->name_without_prefix);
 
       $this->pushNewToDB();
     }
     
     else if ($count_args == 4) {
       $this->type = $args[0];
-      $this->name = $args[1];
-      $this->name_with_prefix = addRandomPrefix($this->name);
+      $this->name_without_prefix = $args[1];
+      $this->name = addRandomPrefix($this->name_without_prefix);
 
       $this->download_url = $args[2];      
       $this->full_text = $args[3];
@@ -57,12 +58,48 @@ class File {
     } 
     
     else {
-      return null;
+      die('Неверные аргументы в конструкторе File');
     }
 
 
   }
-  
+
+
+// GETTERS
+
+public function getFileExt() {
+  return strtolower(preg_replace('#.{0,}[.]#', '', $this->name_without_prefix));
+}
+
+// -- END GETTERS
+
+// SETTERS
+
+  public function setDownloadUrl($download_url) {
+    global $dbconnect;
+
+    $this->download_url = $download_url;
+    $query = "UPDATE ax_file SET download_url = '$this->download_url'
+                WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function setFullText($full_text) {
+    global $dbconnect;
+
+    $this->full_text = $full_text;
+    $query = "UPDATE ax_file SET full_text = '$this->full_text'
+                WHERE id = $this->id;
+    ";
+    
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+// -- END SETTERS
+
+
+
 
 // WORK WITH FILE
 
@@ -71,12 +108,12 @@ class File {
 
     if ($this->full_text == null && $this->download_url != null) {
       $query = "INSERT INTO ax_file (type, file_name, download_url) 
-                VALUES ($this->type, '$this->name_with_prefix', '$this->download_url') 
+                VALUES ($this->type, '$this->name', '$this->download_url') 
                 RETURNING id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
       $query = "INSERT INTO ax_file (type, file_name, full_text) 
-                VALUES ($this->type, '$this->name_with_prefix', \$antihype1\$$this->full_text\$antihype1\$) 
+                VALUES ($this->type, '$this->name', \$antihype1\$$this->full_text\$antihype1\$) 
                 RETURNING id;
       ";
     } else {
@@ -95,12 +132,12 @@ class File {
     global $dbconnect;
 
     if ($this->full_text == null && $this->download_url != null) {
-      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name_with_prefix', 
+      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name', 
                 download_url = '$this->download_url'
                 WHERE id = $this->id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
-      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name_with_prefix',  
+      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name',  
                 full_text = \$antihype1\$$this->full_text\$antihype1\$
                 WHERE id = $this->id;
       ";
@@ -126,26 +163,35 @@ class File {
 
 // Добавление рандомного префикса к названию файла, чтобы избежать оибки добавления файлов с одинаковым названием
 function addRandomPrefix($file_name) {
-  return rand_prefix() . '_' .  $file_name;
+  return rand_prefix() .  $file_name;
 }
 
 // Декодирование префиксного названия файла
 function deleteRandomPrefix($db_file_name) {
   return preg_replace('#[0-9]{0,}_#', '', $db_file_name, 1);
-
-  // Второй вариант:
-  // $split_array = preg_split('/_/', $db_file_name);
-  // $decoded_file_name = "";
-  // for ($i = 1; $i < count($split_array); $i++) {
-  //   if ($i != 1) $decoded_file_name .= "_";
-  //   $decoded_file_name .= $split_array[$i];
-  // }
-  // return $decoded_file_name;
 }
 
 // Генерация префикса для уникальности названий файлов, которые хранятся на сервере
 function randPrefix() {
   return time() . mt_rand(0, 9999) . mt_rand(0, 9999);
+}
+
+function getPathForUploadFiles(){
+  return 'upload_files/';
+}
+
+function getSpecialFileTypes(){
+  return array('cpp', 'c', 'h', 'txt');
+}
+
+function getImageFileTypes() {
+  return array('img', 'png', 'jpeg', 'jpg', 'gif');
+}
+
+function getFileContentByPath($file_path) {
+  $file_full_text = file_get_contents($file_path);
+  $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+  return $file_full_text;
 }
 
 

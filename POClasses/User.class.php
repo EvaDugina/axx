@@ -44,7 +44,7 @@ class User {
     }
 
     else {
-      die('Неверное число аргументов, или неверный id');
+      die('Неверные аргументы в конструкторе User');
     }
 
   }
@@ -54,7 +54,7 @@ class User {
     if (empty($this->first_name))
       return $this->middle_name;
     else
-      return $this->first_name + " " + $this->middle_name;
+      return $this->first_name . " " . $this->middle_name;
   }
   public function getFIO() {
     if (empty($this->first_name) && empty($this->middle_name))

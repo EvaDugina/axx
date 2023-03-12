@@ -61,7 +61,7 @@ class Commit {
     } 
     
     else {
-      die('Неверное число аргументов, или неверный id файла');
+      die('Неверные аргументы в конструкторе Commit');
     }
 
   }
@@ -69,6 +69,12 @@ class Commit {
 
   public function getFiles() {
     return $this->Files;
+  }
+  public function getFileIds() {
+    $file_ids = array();
+    foreach ($this->Files as $File)
+      array_push($file_ids, $File->id);
+    return $file_ids;
   }
 
 

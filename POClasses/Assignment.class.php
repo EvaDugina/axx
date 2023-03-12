@@ -29,20 +29,20 @@ class Assignment {
     if ($count_args == 1 && is_int($args[0])) { 
       $this->id = $args[0];
   
-      $query = queryGetMessageInfo($this->id);
+      $query = queryGetAssignmentInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-      $message = pg_fetch_assoc($result);
+      $assignment = pg_fetch_assoc($result);
 
-      $this->variant_comment = $message['variant_comment'];
-      $this->start_limit = $message['start_limit'];
-      $this->finish_limit = $message['finish_limit'];
+      $this->variant_comment = $assignment['variant_comment'];
+      $this->start_limit = $assignment['start_limit'];
+      $this->finish_limit = $assignment['finish_limit'];
 
-      $this->status_code = $message['status_code'];
-      $this->status_text = $message['status_text'];
+      $this->status_code = $assignment['status_code'];
+      $this->status_text = $assignment['status_text'];
 
-      $this->delay = $message['delay'];
-      $this->mark = $message['mark'];
-      $this->checks = $message['checks'];
+      $this->delay = $assignment['delay'];
+      $this->mark = $assignment['mark'];
+      $this->checks = $assignment['checks'];
 
       $this->Students = getStudentsByAssignment($this->id);
       $this->Messages = getMessagesByAssignment($this->id);
@@ -67,7 +67,7 @@ class Assignment {
     }
 
     else {
-      die('Неверные аргументы в конструкторе');
+      die('Неверные аргументы в конструкторе Assignment');
     }
 
   }
@@ -246,6 +246,16 @@ class Assignment {
     return null;
   }
 
+
+  function getNewMessagesByUser($user_id) {
+    $new_messages = array();
+    foreach ($this->Messages as $Message) {
+      if ($Message->getDeliveryStatus($user_id) == 0)
+        array_push($new_messages, $Message);
+    }
+    return $new_messages;
+  }
+
 // -- END WORK WITH MESSAGES 
 
 
@@ -284,8 +294,6 @@ class Assignment {
   
 
 }
-
-
 
 
 function getStudentsByAssignment($assignment_id) {
@@ -334,6 +342,10 @@ function getCommitsByAssignment($assignment_id) {
 }
 
 
+
+function queryGetAssignmentInfo($assignment_id) {
+  return "SELECT * FROM ax_assignment WHERE id = $assignment_id";
+}
 
 function queryGetStudentsByAssignment($assignment_id){
   return "SELECT student_user_id as id FROM ax_assignment_student
