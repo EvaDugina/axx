@@ -287,10 +287,7 @@ $task_number = explode('.', $task_title)[0];
             $('#files-answer-count').html('');
             button_answer.blur();
 
-            // Первое обновление лога чата
             loadChatLog(true);
-            // Обновление лога чата раз в 5 секунд
-            setInterval(loadChatLog, 5000);
 
             return false;
           }
@@ -313,10 +310,8 @@ $task_number = explode('.', $task_title)[0];
           // selector_mark.prop('disabled', 'disabled');
           // button_check.setAttribute('disabled', '');
           button_check.blur();
-          // Первое обновление лога чата
+          
           loadChatLog(true);
-          // Обновление лога чата раз в 5 секунд
-          setInterval(loadChatLog, 5000);
 
           return false;
         }
@@ -340,20 +335,56 @@ $task_number = explode('.', $task_title)[0];
         $("#user-message").css('height', '37.6px');
         $("#user-files").val("");
         $('#files-count').html('');
+
+        loadChatLog(true);
+
         return false;
       });
+
 
       // Первое обновление лога чата
       loadChatLog(true);
       // Обновление лога чата раз в 5 секунд
-      setInterval(loadChatLog, 5000);
+      setInterval(loadNewMessages, 2000);
+
     });
 
+
+
     // Обновляет лог чата из БД
-    function loadChatLog($first_scroll = false) {
+    function loadNewMessages() {
       // console.log("LOAD_CHAT_LOG!");
+
+      var formData = new FormData();
+      formData.append('assignment_id', <?=$assignment_id?>);
+      formData.append('user_id', <?=$user_id?>);
+      formData.append('load_status', 'new_only');
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          // console.log(response);
+          $('#chat-box').innerHTML += response;
+        },
+        complete: function() {
+          // Скролим чат вниз при появлении новых сообщений
+          // $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+        }
+      });
+    }
+
+
+
+    function loadChatLog($first_scroll = false) {
+      console.log("loadChatLog");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
-      $('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>}, function() {
+      $('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>,  
+      load_status: 'full'}, function() {
         // После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
         if ($first_scroll) {
           if ($('#new-messages').length == 0) {

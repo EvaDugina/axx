@@ -16,126 +16,109 @@ $assignment_id = $_POST['assignment_id'];
 $messageHandler = new messageHandler($assignment_id, $user_id);
 $sender_user_type = $messageHandler->sender_user_type;
 
-// echo "USER_ID: ".$user_id;
-// echo "<br>";
-// echo "ASSIGNMENT_ID: ".$assignment_id;
-// echo "<br>";
-// echo "SENDER_USER_TYPE: ".$sender_user_type;
-// echo "<br>";
-// echo "SESSION_ROLE = ".$_SESSION['role'];
-// echo "<br>";
-// echo "SESSION_ID = ".$_SESSION['hash'];
-
 $assignment = null;
 $query = select_ax_assignment_by_id($assignment_id);
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $finish_limit = pg_fetch_assoc($result)['finish_limit'];
 
 
-if (!isset($_POST['message_text']) && (!isset($_POST['type']) || $_POST['type'] != 1)){
-//  echo "JUST UPDATE <br>";
-//  echo "ISSET: " . $_POST['message_text'] . "<br>";
-  update_chat($assignment_id, $sender_user_type, $user_id);
-  exit;
-} else {
-  // echo "AAAAAAAAAAAAAAAA";
-}
-
-
-$full_text = "";
-$full_text = rtrim($_POST['message_text']);
-
-
-/*echo "FULL_TEXT: " . $full_text;
-echo "<br>";*/
 
 
 // ОТПРАВКА СООБЩЕНИЯ
-if ($_POST['type'] == 1){
-  /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
+if (isset($_POST['type']) && isset($_POST['message_text'])) {
+  
+  $full_text = "";
+  $full_text = rtrim($_POST['message_text']);
+  
+  /*echo "FULL_TEXT: " . $full_text;
   echo "<br>";*/
 
-  $Commit = new Commit((int)$assignment_id, null, (int)$user_id, null, null);
-  $commit_id = $Commit->id;
-
-  /*echo "COMMIT_ID: ".$commit_id;
-  echo "<br>";*/
-
-  $message_id = $messageHandler->set_message(1, 0, $full_text, $commit_id);
-  $messageHandler->set_message_only_for_teacher("editor.php?assignment=$assignment_id&commit=$commit_id");
-
-  $query = update_ax_assignment_status_code($assignment_id, 5);
-  $result = pg_query($dbconnect, $query);
-
-  $delay = -1;
-  if ($finish_limit) {
-    $date_db = convert_timestamp_to_date($finish_limit);
-    $date_now = get_now_date("d-m-Y");  
-    $delay = ($date_db >= $date_now) ? 0 : 1;
-  }
-  $query = update_ax_assignment_delay($assignment_id, $delay);
-  $result = pg_query($dbconnect, $query);
-
-
-} else if ($full_text != "" || isset($_FILES['files'])) {
-  /*echo "ОТПРАВКА ОЦЕНКИ или ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
-  echo "<br>";*/
-
-  if ($_POST['type'] == 2) {
-    /*echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
+  if ($_POST['type'] ==  1) {
+    /*echo "ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ";
     echo "<br>";*/
-    $query = select_last_answer_message($assignment_id);
+
+    $Commit = new Commit((int)$assignment_id, null, (int)$user_id, null, null);
+    $commit_id = $Commit->id;
+
+    /*echo "COMMIT_ID: ".$commit_id;
+    echo "<br>";*/
+
+    $message_id = $messageHandler->set_message(1, 0, $full_text, $commit_id);
+    $messageHandler->set_message_only_for_teacher("editor.php?assignment=$assignment_id&commit=$commit_id");
+
+    $query = update_ax_assignment_status_code($assignment_id, 5);
     $result = pg_query($dbconnect, $query);
-    $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
-    $message_id = $messageHandler->set_message($_POST['type'], 0, $full_text, null, $reply_to_id);
-  } else if ($_POST['type'] == 0) {
-    if(isset($_POST['flag-preptable']))
-      $message_id = $messageHandler->set_message(0, 0, $full_text, null, $POST['reply_id']);
-    else
-      $message_id = $messageHandler->set_message(0, 0, $full_text);
-  }
 
-} else {
-  //exit();
-}
-
-
-//echo "MESSAGE_ID: ".$message_id;
-//echo "<br>";
-
-$files = array();
-// print_r($_FILES);
-if ($_POST['type'] == 1 && isset($_FILES['files'])) {
-
-  //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА-ОТВЕТА НА ЗАДАНИЕ";
-  // echo "<br>";
-
-  for($i=0; $i < count($_FILES['files']['tmp_name']); $i++) {
-    if(!is_uploaded_file($_FILES['files']['tmp_name'][$i])){
-      continue;
-    } else {
-      array_push($files, ['name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i], 
-              'size' => $_FILES['files']['size'][$i]]);
+    $delay = -1;
+    if ($finish_limit) {
+      $date_db = convert_timestamp_to_date($finish_limit);
+      $date_now = get_now_date("d-m-Y");  
+      $delay = ($date_db >= $date_now) ? 0 : 1;
     }
+    $query = update_ax_assignment_delay($assignment_id, $delay);
+    $result = pg_query($dbconnect, $query);
+
+
+  } else if ($full_text != "" || isset($_FILES['files'])) {
+    /*echo "ОТПРАВКА ОЦЕНКИ или ОБЫЧНОГО СООБЩЕНИЯ: " . $full_text;
+    echo "<br>";*/
+
+    if ($_POST['type'] == 2) {
+      /*echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
+      echo "<br>";*/
+      $query = select_last_answer_message($assignment_id);
+      $result = pg_query($dbconnect, $query);
+      $reply_to_id = pg_fetch_assoc($result)['reply_to_id'];
+      $message_id = $messageHandler->set_message($_POST['type'], 0, $full_text, null, $reply_to_id);
+    } else if ($_POST['type'] == 0) {
+      if(isset($_POST['flag-preptable']))
+        $message_id = $messageHandler->set_message(0, 0, $full_text, null, $POST['reply_id']);
+      else
+        $message_id = $messageHandler->set_message(0, 0, $full_text);
+    }
+
+  } else {
+    //exit();
   }
-  $messageHandler->add_files_to_message($commit_id, $message_id, $files, $_POST['type']);
 
-} else if ($_POST['type'] == 0 && isset($_FILES['files'])) {
-
-  //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОГО К СООБЩЕНИЮ";
+  //echo "MESSAGE_ID: ".$message_id;
   //echo "<br>";
-
-  for($i=0; $i < count($_FILES['files']['tmp_name']); $i++) {
-    if(!is_uploaded_file($_FILES['files']['tmp_name'][$i])){
-      continue;
-    } else {
-      array_push($files, ['name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i], 
-              'size' => $_FILES['files']['size'][$i]]);
-      
+  
+  $files = array();
+  // print_r($_FILES);
+  if ($_POST['type'] ==  1 && isset($_FILES['files'])) {
+  
+    //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА-ОТВЕТА НА ЗАДАНИЕ";
+    // echo "<br>";
+  
+    for($i=0; $i < count($_FILES['files']['tmp_name']); $i++) {
+      if(!is_uploaded_file($_FILES['files']['tmp_name'][$i])){
+        continue;
+      } else {
+        array_push($files, ['name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i], 
+                'size' => $_FILES['files']['size'][$i]]);
+      }
     }
+    $messageHandler->add_files_to_message($commit_id, $message_id, $files, 11);
+  
+  } else if ($_POST['type'] == 0 && isset($_FILES['files'])) {
+  
+    //echo "ПРИКРЕПЛЕНИЕ ФАЙЛА, ПРИЛОЖЕННОГО К СООБЩЕНИЮ";
+    //echo "<br>";
+  
+    for($i=0; $i < count($_FILES['files']['tmp_name']); $i++) {
+      if(!is_uploaded_file($_FILES['files']['tmp_name'][$i])){
+        continue;
+      } else {
+        array_push($files, ['name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i], 
+                'size' => $_FILES['files']['size'][$i]]);
+      }
+    }
+    $messageHandler->add_files_to_message(null, $message_id, $files, 0);
   }
-  $messageHandler->add_files_to_message(null, $message_id, $files, $_POST['type']);
 }
+
+
 
 
 if (isset($_POST['mark'])) {
@@ -145,22 +128,45 @@ if (isset($_POST['mark'])) {
   $result = pg_query($dbconnect, $query);
 }
 
+
+
+
 if (isset($_POST['flag_preptable']) && $_POST['flag_preptable']){
   exit;
 }
 
+
+
+
 /*echo "UPDATE AFTER ACTION";*/
-update_chat($assignment_id, $sender_user_type, $user_id);
+if (isset($_POST['load_status']) && $_POST['load_status'] == 'full')
+  update_chat($assignment_id, $sender_user_type, $user_id);
+else
+  updateNewMessages($assignment_id, $sender_user_type, $user_id);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
 // Делает запись сообщения и вложений в БД
 // type: 0 - переговоры, 2 - оценка
 // Возвращает id добавленного сообщения
 
 function update_chat($assignment_id, $sender_user_type, $user_id){
-  // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
   echo '<div id="content">';
   //echo "UPDATE_CHAT UPDATE_CHAT UPDATE_CHAT! <br>";
   $messages = get_messages($assignment_id, $sender_user_type, $user_id);
@@ -168,6 +174,56 @@ function update_chat($assignment_id, $sender_user_type, $user_id){
   //echo "MESSAGES_COUNT: " . count($messages) . "<br>";
   show_messages($messages);
   echo '</div>';
+}
+
+function updateNewMessages($assignment_id, $sender_user_type, $user_id){
+  // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
+  $Assignment = new Assignment((int)$assignment_id);
+  visualNewMessages($Assignment->getNewMessagesByUser($user_id));
+
+}
+
+function visualNewMessages($Messages) {
+  global $user_id;
+
+	foreach ($Messages as $message) {
+    $User = new User((int)$message->sender_user_id);
+
+		// Прижимаем сообщения текущего пользователя к правой части экрана
+		$float_class = $message->sender_user_id == $user_id ? 'float-right' : ''; 
+		// Если студент написал сообщение, то у всех студентов сообщение подсвечивается синим, 
+		// пока один из преподов его не прочитает(прочитать = прогрузить страницу с чатом). И наоборот
+		$background_color_class = 'background-color-blue';
+		echo '<div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>';
+		?>
+
+		<div id="message-<?=$message->id?>" class="chat-box-message <?=$float_class?>" style="height: auto;">
+			<div class="chat-box-message chat-box-message-wrapper <?=$background_color_class?>">
+        <strong><?=$User->getFI()?></strong> </br>
+				<?php 
+				if ($message->full_text != '') {
+          if ($message->type == 3){ // если ссылка
+            echo '<a href="'.$message->full_text.'">Проверить код</a>';
+          } else
+					  echo stripslashes(htmlspecialchars($message->full_text)) . "<br>";
+				}
+				foreach ($message->getFiles() as $File) {
+          $file_ext = $File->getFileExt();   
+          if (in_array($file_ext, getImageFileTypes())) { ?>
+            <img src="<?=$File->download_url?>" class="rounded <?=$float_class?> w-100 mb-1" alt="...">
+          <?php } else {?>
+					  <a href="<?=$File->download_url?>" class="task-desc-wrapper-a" target="_blank">
+              <i class="fa-solid fa-file"></i><?=$File->name?>
+            </a>
+				  <?php }
+        }?>
+			</div>
+			<div class="chat-box-message-date mb-2">
+				<?=$message->date_time?>
+			</div>
+		</div>
+		<div class="clear"></div>
+	<?php }
 }
 
 // Возвращает двумерный массив сообщений для текущей страницы по ax_assignment
@@ -234,6 +290,7 @@ function show_messages($messages) {
 		// пока один из преподов его не прочитает(прочитать = прогрузить страницу с чатом). И наоборот
 		$background_color_class = $message['unreaded'] ? 'background-color-blue' : '';
 		if ($message['first_new']) {
+      // FIXME: 
 			echo '<div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>';
 		}
 		?>
