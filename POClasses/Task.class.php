@@ -274,6 +274,16 @@ function getFilesByTask($task_id) {
   return $files;
 }
 
+function getPageBytask($task_id) {
+  global $dbconnect;
+
+  $query = queryGetPageByTask($task_id);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $page_id = pg_fetch_assoc($result)['page_id'];
+
+  return $page_id;
+}
+
 
 
 
@@ -292,6 +302,11 @@ function queryGetAssignmentsByTask($task_id) {
 
 function queryGetFilesByTask($task_id) {
   return "SELECT * FROM ax_task_file WHERE task_id = $task_id;
+  ";
+}
+
+function queryGetPageByTask($task_id) {
+  return "SELECT page_id FROM ax_task WHERE id =$task_id;
   ";
 }
 

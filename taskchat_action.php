@@ -162,7 +162,6 @@ function showMessages($messages, $min_new_message_id) {
 		$background_color_class = ($message_delivery_status == 0) ? 'background-color-blue' : '';
 		// if ($message->isFirstUnreaded($user_id)) {
     if ($message->id == $min_new_message_id)
-      // FIXME: 
 			echo '<div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>';
     
     if ($message->visibility == 0 || $message->visibility == $User->role) {

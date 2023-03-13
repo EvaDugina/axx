@@ -4,6 +4,8 @@
 <?php
 require_once("common.php");
 require_once("dbqueries.php");
+require_once("dbqueries.php");
+require_once("POClasses/Page.class.php");
 
 // защита от случайного перехода
 $au = new auth_ssh();
@@ -22,67 +24,58 @@ if ((!isset($_GET['task']) || !is_numeric($_GET['task']))
 }
 
 // получение параметров запроса
-$task_id = -1;
-$page_id = -1;
 if (isset($_GET['task'])){
 	// Изменение текущего задания
   $flag_new_task = false;
 
-	$task_id = $_REQUEST['task'];
-	$query = select_task($task_id);
-	$result = pg_query($dbconnect, $query);
-	$task = pg_fetch_assoc($result);
+	// $Task->id = $_REQUEST['task'];
+	// $query = select_task($Task->id);
+	// $result = pg_query($dbconnect, $query);
+	// $task = pg_fetch_assoc($result);
+  $Task = new Task((int)$_REQUEST['task']);
 
-	if (!$task) {
-    header('Location:'.$_SERVER['HTTP_REFERER']);
-	  exit;
-  }
+	// if (!$task) {
+  //   header('Location:'.$_SERVER['HTTP_REFERER']);
+	//   exit;
+  // }
 
-  $user_id = $_SESSION['hash'];
+  $user_id = $au->getUserId();
+  $Page = new Page((int)getPageBytask($Task->id));
 
-	$page_id = $task['page_id'];
-	$query = select_discipline_page($page_id);
-	$result = pg_query($dbconnect, $query);
-	$page = pg_fetch_assoc($result);
+	// $Page->id = $task['page_id'];
+	// $query = select_discipline_page($Page->id);
+	// $result = pg_query($dbconnect, $query);
+	// $page = pg_fetch_assoc($result);
 
 
-  $query = select_task_assignment_student_id($user_id, $task_id);
-  $result = pg_query($dbconnect, $query);
-  $assignment_id = pg_fetch_assoc($result)['id'];
+  // $query = select_task_assignment_student_id($user_id, $Task->id);
+  // $result = pg_query($dbconnect, $query);
+  // $assignment_id = pg_fetch_assoc($result)['id'];
 
-  if (!$page) {
-    header('Location:'.$_SERVER['HTTP_REFERER']);
-	  exit;
-  }
+  // if (!$page) {
+  //   header('Location:'.$_SERVER['HTTP_REFERER']);
+	//   exit;
+  // }
 
-  // TODO: Протестировать!
-  $Task = new Task((int)$task_id);
   $TestFiles = $Task->getFilesByType(2);
   $TestOfTestFiles = $Task->getFilesByType(3);
-
-
-	// $query = select_task_file(2, $task_id);
-	// $result = pg_query($dbconnect, $query);
-	// $test = pg_fetch_all($result);
-
-	// $query = select_task_file(3, $task_id);
-	// $result = pg_query($dbconnect, $query);
-	// $test_of_test = pg_fetch_all($result);
 
 } else if (isset($_GET['page'])){
 	// Добавление новго задания
   $flag_new_task = true;
 
-	$page_id = $_REQUEST['page'];
-	$query = select_discipline_page($page_id);
-	$result = pg_query($dbconnect, $query);
-	$page = pg_fetch_assoc($result);
+  $Page = new Page((int)$_REQUEST['page']);
 
-  $query = select_count_page_tasks($page_id);
-  $result = pg_query($dbconnect, $query);
-  $count_tasks = pg_fetch_assoc($result)['count'];
+	// $Page->id = $_REQUEST['page'];
+	// $query = select_discipline_page($Page->id);
+	// $result = pg_query($dbconnect, $query);
+	// $page = pg_fetch_assoc($result);
 
-  $task = array(
+  // $query = select_count_page_tasks($Page->id);
+  // $result = pg_query($dbconnect, $query);
+  // $count_tasks = pg_fetch_assoc($result)['count'];
+
+  $Task = array(
     'title' => "",
     'description' => "",
     'type' => ""
@@ -92,7 +85,7 @@ if (isset($_GET['task'])){
 
 show_head("Добавление\Редактирование задания", array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
 show_header($dbconnect, 'Редактор заданий', 
-	array("Задания по дисциплине: " . $page['disc_name']  => 'preptasks.php?page='. $page_id,
+	array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
 	"Редактор заданий" => $_SERVER['REQUEST_URI'])
 ); ?>
 
@@ -104,18 +97,17 @@ show_header($dbconnect, 'Редактор заданий',
     <div class="pt-3">
       <div class="row gy-5">
         <form class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-          <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+          <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
+          <input type="hidden" name="page_id" value="<?=$Page->id?>"></input>
           <input type="hidden" name="flag-editTaskInfo" value="true"></input>
-          <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
           <table class="table table-hover">
     
             <div class="pt-3">
               <div class="form-outline">
-                <input id="input-title" class="form-control <?php /*if ($task['title'])*/ echo 'active';?>" wrap="off" rows="1" 
+                <input id="input-title" class="form-control <?php echo 'active';?>" wrap="off" rows="1" 
                 style="resize: none; white-space:normal;" name="task-title"
-                <?php if($task['title']) echo 'value="'.$task['title'].'"'; 
-                else echo 'value="Задание '. ++$count_tasks .'."';?>>
+                <?php if($Task->title) echo 'value="'.$Task->title.'"'; 
+                else echo 'value="Задание '. (count($Page->getTasks())+1) .'."';?>>
                 </input>
                 <label id="label-input-title" class="form-label" for="input-title">Название задания</label>
                 <div class="form-notch">
@@ -130,15 +122,15 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-3">
               <label>Тип задания:</label>
               <select id = "task-type" class="form-select" aria-label=".form-select" name="task-type">
-                <option value = "0" <?=(($task['type']==0) ? "selected" : "")?> >Обычное</option>
-                <option value = "1" <?=(($task['type']==1) ? "selected" : "")?>>Программирование</option>
+                <option value = "0" <?=(($Task->type==0) ? "selected" : "")?> >Обычное</option>
+                <option value = "1" <?=(($Task->type==1) ? "selected" : "")?>>Программирование</option>
               </select>
             </div>
 
             <div class="pt-3">
               <div class="form-outline">
-                <textarea id="textArea-description" class="form-control <?php /*if ($task['description'])*/ echo 'active';?>" 
-                rows="5" name="task-description" style="resize: none;"><?=$task['description']?></textarea>
+                <textarea id="textArea-description" class="form-control <?php echo 'active';?>" 
+                rows="5" name="task-description" style="resize: none;"><?=$Task->description?></textarea>
                 <label id="label-textArea-description" class="form-label" for="textArea-description">Описание задания</label>
                 <script>
                   const easyMDE = new EasyMDE({element: document.getElementById('textArea-description')});
@@ -155,7 +147,7 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-3 d-flex" id="tools">
               
               <div class="form-outline col-5">
-                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($task['type'] == 1) echo $TestFiles[0]['full_text'];?></textarea>
+                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($Task->type == 1) echo $TestFiles[0]->full_text;?></textarea>
                   <label class="form-label" for="textArea-testCode">Код теста</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -167,7 +159,7 @@ show_header($dbconnect, 'Редактор заданий',
               <div class="col-1"></div>
 
               <div class="form-outline col-6">
-                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($task['type'] == 1) echo $TestOfTestFiles[0]['full_text'];?></textarea>
+                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($Task->type == 1) echo $TestOfTestFiles[0]->full_text;?></textarea>
                   <label class="form-label" for="textArea-checkCode">Код проверки</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -180,10 +172,10 @@ show_header($dbconnect, 'Редактор заданий',
           </table>
 
           <button id="submit-save" type="submit" class="btn btn-outline-primary" name="action" value="save">Сохранить</button>
-          <?php if ($task_id != -1 && $task['status'] == 1) {?>
+          <?php if ($Task->id != -1 && $Task->status == 1) {?>
             <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
              name="action" value="archive">Архивировать задание</button>
-          <?php } else if($task_id != -1 && $task['status'] == 0){?>
+          <?php } else if($Task->id != -1 && $task->status == 0){?>
             <button id="submit-archive" type="submit" class="btn btn-outline-primary" name="action" value="re-archive">Разархивировать задание</button>
           <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
@@ -193,8 +185,8 @@ show_header($dbconnect, 'Редактор заданий',
         <div class="col-4 <?php if($flag_new_task) echo 'd-none';?>">
         <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
         id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-          <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+          <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
+          <input type="hidden" name="page_id" value="<?=$Page->id?>"></input>
           <input type="hidden" name="flag-editDeligation" value="true"></input>
           <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
           
@@ -217,7 +209,7 @@ show_header($dbconnect, 'Редактор заданий',
 
             <?php
             // Получение студентов, прикреплённызх к заданию
-            $query = select_students_by_group_by_page_by_task($page_id, $task_id);
+            $query = select_students_by_group_by_page_by_task($Page->id, $Task->id);
             $result = pg_query($dbconnect, $query);
             $students = pg_fetch_all_assoc($result);  ?>
 
@@ -238,11 +230,11 @@ show_header($dbconnect, 'Редактор заданий',
 
                         // Обработка полностью выбранных групп
                         $flag_full_group = true;
-                        if ($task_id != -1) {
+                        if ($Task->id != -1) {
                           for($i=$key; $i < count($students); $i++){
                             if($students[$i]['group_id'] != $student['group_id'])
                               break;
-                            if($students[$i]['task_id'] != $task_id)
+                            if($students[$i]['task_id'] != $Task->id)
                               $flag_full_group = false;
                             else $count_chosen_students++;
                           }
@@ -281,7 +273,7 @@ show_header($dbconnect, 'Редактор заданий',
                             <div class="form-check ms-3">
                               <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input input-student" 
                               type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
-                              <?php if($task_id != -1 && isset($student['task_id']) && $student['task_id'] == $task_id) echo 'checked';?>>
+                              <?php if($Task->id != -1 && isset($student['task_id']) && $student['task_id'] == $Task->id) echo 'checked';?>>
                               <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                             </div>
                           </div>
@@ -318,16 +310,16 @@ show_header($dbconnect, 'Редактор заданий',
 
             <div class="pt-1 pb-1">
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
-                <?php if ($task_id != -1) {?>
+                <?php if ($Task->id != -1) {?>
                   <div id="div-task-files" class="mb-3">
-                    <?php $task_files = getTaskFiles($dbconnect, $task_id);
-                    show_task_files($task_files, true, $task_id, $page_id);?>
+                    <?php $task_files = getTaskFiles($dbconnect, $Task->id);
+                    show_task_files($task_files, true, $Task->id, $Page->id);?>
                   </div>
                 <?php }?>
               
               <form id="form-addTaskFiles" name="taskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-                <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+                <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
+                <input type="hidden" name="page_id" value="<?=$Page->id?>"></input>
                 <input type="hidden" name="flag-addFiles" value="true"></input>
                 <label class="btn btn-outline-default py-2 px-4">
                   <input id="task-files" type="file" name="add-files[]" style="display: none;" multiple>
@@ -366,8 +358,8 @@ show_header($dbconnect, 'Редактор заданий',
       form_addFiles.submit();
       
       /*var formData = new FormData();
-      formData.append('task_id', <?=$task_id?>);
-      formData.append('page_id', <?=$page_id?>);
+      formData.append('task_id', <?=$Task->id?>);
+      formData.append('page_id', <?=$Page->id?>);
       $.each($("#task-files")[0].files, function(key, input){
         formData.append('add-files[]', input);
       });

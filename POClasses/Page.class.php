@@ -9,7 +9,7 @@ require_once("Group.class.php");
 class Page {
 
   public $id;
-  public $disc_id;
+  public $disc_id, $disc_name;
   public $name, $year, $semester;
   public $color_theme_id;
   public $creator_id, $creation_date;
@@ -35,6 +35,7 @@ class Page {
       $page = pg_fetch_assoc($result);
 
       $this->disc_id = $page['disc_id'];
+      $this->disc_name = $page['disc_name'];
       
       $this->name = $page['short_name'];
       $this->year = $page['year'];
@@ -373,7 +374,7 @@ function getTeachersByPage($page_id) {
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
 
-function queryGetPageInfo($page_id) {
+function queryGetPageInfo($page_id) { // FIXME:
   return "SELECT p.*, ax_ct.bg_color, ax_ct.src_url, d.name as disc_name
           FROM ax_page as p
           INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id

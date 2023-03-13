@@ -14,10 +14,7 @@ if (ob_get_level()) {
 
 // Скачивание архива всех файлов к странице с заданием
 if (isset($_GET['download_task_files'])) {
-    // TODO: Проверить!
     $Task = new Task((int)$_GET['task_id']);
-    // $query = "SELECT file_name, download_url, full_text FROM ax_task_file WHERE task_id = {$_GET['task_id']} AND type < 2";
-    // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
     $zip = new ZipArchive();
     $file_dir = 'upload_files/';
@@ -25,19 +22,7 @@ if (isset($_GET['download_task_files'])) {
     if ($zip->open($file_path, ZipArchive::CREATE) !== TRUE) {
         exit("Невозможно открыть <$file_path>");
     }
-
-    // for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-    //     // Если текст файла лежит в БД
-    //   if ($row['download_url'] == null) {
-    //     $zip->addFromString($row['file_name'], $row['full_text']);
-    //   }
-    //   // Если файл лежит на сервере
-    //   else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-    //     $zip->addFile($row['download_url'], $row['file_name']);
-    //   }
-    // }
-
-    // TODO: Проверить!
+    
     foreach($Task->getFiles() as $File) {
       // Если текст файла лежит в БД
       if ($File->download_url == null) {

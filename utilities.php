@@ -78,29 +78,10 @@ function delete_prefix($str) {
 
 
 // ОБЩИЕ ФУНКЦИИ РАБОТЫ С ЗАДАНИЯМИ
-// $task_files - массив прикрепленных к странице с заданием файлов из ax_task_file
 function getTaskFiles($dbconnect, $task_id){
   $Task = new Task((int)$task_id);
   $Files = $Task->getFiles();
-
-  // $query = "SELECT id, type, file_name, download_url FROM ax_task_file WHERE task_id = $task_id AND type < 2 order by id";
-  // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  // $task_files = [];
-
-  // for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-  //   // Если текст файла лежит в БД
-  //   if ($row['download_url'] == null) {
-  //     $row['download_url'] = 'download_file.php?task_file_id=' . $row['id'];
-  //   }
-  //   // Если файл лежит на сервере
-  //   else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-  //     $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'];
-  //   }
-  //   $file_name = delete_random_prefix_from_file_name($row['file_name']);
-  //   $task_files[] = ['id' => $row['id'], 'type' => $row['type'], 'file_name' => $file_name, 'download_url' => $row['download_url']];
-  // }
-
-  // TODO: ПРОВЕРИТЬ!
+  
   $task_files = array();
   foreach ($Files as $File) {
     // Если текст файла лежит в БД
