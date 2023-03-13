@@ -341,20 +341,21 @@ $task_number = explode('.', $task_title)[0];
         return false;
       });
 
-
+      
       // Первое обновление лога чата
       loadChatLog(true);
-      // Обновление лога чата раз в 5 секунд
-      setInterval(loadNewMessages, 2000);
+      // Обновление лога чата раз в 1 секунд
+      setInterval(loadChatLog, 10000);
 
+      
     });
-
+    
 
 
     // Обновляет лог чата из БД
     function loadNewMessages() {
       // console.log("LOAD_CHAT_LOG!");
-
+      
       var formData = new FormData();
       formData.append('assignment_id', <?=$assignment_id?>);
       formData.append('user_id', <?=$user_id?>);

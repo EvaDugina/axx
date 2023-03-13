@@ -349,11 +349,11 @@ function update_ax_task($id, $type, $title, $description) {
             WHERE id = '$id'";
 }
 
-function update_ax_assignment_status_code($assignment_id, $status_code) {
-  $status_text = status_code_to_text($status_code);
-  return "UPDATE ax_assignment SET status_code = $status_code, status_text = '$status_text' 
-          WHERE id = $assignment_id";
-}
+// function update_ax_assignment_status_code($assignment_id, $status_code) {
+//   $status_text = status_code_to_text($status_code);
+//   return "UPDATE ax_assignment SET status_code = $status_code, status_text = '$status_text' 
+//           WHERE id = $assignment_id";
+// }
 
 function update_ax_assignment_mark($assignment_id, $mark){
   return "UPDATE ax_assignment SET mark = '$mark', status_code = 3, status_text = 'выполнено' 
@@ -847,24 +847,24 @@ function pg_fetch_all_assoc($res) {
     return $array_out;
 }
 
-function status_code_to_text($status_code) {
-  switch ($status_code) {
-    case 0:
-      return "недоступно для просмотра"; 
-    case 1:
-      return "недоступно для выполнения";
-    case 2: 
-      return "активно";
-    case 3:
-      return "выполнено";
-    case 4:
-      return "отменено";
-    case 5:
-      return "ожидает проверки";
-    default:
-      return "ERROR!";
-  }
-}
+// function status_code_to_text($status_code) {
+//   switch ($status_code) {
+//     case 0:
+//       return "недоступно для просмотра"; 
+//     case 1:
+//       return "недоступно для выполнения";
+//     case 2: 
+//       return "активно";
+//     case 3:
+//       return "выполнено";
+//     case 4:
+//       return "отменено";
+//     case 5:
+//       return "ожидает проверки";
+//     default:
+//       return "ERROR!";
+//   }
+// }
 
 function select_last_commit_id_by_assignment_id($assignment_id) {
   return "SELECT MAX(id) as id FROM ax_solution_commit 

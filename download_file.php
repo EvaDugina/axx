@@ -1,11 +1,12 @@
 <?php
 require_once('settings.php'); 
+require_once('utilities.php'); 
 require_once('POClasses/File.class.php'); 
 require_once('POClasses/Task.class.php'); 
 
-function delete_prefix($str) {
-	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
-}
+// function delete_prefix($str) {
+// 	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+// }
 
 if (ob_get_level()) {
     ob_end_clean();
