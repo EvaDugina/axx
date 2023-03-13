@@ -3,6 +3,7 @@ require_once("./settings.php");
 require_once("Message.class.php");
 require_once("Commit.class.php");
 require_once("User.class.php");
+require_once("Page.class.php");
 
 class Assignment {
 
@@ -82,6 +83,31 @@ class Assignment {
     return $this->Commits;
   }
 
+
+
+// SETTERS
+
+  public function setStatus($status_code) {
+    global $dbconnect;
+
+    $this->status_code = $status_code;
+    $this->status_text = status_code_to_text($this->status_code);
+
+    $query = "UPDATE ax_assignment SET status_code = $this->status_code, status_text = '$this->status_text' 
+              WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function setDelay($delay) {
+    global $dbconnect;
+
+    $this->delay = $delay;
+
+    $query = "UPDATE ax_assignment SET delay = $this->delay WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+// -- END SETTERS
 
 
 // WORK WITH ASSIGNMENT
@@ -220,6 +246,7 @@ class Assignment {
 
   public function addMessage($message_id) {
     $Message = new Message((int)$message_id);
+    // $this->pushNewToDeliveryDB($Message);
     array_push($this->Messages, $Message);
   }
   public function deleteMessage($message_id) {
@@ -245,12 +272,63 @@ class Assignment {
     }
     return null;
   }
+  public function getFirstUnreadedMessage($user_id) {
+    global $dbconnect; 
 
+    $User = new User((int)$user_id);
+
+    $query = "SELECT min(ax_message.id) as min_message_id FROM ax_message WHERE assignment_id = $this->id
+              AND status = 0 AND ax_message.sender_user_type != $User->role LIMIT 1;";
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    return pg_fetch_assoc($pg_query)['min_message_id'];
+  }
+  public function getLastAnswerMessage() {
+    for ($i=count($this->Messages)-1; $i >= 0; $i--) { 
+      if ($this->Messages[$i]->getCommit() != null)
+        return $this->Messages[$i];
+    }
+  }
+
+
+  function pushNewToDeliveryDB($Message) {
+    global $dbconnect;
+
+    $query = "";
+    foreach($this->Students as $Student) {
+      if ($Student->id != $Message->sender_user_id) {
+        $query .= "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+                  VALUES ($Message->id, $Student->id, 0)";
+      }
+    }
+
+    $Teachers = getTeachersByAssignment($this->id);
+    foreach($Teachers as $Teacher) {
+      if ($Teacher->id != $Message->sender_user_id) {
+        $query .= "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+                  VALUES ($Message->id, $Teacher->id, 0)";
+      }
+    }
+
+    $query = "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+              VALUES ($Message->id, $Message->sender_user_id, 1)";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  // function getNewMessagesByUser($user_id) {
+  //   $new_messages = array();
+  //   foreach ($this->Messages as $Message) {
+  //     if ($Message->getDeliveryStatus($user_id) == 0)
+  //       array_push($new_messages, $Message);
+  //   }
+  //   return $new_messages;
+  // }
 
   function getNewMessagesByUser($user_id) {
     $new_messages = array();
+    $User = new User($user_id);
     foreach ($this->Messages as $Message) {
-      if ($Message->getDeliveryStatus($user_id) == 0)
+      if ($Message->status == 0 && $User->role != $Message->sender_user_type)
         array_push($new_messages, $Message);
     }
     return $new_messages;
@@ -289,10 +367,24 @@ class Assignment {
     }
     return null;
   }
+  public function getLastCommit() {
+    return end($this->Commits);
+  }
 
-// -- END WORK WITH MESSAGES 
+// -- END WORK WITH COMMITS 
   
 
+}
+
+
+function getTeachersByAssignment($assignment_id) {
+  global $dbconnect;
+
+  $query = queryGetPageByAssignment($assignment_id);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $page_id = $result['page_id'];
+
+  return getTeachersByPage($page_id);
 }
 
 
@@ -354,7 +446,8 @@ function queryGetStudentsByAssignment($assignment_id){
 
 function queryGetMessagesByAssignment($assignment_id){
   return "SELECT id FROM ax_message
-          WHERE assignment_id = $assignment_id;";
+          WHERE assignment_id = $assignment_id
+          ORDER BY id;";
 }
 
 function queryGetCommitsByAssignment($assignment_id){
@@ -362,4 +455,32 @@ function queryGetCommitsByAssignment($assignment_id){
           WHERE assignment_id = $assignment_id;";
 }
 
+function queryGetPageByAssignment($assignment_id) {
+  return "SELECT page_id FROM ax_task WHERE ax_task.id = (SELECT task_id FROM ax_assignment WHERE ax_assignment.id = $assignment_id)";
+}
+
+
+
+
+
+
+
+function status_code_to_text($status_code) {
+    switch ($status_code) {
+      case 0:
+        return "недоступно для просмотра"; 
+      case 1:
+        return "недоступно для выполнения";
+      case 2: 
+        return "активно";
+      case 3:
+        return "выполнено";
+      case 4:
+        return "отменено";
+      case 5:
+        return "ожидает проверки";
+      default:
+        return "ERROR!";
+    }
+  }
 ?>

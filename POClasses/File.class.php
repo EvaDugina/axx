@@ -163,7 +163,7 @@ public function getFileExt() {
 
 // Добавление рандомного префикса к названию файла, чтобы избежать оибки добавления файлов с одинаковым названием
 function addRandomPrefix($file_name) {
-  return rand_prefix() .  $file_name;
+  return randPrefix() .  $file_name;
 }
 
 // Декодирование префиксного названия файла
@@ -173,7 +173,7 @@ function deleteRandomPrefix($db_file_name) {
 
 // Генерация префикса для уникальности названий файлов, которые хранятся на сервере
 function randPrefix() {
-  return time() . mt_rand(0, 9999) . mt_rand(0, 9999);
+  return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
 }
 
 function getPathForUploadFiles(){

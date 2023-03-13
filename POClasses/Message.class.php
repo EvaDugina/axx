@@ -1,5 +1,6 @@
 <?php 
 require_once("./settings.php");
+require_once("./utilities.php");
 require_once("File.class.php");
 require_once("Commit.class.php");
 
@@ -49,19 +50,18 @@ class Message {
 
     }
 
-    else if ($count_args == 9) { // всё, кроме commit_id + assignment_id
+    else if ($count_args == 8) { // всё, кроме commit_id + assignment_id
       $assignment_id = $args[0];
 
       $this->type = $args[1];
       $this->sender_user_id = $args[2];
       $this->sender_user_type = $args[3];
 
-      $this->date_time = $args[4];
-      $this->reply_to_id = $args[5];
-      $this->full_text = $args[6];
+      $this->reply_to_id = $args[4];
+      $this->full_text = $args[5];
 
-      $this->status = $args[7];
-      $this->visibility = $args[8];
+      $this->status = $args[6];
+      $this->visibility = $args[7];
 
       $this->pushNewToDB($assignment_id);
     }
@@ -82,7 +82,31 @@ class Message {
     return $this->Files;
   }
 
+  public function getConvertedDateTime () {
+    $message_time = explode(" ", $this->date_time);
+    $date = explode("-", $message_time[0]);
+    $time = explode(":", $message_time[1]);
+    $date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
+    return $date_time;
+  }
+
+  
 // -- END GETTERS
+  
+
+
+// SETTERS:
+
+    public function setStatus($status) {
+      global $dbconnect;
+
+      $this->status = $status;
+
+      $query = "UPDATE ax_message SET status = 1 WHERE ax_message.id = $this->id";
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    }
+
+// -- END SETTERS
 
 
 
@@ -91,16 +115,28 @@ class Message {
   public function pushNewToDB($assignment_id) {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
-              date_time, reply_to_id, full_text, status, visibility) 
-              VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
-              '$this->date_time', $this->reply_to_id, '$this->full_text', $this->status, $this->visibility)
-              RETURNING id;";
+    // $this->date_time = getNowTimestamp();
+
+    if ($this->reply_to_id != null) {
+      $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
+                date_time, reply_to_id, full_text, status, visibility) 
+                VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
+                now(), $this->reply_to_id, '$this->full_text', $this->status, $this->visibility)
+                RETURNING id, date_time;";
+    } else {
+      $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
+                date_time, full_text, status, visibility) 
+                VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
+                now(), '$this->full_text', $this->status, $this->visibility)
+                RETURNING id, date_time;";
+    }
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
-
     $this->id = $result['id'];
+    $this->date_time = $result['date_time'];
+
+    // $this->pushSelfToDeliveryDB();
 
   }
   public function pushChangesToDB() {
@@ -137,6 +173,10 @@ class Message {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+// -- END WORK WITH MESSAGE
+
+
+// WORK WITH DELIVERY
 
   public function getDeliveryStatus($user_id) {
     global $dbconnect;
@@ -147,9 +187,51 @@ class Message {
 
     return $status;
   }
+  public function isReadedAtLeastByOne() {
+    global $dbconnect; 
 
-// -- END WORK WITH MESSAGE
+    $query = "SELECT COUNT(status) as count FROM ax_message_delivery WHERE message_id = $this->id";
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $count = pg_fetch_assoc($pg_query)['count'];
 
+    if ($count > 1)
+      return true;
+
+    return false;
+  }
+  // public function isFirstUnreaded($user_id) {
+  //   global $dbconnect; 
+
+  //   $query = "SELECT min(message_id) as min_message_id FROM ax_message_delivery WHERE recipient_user_id = $user_id 
+  //             AND status = 0 AND assignment_id = ... LIMIT 1;";
+  //   $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  //   $min_new_message_id = pg_fetch_assoc($pg_query)['min_message_id'];
+
+  //   if ($min_new_message_id == $this->id)
+  //     return true;
+
+  //   return false;
+  // }
+  public function setReadedDeliveryStatus($user_id) {
+    global $dbconnect;
+
+    $query = "UPDATE ax_message_delivery SET status = 1 WHERE recipient_user_id = $user_id AND message_id = $this->id";
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $status = pg_fetch_assoc($pg_query)['status'];
+
+    return $status;
+  }
+
+  // public function pushSelfToDeliveryDB() {
+  //   global $dbconnect;
+
+  //   $query = "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+  //             VALUES ($this->id, $this->sender_user_id, 1)";
+
+  //   pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  // }
+
+// -- END WORK WITH DELIVERY
 
 
 // WORK WITH FILE
