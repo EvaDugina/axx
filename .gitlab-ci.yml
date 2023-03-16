@@ -14,11 +14,12 @@ pull-site:
     - dev
   script:
     - cd /var/vega.fcyb.mirea.ru/accel/
-    - git reset --hard
+    - git fetch
+    - git checkout ${CI_COMMIT_REF_NAME}
     - git pull origin ${CI_COMMIT_REF_NAME}
-    - git checkout ${CI_COMMIT_SHORT_SHA}
-    - git submodule update --recursive
-    - git reset --hard
+    - git submodule init || true
+    - git submodule update --recursive || true
+    - git reset --hard ${CI_COMMIT_SHORT_SHA}
   tags:
     - vega-site
 
