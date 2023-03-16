@@ -14,6 +14,7 @@ pull-site:
     - dev
   script:
     - cd /var/vega.fcyb.mirea.ru/accel/
+    - git reset --hard
     - git pull origin ${CI_COMMIT_REF_NAME}
     - git checkout ${CI_COMMIT_SHORT_SHA}
     - git submodule update --recursive
