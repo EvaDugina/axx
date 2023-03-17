@@ -194,7 +194,43 @@ function show_task_files($task_files, $taskedit_page_status = false, $task_id = 
 <?php }
 
 
-function showFiles($Files) {
+function special_for_taskedit($f, $task_id, $page_id){?>
+
+  <form id="form-statusTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" 
+  class="d-inline-flex justify-content-between align-items-center form-statusTaskFiles">
+    <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+    <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+    <input type="hidden" name="file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="flag-statusFile" value="true"></input>
+    
+    <select id="select-statusTaskFile" class="form-select me-2 select-statusTaskFile" id="select-statusFile">
+      <?php 
+	    $captions = array('вложение', 'исходный код');
+	    for($i=0; $i<=1; $i++) {?>
+        <option value="<?=$i?>" <?php if($i == $f['type']) echo 'selected';?>>
+          <?=$captions[$i]?>
+        </option>
+      <?php }?>
+    </select>
+  </form>
+
+  <form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
+    <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
+    <input type="hidden" name="file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="flag-deleteFile" value="true"></input>
+
+    <button class="btn btn-link bg-danger text-white me-0 p-1" type="submit">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+    </svg>
+    </button>
+  </form>
+<?php }
+
+
+
+function showFiles($Files, $taskedit_page_status = false, $task_id = null, $page_id = null) {
   $count_files = 0;
     foreach ($Files as $File) {
         $count_files++; ?>
@@ -229,6 +265,10 @@ function showFiles($Files) {
 
             &nbsp;<?=$File->name_without_prefix?>&nbsp;&nbsp;
           </a>
+          <?php // Если запрос на отображение файлов приходит со страницы taskedit
+          if ($taskedit_page_status) {
+            specialForTaskeditPage($File, $task_id, $page_id);
+          }?>
         </div>
         
     <?php }
@@ -237,20 +277,20 @@ function showFiles($Files) {
     }
 }
 
-function special_for_taskedit($f, $task_id, $page_id){?>
+function specialForTaskeditPage($File, $task_id, $page_id){?>
 
   <form id="form-statusTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" 
   class="d-inline-flex justify-content-between align-items-center form-statusTaskFiles">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
     <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-    <input type="hidden" name="file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="file_id" value="<?=$File->id?>"></input>
     <input type="hidden" name="flag-statusFile" value="true"></input>
     
     <select id="select-statusTaskFile" class="form-select me-2 select-statusTaskFile" id="select-statusFile">
       <?php 
 	    $captions = array('вложение', 'исходный код');
 	    for($i=0; $i<=1; $i++) {?>
-        <option value="<?=$i?>" <?php if($i == $f['type']) echo 'selected';?>>
+        <option value="<?=$i?>" <?php if($i == $File->type) echo 'selected';?>>
           <?=$captions[$i]?>
         </option>
       <?php }?>
@@ -260,7 +300,7 @@ function special_for_taskedit($f, $task_id, $page_id){?>
   <form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
     <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
-    <input type="hidden" name="file_id" value="<?=$f['id']?>"></input>
+    <input type="hidden" name="file_id" value="<?=$File->id?>"></input>
     <input type="hidden" name="flag-deleteFile" value="true"></input>
 
     <button class="btn btn-link bg-danger text-white me-0 p-1" type="submit">

@@ -19,67 +19,26 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 if ((!isset($_GET['task']) || !is_numeric($_GET['task'])) 
 && (!isset($_GET['page']) || !is_numeric($_GET['page']))){
 	header('Location:mainpage.php');
-  //echo "EXITTTT";
 	exit;
 }
 
 // получение параметров запроса
 if (isset($_GET['task'])){
 	// Изменение текущего задания
-  $flag_new_task = false;
 
-	// $Task->id = $_REQUEST['task'];
-	// $query = select_task($Task->id);
-	// $result = pg_query($dbconnect, $query);
-	// $task = pg_fetch_assoc($result);
   $Task = new Task((int)$_REQUEST['task']);
-
-	// if (!$task) {
-  //   header('Location:'.$_SERVER['HTTP_REFERER']);
-	//   exit;
-  // }
 
   $user_id = $au->getUserId();
   $Page = new Page((int)getPageBytask($Task->id));
-
-	// $Page->id = $task['page_id'];
-	// $query = select_discipline_page($Page->id);
-	// $result = pg_query($dbconnect, $query);
-	// $page = pg_fetch_assoc($result);
-
-
-  // $query = select_task_assignment_student_id($user_id, $Task->id);
-  // $result = pg_query($dbconnect, $query);
-  // $assignment_id = pg_fetch_assoc($result)['id'];
-
-  // if (!$page) {
-  //   header('Location:'.$_SERVER['HTTP_REFERER']);
-	//   exit;
-  // }
 
   $TestFiles = $Task->getFilesByType(2);
   $TestOfTestFiles = $Task->getFilesByType(3);
 
 } else if (isset($_GET['page'])){
 	// Добавление новго задания
-  $flag_new_task = true;
 
   $Page = new Page((int)$_REQUEST['page']);
-
-	// $Page->id = $_REQUEST['page'];
-	// $query = select_discipline_page($Page->id);
-	// $result = pg_query($dbconnect, $query);
-	// $page = pg_fetch_assoc($result);
-
-  // $query = select_count_page_tasks($Page->id);
-  // $result = pg_query($dbconnect, $query);
-  // $count_tasks = pg_fetch_assoc($result)['count'];
-
-  $Task = array(
-    'title' => "",
-    'description' => "",
-    'type' => ""
-  );
+  $Task = new Task($Page->id, 0, 0);
 
 }
 
@@ -88,8 +47,6 @@ show_header($dbconnect, 'Редактор заданий',
 	array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
 	"Редактор заданий" => $_SERVER['REQUEST_URI'])
 ); ?>
-
-<!--<script type="text/javascript" src="js/taskedit.js"></script>-->
 
 <main class="pt-2">
   <div class="container-fluid overflow-hidden">
@@ -145,10 +102,16 @@ show_header($dbconnect, 'Редактор заданий',
             </div>
 				
             <div class="pt-3 d-flex" id="tools">
+
+            <?php $textArea_testCode = "";
+              if($Task->type == 1 && isset($TestFiles[0])) 
+                $textArea_testCode = $TestFiles[0]->full_text;
+              ?>
               
               <div class="form-outline col-5">
-                  <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" style="resize: none;"><?php if($Task->type == 1) echo $TestFiles[0]->full_text;?></textarea>
-                  <label class="form-label" for="textArea-testCode">Код теста</label>
+                <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" 
+                style="resize: none;"><?=$textArea_testCode?></textarea>
+                <label class="form-label" for="textArea-testCode">Код теста</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -158,9 +121,15 @@ show_header($dbconnect, 'Редактор заданий',
 
               <div class="col-1"></div>
 
+              <?php $textArea_checkCode = "";
+              if($Task->type == 1 && isset($TestOfTestFiles[0])) 
+                $textArea_checkCode = $TestOfTestFiles[0]->full_text;
+              ?>
+
               <div class="form-outline col-6">
-                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;"><?php if($Task->type == 1) echo $TestOfTestFiles[0]->full_text;?></textarea>
-                  <label class="form-label" for="textArea-checkCode">Код проверки</label>
+                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" 
+                style="resize: none;"><?=$textArea_checkCode?></textarea>
+                <label class="form-label" for="textArea-checkCode">Код проверки</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -171,18 +140,18 @@ show_header($dbconnect, 'Редактор заданий',
             </div>
           </table>
 
-          <button id="submit-save" type="submit" class="btn btn-outline-primary" name="action" value="save">Сохранить</button>
+          <button id="submit-save" type="submit" class="btn btn-outline-success" name="action" value="save">Сохранить</button>
           <?php if ($Task->id != -1 && $Task->status == 1) {?>
             <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
              name="action" value="archive">Архивировать задание</button>
-          <?php } else if($Task->id != -1 && $task->status == 0){?>
+          <?php } else if($Task->id != -1 && $Task->status == 0){?>
             <button id="submit-archive" type="submit" class="btn btn-outline-primary" name="action" value="re-archive">Разархивировать задание</button>
           <?php }?>
           <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
 
         </form>
 
-        <div class="col-4 <?php if($flag_new_task) echo 'd-none';?>">
+        <div class="col-4">
         <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
         id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
@@ -312,8 +281,7 @@ show_header($dbconnect, 'Редактор заданий',
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
                 <?php if ($Task->id != -1) {?>
                   <div id="div-task-files" class="mb-3">
-                    <?php $task_files = getTaskFiles($dbconnect, $Task->id);
-                    show_task_files($task_files, true, $Task->id, $Page->id);?>
+                    <?php showFiles($Task->getFiles(), true, $Task->id, $Page->id);?>
                   </div>
                 <?php }?>
               
@@ -342,7 +310,7 @@ show_header($dbconnect, 'Редактор заданий',
   
   <script type="text/javascript">
     let form_addFiles  = document.getElementById('form-addTaskFiles');
-    var added_files = <?=json_encode($task_files)?>;
+    var added_files = <?=json_encode($Task->getFiles())?>;
 
     // Показывает количество прикрепленных для отправки файлов
     $('#task-files').on('change', function() {
@@ -357,34 +325,36 @@ show_header($dbconnect, 'Редактор заданий',
 
       form_addFiles.submit();
       
-      /*var formData = new FormData();
-      formData.append('task_id', <?=$Task->id?>);
-      formData.append('page_id', <?=$Page->id?>);
-      $.each($("#task-files")[0].files, function(key, input){
-        formData.append('add-files[]', input);
-      });
+      // Реализовать через ajax, чтобы быстрее было
+      // var formData = new FormData();
+      // formData.append('task_id', <?=$Task->id?>);
+      // formData.append('page_id', <?=$Page->id?>);
+      // $.each($("#task-files")[0].files, function(key, input){
+      //   formData.append('add-files[]', input);
+      // });
 
-      console.log(formData);
+      // console.log(formData);
 
-      $.ajax({
-        type: "POST",
-        url: 'taskedit_action.php#content',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: formData,
-        dataType : 'html',
-        success: function (response){
-          location.reload();
-        },
-        complete: function() {}
-      });*/
+      // $.ajax({
+      //   type: "POST",
+      //   url: 'taskedit_action.php#content',
+      //   cache: false,
+      //   contentType: false,
+      //   processData: false,
+      //   data: formData,
+      //   dataType : 'html',
+      //   success: function (response){
+      //     $('#div-task-files').innerHTML = response;
+      //   },
+      //   complete: function() {}
+      // });
+      
     });
 
 
     function file_name_check(file) {
-      console.log(file['file_name']);
-      if (file['file_name'] == this.name){
+      // console.log(file['name_without_prefix']);
+      if (file['name_without_prefix'] == this.name){
         return true;
       }
       return false;
@@ -393,28 +363,6 @@ show_header($dbconnect, 'Редактор заданий',
   </script>
 
 <script type="text/javascript">
-
-//   $(function() {
-//     $('#list.dropdown-item').on("click", function() { // when LI is clicked
-//       console.log("CLICKED!");
-//       var option = $(this).data("option");
-//       console.log("OPTION: " + option);
-//       let form_statusTaskFiles = $(this).parent().parent().parent();
-//       console.log("FORM-StatusTaskFiles: " + form_statusTaskFiles);
-    
-//       let input = document.createElement("input");
-//       input.setAttribute("type", "hidden");
-//       input.setAttribute("value", option);
-//       input.setAttribute("name", 'task-file-status');
-//       console.log(input);
-    
-//       form_statusTaskFiles.append(input);
-//       form_statusTaskFiles.submit();
-//     });
-
-    $('#list').click();
-    $('#123').click();
-// });
 
 
   document.querySelectorAll("#div-task-files div").forEach(function (div) {

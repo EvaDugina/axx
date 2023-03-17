@@ -12,10 +12,14 @@ require_once("POClasses/File.class.php");
 if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   header('Location: index.php');
   exit;
-} else if (isset($_POST['page_id'])) {
+} 
+
+if (isset($_POST['page_id'])) {
   $page_id = $_POST['page_id'];
-  $Page = new Page((int)$page_id);
-} else if (isset($_POST['page_id'])) {
+  $Page = new Page((int)$_POST['page_id']);
+} 
+
+if (isset($_POST['task_id']) && $_POST['task_id'] != -1) {
   $Task = new Task((int)$_POST['task_id']);
 }
 
@@ -29,14 +33,13 @@ if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'
     //echo "РАЗАРХИВИРОВАНИЕ ЗАДАНИЯ";
     $new_status = 1;
   }
-  $query = pg_query($dbconnect, update_ax_task_status($_POST['task_id'], $new_status));
+  $Task->setStatus($new_status);
   header('Location:'.$_SERVER['HTTP_REFERER']);
   exit();
 }
 
 
 if(isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
-  // TODO: ПРОВЕРИТЬ!
   $file_id = $_POST['file_id'];
   $Task->deleteFile($file_id);
   // $query = pg_query($dbconnect, delete_ax_task_file($task_file_id));
@@ -45,18 +48,12 @@ if(isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
 }
 
 if(isset($_POST['flag-statusFile']) && $_POST['task_id']) {
-  // $task_file_id = $_POST['task_file_id'];
   $file_type = $_POST['task-file-status'];
 
-  // TODO: ПРОВЕРИТЬ!
   $file_id = $_POST['file_id'];
   $Task = new Task((int)$_POST['task_id']);
-  $File = $Task->getFileById($file_id);
-  $File->type = $file_type;
-  $File->pushChangesToDB();
-
-  // $sdjl = update_ax_task_file_status($task_file_id, $new_statusFile);
-  // $query = pg_query($dbconnect, update_ax_task_file_status($task_file_id, $new_statusFile));
+  $File = $Task->getFileById((int)$file_id);
+  $File->setType($file_type);
 
   header('Location: taskedit.php?task='.$_POST['task_id']);
   exit();
@@ -123,79 +120,17 @@ if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action
   exit();
 }
 
-// if (isset($_POST['task-type']) && $_POST['task-type'] == 1) {
-//   $query = select_task_file(2, $task_id);
-//   $result = pg_query($dbconnect, $query);
-//   $file = pg_fetch_all($result);
-//   if (empty($file))
-//     $query = insert_file(2, $task_id, "test.cpp", $_POST['full_text_test']);
-//   else
-//     $query = update_file(2, $task_id, $_POST['full_text_test']);
-
-//   $result = pg_query($dbconnect, $query);
-
-//   $query = select_task_file(3, $task_id);
-//   $result = pg_query($dbconnect, $query);
-//   $file = pg_fetch_all($result);
-//   if (empty($file))
-//     $query = insert_file(3, $task_id, "checktest.cpp", $_POST['full_text_test_of_test']);
-//   else
-//     $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
-
-//   $result = pg_query($dbconnect, $query);
-// }
-
-
 
 // Прикрепление файлов к заданию
 if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
-  $files = get_files('add-files');
+  $files = convertWebFilesToFiles('add-files');
   $store_in_db = getSpecialFileTypes();
 
   for ($i = 0; $i < count($files); $i++) {
-    print_r($files[$i]['name']);
-
-    $file_name = add_random_prefix_to_file_name($files[$i]['name']);
-    $file_ext = strtolower(preg_replace('#.{0,}[.]#', '', $file_name));
-    $file_dir = getPathForUploadFiles();
-    $file_path = $file_dir . $file_name;
-
-    $file_tmp_name = $files[$i]['tmp_name'];
-
-    /*echo "Добавление файла в ax_solution_file: ".$file_name;
-    echo "<br>";*/
-
     // TODO: Проверить!
-    $Task = new Task((int)$task_id);
-
-    // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-    if (move_uploaded_file($file_tmp_name, $file_path)) {
-      // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-      if (!in_array($file_ext, $store_in_db)) {
-        $File = new File(0, $file_name, $file_path, null);
-        $Task->addFile($File->id);
-        // $query = insert_ax_task_file_with_url($task_id, 0, $file_name, $file_path);
-        // $id_new_file = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-      } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
-        $file_name_without_prefix = delete_random_prefix_from_file_name($file_name);
-        $file_full_text = file_get_contents($file_path);
-        $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-
-        $File = new File(0, $file_name, null, $file_full_text);
-        $Task->addFile($File->id);
-        // $query = insert_ax_task_file_with_full_file_text($task_id, 0, $file_name, $file_full_text);
-        // $id_new_file = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        unlink($file_path);
-      }
-      //      echo " - ПРИКРЕПЛЕНИЕ ФАЙЛОВ ПРОШЛО УСПЕШНО<br>";
-    } else {
-      exit("Ошибка загрузки файла");
-    }
+    addFileToTask($Task, 0, $files[$i]['name'], $files[$i]['tmp_name']);
   }
 
-  // http_response_code(400);
-  // echo json_encode(array('id_new_element' => "AAAAAAAAAAAA"));
-  //return array('id_new_element' => "$id_new_file");
   header('Location: taskedit.php?task='.$task_id);
   exit;
 }
@@ -276,21 +211,56 @@ header('Location: preptasks.php?page=' . $page_id);
 
 <?php // ФУНКЦИИ
 
-function get_files($name_files)
-{
+function convertWebFilesToFiles($name_files) {
   $files = array();
   for ($i = 0; $i < count($_FILES[$name_files]['tmp_name']); $i++) {
     if (!is_uploaded_file($_FILES[$name_files]['tmp_name'][$i])) {
       continue;
     } else {
       array_push($files, [
-        'name' => $_FILES[$name_files]['name'][$i], 'tmp_name' => $_FILES[$name_files]['tmp_name'][$i],
-        'size' => $_FILES[$name_files]['size'][$i]
+        'name' => $_FILES[$name_files]['name'][$i], 'tmp_name' => $_FILES[$name_files]['tmp_name'][$i]
       ]);
     }
   }
   return $files;
 }
+
+
+function addFileToTask($Task, $type, $file_name, $file_tmp_name) {
+  $store_in_db = getSpecialFileTypes();
+  
+  $File = new File($type, $file_name);
+  
+  $file_ext = $File->getFileExt();
+  $file_dir = getPathForUploadFiles();
+  $file_path = $file_dir . $File->name;
+
+  // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+  if (move_uploaded_file($file_tmp_name, $file_path)) {
+
+    // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+    if (!in_array($file_ext, $store_in_db)) {
+      
+      $File->setDownloadUrl($file_path);
+      $Task->addFile($File->id);
+
+    } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
+      
+      $file_full_text = getFileContentByPath($file_path);
+      $File->setFullText($file_full_text);
+      $Task->addFile($File->id);
+      unlink($file_path);
+
+    }
+
+  } else {
+    exit("Ошибка загрузки файла");
+  }
+}
+
+
+
+
 
 // Прикрепление группы к странице предмета, если ещё не открыт доступ
 function add_group_to_ax_page_group($page_id, $group_id)
