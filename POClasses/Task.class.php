@@ -40,6 +40,14 @@ class Task {
       // $this->AutoTests = getAutoTestsByTask($this->id);
     }
 
+    else if ($count_args == 3) {
+      $page_id = $args[0];
+      $this->type = $args[1];
+      $this->status = $args[2];
+
+      $this->pushEmptyNewToDB($page_id, $this->type, $this->status);
+    }
+
     else if ($count_args == 7) {
       $page_id = $args[0];
 
@@ -57,8 +65,8 @@ class Task {
     else {
       die('Неверные аргументы в конструкторе Task');
     }
-
   }
+
 
   public function getAssignments() {
     return $this->Assignments;
@@ -68,6 +76,20 @@ class Task {
   }
 
 
+// SETTERS:
+
+  public function setStatus($status) {
+    global $dbconnect;
+
+    $this->status = $status;
+
+    $query = "UPDATE ax_task SET status = $this->status WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+// -- END SETTERS
+
+
 
 // WORK WITH TASK
 
@@ -75,13 +97,25 @@ class Task {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
-              VALUES ('$page_id', '$this->type', '$this->title', '$this->description', $this->max_mark, '$this->status')
+              VALUES ($page_id, $this->type, '$this->title', '$this->description', $this->max_mark, $this->status)
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
 
     $this->id = $result['id'];
+  }
+  public function pushEmptyNewToDB($page_id, $type, $status) {
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_task (page_id, type, status) 
+              VALUES ($page_id, $type, $status)
+              RETURNING id;";
+
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $result = pg_fetch_assoc($pg_query);
+
+    $this->id = (int)$result['id'];
   }
   public function pushChangesToDB() {
     global $dbconnect;
@@ -249,10 +283,9 @@ function getAssignmentsByTask($task_id) {
 
   $query = queryGetAssignmentsByTask($task_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $assignment_ids = pg_fetch_all($result);
 
-  foreach($assignment_ids as $assignment_id) {
-    array_push($assignments, new Assignment((int)$assignment_id));
+  while($row_assignment = pg_fetch_assoc($result)) {
+    array_push($assignments, new Assignment((int)$row_assignment['id']));
   }
 
   return $assignments;
@@ -265,9 +298,8 @@ function getFilesByTask($task_id) {
 
   $query = queryGetFilesByTask($task_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $task_files = pg_fetch_all($result);
 
-  foreach($task_files as $file) {
+  while($file = pg_fetch_assoc($result)) {
     array_push($files, new File((int)$file['file_id']));
   }
 

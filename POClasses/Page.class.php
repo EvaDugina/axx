@@ -39,7 +39,7 @@ class Page {
       
       $this->name = $page['short_name'];
       $this->year = $page['year'];
-      $this->semester = $page['semster'];
+      $this->semester = $page['semester'];
 
       $this->color_theme_id = $page['color_theme_id'];
       
@@ -348,7 +348,7 @@ function getGroupsByPage($page_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($group_row = pg_fetch_assoc($result)){
-    array_push($tasks, new Group((int)$group_row['id']));
+    array_push($groups, new Group((int)$group_row['id']));
   }
 
   return $groups;
@@ -363,7 +363,7 @@ function getTeachersByPage($page_id) {
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
   while($teacher_row = pg_fetch_assoc($result)){
-    array_push($tasks, new User((int)$teacher_row['id']));
+    array_push($teachers, new User((int)$teacher_row['id']));
   }
 
   return $teachers;

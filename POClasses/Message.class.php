@@ -102,7 +102,7 @@ class Message {
 
       $this->status = $status;
 
-      $query = "UPDATE ax_message SET status = 1 WHERE ax_message.id = $this->id";
+      $query = "UPDATE ax_message SET status = $this->status WHERE ax_message.id = $this->id";
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
 
