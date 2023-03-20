@@ -35,8 +35,8 @@ class Assignment {
       $assignment = pg_fetch_assoc($result);
 
       $this->variant_comment = $assignment['variant_comment'];
-      $this->start_limit = $assignment['start_limit'];
-      $this->finish_limit = $assignment['finish_limit'];
+      $this->start_limit = convert_timestamp_to_date($assignment['start_limit'], "d-m-Y H:i:s");
+      $this->finish_limit = convert_timestamp_to_date($assignment['finish_limit'], "d-m-Y H:i:s");
 
       $this->status_code = $assignment['status_code'];
       $this->status_text = $assignment['status_text'];
@@ -48,6 +48,14 @@ class Assignment {
       $this->Students = getStudentsByAssignment($this->id);
       $this->Messages = getMessagesByAssignment($this->id);
       $this->Commits = getCommitsByAssignment($this->id);
+    }
+
+    else if ($count_args == 2) {
+      $task_id = $args[0];
+      $this->status_code = $args[1];
+      $this->status_text = status_code_to_text($this->status_code);
+
+      $this->pushNewEmptyToDB($task_id);
     }
 
     else if ($count_args == 9) { // всё + task_id
@@ -119,6 +127,18 @@ class Assignment {
               status_code, delay, status_text, mark, checks)
               VALUES ($task_id, '$this->variant_comment', '$this->start_limit', '$this->finish_limit', 
               $this->status_code, $this->delay, '$this->status_text', '$this->mark', '$this->checks') 
+              RETURNING id;";
+
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $result = pg_fetch_assoc($pg_query);
+
+    $this->id = $result['id'];
+  }
+  public function pushNewEmptyToDB($task_id) {
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_assignment(task_id, status_code, status_text)
+              VALUES ($task_id, $this->status_code, '$this->status_text') 
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -376,13 +396,23 @@ class Assignment {
 
 }
 
+function getTaskByAssignment($assignment_id) {
+  global $dbconnect;
+
+  $query = "SELECT task_id FROM ax_assignment WHERE id = $assignment_id";
+  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $task_id = pg_fetch_assoc($pg_query)['task_id'];
+
+  return $task_id;
+}
+
 
 function getTeachersByAssignment($assignment_id) {
   global $dbconnect;
 
   $query = queryGetPageByAssignment($assignment_id);
-  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $page_id = $result['page_id'];
+  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $page_id = pg_fetch_assoc($pg_query)['page_id'];
 
   return getTeachersByPage($page_id);
 }
@@ -436,7 +466,9 @@ function getCommitsByAssignment($assignment_id) {
 
 
 function queryGetAssignmentInfo($assignment_id) {
-  return "SELECT * FROM ax_assignment WHERE id = $assignment_id";
+  return "SELECT *, to_char(ax_assignment.start_limit, 'YYYY-MM-DD') as converted_start_limit,
+          to_char(ax_assignment.finish_limit, 'YYYY-MM-DD') as converted_finish_limit
+          FROM ax_assignment WHERE id = $assignment_id";
 }
 
 function queryGetStudentsByAssignment($assignment_id){

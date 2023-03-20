@@ -21,44 +21,60 @@ if ((!isset($_GET['assignment_id']) || !is_numeric($_GET['assignment_id']))
 }
 
 // получение параметров запроса
-$page_id = 0;
-$timetill = "";
-$timefrom = "";
-$variant = "";
+// $page_id = 0;
+// $timetill = "";
+// $timefrom = "";
+// $variant = "";
 
-$task_id = 0;
-if (isset($_GET['task_id']))
-  $task_id = $_GET['task_id'];
+// $task_id = 0;
+// if (isset($_GET['task_id'])) {
+  
+// }
 
-$assignment_id = 0;
-$aname = "Новое задание";
-if (isset($_GET['assignment_id']))
-{
-  $assignment_id = $_GET['assignment_id'];
-  $result = pg_query($dbconnect, "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks, ".
-								 " to_char(ax_assignment.start_limit, 'YYYY-MM-DD') tss, to_char(ax_assignment.finish_limit, 'YYYY-MM-DD') tsf, * ".
-								 " from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = ".$assignment_id);
-  $row = pg_fetch_assoc($result);
-  if (!$result || pg_num_rows($result) < 1 || !$row)  {
-	http_response_code(400);
-    echo 'Неверный запрос';
-    exit;
-  }
-  
-  $aname = $row['title'];
-  $ttype = $row['type'];
-  
-  if ($task_id == 0)
-	  $task_id = $row['tid'];
-  
-  $page_id = $row['page_id'];
-  $timefrom = $row['tss'];
-  $timetill = $row['tsf'];
-  $variant = $row['variant_comment'];
+// $Assignment->id = 0;
+// $aname = "Новое задание";
+if (isset($_GET['assignment_id'])) {
+  $Assignment = new Assignment((int)$_GET['assignment_id']);
+  $Task = new Task((int)getTaskByAssignment($Assignment->id));
+} else {
+  $Task = new Task((int)$_GET['task_id']);
+  $Assignment = new Assignment($Task->id, 1);
 }
 
+$Page = new Page((int)getPageByTask($Task->id));
+
+
+
+// if (isset($_GET['assignment_id'])) {
+//   $Assignment->id = $_GET['assignment_id'];
+//   $result = pg_query($dbconnect, "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks, ax_task.type ttype,".
+// 								 " to_char(ax_assignment.start_limit, 'YYYY-MM-DD') tss, to_char(ax_assignment.finish_limit, 'YYYY-MM-DD') tsf, * ".
+// 								 " from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = ".$Assignment->id);
+//   $row = pg_fetch_assoc($result);
+//   if (!$result || pg_num_rows($result) < 1 || !$row)  {
+// 	http_response_code(400);
+//     echo 'Неверный запрос';
+//     exit;
+//   }
+  
+//   $aname = $row['title'];
+//   $ttype = $row['type'];
+
+// 	$task_id = $row['tid'];
+  
+//   $page_id = $row['page_id'];
+//   $timefrom = $row['tss'];
+//   $timetill = $row['tsf'];
+//   $variant = $row['variant_comment'];
+// } else if (isset($_GET['task_id'])) {
+  
+// }
+
   show_head("Назначение задания", array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
-  show_header($dbconnect, 'Назначение задания');
+  show_header($dbconnect, 'Редактор заданий', 
+	array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
+	"Редактор заданий" => $_SERVER['REQUEST_URI'])
+);
 
 
 /*******
@@ -86,66 +102,231 @@ if (!$result || pg_num_rows($result) < 1) {
 
             <div class="row">
               <h2 class="col-9 text-nowrap">
-				<?php if ($ttype == 1) {?>
+				<?php if ($Task->type == 1) {?>
 				  <i class="fas fa-code fa-lg"></i>
 				<?php } else { ?>
 				  <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
 				<?php } ?>
 
-			    <?=$aname?>
+			    <?=$Task->title?>
 			  </h2>
-<!--
-              <div class="col-3">
-                <button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;" 
-                onclick="window.location='taskedit.php?page=<?=$page_id?>';">
-                  <i class="fas fa-plus-square fa-lg"></i> Новое задание
-                </button>
-              </div>
--->
-
             </div>    
 
-            <?php
-				$query = "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,".
-							" ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts ".
-							" FROM ax_task INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id ".
-							" INNER JOIN students ON students.id = ax_assignment_student.student_user_id ".
-							" WHERE ax_assignment.id = ".$assignment_id;
-		
-				$result2 = pg_query($dbconnect, $query);
-				if (!$result2)
-				{
-					echo 'Ошибка получения данных о назначении';
-					exit;
-				}
 
-				$studids = array();
-				$studlist = "";
-				$adate = "";
-				while ($student_task = pg_fetch_assoc($result2)) { 
-					if ($studlist == "") {
-						$studlist = $student_task['fio'];
-						$adate = $student_task['ts'];
-					} else {
-						$studlist = $studlist.', '.$student_task['fio'];
-					}
-					array_push($studids, $student_task['sid']);
-                } 
-				echo $studlist." (до ".$adate.")</br></br>";
+
+
+            <?php
+				// $query = "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,".
+				// 			" ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts ".
+				// 			" FROM ax_task INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id ".
+				// 			" INNER JOIN students ON students.id = ax_assignment_student.student_user_id ".
+				// 			" WHERE ax_assignment.id = ".$Assignment->id;
+		
+				// $result2 = pg_query($dbconnect, $query);
+				// if (!$result2)
+				// {
+				// 	echo 'Ошибка получения данных о назначении';
+				// 	exit;
+				// }
+
+				// $studids = array();
+				// $studlist = "";
+				// $adate = "";
+				// while ($student_task = pg_fetch_assoc($result2)) { 
+				// 	if ($studlist == "") {
+				// 		$studlist = $student_task['fio'];
+				// 		$adate = $student_task['ts'];
+				// 	} else {
+				// 		$studlist = $studlist.', '.$student_task['fio'];
+				// 	}
+				// 	array_push($studids, $student_task['sid']);
+        // } 
+				// echo $studlist." (до ".$adate.")</br></br>";
 			?>
 
+      <?php 
+      $studids = array();
+      foreach ($Assignment->getStudents() as $Student) {
+        array_push($studids, $Student->id);?>
+        <?=$Student->getFI()?> (до <?=$Assignment->finish_limit?>) </br></br>
+      <?php }
+      ?>
+
 			<form id="checkparam" name="checkparam" action="taskassign_action.php" method="POST" enctype="multipart/form-data">			
-			  <input type="hidden" name="assignment_id" value="<?=$assignment_id?>">
+			  <input type="hidden" name="assignment_id" value="<?=$Assignment->id?>">
 			  <input type="hidden" name="from" value="<?=$_SERVER['HTTP_REFERER']?>">
 
 			  <h5><i class="fas fa-users fa-lg" aria-hidden="true"></i> Исполнители</h5>
+
+        <section class="w-100 d-flex border" style="height: 50%;">
+              <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
+                <div id="main-accordion-students" class="accordion accordion-flush" style="overflow-y: auto; height: 100%; width: 100%;">
+
+                  <?php 
+                  foreach($Page->getGroups() as $Group) { ?>
+                    <div>
+                    <h6><?=$Group->name?></h6>
+                    <?php foreach($Group->getStudents() as $Student) {
+                      if($student['group_id'] != $now_group_id) {
+                        $count_chosen_students=0;
+
+                        $query = pg_query($dbconnect, select_group_students_count($student['group_id']));
+                        $group_students_count = pg_fetch_assoc($query)['count'];
+
+                        // Обработка полностью выбранных групп
+                        $flag_full_group = true;
+                        if ($Task->id != -1) {
+                          for($i=$key; $i < count($students); $i++){
+                            if($students[$i]['group_id'] != $student['group_id'])
+                              break;
+                            if($students[$i]['task_id'] != $Task->id)
+                              $flag_full_group = false;
+                            else $count_chosen_students++;
+                          }
+                        } else
+                          $flag_full_group = false;
+                        if($key > 0) { ?>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <?php }?>
+                        <div class="accordion-item">
+                          <div id="accordion-gheader-<?=$student['group_id']?>" class="accordion-header">
+                            <button class="accordion-button" type="button"
+                            data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-<?=$key?>" aria-expanded="true"
+                            aria-controls="accordion-collapse-<?=$key?>">
+                              <div class="form-check d-flex">
+                                <input id="group-<?=$student['group_id']?>" class="accordion-input-item form-check-input input-group" type="checkbox" 
+                                value="g<?=$student['group_id']?>" id="flexCheck1" onclick="markStudentElements(<?=$student['group_id']?>)" 
+                                name="checkboxStudents[]" <?php if($flag_full_group) echo 'checked';?>>
+                                <span id="group-<?=$student['group_id']?>-stat" class="badge badge-primary align-self-center" style="color: black;">
+                                  <?=$count_chosen_students?> / <?=$group_students_count?>
+                                </span>   
+                                <label class="ms-1 form-check-label" for="flexCheck1" style="font-weight: bold;"><?=$student['group_name']?></label>
+                              </div>                   
+                            </button>
+                          </div>
+                          <div id="accordion-collapse-<?=$key?>" class="accordion-collapse collapse" aria-labelledby="accordion-gheader-<?=$key?>"
+                          data-mdb-parent="#main-accordion-students">
+                            <div class="accordion-body">
+                              <div id="group-accordion-students" class="accordion accordion-flush">
+                      <?php }?>
+                      <div id="item-from-group-<?=$student['group_id']?>" class="accordion-item">
+                        <div id="accordion-sheader-<?=$student['id']?>" class="accordion-header">
+                          <div d-flex justify-content-between" type="button">
+                            <div class="form-check ms-3">
+                              <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input input-student" 
+                              type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
+                              <?php if($Task->id != -1 && isset($student['task_id']) && $student['task_id'] == $Task->id) echo 'checked';?>>
+                              <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <?php 
+                      $now_group_id = $student['group_id'];
+                    } 
+                  }
+                  ?>
+
+                  <?php
+                  $now_group_id = -1;
+                  $count_chosen_students = 0;
+                  if ($students){
+                    foreach ($students as $key => $student) {
+                      if($student['group_id'] != $now_group_id) {
+                        $count_chosen_students=0;
+
+                        $query = pg_query($dbconnect, select_group_students_count($student['group_id']));
+                        $group_students_count = pg_fetch_assoc($query)['count'];
+
+                        // Обработка полностью выбранных групп
+                        $flag_full_group = true;
+                        if ($Task->id != -1) {
+                          for($i=$key; $i < count($students); $i++){
+                            if($students[$i]['group_id'] != $student['group_id'])
+                              break;
+                            if($students[$i]['task_id'] != $Task->id)
+                              $flag_full_group = false;
+                            else $count_chosen_students++;
+                          }
+                        } else
+                          $flag_full_group = false;
+                        if($key > 0) { ?>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <?php }?>
+                        <div class="accordion-item">
+                          <div id="accordion-gheader-<?=$student['group_id']?>" class="accordion-header">
+                            <button class="accordion-button" type="button"
+                            data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-<?=$key?>" aria-expanded="true"
+                            aria-controls="accordion-collapse-<?=$key?>">
+                              <div class="form-check d-flex">
+                                <input id="group-<?=$student['group_id']?>" class="accordion-input-item form-check-input input-group" type="checkbox" 
+                                value="g<?=$student['group_id']?>" id="flexCheck1" onclick="markStudentElements(<?=$student['group_id']?>)" 
+                                name="checkboxStudents[]" <?php if($flag_full_group) echo 'checked';?>>
+                                <span id="group-<?=$student['group_id']?>-stat" class="badge badge-primary align-self-center" style="color: black;">
+                                  <?=$count_chosen_students?> / <?=$group_students_count?>
+                                </span>   
+                                <label class="ms-1 form-check-label" for="flexCheck1" style="font-weight: bold;"><?=$student['group_name']?></label>
+                              </div>                   
+                            </button>
+                          </div>
+                          <div id="accordion-collapse-<?=$key?>" class="accordion-collapse collapse" aria-labelledby="accordion-gheader-<?=$key?>"
+                          data-mdb-parent="#main-accordion-students">
+                            <div class="accordion-body">
+                              <div id="group-accordion-students" class="accordion accordion-flush">
+                      <?php }?>
+                      <div id="item-from-group-<?=$student['group_id']?>" class="accordion-item">
+                        <div id="accordion-sheader-<?=$student['id']?>" class="accordion-header">
+                          <div d-flex justify-content-between" type="button">
+                            <div class="form-check ms-3">
+                              <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input input-student" 
+                              type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
+                              <?php if($Task->id != -1 && isset($student['task_id']) && $student['task_id'] == $Task->id) echo 'checked';?>>
+                              <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <?php 
+                      $now_group_id = $student['group_id'];
+                    }
+                  } else {?>
+                    <strong>СТУДЕНТЫ ОТСУТСТВУЮТ</strong>
+                  <?php }?>
+
+                </div>
+              </div>
+            </section>
+
+
+
               <div class="ps-5 pb-3">
 				<section class="w-100 d-flex border">
                   <div class="w-100 h-100 d-flex" style="margin:10px; height:250px; text-align: left;">
                     <div id="demo-example-1" style="overflow-y: auto; height:250px; width: 100%;">
             <?php
-                      $query = select_page_students($page_id);
+                      foreach($Page->getGroups() as $Group) { ?>
+                        <div>
+                        <h6><?=$Group->name?></h6>
+                        <?php foreach($Group->getStudents() as $Student) {?>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="students[]" 
+                            value="<?=$Student->id?>" id="flexCheck<?=$Student->id?>" <?=in_array($Student->id, $studids) ? "checked" : "" ?>>
+                            <label class="form-check-label" for="flexCheck<?=$Student->id?>"><?=$Student->getFI()?></label>
+                          </div>
+                        <?php } ?>
+                        </div>
+                      <?php } 
+                      ?>
+
+                      <!-- $query = select_page_students($page_id);
                       $resultP = pg_query($dbconnect, $query);
+
 
                       while($rowP = pg_fetch_assoc($resultP)) {
                         echo '<div class="form-check">';
@@ -153,7 +334,7 @@ if (!$result || pg_num_rows($result) < 1) {
                         echo '  <label class="form-check-label" for="flexCheck'.$rowP['id'].'">'.$rowP['fio'].'</label>';
                         echo '</div>';
                       }
-            ?>
+            ?> -->
                     </div>
                   </div>
 				</section>
@@ -163,7 +344,8 @@ if (!$result || pg_num_rows($result) < 1) {
 			  <div class="ps-5 pb-3">
                 <section class="w-100 py-2 d-flex justify-content-center">
                   <div class="form-outline datetimepicker w-100 me-3">
-                    <input type="date" class="form-control active" name="fromtime" id="fromtime" style="margin-bottom: 0px;" value="<?=$timefrom?>">
+                    <input type="date" class="form-control active" name="fromtime" id="fromtime" style="margin-bottom: 0px;" 
+                    value="<?=$Assignment->start_limit?>">
 				    <label for="fromtime" class="form-label" style="margin-left: 0px;">Начало</label>
 				    <div class="form-notch">
 					  <div class="form-notch-leading" style="width: 9px;"></div>
@@ -172,7 +354,8 @@ if (!$result || pg_num_rows($result) < 1) {
 				    </div>
                   </div>
                   <div class="form-outline datetimepicker w-100">
-                    <input type="date" class="form-control active" name="tilltime" id="tilltime" style="margin-bottom: 0px;" value="<?=$timetill?>">
+                    <input type="date" class="form-control active" name="tilltime" id="tilltime" style="margin-bottom: 0px;" 
+                    value="<?=$Assignment->finish_limit?>">
 				    <label for="tilltime" class="form-label" style="margin-left: 0px;">Окончание</label>
 				    <div class="form-notch">
 					  <div class="form-notch-leading" style="width: 9px;"></div>
@@ -185,16 +368,16 @@ if (!$result || pg_num_rows($result) < 1) {
 
 			  <h5><i class="fa fa-ticket" aria-hidden="true"></i> Вариант</h5>
 			  <div class="ps-5 pb-3">
-			    <input id="variant" name="variant" class="w-100" value="<?=$variant?>" wrap="off" rows="1">
+			    <input id="variant" name="variant" class="w-100" value="<?=$Assignment->variant_comment?>" wrap="off" rows="1">
 			  </div>
 
 			  <h5><i class="fa fa-check-circle fa-lg" aria-hidden="true"></i> Параметры проверки</h5>
 
 			  
 			<?php
-			  $checks = $row['achecks'];
+			  $checks = $Assignment->checks;
 			  if ($checks == null)
-				$checks = $row['tchecks'];
+				$checks = $Task->checks;
 			  if ($checks == null)
 			    $checks = '{"tools":{"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}}}}';
 		      
@@ -347,7 +530,7 @@ if (!$result || pg_num_rows($result) < 1) {
 
 			<h6>Задание</h6>
 			<div id="Task" class="tabcontent border bg-light p-2 small" style="overflow-y: auto; width: 100%; height: 100%;">
-			  <p id="TaskDescr"><?=$row['description']?></p>
+			  <p id="TaskDescr"><?=$Task->description?></p>
 			  <script>
 				document.getElementById('TaskDescr').innerHTML = marked.parse(document.getElementById('TaskDescr').innerHTML);
 			  </script>
@@ -355,7 +538,7 @@ if (!$result || pg_num_rows($result) < 1) {
 				<b>Файлы, приложенные к заданию:</b> 
 				<br>
 				<?php 
-				  $task_files = getTaskFiles($dbconnect, $task_id);
+				  $task_files = getTaskFiles($dbconnect, $Task->id);
 				  show_task_files($task_files); 
 				?>
 			  </p>

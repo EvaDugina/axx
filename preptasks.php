@@ -119,7 +119,7 @@ if (!$result || pg_num_rows($result) < 1) {
 								array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
 							  
 							  foreach($aarray as $a) { ?>
-                                <form id="form-rejectAssignment-<?=$i?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
+                                <form id="form-rejectAssignment-<?=$a['id']?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
                                   <input type="hidden" name="task_id" value="<?=$student_task['tid']?>"></input>
                                   <!-- <input type="hidden" name="student_id" value ="<?=$student_task['sid']?>"></input> -->
                                   <input type="hidden" name="assignment_id" value ="<?=$a['id']?>"></input>
@@ -131,7 +131,7 @@ if (!$result || pg_num_rows($result) < 1) {
 										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$a['id']?>';">
 											<i class="fas fa-pen fa-lg"></i>
 										</button>
-										<button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment('form-rejectAssignment-<?=$i?>')">
+										<button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment('form-rejectAssignment-<?=$a['id']?>')">
 										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 										  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
 										</svg>

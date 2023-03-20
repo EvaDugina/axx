@@ -283,9 +283,6 @@ class Task {
 }
 
 
-
-
-
 function getAssignmentsByTask($task_id) {
   global $dbconnect;
 
