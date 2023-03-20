@@ -96,7 +96,7 @@ class Page {
 
     $query = "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, 
               creator_id, creation_date, status) 
-              VALUES ($this->disc_id, '$this->name', $this->year, $this->semester, $this->color_theme_id, 
+              VALUES ($this->disc_id, \$antihype1\$$this->name\$antihype1\$, $this->year, $this->semester, $this->color_theme_id, 
               $this->creator_id, '$this->creation_date', $this->status) 
               RETURNING id";
 
@@ -108,7 +108,7 @@ class Page {
   public function pushPageChangesToDB() {
     global $dbconnect;
 
-    $query = "UPDATE ax_page SET short_name ='$this->name', disc_id=$this->disc_id, year=$this->year, semester=$this->semester,
+    $query = "UPDATE ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, disc_id=$this->disc_id, year=$this->year, semester=$this->semester,
               color_theme_id=$this->color_theme_id, creator_id=$this->creator_id, creation_date='$this->creation_date', 
               status=$this->status
               WHERE id =$this->id;

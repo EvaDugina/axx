@@ -44,8 +44,9 @@ class Task {
       $page_id = $args[0];
       $this->type = $args[1];
       $this->status = $args[2];
+      $this->max_mark = 5;
 
-      $this->pushEmptyNewToDB($page_id, $this->type, $this->status);
+      $this->pushEmptyNewToDB($page_id);
     }
 
     else if ($count_args == 7) {
@@ -87,6 +88,15 @@ class Task {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function setTitle($title) {
+    global $dbconnect;
+
+    $this->title = $title;
+
+    $query = "UPDATE ax_task SET title = \$antihype1\$$this->title\$antihype1\$ WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
 // -- END SETTERS
 
 
@@ -97,7 +107,7 @@ class Task {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
-              VALUES ($page_id, $this->type, '$this->title', '$this->description', $this->max_mark, $this->status)
+              VALUES ($page_id, $this->type, \$antihype1\$$this->title\$antihype1\$, \$antihype1\$$this->description\$antihype1\$, $this->max_mark, $this->status)
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -105,11 +115,11 @@ class Task {
 
     $this->id = $result['id'];
   }
-  public function pushEmptyNewToDB($page_id, $type, $status) {
+  public function pushEmptyNewToDB($page_id) {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_task (page_id, type, status) 
-              VALUES ($page_id, $type, $status)
+    $query = "INSERT INTO ax_task (page_id, type, status, max_mark) 
+              VALUES ($page_id, $this->type, $this->status, '$this->max_mark')
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -120,8 +130,8 @@ class Task {
   public function pushChangesToDB() {
     global $dbconnect;
 
-    $query = "UPDATE ax_task SET type = $this->type, title = '$this->title', description = '$this->description', 
-              max_mark = '$this->max_mark', status = $this->status
+    $query = "UPDATE ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
+              description = \$antihype1\$$this->description\$antihype1\$, status = $this->status
               WHERE id = $this->id;
     ";
 

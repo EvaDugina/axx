@@ -5,6 +5,12 @@ require_once("messageHandler.php");
 require_once("POClasses/Message.class.php");
 require_once("POClasses/Task.class.php");
 
+
+function getPGQuotationMarks() {
+  return "\$antihype1\$";
+}
+
+
 // Работа с TIMESTAMP
 date_default_timezone_set('Europe/Moscow');
 

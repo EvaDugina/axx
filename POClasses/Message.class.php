@@ -121,13 +121,13 @@ class Message {
       $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
                 date_time, reply_to_id, full_text, status, visibility) 
                 VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
-                now(), $this->reply_to_id, '$this->full_text', $this->status, $this->visibility)
+                now(), $this->reply_to_id, \$antihype1\$$this->full_text\$antihype1\$, $this->status, $this->visibility)
                 RETURNING id, date_time;";
     } else {
       $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
                 date_time, full_text, status, visibility) 
                 VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
-                now(), '$this->full_text', $this->status, $this->visibility)
+                now(), \$antihype1\$$this->full_text\$antihype1\$, $this->status, $this->visibility)
                 RETURNING id, date_time;";
     }
 
@@ -144,7 +144,7 @@ class Message {
 
     $query = "UPDATE ax_message SET type = $this->type, sender_user_id = $this->sender_user_id, 
       sender_user_type = $this->sender_user_type, date_time = '$this->date_time', 
-      reply_to_id = $this->reply_to_id, full_text = '$this->full_text', status = $this->status, 
+      reply_to_id = $this->reply_to_id, full_text = \$antihype1\$$this->full_text\$antihype1\$, status = $this->status, 
       visibility = $this->visibility WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());

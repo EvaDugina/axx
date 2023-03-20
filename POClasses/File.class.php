@@ -89,7 +89,7 @@ public function getFileExt() {
     global $dbconnect;
 
     $this->full_text = $full_text;
-    $query = "UPDATE ax_file SET full_text = '$this->full_text'
+    $query = "UPDATE ax_file SET full_text = \$antihype1\$$this->full_text\$antihype1\$
                 WHERE id = $this->id;
     ";
     
@@ -119,12 +119,12 @@ public function getFileExt() {
 
     if ($this->full_text == null && $this->download_url != null) {
       $query = "INSERT INTO ax_file (type, file_name, download_url) 
-                VALUES ($this->type, '$this->name', '$this->download_url') 
+                VALUES ($this->type, \$antihype1\$$this->name\$antihype1\$, '$this->download_url') 
                 RETURNING id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
       $query = "INSERT INTO ax_file (type, file_name, full_text) 
-                VALUES ($this->type, '$this->name', \$antihype1\$$this->full_text\$antihype1\$) 
+                VALUES ($this->type, \$antihype1\$$this->name\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$) 
                 RETURNING id;
       ";
     } else {

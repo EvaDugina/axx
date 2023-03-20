@@ -39,7 +39,11 @@ if (isset($_GET['task'])){
 
   $Page = new Page((int)$_REQUEST['page']);
   $Task = new Task($Page->id, 0, 0);
+  $Task->setTitle("Задание " . (count($Page->getTasks()) + 1) . ".");
 
+} else {
+  header('Location:mainpage.php');
+	exit;
 }
 
 show_head("Добавление\Редактирование задания", array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
@@ -62,9 +66,7 @@ show_header($dbconnect, 'Редактор заданий',
             <div class="pt-3">
               <div class="form-outline">
                 <input id="input-title" class="form-control <?php echo 'active';?>" wrap="off" rows="1" 
-                style="resize: none; white-space:normal;" name="task-title"
-                <?php if($Task->title) echo 'value="'.$Task->title.'"'; 
-                else echo 'value="Задание '. (count($Page->getTasks())+1) .'."';?>>
+                style="resize: none; white-space:normal;" name="task-title" value="<?=$Task->title?>">
                 </input>
                 <label id="label-input-title" class="form-label" for="input-title">Название задания</label>
                 <div class="form-notch">
@@ -103,15 +105,15 @@ show_header($dbconnect, 'Редактор заданий',
 				
             <div class="pt-3 d-flex" id="tools">
 
-            <?php $textArea_testCode = "";
+            <?php $textArea_codeTest = "";
               if($Task->type == 1 && isset($TestFiles[0])) 
-                $textArea_testCode = $TestFiles[0]->full_text;
+                $textArea_codeTest = $TestFiles[0]->full_text;
               ?>
               
               <div class="form-outline col-5">
-                <textarea id="textArea-testCode" class="form-control" rows="5" name="full_text_test" 
-                style="resize: none;"><?=$textArea_testCode?></textarea>
-                <label class="form-label" for="textArea-testCode">Код теста</label>
+                <textarea id="textArea-codeTest" class="form-control" rows="5" name="full_text_test" 
+                style="resize: none;"><?=$textArea_codeTest?></textarea>
+                <label class="form-label" for="textArea-codeTest">Код теста</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -121,15 +123,15 @@ show_header($dbconnect, 'Редактор заданий',
 
               <div class="col-1"></div>
 
-              <?php $textArea_checkCode = "";
+              <?php $textArea_codeCheck = "";
               if($Task->type == 1 && isset($TestOfTestFiles[0])) 
-                $textArea_checkCode = $TestOfTestFiles[0]->full_text;
+                $textArea_codeCheck = $TestOfTestFiles[0]->full_text;
               ?>
 
               <div class="form-outline col-6">
-                <textarea id="textArea-checkCode" class="form-control" rows="5" name="full_text_test_of_test" 
-                style="resize: none;"><?=$textArea_checkCode?></textarea>
-                <label class="form-label" for="textArea-checkCode">Код проверки</label>
+                <textarea id="textArea-codeCheck" class="form-control" rows="5" name="full_text_test_of_test" 
+                style="resize: none;"><?=$textArea_codeCheck?></textarea>
+                <label class="form-label" for="textArea-codeCheck">Код проверки</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -363,6 +365,57 @@ show_header($dbconnect, 'Редактор заданий',
   </script>
 
 <script type="text/javascript">
+
+  // let original_title = "<?=$Task->title?>";
+  // let original_type = "<?=$Task->type?>";
+  // let original_description = "<?=$Task->description?>";
+  // let original_codeTest = "<?=$textArea_codeTest?>";
+  // let original_codeCheck = "<?=$textArea_codeCheck?>";
+  
+  // let now_title = $('#input-title').value;
+  // let now_type = $('#task-type').value;
+  // let now_description = $('#textArea-description').value;
+  // let now_codeTest = $('#textArea-codeCheck').value;
+  // let now_codeCheck = $('#textArea-codeCheck').value;
+
+  // window.addEventListener('beforeunload', function (event) {
+  //   // Отменяем поведение по умолчанию
+  //   event.preventDefault();
+
+  //   let name_unsaveFields = "";
+  //   let flag = false;
+  //   if (original_title != now_title) {
+  //     name_unsaveFields += "'Название задания' ";
+  //     flag = true;
+  //   }
+  //   if (original_type != now_type) {
+  //     name_unsaveFields += "'Тип задания' ";
+  //     flag = true;
+  //   }
+  //   if (original_description != now_description) {
+  //     name_unsaveFields += "'Описание задания' ";
+  //     flag = true;
+  //   }
+
+  //   if (original_codeTest != now_codeTest) {
+  //     name_unsaveFields += "'Код теста' ";
+  //     flag = true;
+  //   }
+  //   if (original_codeCheck != now_codeCheck) {
+  //     name_unsaveFields += "'Код проверки' ";
+  //     flag = true;
+  //   }
+
+  //   if (flag) {
+  //     // console.log("Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить выход без сохранения?");
+  //     // window.alert("Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить выход без сохранения?");
+  //     // Chrome требует наличия returnValue
+  //     // event.returnValue = "Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить выход без сохранения?";
+  //     // return checkFields();
+  //   }
+  //   return flag;
+    
+  // });
 
 
   document.querySelectorAll("#div-task-files div").forEach(function (div) {
