@@ -303,7 +303,7 @@ function specialForTaskeditPage($File, $task_id, $page_id){?>
     </select>
   </form>
 
-  <form name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+  <form id="form-deleteTaskFile" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
     <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
     <input type="hidden" name="file_id" value="<?=$File->id?>"></input>

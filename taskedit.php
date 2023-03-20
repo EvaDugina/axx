@@ -314,6 +314,12 @@ show_header($dbconnect, 'Редактор заданий',
     let form_addFiles  = document.getElementById('form-addTaskFiles');
     var added_files = <?=json_encode($Task->getFiles())?>;
 
+    let original_title = "<?=$Task->title?>";
+    let original_type = "<?=$Task->type?>";
+    let original_description = "<?=$Task->description?>";
+    let original_codeTest = "<?=$textArea_codeTest?>";
+    let original_codeCheck = "<?=$textArea_codeCheck?>";
+
     // Показывает количество прикрепленных для отправки файлов
     $('#task-files').on('change', function() {
       //$('#files-count').html(this.files.length);
@@ -325,7 +331,9 @@ show_header($dbconnect, 'Редактор заданий',
         return;
       }
 
-      form_addFiles.submit();
+      let confirm = checkFields();
+      if (confirm)
+        form_addFiles.submit();
       
       // Реализовать через ajax, чтобы быстрее было
       // var formData = new FormData();
@@ -354,6 +362,44 @@ show_header($dbconnect, 'Редактор заданий',
     });
 
 
+  function checkFields() {
+    let now_title = $('#input-title').val();
+    let now_type = $('#task-type').val();
+    let now_description = easyMDE.value();
+    let now_codeTest = $('#textArea-codeCheck').val();
+    let now_codeCheck = $('#textArea-codeCheck').val();
+
+    let name_unsaveFields = "";
+    let flag = false;
+    if (original_title != now_title) {
+      name_unsaveFields += "'Название задания' ";
+      flag = true;
+    }
+    if (original_type != now_type) {
+      name_unsaveFields += "'Тип задания' ";
+      flag = true;
+    }
+    if (original_description != now_description) {
+      name_unsaveFields += "'Описание задания' ";
+      flag = true;
+    }
+
+    if (original_codeTest != now_codeTest) {
+      name_unsaveFields += "'Код теста' ";
+      flag = true;
+    }
+    if (original_codeCheck != now_codeCheck) {
+      name_unsaveFields += "'Код проверки' ";
+      flag = true;
+    }
+
+    if (flag) {
+      return confirm("Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить без сохранения?");
+    }
+    return true;
+  }
+
+
     function file_name_check(file) {
       // console.log(file['name_without_prefix']);
       if (file['name_without_prefix'] == this.name){
@@ -366,76 +412,43 @@ show_header($dbconnect, 'Редактор заданий',
 
 <script type="text/javascript">
 
-  // let original_title = "<?=$Task->title?>";
-  // let original_type = "<?=$Task->type?>";
-  // let original_description = "<?=$Task->description?>";
-  // let original_codeTest = "<?=$textArea_codeTest?>";
-  // let original_codeCheck = "<?=$textArea_codeCheck?>";
-  
-  // let now_title = $('#input-title').value;
-  // let now_type = $('#task-type').value;
-  // let now_description = $('#textArea-description').value;
-  // let now_codeTest = $('#textArea-codeCheck').value;
-  // let now_codeCheck = $('#textArea-codeCheck').value;
-
-  // window.addEventListener('beforeunload', function (event) {
-  //   // Отменяем поведение по умолчанию
-  //   event.preventDefault();
-
-  //   let name_unsaveFields = "";
-  //   let flag = false;
-  //   if (original_title != now_title) {
-  //     name_unsaveFields += "'Название задания' ";
-  //     flag = true;
-  //   }
-  //   if (original_type != now_type) {
-  //     name_unsaveFields += "'Тип задания' ";
-  //     flag = true;
-  //   }
-  //   if (original_description != now_description) {
-  //     name_unsaveFields += "'Описание задания' ";
-  //     flag = true;
-  //   }
-
-  //   if (original_codeTest != now_codeTest) {
-  //     name_unsaveFields += "'Код теста' ";
-  //     flag = true;
-  //   }
-  //   if (original_codeCheck != now_codeCheck) {
-  //     name_unsaveFields += "'Код проверки' ";
-  //     flag = true;
-  //   }
-
-  //   if (flag) {
-  //     // console.log("Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить выход без сохранения?");
-  //     // window.alert("Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить выход без сохранения?");
-  //     // Chrome требует наличия returnValue
-  //     // event.returnValue = "Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить выход без сохранения?";
-  //     // return checkFields();
-  //   }
-  //   return flag;
-    
-  // });
-
 
   document.querySelectorAll("#div-task-files div").forEach(function (div) {
     let form = div.getElementsByClassName("form-statusTaskFiles")[0];
     let select = form.getElementsByClassName("select-statusTaskFile")[0];
-    select.addEventListener("change", function (e) {
-      console.log("SELECT CHANGED!");
-      var value = e.target.value;
-      console.log("OPTION: " + value);;
-      console.log("FORM-StatusTaskFiles: " + form);
-
-      let input = document.createElement("input");
-      input.setAttribute("type", "hidden");
-      input.setAttribute("value", value);
-      input.setAttribute("name", 'task-file-status');
-      console.log(input);
-
-      form.append(input);
-      form.submit();  
+    var previous = 0;
+    select.addEventListener('focus', function () {
+        previous = this.value;
     });
+    select.addEventListener('change', function (e) {
+      if (checkFields()) {
+        console.log("SELECT CHANGED!");
+        var value = e.target.value;
+        console.log("OPTION: " + value);;
+        console.log("FORM-StatusTaskFiles: " + form);
+
+        let input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("value", value);
+        input.setAttribute("name", 'task-file-status');
+        console.log(input);
+        
+        form.append(input);
+        form.submit();  
+      } else {
+        select.value = previous;
+      }
+    });
+  });
+
+  document.querySelectorAll("#form-deleteTaskFile").forEach(function (form) {
+    form.addEventListener("submit", function (e) {
+      if (checkFields()) {
+        form.submit();
+      } else {
+        e.preventDefault();
+      }
+    })
   });
 
 
