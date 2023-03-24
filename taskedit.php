@@ -142,17 +142,25 @@ show_header($dbconnect, 'Редактор заданий',
           <div class="d-flex">
             <button id="submit-save" class="btn btn-outline-success me-2 d-flex align-items-center" onclick="saveFields()">
               Сохранить &nbsp;
-              <div id="spinner" class="spinner-border" role="status" style="width: 1rem; height: 1rem;">
+              <div id="spinner-save" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
               </div>
             </button>
 
-            <?php if ($Task->id != -1 && $Task->status == 1) {?>
-              <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
-              name="action" value="archive">Архивировать задание</button>
-            <?php } else if($Task->id != -1 && $Task->status == 0){?>
-              <button id="submit-archive" type="submit" class="btn btn-outline-primary" name="action" value="re-archive">Разархивировать задание</button>
-            <?php }?>
+              <button id="submit-archive" class="btn btn-outline-secondary <?=($Task->id != -1 && $Task->status == 0) ? 'd-none' : ''?>"
+              onclick="archiveTask()">
+                Архивировать задание &nbsp;
+                <div id="spinner-archive" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
+                  <span class="sr-only">Loading...</span>
+                </div>  
+              </button>
+              <button id="submit-rearchive" class="btn btn-outline-primary <?=($Task->id != -1 && $Task->status == 1) ? 'd-none' : ''?>"
+              onclick="reArchiveTask()">
+                Разархивировать задание &nbsp;
+                <div id="spinner-rearchive" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </button>
 
             <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
 
@@ -492,7 +500,7 @@ show_header($dbconnect, 'Редактор заданий',
       original_codeCheck = now_codeCheck;
     }
 
-    $('#spinner').removeClass("d-none");
+    $('#spinner-save').removeClass("d-none");
 
     $.ajax({
       type: "POST",
@@ -507,9 +515,61 @@ show_header($dbconnect, 'Редактор заданий',
       },
       complete: function() {
         console.log("COMPLETED!");
-        $('#spinner').addClass("d-none");
+        $('#spinner-save').addClass("d-none");
       }
     });   
+  }
+
+  function archiveTask() {
+    var formData = new FormData();
+
+    formData.append('task_id', <?=$Task->id?>);
+    formData.append('action', 'archive');
+
+    $('#spinner-archive').removeClass("d-none");
+
+    $.ajax({
+      type: "POST",
+      url: 'taskedit_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+      },
+      complete: function() {
+        $('#spinner-archive').addClass("d-none");
+        $('#submit-archive').addClass("d-none");
+        $('#submit-rearchive').removeClass("d-none");
+      }
+    });
+  }
+
+  function reArchiveTask() {
+    var formData = new FormData();
+
+    formData.append('task_id', <?=$Task->id?>);
+    formData.append('action', 'rearchive');
+
+    $('#spinner-rearchive').removeClass("d-none");
+
+    $.ajax({
+      type: "POST",
+      url: 'taskedit_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+      },
+      complete: function() {
+        $('#spinner-rearchive').addClass("d-none");
+        $('#submit-rearchive').addClass("d-none");
+        $('#submit-archive').removeClass("d-none");
+      }
+    });
   }
 
 

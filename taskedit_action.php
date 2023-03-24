@@ -25,7 +25,7 @@ if (isset($_POST['task_id']) && $_POST['task_id'] != -1) {
 
 
 // Архивирование и разархивирование задания
-if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'] == 're-archive') && $_POST['task_id'] != -1) {
+if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'] == 'rearchive') && $_POST['task_id'] != -1) {
   if ($_POST['action'] == 'archive') {
     //echo "АРХИВИРОВАНИЕ ЗАДАНИЯ";
     $new_status = 0;
