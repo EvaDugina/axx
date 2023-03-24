@@ -273,7 +273,7 @@ function showFiles($Files, $taskedit_page_status = false, $task_id = null, $page
           </a>
           <?php // Если запрос на отображение файлов приходит со страницы taskedit
           if ($taskedit_page_status) {
-            specialForTaskeditPage($File, $task_id, $page_id);
+            specialForTaskeditPage($File, $task_id);
           }?>
         </div>
         
@@ -283,12 +283,11 @@ function showFiles($Files, $taskedit_page_status = false, $task_id = null, $page
     }
 }
 
-function specialForTaskeditPage($File, $task_id, $page_id){?>
+function specialForTaskeditPage($File, $task_id){?>
 
   <form id="form-statusTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" 
   class="d-inline-flex justify-content-between align-items-center form-statusTaskFiles">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-    <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
     <input type="hidden" name="file_id" value="<?=$File->id?>"></input>
     <input type="hidden" name="flag-statusFile" value="true"></input>
     
@@ -305,7 +304,6 @@ function specialForTaskeditPage($File, $task_id, $page_id){?>
 
   <form id="form-deleteTaskFile" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="task_id" value="<?=$task_id?>"></input>
-    <input type="hidden" name="page_id" value="<?=$page_id?>"></input>
     <input type="hidden" name="file_id" value="<?=$File->id?>"></input>
     <input type="hidden" name="flag-deleteFile" value="true"></input>
 

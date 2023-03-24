@@ -131,7 +131,7 @@ if (!$result || pg_num_rows($result) < 1) {
 										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$a['id']?>';">
 											<i class="fas fa-pen fa-lg"></i>
 										</button>
-										<button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment('form-rejectAssignment-<?=$a['id']?>')">
+										<button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment(<?=$a['id']?>, 'delete')">
 										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
 										  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
 										</svg>
@@ -391,17 +391,39 @@ if (!$result || pg_num_rows($result) < 1) {
   </div>
 
   <script type="text/javascript">
-    function confirmRejectAssignment(form_id) {
+    function confirmRejectAssignment(assignment_id, new_status) {
       $('#dialogMark').modal('show');
 
       $('#modal-btn-continue').click(function() {
-          let form_reject = document.getElementById(form_id);
-          form_reject.submit();
+          // let form_reject = document.getElementById(form_id);
+          // form_reject.submit();
+          ajaxChangeAssignmentStatus(assignment_id, new_status);
       });
       
       $('#modal-btn-escape').click(function() {
         $('#dialogMark').modal('hide');
       });
+    }
+
+    function ajaxChangeAssignmentStatus(assignment_id, new_status) {
+      var formData = new FormData();
+      formData.append('assignment_id', assignment_id);
+      formData.append('changeStatus', new_status);
+
+      $.ajax({
+        type: "POST",
+        url: 'taskassign_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+        },
+        complete: function() {
+          location.reload();
+        }
+      });   
     }
 
 

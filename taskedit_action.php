@@ -75,6 +75,51 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
   exit();
 }
 
+if (isset($_POST['task_id']) && isset($_POST['action']) && $_POST['action'] == "save") {
+  if (isset($_POST['title'])) {
+    $Task->title = $_POST['title'];
+  }
+
+  if (isset($_POST['type'])) {
+    $Task->type = $_POST['type'];
+  }
+
+  if (isset($_POST['description'])) {
+    $Task->description = $_POST['description'];
+  }
+  $Task->pushChangesToDB();
+
+  if (isset($_POST['codeTest'])) {
+    $Files = $Task->getFilesByType(2);
+    if(empty($Files)) {
+      $File = new File(2, "test.cpp", null, $_POST['codeTest']);
+      $Task->addFile($File->id);
+    } else {
+      foreach($Files as $File) {
+        $File->full_text = $_POST['codeTest'];
+        $File->pushChangesToDB();
+      }
+    }
+  }
+	
+  if(isset($_POST['codeCheck'])) {
+    $Files = $Task->getFilesByType(3);
+    if(empty($Files)) {
+      $File = new File(3, "checktest.cpp", null, $_POST['codeCheck']);
+      $Task->addFile($File->id);
+    } else {
+      foreach($Files as $File) {
+        $File->full_text = $_POST['codeCheck'];
+        $File->pushChangesToDB();
+      }
+    }
+  }
+
+  echo showFiles($Task->getFiles(), true, $Task->id);
+
+  exit();
+}
+
 // Сохранение изменений
 if (isset($_POST['action']) && $_POST['action'] == "save") {
   $Task->type = $_POST['task-type'];

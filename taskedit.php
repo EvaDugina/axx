@@ -57,10 +57,7 @@ show_header($dbconnect, 'Редактор заданий',
       
     <div class="pt-3">
       <div class="row gy-5">
-        <form class="col-8" id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
-          <input type="hidden" name="page_id" value="<?=$Page->id?>"></input>
-          <input type="hidden" name="flag-editTaskInfo" value="true"></input>
+        <div class="col-8">
           <table class="table table-hover">
     
             <div class="pt-3">
@@ -142,16 +139,26 @@ show_header($dbconnect, 'Редактор заданий',
             </div>
           </table>
 
-          <button id="submit-save" type="submit" class="btn btn-outline-success" name="action" value="save">Сохранить</button>
-          <?php if ($Task->id != -1 && $Task->status == 1) {?>
-            <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
-             name="action" value="archive">Архивировать задание</button>
-          <?php } else if($Task->id != -1 && $Task->status == 0){?>
-            <button id="submit-archive" type="submit" class="btn btn-outline-primary" name="action" value="re-archive">Разархивировать задание</button>
-          <?php }?>
-          <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
+          <div class="d-flex">
+            <button id="submit-save" class="btn btn-outline-success me-2 d-flex align-items-center" onclick="saveFields()">
+              Сохранить &nbsp;
+              <div id="spinner" class="spinner-border" role="status" style="width: 1rem; height: 1rem;">
+                <span class="sr-only">Loading...</span>
+              </div>
+            </button>
 
-        </form>
+            <?php if ($Task->id != -1 && $Task->status == 1) {?>
+              <button id="submit-archive" type="submit" class="btn btn-outline-secondary" 
+              name="action" value="archive">Архивировать задание</button>
+            <?php } else if($Task->id != -1 && $Task->status == 0){?>
+              <button id="submit-archive" type="submit" class="btn btn-outline-primary" name="action" value="re-archive">Разархивировать задание</button>
+            <?php }?>
+
+            <button type="button" class="btn btn-outline-primary" style="display: none;">Проверить сборку</button>
+
+          </div>
+
+        </div>
 
         <div class="col-4">
         <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
@@ -366,7 +373,7 @@ show_header($dbconnect, 'Редактор заданий',
     let now_title = $('#input-title').val();
     let now_type = $('#task-type').val();
     let now_description = easyMDE.value();
-    let now_codeTest = $('#textArea-codeCheck').val();
+    let now_codeTest = $('#textArea-codeTest').val();
     let now_codeCheck = $('#textArea-codeCheck').val();
 
     let name_unsaveFields = "";
@@ -452,9 +459,102 @@ show_header($dbconnect, 'Редактор заданий',
   });
 
 
+  function saveFields() {
+    var formData = new FormData();
+
+    formData.append('task_id', <?=$Task->id?>);
+    formData.append('action', 'save');
+    
+    if (checkTitle()) {
+      let now_title = $('#input-title').val();
+      formData.append('title', now_title);
+      original_title = now_title;
+    }
+    if (checkType()) {
+      let now_type = $('#task-type').val();
+      formData.append('type', now_type);
+      original_type = now_type;
+    }
+    if (checkDescription()) {
+      let now_description = easyMDE.value();
+      formData.append('description', now_description);
+      original_description = now_description;
+    }
+    
+    if (checkCodeTest()) {
+      let now_codeTest = $('#textArea-codeTest').val();
+      formData.append('codeTest', now_codeTest);
+      original_codeTest = now_codeTest;
+    }
+    if (checkCodeCheck()) {
+      let now_codeCheck = $('#textArea-codeCheck').val();
+      formData.append('codeCheck', now_codeCheck);
+      original_codeCheck = now_codeCheck;
+    }
+
+    $('#spinner').removeClass("d-none");
+
+    $.ajax({
+      type: "POST",
+      url: 'taskedit_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+        $('#div-task-files').html(response);
+      },
+      complete: function() {
+        console.log("COMPLETED!");
+        $('#spinner').addClass("d-none");
+      }
+    });   
+  }
+
+
+
+
+
+  function checkTitle() {
+    let now_title = $('#input-title').val();
+    if (original_title != now_title)
+      return true
+    return false;
+  }
+  function checkType() {
+    let now_type = $('#task-type').val();
+    if (original_type != now_type)
+      return true;
+    return false;
+  }
+  function checkDescription() {
+    let now_description = easyMDE.value();
+    if (original_description != now_description)
+      return true;
+
+    return false;
+  }
+  function checkCodeTest() {
+    let now_codeTest = $('#textArea-codeTest').val();
+    if (original_codeTest != now_codeTest) {
+      return true;
+    }
+    return false;
+  }
+  function checkCodeCheck() {
+    let now_codeCheck = $('#textArea-codeCheck').val();
+    if (original_codeCheck != now_codeCheck) {
+      return true;
+    }
+    return false;
+  }
+
+
 </script>
 
 
-  </body>
+
+</body>
 
 </html>
