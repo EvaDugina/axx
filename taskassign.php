@@ -30,6 +30,7 @@ if ((!isset($_GET['assignment_id']) || !is_numeric($_GET['assignment_id']))
 	exit;
 }
 
+
 $isNewAssignment = false;
 if (isset($_GET['assignment_id'])) {
   $Assignment = new Assignment((int)$_GET['assignment_id']);
@@ -110,6 +111,7 @@ $Page = new Page((int)getPageByTask($Task->id));
           <h4> Текущее назначение: </h4>
         <?php } ?>
 
+
         <div class="">
             <button id="btn-assignment-status-0" class="btn btn-outline-<?=$Assignment->status_code == 0 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
             onclick="ajaxChangeStatus(0)" <?=$Assignment->status_code == 0 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
@@ -131,7 +133,7 @@ $Page = new Page((int)getPageByTask($Task->id));
                 </svg>
               </button>
               <button id="btn-assignment-status-3" class="btn btn-outline-<?=$Assignment->status_code == 3 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-               <?=$Assignment->status_code == 3 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
+              onclick="ajaxChangeStatus(3)" <?=$Assignment->status_code == 3 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
                   <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
                 </svg>
@@ -143,7 +145,7 @@ $Page = new Page((int)getPageByTask($Task->id));
                 </svg>
               </button>
               <button id="btn-assignment-status-5" class="btn btn-outline-<?=$Assignment->status_code == 5 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-               <?=$Assignment->status_code == 5 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
+              <?=$Assignment->status_code == 5 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-fill" viewBox="0 0 16 16">
                   <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
                 </svg>
@@ -154,7 +156,12 @@ $Page = new Page((int)getPageByTask($Task->id));
       
       <?php foreach ($Assignment->getStudents() as $Student) { ?>
         <div class="d-flex align-items-center">
-          <span><?=$Student->getFI()?> (до <?=$Assignment->finish_limit?>)</span>
+          <span><?=$Student->getFI()?> 
+            <?php if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
+              echo " (до $Assignment->finish_limit)";
+            else 
+              echo " (бессрочно)";?>
+          </span>
         </div>
       <?php }
       ?>
@@ -515,6 +522,18 @@ $Page = new Page((int)getPageByTask($Task->id));
   </div>
 
   <script type="text/javascript">
+
+    $('#checks-save').click(function () {
+      window.onunload = null;
+    })
+
+    if (<?=$isNewAssignment?>) {
+      // Автоматически удаляем Assignment
+      window.onunload = function() {
+        ajaxChangeStatus('delete');
+      };
+    }
+
     function confirmRejectAssignment(form_id) {
       $('#dialogMark').modal('show');
 
@@ -528,8 +547,32 @@ $Page = new Page((int)getPageByTask($Task->id));
       });
     }
 
+    function getTextStatusByStatusCode(new_status) {
+      if(new_status == 0) {
+        return "'Недоступно для просмотра'";
+      } else if(new_status == 1) {
+        return "'Недоступно для выполнения'";
+      } else if(new_status == 2) {
+        return "'Доступно для выполнения'";
+      } else if(new_status == 3) {
+        return "'Выполнено'";
+      } else if(new_status == 4) {
+        return "'Отменено'";
+      } else {
+
+      }
+    }
+
     function ajaxChangeStatus(new_status) {
+
       var formData = new FormData();
+      // if (isGeneralTaskAssignPage) {
+      //   if (confirm("Статус задания " + getTextStatusByStatusCode(new_status) + " применится для всех назначений. Продолжить?"))
+      //     formData.append('task_id', <?=$Assignment->id?>);
+      //   else 
+      //     return;
+      // }
+
       formData.append('assignment_id', <?=$Assignment->id?>);
       formData.append('changeStatus', new_status);
 
@@ -544,15 +587,14 @@ $Page = new Page((int)getPageByTask($Task->id));
         success: function(response) {
         },
         complete: function() {
-          $('.btn-assignment-status').removeClass('btn-outline-primary');
-          $('.btn-assignment-status').addClass('btn-outline-light');
-          $('.btn-assignment-status').css('color', 'var(--mdb-gray-400)');
-          // $('#btn-assignment-status-<?=$Assignment->status_code?>').removeClass('btn-outline-primary');
-          // $('#btn-assignment-status-<?=$Assignment->status_code?>').addClass('btn-outline-light');
-          // $('#btn-assignment-status-<?=$Assignment->status_code?>').css('color', 'var(--mdb-gray-400)');
-          $('#btn-assignment-status-' + new_status).css('color', 'var(--mdb-primary)');
-          $('#btn-assignment-status-' + new_status).removeClass('btn-outline-light');
-          $('#btn-assignment-status-' + new_status).addClass('btn-outline-primary');
+          if(new_status != "delete") {
+            $('.btn-assignment-status').removeClass('btn-outline-primary');
+            $('.btn-assignment-status').addClass('btn-outline-light');
+            $('.btn-assignment-status').css('color', 'var(--mdb-gray-400)');
+            $('#btn-assignment-status-' + new_status).css('color', 'var(--mdb-primary)');
+            $('#btn-assignment-status-' + new_status).removeClass('btn-outline-light');
+            $('#btn-assignment-status-' + new_status).addClass('btn-outline-primary');
+          }
         }
       });   
     }
