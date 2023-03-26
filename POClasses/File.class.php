@@ -160,6 +160,9 @@ public function getFileExt() {
   }
   public function deleteFromDB() {
     global $dbconnect;
+
+    if ($this->download_url != "")
+      unlink($this->download_url);
   
     $query = "DELETE FROM ax_file WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -208,18 +211,14 @@ function getFileContentByPath($file_path) {
 
 
 
-function addFilesToMessage($commit_id, $message_id, $files, $type){
+// Object это Message или Task 
+function addFilesToObject($Object, $WEB_FILES, $type){
   // Файлы с этими расширениями надо хранить в БД
-  for ($i = 0; $i < count($files); $i++) {
-    addFileToMessage($commit_id, $files[$i]['name'], $files[$i]['tmp_name'], $message_id, $type);
+  for ($i = 0; $i < count($WEB_FILES); $i++) {
+    addFileToObject($Object, $WEB_FILES[$i]['name'], $WEB_FILES[$i]['tmp_name'], $type);
   }
 }
-function addFileToMessage($commit_id, $file_name, $file_tmp_name, $message_id, $type) {
-
-  //echo "WORKING WITH FILE <br>";
-
-  //echo "ASSIGNMENT_ID: ".$this->assignment_id;
-  //echo "<br>";
+function addFileToObject($Object, $file_name, $file_tmp_name, $type) {
 
   $store_in_db = getSpecialFileTypes();
   
@@ -231,29 +230,23 @@ function addFileToMessage($commit_id, $file_name, $file_tmp_name, $message_id, $
 
   // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
   if (move_uploaded_file($file_tmp_name, $file_path)) {
-    $Message = new Message((int)$message_id);
 
     // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
     if (!in_array($file_ext, $store_in_db)) {
       
       $File->setDownloadUrl($file_path);
-      $Message->addFile($File->id);
+      $Object->addFile($File->id);
 
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
       
       $file_full_text = getFileContentByPath($file_path);
       $File->setFullText($file_full_text);
-      $Message->addFile($File->id);
+      $Object->addFile($File->id);
       unlink($file_path);
 
     }
 
-    // Добавление файла в ax_solution_file, если сообщение - ответ на задание
-    if ($commit_id != null) {
-      $Commit = new Commit((int)$commit_id);
-      $Commit->addFile($File->id);
-      $Message->setCommit($Commit->id);
-    }
+    return $File->id;
 
   } else {
     exit("Ошибка загрузки файла");

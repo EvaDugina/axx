@@ -65,11 +65,8 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
   $query = pg_query($dbconnect, select_page_by_task_id($_POST['task_id']));
   $page_id = pg_fetch_assoc($query)['page_id'];
 
-  // TODO: ПРОВЕРИТь!
-  // $Task = new Task((int)$_POST['task_id']);
+  // TODO: Придумать, как удалять auto_test_result!
   $Task->deleteFromDB();
-  // $query = delete_task($_POST['task_id']);
-  // $result = pg_query($dbconnect, $query);
   
   header('Location: preptasks.php?page=' . $page_id);
   exit();
@@ -177,11 +174,9 @@ if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action
 // Прикрепление файлов к заданию
 if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
   $files = convertWebFilesToFiles('add-files');
-  $store_in_db = getSpecialFileTypes();
 
   for ($i = 0; $i < count($files); $i++) {
-    // TODO: Проверить!
-    addFileToTask($Task, 0, $files[$i]['name'], $files[$i]['tmp_name']);
+    addFileToObject($Task, $files[$i]['name'], $files[$i]['tmp_name'], 0);
   }
 
   header('Location: taskedit.php?task='.$Task->id);
@@ -282,35 +277,36 @@ function convertWebFilesToFiles($name_files) {
 
 
 function addFileToTask($Task, $type, $file_name, $file_tmp_name) {
-  $store_in_db = getSpecialFileTypes();
+
+  // $store_in_db = getSpecialFileTypes();
   
-  $File = new File($type, $file_name);
+  // $File = new File($type, $file_name);
   
-  $file_ext = $File->getFileExt();
-  $file_dir = getPathForUploadFiles();
-  $file_path = $file_dir . $File->name;
+  // $file_ext = $File->getFileExt();
+  // $file_dir = getPathForUploadFiles();
+  // $file_path = $file_dir . $File->name;
 
-  // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-  if (move_uploaded_file($file_tmp_name, $file_path)) {
+  // // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+  // if (move_uploaded_file($file_tmp_name, $file_path)) {
 
-    // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
-    if (!in_array($file_ext, $store_in_db)) {
+  //   // Если файлы такого расширения надо хранить на сервере, добавляем в БД путь к файлу на сервере
+  //   if (!in_array($file_ext, $store_in_db)) {
       
-      $File->setDownloadUrl($file_path);
-      $Task->addFile($File->id);
+  //     $File->setDownloadUrl($file_path);
+  //     $Task->addFile($File->id);
 
-    } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
+  //   } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
       
-      $file_full_text = getFileContentByPath($file_path);
-      $File->setFullText($file_full_text);
-      $Task->addFile($File->id);
-      unlink($file_path);
+  //     $file_full_text = getFileContentByPath($file_path);
+  //     $File->setFullText($file_full_text);
+  //     $Task->addFile($File->id);
+  //     unlink($file_path);
 
-    }
+  //   }
 
-  } else {
-    exit("Ошибка загрузки файла");
-  }
+  // } else {
+  //   exit("Ошибка загрузки файла");
+  // }
 }
 
 

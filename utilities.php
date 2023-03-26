@@ -23,6 +23,14 @@ function get_now_date($format = "d-m-Y"){
   return date($format);
 }
 
+function checkPHPDateForDateFields($time_limit) {
+  $defaultDate = date("Y-m-d", strtotime("1970-01-01"));
+  if ($time_limit == $defaultDate) {
+    return "";
+  }
+  return $time_limit;
+}
+
 // год и номер семестра по названию
 function convert_timestamp_from_string($str){
   $pos = explode(" ", $str);

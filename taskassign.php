@@ -7,15 +7,6 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
-
-function checkPHPDateForDateFields($time_limit) {
-  $defaultDate = date("Y-m-d", strtotime("1970-01-01"));
-  if ($time_limit == $defaultDate) {
-    return "";
-  }
-  return $time_limit;
-}
-
 // защита от случайного перехода
 $au = new auth_ssh();
 if (!$au->isAdmin() && !$au->isTeacher()){
