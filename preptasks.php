@@ -6,6 +6,10 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
+require_once("./POClasses/Assignment.class.php");
+require_once("./POClasses/Task.class.php");
+require_once("./POClasses/User.class.php");
+
 // защита от случайного перехода
 $au = new auth_ssh();
 if (!$au->isAdmin() && !$au->isTeacher()){
@@ -93,53 +97,52 @@ if (!$result || pg_num_rows($result) < 1) {
                           $result2 = pg_query($dbconnect, $query);
                           if ($result2 && pg_num_rows($result2) > 0) {
                             $i=0;?> 
-							
-							
+						
                             <div class="small">Назначения:</div>
                             <div id="student_container">
                               <?php 
 							  
-							  $aarray = array();
-							  $prev_assign = 0;
-							  $studlist = "";
-							  $adate = "";
-							  while ($student_task = pg_fetch_assoc($result2)) {
-								if ($student_task['aid'] == $prev_assign)
-								  $studlist = $studlist.', '.$student_task['fio'];
-								else {
-								  if ($prev_assign != 0)
-									array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
-									
-								  $prev_assign = $student_task['aid'];
-								  $studlist = $student_task['fio'];
-								  $adate = $student_task['ts'];
-								}
-							  }
-							  if ($prev_assign != 0)
-								array_push($aarray, array('id' => $prev_assign, 'studlist' => $studlist, 'date' => $adate));
-							  
-							  foreach($aarray as $a) { ?>
-                                <form id="form-rejectAssignment-<?=$a['id']?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
-                                  <input type="hidden" name="task_id" value="<?=$student_task['tid']?>"></input>
-                                  <!-- <input type="hidden" name="student_id" value ="<?=$student_task['sid']?>"></input> -->
-                                  <input type="hidden" name="assignment_id" value ="<?=$a['id']?>"></input>
-                                  <input type="hidden" name="action" value="reject"></input>
+                              $Task = new Task((int)$task['id']);
+                              
+                              foreach($Task->getAssignments() as $Assignment) {
+                                $stud_list = "";
+                                foreach ($Assignment->getStudents() as $i => $Student) {
+                                  if ($i != 0)
+                                    $stud_list .= ", ";
+                                  $stud_list .= $Student->getFI();
+                                }
+                                ?>
+                              <form id="form-rejectAssignment-<?=$Assignment->id?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
+                                <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
+                                <input type="hidden" name="assignment_id" value ="<?=$Assignment->id?>"></input>
+                                <input type="hidden" name="action" value="reject"></input>
 
-                                  <div class="d-flex justify-content-between align-items-center me-2 mx-5 badge-primary text-wrap small">
-                                    <span class="mx-1"><?=$a['studlist']?><?=($a['date']=="" ?"" :" (до ".$a['date'].")")?></span>
-									<span>
-										<button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$a['id']?>';">
-											<i class="fas fa-pen fa-lg"></i>
-										</button>
-										<button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment(<?=$a['id']?>, 'delete')">
-										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-										  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-										</svg>
-										</button>
-									</span>
-                                  </div>
-                                </form>
-                              <?php $i++;
+                                <div class="d-flex justify-content-between align-items-center me-2 mx-5 badge-primary 
+                                <?php if ($stud_list == "") echo "bg-warning";?> text-wrap small">
+                                  <span class="mx-1">
+                                  <?php if($stud_list == "")
+                                    echo "~СТУДЕНТЫ ОТСУТСТВУЮТ~";
+                                  else 
+                                    echo $stud_list;
+                                  ?> 
+                                  <?php if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
+                                    echo " (до $Assignment->finish_limit)";
+                                  else 
+                                    echo " (бессрочно)";?>
+                                  </span>
+                                  <span>
+                                    <button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?=$Assignment->id?>';">
+                                      <i class="fas fa-pen fa-lg"></i>
+                                    </button>
+                                    <button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment(<?=$Assignment->id?>, 'delete')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                                    </svg>
+                                    </button>
+                                  </span>
+                                </div>
+                              </form>
+                              <?php //$i++;
                               }?>
                             </div>
                           <?php }?>
