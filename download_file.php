@@ -1,9 +1,12 @@
 <?php
 require_once('settings.php'); 
+require_once('utilities.php'); 
+require_once('POClasses/File.class.php'); 
+require_once('POClasses/Task.class.php'); 
 
-function delete_prefix($str) {
-	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
-}
+// function delete_prefix($str) {
+// 	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
+// }
 
 if (ob_get_level()) {
     ob_end_clean();
@@ -11,8 +14,7 @@ if (ob_get_level()) {
 
 // Скачивание архива всех файлов к странице с заданием
 if (isset($_GET['download_task_files'])) {
-    $query = "SELECT file_name, download_url, full_text FROM ax_task_file WHERE task_id = {$_GET['task_id']} AND type < 2";
-    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $Task = new Task((int)$_GET['task_id']);
 
     $zip = new ZipArchive();
     $file_dir = 'upload_files/';
@@ -20,17 +22,18 @@ if (isset($_GET['download_task_files'])) {
     if ($zip->open($file_path, ZipArchive::CREATE) !== TRUE) {
         exit("Невозможно открыть <$file_path>");
     }
-
-    for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-        // Если текст файла лежит в БД
-		if ($row['download_url'] == null) {
-			$zip->addFromString($row['file_name'], $row['full_text']);
-		}
-		// Если файл лежит на сервере
-		else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-			$zip->addFile($row['download_url'], $row['file_name']);
-		}
+    
+    foreach($Task->getFiles() as $File) {
+      // Если текст файла лежит в БД
+      if ($File->download_url == null) {
+        $zip->addFromString($File->name_without_prefix, $File->full_text);
+      }
+      // Если файл лежит на сервере
+      else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+        $zip->addFile($File->download_url, $File->name_without_prefix);
+      }
     }
+
     $zip->close();
     if (!file_exists($file_path)) {
         exit("Архива не существует");
@@ -47,35 +50,35 @@ if (isset($_GET['download_task_files'])) {
     exit();
 }
 
-else if (isset($_GET['attachment_id']) || isset($_GET['task_file_id'])) {
+else if (isset($_GET['file_id']) /*|| isset($_GET['task_file_id'])*/) {
+
+    $File = null;
 
     // Скачивание файла из БД по attachment_id из ax_message_attachment
-    if (isset($_GET['attachment_id'])) {
+    if (isset($_GET['file_id'])) {
         // Достаем название и полный текст файла по attachment_id
-        $query = "SELECT file_name, full_text from ax_message_attachment where id = {$_GET['attachment_id']}";
-        $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        $row = pg_fetch_assoc($result);
+        $File = new File((int)$_GET['file_id']);
     }
 
-    // Скачивание файла из БД по task_file_id из ax_task_file
-    else if (isset($_GET['task_file_id'])) {
-        // Достаем название и полный текст файла по task_file_id
-        $query = "SELECT file_name, full_text from ax_task_file where id = {$_GET['task_file_id']}";
-        $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-        $row = pg_fetch_assoc($result);
+    if ($File == null) { exit("Файл не существует"); }
+
+    if ($File->download_url == null) {
+        // Создаем файл в папке сервера 'upload_files'
+        $file_dir = 'upload_files/';
+        $file_path = $file_dir . $File->name;
+        file_put_contents($file_path, $File->full_text);
     }
 
-    if (!$row) { exit("Файл не существует"); }
+    // Если файл лежит на сервере
+    else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+        $file_path = $File->download_url;
+    }
 
-    // Создаем файл в папке сервера 'upload_files'
-    $file_dir = 'upload_files/';
-    $file_path = $file_dir . $row['file_name'];
-    file_put_contents($file_path, $row['full_text']);
 
     // Даем пользователю скачать файл и удаляем его с сервера
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename=' . basename($file_path));
+    header('Content-Disposition: attachment; filename=' . $File->name_without_prefix);
     header('Content-Transfer-Encoding: binary');
     header('Content-Length: ' . filesize($file_path));
     
@@ -116,9 +119,8 @@ else if (isset($_GET['file_path'])) {
 
     // Даем пользователю скачать файл
     $file_name = basename($file_path);
-    if (isset($_GET['with_prefix'])) {
-        $file_name = delete_prefix($file_name);
-    }
+    $file_name = deleteRandomPrefix($file_name);
+
     header('Content-Description: File Transfer');
     header('Content-Type: ' . $mime_type);
     header('Content-Disposition: attachment; filename=' . $file_name);

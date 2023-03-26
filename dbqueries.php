@@ -163,6 +163,7 @@ function insert_page($discipline) {
 // ДЕЙСТВИЯ С УВЕДОМЛЕНИЯМИ
 
 // получение уведомлений, отсортированных по message_id для студента по невыполненным заданиям
+//[x]: убрать функцию, как только не будет использоваться
 function select_notify_for_student_header($student_id){
     return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
               teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.id as message_id, ax_message.full_text FROM ax_task
@@ -178,6 +179,7 @@ function select_notify_for_student_header($student_id){
 }
 
 // получение уведомлений для преподавателя по непроверенным заданиям
+//[x]: убрать функцию, как только не будет использоваться
 function select_notify_for_teacher_header($teacher_id){
     return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
                 ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment_student.student_user_id,
@@ -229,6 +231,7 @@ function select_unchecked_by_page($teacher_id, $page_id){
     ";
 }
 
+//[x]: убрать
 function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_id){
     return "SELECT COUNT(*) FROM ax_message
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
@@ -239,6 +242,8 @@ function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_i
     ";
 }
 
+
+//[x]: убрать
 function select_count_unreaded_messages_by_task_for_student($student_id, $task_id){
     return "SELECT COUNT(*) FROM ax_message
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
@@ -346,12 +351,12 @@ function select_prev_files($assignment_id) {
 }
 
 // получение файлов к заданию
-function select_task_files($task_id) {
-    return 'SELECT ax_task_file.* '.
-            ' FROM ax_task INNER JOIN ax_task_file ON ax_task.id = ax_task_file.task_id '.
-            ' WHERE ax_task.id = '.$task_id.' AND ax_task_file.type = 0 '.
-    ' ORDER BY id';
-}
+// function select_task_files($task_id) {
+//     return 'SELECT ax_task_file.* '.
+//             ' FROM ax_task INNER JOIN ax_task_file ON ax_task.id = ax_task_file.task_id '.
+//             ' WHERE ax_task.id = '.$task_id.' AND ax_task_file.type = 0 '.
+//     ' ORDER BY id';
+// }
 
 // обновление задания
 function update_ax_task_status($id, $status) {
@@ -364,11 +369,11 @@ function update_ax_task($id, $type, $title, $description) {
             WHERE id = '$id'";
 }
 
-function update_ax_assignment_status_code($assignment_id, $status_code) {
-  $status_text = status_code_to_text($status_code);
-  return "UPDATE ax_assignment SET status_code = $status_code, status_text = '$status_text' 
-          WHERE id = $assignment_id";
-}
+// function update_ax_assignment_status_code($assignment_id, $status_code) {
+//   $status_text = status_code_to_text($status_code);
+//   return "UPDATE ax_assignment SET status_code = $status_code, status_text = '$status_text' 
+//           WHERE id = $assignment_id";
+// }
 
 function update_ax_assignment_mark($assignment_id, $mark){
   return "UPDATE ax_assignment SET mark = '$mark', status_code = 3, status_text = 'выполнено' 
@@ -426,37 +431,51 @@ function insert_assignment_student($assignment_id, $student_id){
   ";
 }
 
-function delete_assignment($assignment_id) {
-  return "DELETE FROM ax_assignment 
-          WHERE ax_assignment.id = $assignment_id;
+// function delete_assignment($assignment_id) {
+//   return "DELETE FROM ax_assignment 
+//           WHERE ax_assignment.id = $assignment_id;
 
-          DELETE FROM ax_assignment_student
-          WHERE ax_assignment_student.assignment_id = $assignment_id;
+//           DELETE FROM ax_assignment_student
+//           WHERE ax_assignment_student.assignment_id = $assignment_id;
 
-          DELETE FROM ax_solution_file 
-          WHERE ax_solution_file.assignment_id = $assignment_id;
+//           DELETE FROM ax_commit_file USING ax_solution_commit
+//           WHERE ax_solution_commit.assignment_id = $assignment_id AND ax_solution_commit.id = ax_commit_file.commit_id;
 
-          DELETE FROM ax_solution_commit
-          WHERE ax_solution_commit.assignment_id = $assignment_id;
+//           DELETE FROM ax_solution_commit
+//           WHERE ax_solution_commit.assignment_id = $assignment_id;
           
-          DELETE FROM ax_message USING ax_message_attachment, ax_message_delivery
-          WHERE ax_message.assignment_id = $assignment_id AND ax_message_attachment.message_id = ax_message.id
-          AND ax_message.id = ax_message_delivery.message_id;
-  ";
-}
+//           DELETE FROM ax_message USING ax_message_attachment, ax_message_delivery
+//           WHERE ax_message.assignment_id = $assignment_id AND ax_message_attachment.message_id = ax_message.id
+//           AND ax_message.id = ax_message_delivery.message_id;
+//   ";
+// }
 
-function delete_task($task_id){
-  return "DELETE FROM ax_task_file 
-            WHERE ax_task_file.task_id = $task_id;
-          DELETE FROM ax_task 
-            WHERE ax_task.id = $task_id;
-          DELETE FROM ax_assignment USING ax_assignment_student, ax_solution_commit, ax_solution_file, ax_message, 
-          ax_message_attachment, ax_message_delivery
-            WHERE ax_assignment.task_id = $task_id AND ax_assignment.id = ax_assignment_student.assignment_id
-            AND ax_assignment.id = ax_solution_file.assignment_id AND ax_assignment.id = ax_message.assignment_id
-            AND ax_message.id = ax_message_attachment.message_id AND ax_message.id = ax_message_delivery.message_id;
-  ";
-}
+// function delete_task($task_id){
+//   return "DELETE FROM ax_file USING ax_task_file
+//             WHERE ax_file.id = ax_task_file.file_id AND ax_task_file.task_id = $task_id;
+//           DELETE FROM ax_task_file 
+//             WHERE ax_task_file.task_id = $task_id;
+          
+//           DELETE FROM ax_message_delivery USING ax_message, ax_assignment
+//             WHERE ax_message_delivery.message_id = ax_message.id AND ax_message.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
+//           DELETE FROM ax_message_file USING ax_message, ax_assignment
+//             WHERE ax_message_file.message_id = ax_message.id AND ax_message.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
+//           DELETE FROM ax_message USING ax_assignment
+//             WHERE ax_message.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
+          
+//           DELETE FROM ax_commit_file USING ax_solution_commit, ax_assignment
+//             WHERE ax_commit_file.commit_id = ax_solution_commit.id AND ax_solution_commit.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
+//           DELETE FROM ax_solution_commit USING ax_assignment
+//             WHERE ax_solution_commit.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
+            
+//           DELETE FROM ax_assignment_student USING ax_assignment
+//             WHERE ax_assignment_student.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
+//           DELETE FROM ax_assignment 
+//             WHERE task_id = $task_id;
+//           DELETE FROM ax_task 
+//             WHERE ax_task.id = $task_id;
+//   ";
+// }
 
 // функция очистки задания для нового семестра
 function delete_task_hash($task_id){
@@ -484,12 +503,12 @@ function select_messages_by_assignment_id($assignment_id, $sender_user_type) {
           ORDER BY ax_message.date_time";
 }
 
-function select_message_attachment($message_id) {
-  return "SELECT ax_message_attachment.id, ax_message_attachment.file_name, ax_message_attachment.download_url, ax_message_attachment.full_text
-          FROM ax_message_attachment
-          INNER JOIN ax_message ON ax_message.id = ax_message_attachment.message_id
-          WHERE ax_message_attachment.message_id = $message_id";
-}
+// function select_message_attachment($message_id) {
+//   return "SELECT ax_message_attachment.id, ax_message_attachment.file_name, ax_message_attachment.download_url, ax_message_attachment.full_text
+//           FROM ax_message_attachment
+//           INNER JOIN ax_message ON ax_message.id = ax_message_attachment.message_id
+//           WHERE ax_message_attachment.message_id = $message_id";
+// }
 
 function select_last_answer_message($assignment_id) {
   return "SELECT commit_id, MAX(id) as reply_to_id FROM ax_message 
@@ -549,7 +568,7 @@ function insert_ax_message_delivery($message_id, $user_id){
   ";
 }
 
-function insert_ax_message_attachment_with_url($message_id, $file_name, $file_path){
+/*function insert_ax_message_attachment_with_url($message_id, $file_name, $file_path){
   return "INSERT INTO ax_message_attachment (message_id, file_name, download_url) 
           VALUES ($message_id, '$file_name', '$file_path')
   ";
@@ -558,7 +577,7 @@ function insert_ax_message_attachment_with_url($message_id, $file_name, $file_pa
 function insert_ax_message_attachment_with_full_file_text($message_id, $file_name_without_prefix, $file_full_text){
   return "INSERT into ax_message_attachment (message_id, file_name, full_text) 
           VALUES ($message_id, '$file_name_without_prefix', " . '$antihype1$' . $file_full_text . '$antihype1$)';
-}
+}*/
 
 
 
@@ -760,48 +779,48 @@ function insert_file($type, $task_id, $file_name, $full_text) {
                 ', '.$task_id.', $accelquotes$'.$file_name.'$accelquotes$, $accelquotes$'.$full_text.'$accelquotes$)';
 }
 
-function insert_file_by_link($type, $task_id, $file_name){
-    return "INSERT INTO ax_task_file(type, task_id, file_name)
-    VALUES ('$type', '$task_id', '$file_name');
-    ";
-}
+// function insert_file_by_link($type, $task_id, $file_name){
+//     return "INSERT INTO ax_task_file(type, task_id, file_name)
+//     VALUES ('$type', '$task_id', '$file_name');
+//     ";
+// }
 
-function insert_ax_task_file ($task_id, $file_type, $file_name, $file_info, $info_type){
-  $p1 = "INSERT INTO ax_task_file(task_id, type, file_name, "; 
-  if ($info_type == 0)
-    $p2 = "download_url)";
-  else 
-    $p2 = "full_text)";
-  $p3 = "VALUES ($task_id, $file_type, '$file_name', '$file_info')";
-  $result = $p1 . $p2 . $p3;
+// function insert_ax_task_file ($task_id, $file_type, $file_name, $file_info, $info_type){
+//   $p1 = "INSERT INTO ax_task_file(task_id, type, file_name, "; 
+//   if ($info_type == 0)
+//     $p2 = "download_url)";
+//   else 
+//     $p2 = "full_text)";
+//   $p3 = "VALUES ($task_id, $file_type, '$file_name', '$file_info')";
+//   $result = $p1 . $p2 . $p3;
 
-  return $result;
-}
+//   return $result;
+// }
 
-function insert_ax_task_file_with_url($task_id, $file_type, $file_name, $file_path){
-  return "INSERT INTO ax_task_file (task_id, type, file_name, download_url) 
-          VALUES ($task_id, $file_type, '$file_name', '$file_path')
-          RETURNING id
-  ";
-}
+// function insert_ax_task_file_with_url($task_id, $file_type, $file_name, $file_path){
+//   return "INSERT INTO ax_task_file (task_id, type, file_name, download_url) 
+//           VALUES ($task_id, $file_type, '$file_name', '$file_path')
+//           RETURNING id
+//   ";
+// }
 
-function insert_ax_task_file_with_full_file_text($task_id, $file_type, $file_name, $file_full_text){
-  return "INSERT into ax_task_file (task_id, type, file_name, full_text) 
-          VALUES ($task_id, $file_type, '$file_name', " . '$antihype1$' . $file_full_text . '$antihype1$) 
-          RETURNING id';
-}
+// function insert_ax_task_file_with_full_file_text($task_id, $file_type, $file_name, $file_full_text){
+//   return "INSERT into ax_task_file (task_id, type, file_name, full_text) 
+//           VALUES ($task_id, $file_type, '$file_name', " . '$antihype1$' . $file_full_text . '$antihype1$) 
+//           RETURNING id';
+// }
 
-function update_ax_task_file_status($task_file_id, $new_status_file){
-  return "UPDATE ax_task_file SET type = $new_status_file
-          WHERE ax_task_file.id = $task_file_id;
-  ";
-}
+// function update_ax_task_file_status($task_file_id, $new_status_file){
+//   return "UPDATE ax_task_file SET type = $new_status_file
+//           WHERE ax_task_file.id = $task_file_id;
+//   ";
+// }
 
-function delete_ax_task_file($task_file_id){
-  return "DELETE FROM ax_task_file 
-          WHERE ax_task_file.id = $task_file_id;
-  ";
-}
+// function delete_ax_task_file($task_file_id){
+//   return "DELETE FROM ax_task_file 
+//           WHERE ax_task_file.id = $task_file_id;
+//   ";
+// }
 
 
 
@@ -815,7 +834,7 @@ function insert_answer_commit($assignment_id, $student_id){
 }
 
 // Добавление файлов к коммиту
-function insert_ax_solution_file ($assignment_id, $commit_id, $file_name, $file_info, $info_type) {
+/*function insert_ax_solution_file ($assignment_id, $commit_id, $file_name, $file_info, $info_type) {
   $p1 = "INSERT INTO ax_solution_file(assignment_id, type, commit_id, file_name, "; 
   if ($info_type == 0)
     $p2 = "download_url)";
@@ -825,7 +844,7 @@ function insert_ax_solution_file ($assignment_id, $commit_id, $file_name, $file_
   $result = $p1 . $p2 . $p3;
 
   return $result;
-}
+}*/
 
 // Добавление файлов к коммиту
 /*function insert_ax_solution_file_by_array ($assignment_id, $commit_id, $file_name, $file_path, $file_text) {
@@ -848,24 +867,24 @@ function pg_fetch_all_assoc($res) {
     return $array_out;
 }
 
-function status_code_to_text($status_code) {
-  switch ($status_code) {
-    case 0:
-      return "недоступно для просмотра"; 
-    case 1:
-      return "недоступно для выполнения";
-    case 2: 
-      return "активно";
-    case 3:
-      return "выполнено";
-    case 4:
-      return "отменено";
-    case 5:
-      return "ожидает проверки";
-    default:
-      return "ERROR!";
-  }
-}
+// function status_code_to_text($status_code) {
+//   switch ($status_code) {
+//     case 0:
+//       return "недоступно для просмотра"; 
+//     case 1:
+//       return "недоступно для выполнения";
+//     case 2: 
+//       return "активно";
+//     case 3:
+//       return "выполнено";
+//     case 4:
+//       return "отменено";
+//     case 5:
+//       return "ожидает проверки";
+//     default:
+//       return "ERROR!";
+//   }
+// }
 
 function select_last_commit_id_by_assignment_id($assignment_id) {
   return "SELECT MAX(id) as id FROM ax_solution_commit 
@@ -874,13 +893,15 @@ function select_last_commit_id_by_assignment_id($assignment_id) {
 }
 
 function select_last_ax_solution_file_by_commit_id($commit_id) {
-  return "SELECT * FROM ax_solution_file 
+  return "SELECT * FROM ax_commit_file
+          INNER JOIN ax_file ON ax_file.id = ax_commit_file.file_id
           WHERE commit_id = $commit_id
-          ORDER BY id;
+          ORDER BY commit_id;
   ";
 }
 
 
+// TODO: ПРОВЕРИТЬ!
 // получение сообщений для таблицы посылок
 function select_preptable_messages($page_id) {
     return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
@@ -916,7 +937,8 @@ function select_preptable_messages($page_id) {
     INNER JOIN students_to_groups ON students_to_groups.student_id = s1.id
     INNER JOIN groups ON groups.id = students_to_groups.group_id
     
-    LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
+    LEFT JOIN ax_message_file ON m1.id = ax_message_file.message_id
+    LEFT JOIN ax_file ON ax_file.id = ax_message_file.file_id
     
     LEFT JOIN ax_message m2 ON m2.id = m1.reply_to_id
     LEFT JOIN students s2 ON s2.id = m2.sender_user_id
@@ -925,6 +947,7 @@ function select_preptable_messages($page_id) {
     ";
 }
 
+// TODO: ПРОВЕРИТЬ!
 function select_message_with_all_relations($message_id){
   return "SELECT DISTINCT ON (ax_assignment.id) s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
           ax_task.id tid, ax_assignment.id aid, ax_assignment.status_code, m1.id mid, ax_assignment_student.student_user_id sid, 
@@ -940,7 +963,10 @@ function select_message_with_all_relations($message_id){
           LEFT JOIN ax_message m1 ON ax_assignment.id = m1.assignment_id
           LEFT JOIN ax_message m2 ON m1.reply_to_id = m2.id
           LEFT JOIN students s2 ON s2.id = m1.sender_user_id
-          LEFT JOIN ax_message_attachment ON m1.id = ax_message_attachment.message_id
+
+          LEFT JOIN ax_message_file ON m1.id = ax_message_file.message_id
+          LEFT JOIN ax_file ON ax_file.id = ax_message_file.file_id
+
           INNER JOIN students_to_groups ON s1.id = students_to_groups.student_id
           INNER JOIN groups ON groups.id = students_to_groups.group_id
           WHERE m1.id = $message_id;

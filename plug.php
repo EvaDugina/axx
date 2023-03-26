@@ -17,7 +17,8 @@ if (isset($_GET['assignment']) && isset($_GET['file'])) {
   exit;
 }
 
-$result = pg_query($dbconnect, 'select file_name, full_text from ax_solution_file where id = '.$file_id);
+// TODO: ПРОВЕРИТЬ!
+$result = pg_query($dbconnect, "SELECT file_name, full_text from ax_file WHERE ax_file.id = $file_id");
 $result = pg_fetch_all($result);
 if (count($result) > 0)
 {

@@ -60,6 +60,7 @@ if ($last_commit_id) {
   //echo select_last_ax_solution_file_by_commit_id($last_commit_id);
   if ($file_rows) {
     foreach($file_rows as $file_row) {
+      $file_full_text = "";
       if (isset($file_row['download_url'])) {
         $file_path = $file_row['download_url'];
         $file_full_text = file_get_contents($file_path);

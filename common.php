@@ -4,6 +4,7 @@
 require_once("settings.php");
 require_once("dbqueries.php");
 require_once("messageHandler.php");
+require_once("POClasses/User.class.php");
 
 $pageurl = explode('/', $_SERVER['REQUEST_URI']);
 $pageurl = $pageurl[count($pageurl) - 1];
@@ -18,7 +19,7 @@ if ($pageurl != 'login.php') {
   }
   else {
     $query = get_user_name($au->getUserId());
-    $result = pg_query($query);
+    $result = pg_query($dbconnect, $query);
     if ($row = pg_fetch_assoc($result))
       $_SESSION['username'] = $row['first_name'];
       if (isset($row['middle_name']))
@@ -54,7 +55,7 @@ function show_head($page_title = '', $js = array(), $css = array())
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-    <title>536 Акселератор - <?=$page_title?></title>
+    <title><?=$page_title?></title>
 
     <!-- MDB icon -->
     <link rel="icon" href="src/img/mdb-favicon.ico" type="image/x-icon" />
@@ -93,7 +94,7 @@ function show_head($page_title = '', $js = array(), $css = array())
 <?php 
 } 
 
-function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) { 
+function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) { 
 ?>
   <header>
     <!-- Navbar -->
@@ -122,10 +123,15 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) {
             <?php show_breadcrumbs($breadcrumbs);
             if (count($breadcrumbs) < 1) echo '</div>';
 
-            if ($page_title != "Вход в систему"){ 
-              if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
+            if ($page_title != "Вход в систему") { 
+              // [x]: Убрать
+              $au = new auth_ssh();
+              if ($user != null) {
+                $array_notify = $user->getNotifications();
+              } 
+              // [x]: Убрать
+              else if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
                 // Подгрузка уведомления для разных групп пользователей
-                $au = new auth_ssh();
                 $array_notify = array();
 
                 if ($au->isTeacher())
@@ -151,17 +157,23 @@ function show_header($dbconnect, $page_title = '', $breadcrumbs = array()) {
                 <?php $i = 0;
                 if ($array_notify){
                   foreach ($array_notify as $notify) { $i++; 
-                    if($au->isTeacher()){
-                      $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
-                    } else {
-                      $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
-                    }
-                    $result = pg_query($query);
-                    $count_unreaded_messages_by_notify = pg_fetch_assoc($result);?>
+                    if ($user != null)
+                      $count_unreaded_messages_by_notify = $user->getCountUnreadedMessagesByTask($notify['aid']);
+
+                    // [x]: Убрать
+                    else {
+                      if($au->isTeacher()){
+                        $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
+                      } else {
+                        $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
+                      }
+                      $result = pg_query($dbconnect, $query);
+                      $count_unreaded_messages_by_notify = pg_fetch_assoc($result);
+                    }?>
                     <a href="taskchat.php?assignment=<?=$notify['aid']?>"> 
                         <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
                           <div class="d-flex justify-content-between align-items-center">
-                            <div style="margin-right: 10px;">
+                            <div>
                               <?php if ($au->isTeacher()) {
                                 echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
                                 <br><?php echo $notify['title'];

@@ -6,6 +6,31 @@
 	require_once("utilities.php");	
 	
 	
+  if(isset($_POST['changeStatus'])) {
+
+	// changeStatus для одного Assignment
+	if(isset($_POST['assignment_id'])) {
+		$Assignment = new Assignment((int)$_POST['assignment_id']);
+		if ($_POST['changeStatus'] == 'delete')
+			$Assignment->deleteFromDB();
+		else 
+			$Assignment->setStatus((int)$_POST['changeStatus']);
+	} 
+	
+	// changeStatus для всех Assignments
+	else if (isset($_POST['task_id'])) {
+		$Task = new Task((int)$_POST['task_id']);
+		foreach($Task->getAssignments() as $Assignment) {
+			if ($_POST['changeStatus'] == 'delete')
+				$Assignment->deleteFromDB();
+			else 
+				$Assignment->setStatus((int)$_POST['changeStatus']);
+		}
+	}
+    exit;
+  }
+
+  
 	if (!array_key_exists("assignment_id", $_POST) || !array_key_exists("from", $_POST)) {
 		http_response_code(401);
 		die("Неверное обращение");

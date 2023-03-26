@@ -12,8 +12,12 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 }
 
 if (isset($_GET['task_id']) && isset($_GET['page_id'])) {
-  $query = delete_task($_GET['task_id']);
-  $result = pg_query($dbconnect, $query);
+  // TODO: ПРОВЕРИТь!
+  $Task = new Task((int)$_GET['task_id']);
+  $Task->deleteFromDB();
+  // $query = delete_task($_GET['task_id']);
+  // $result = pg_query($dbconnect, $query);
+  
   echo "УДАЛЕНИЕ ЗАДАНИЯ";
   header('Location: preptasks.php?page='.$_GET['page_id']);
   exit();
@@ -52,15 +56,20 @@ switch($action)
             exit;   
         }
 
+        // TODO: ПРОВЕРИТЬ!
         $tasknums = explode(',', @$_REQUEST['tasknum']);
         if (count($tasknums) > 0) {
-            $query = 'insert into ax_task_file (type, task_id, file_name, download_url, full_text) VALUES ';
+            // $query = 'insert into ax_task_file (type, task_id, file_name, download_url, full_text) VALUES ';
 
-            $items = array();
-            foreach($tasknums as $tn)
-                array_push($items, '(0, '.$tn.', \''.$filename.'\', \''.$uploadfile.'\', null)');
-            $query .= implode(',', $items);
-		    $result = pg_query($dbconnect, $query);
+            // $items = array();
+            foreach($tasknums as $tn) {
+                // array_push($items, '(0, '.$tn.', \''.$filename.'\', \''.$uploadfile.'\', null)');
+                $Task = new Task((int)$tn);
+                $File = new File(0, $filename, $uploadfile, null);
+                $Task->addFile($File->id);
+            }
+            // $query .= implode(',', $items);
+		    // $result = pg_query($dbconnect, $query);
         }
 
         /*

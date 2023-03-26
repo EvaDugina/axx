@@ -23,9 +23,9 @@ UPDATE ax_page SET color_theme_id = 0;
 
 GRANT USAGE, SELECT ON SEQUENCE ax_assignment_id_seq TO accelerator;
 
-ALTER TABLE ax_message
-ADD COLUMN visibility integer;
-UPDATE ax_message SET visibility = 0;
+-- (раскомментировать строчку, если колонки нет)
+-- ALTER TABLE ax_message ADD COLUMN visibility integer;
 
+UPDATE ax_message SET visibility = 0;
 UPDATE ax_message SET sender_user_type = 2 WHERE sender_user_type = 1;
 UPDATE ax_message SET sender_user_type = 3 WHERE sender_user_type = 0;
