@@ -108,9 +108,12 @@ if (!$result || pg_num_rows($result) < 1) {
                                 $stud_list = "";
                                 foreach ($Assignment->getStudents() as $i => $Student) {
                                   if ($i != 0)
-                                    $stud_list .= ", ";
+                                  $stud_list .= ", ";
                                   $stud_list .= $Student->getFI();
                                 }
+                                $icon_multiusers = false;
+                                if ($i > 0)
+                                  $icon_multiusers = true;
                                 ?>
                               <form id="form-rejectAssignment-<?=$Assignment->id?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
                                 <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
@@ -122,10 +125,10 @@ if (!$result || pg_num_rows($result) < 1) {
                                   <span class="mx-1">
                                   <?php if($stud_list == "")
                                     echo "~СТУДЕНТЫ ОТСУТСТВУЮТ~";
-                                  else 
-                                    echo $stud_list;
-                                  ?> 
-                                  <?php if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
+                                  else { ?>
+                                    <i class="fas fa-user<?=(($icon_multiusers) ? "s" :"")?>"></i> <?=$stud_list?>
+                                   <?php } 
+                                  if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
                                     echo " (до $Assignment->finish_limit)";
                                   else 
                                     echo " (бессрочно)";?>

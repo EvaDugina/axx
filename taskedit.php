@@ -365,8 +365,8 @@ show_header($dbconnect, 'Редактор заданий',
 
       let unsaved_fields = checkFields();
       if (unsaved_fields != "") {
-        let confirm = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-        if (!confirm)
+        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+        if (!confirm_answer)
           return;
       }
 
@@ -459,33 +459,41 @@ show_header($dbconnect, 'Редактор заданий',
         previous = this.value;
     });
     select.addEventListener('change', function (e) {
-      if (checkFields()) {
-        console.log("SELECT CHANGED!");
-        var value = e.target.value;
-        console.log("OPTION: " + value);;
-        console.log("FORM-StatusTaskFiles: " + form);
-
-        let input = document.createElement("input");
-        input.setAttribute("type", "hidden");
-        input.setAttribute("value", value);
-        input.setAttribute("name", 'task-file-status');
-        console.log(input);
-        
-        form.append(input);
-        form.submit();  
-      } else {
-        select.value = previous;
+      let unsaved_fields = checkFields();
+      if (unsaved_fields != "") {
+        e.preventDefault();
+        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+        if (!confirm_answer) {
+          select.value = previous;
+          return;
+        }
       }
+      console.log("SELECT CHANGED!");
+      var value = e.target.value;
+      console.log("OPTION: " + value);;
+      console.log("FORM-StatusTaskFiles: " + form);
+
+      let input = document.createElement("input");
+      input.setAttribute("type", "hidden");
+      input.setAttribute("value", value);
+      input.setAttribute("name", 'task-file-status');
+      console.log(input);
+      
+      form.append(input);
+      form.submit();  
     });
   });
 
   document.querySelectorAll("#form-deleteTaskFile").forEach(function (form) {
     form.addEventListener("submit", function (e) {
-      if (checkFields()) {
-        form.submit();
-      } else {
+      let unsaved_fields = checkFields();
+      if (unsaved_fields != "") {
         e.preventDefault();
+        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+        if (!confirm_answer)
+          return;
       }
+      form.submit();
     })
   });
 

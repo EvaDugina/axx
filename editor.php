@@ -102,6 +102,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
       $task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => '')
     ); 
 	else 
+	// FIXME: подавать assignment_id
 		show_header($dbconnect, $page_title, 
 			array($page_name => 'studtasks.php?page='.$page_id, 
       $task_title => 'taskchat.php?task='.$task_id.'&page='.$page_id, $page_title => '')

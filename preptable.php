@@ -306,7 +306,8 @@ if ($scripts) echo $scripts; ?>
                     <div class="inner-accordion noselect" style="display: none;">
                       <?php $i=0;
                       if($array_student_tasks) {
-                      foreach ($array_student_tasks as $task) {?>
+                      foreach ($array_student_tasks as $task) {
+                        //FIXME: ИСПРАВИТЬ. ПОДАВАТЬ В taskchat assignment_id?>
                         <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
                           <li class="list-group-item" >
                             <div class="row">

@@ -45,7 +45,7 @@ switch($action)
         $filename = $_FILES['customFile']['name'];
         $filetype = $_FILES['customFile']['type']; // text/plain
         
-        $uploaddir = 'upload/';
+        $uploaddir = 'upload_files/';
         $uploadfile = $uploaddir . basename($_FILES['customFile']['name']);
         
 
