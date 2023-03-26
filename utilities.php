@@ -139,7 +139,7 @@ function showAttachedFilesByMessageId($message_id){
       // Если файл лежит на сервере
       else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
         if (strpos($File->download_url, 'editor.php') === false)
-        $File->download_url = 'download_file.php?file_path=' . $File->download_url . '&with_prefix=';
+        $File->download_url = 'download_file.php?file_path=' . $File->download_url;
       }
       $files[] = ['id' => $File->id, 'file_name' => delete_prefix($File->name), 'download_url' => $File->download_url];
     }
@@ -157,6 +157,7 @@ function showAttachedFilesByMessageId($message_id){
     // }
     return $files;
   }
+  
 
 // Выводит прикрепленные к странице с заданием файлы
 function show_task_files($task_files, $taskedit_page_status = false, $task_id = null, $page_id = null) {?>
@@ -235,13 +236,29 @@ function special_for_taskedit($f, $task_id, $page_id){?>
 <?php }
 
 
+function createDownloadURL($File) {
+  if ($File->download_url == null) {
+    return 'download_file.php?file_id=' . $File->id;
+  }
+
+  // Если файл лежит на сервере
+  else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+    if (strpos($File->download_url, 'editor.php') === false)
+    return 'download_file.php?file_path=' . $File->download_url;
+  }
+
+  // Такого не может быть
+  else {
+    return null;
+  }
+}
 
 function showFiles($Files, $taskedit_page_status = false, $task_id = null, $page_id = null) {
   $count_files = 0;
     foreach ($Files as $File) {
         $count_files++; ?>
         <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 px-3 div-task-file" style="cursor:unset;">
-          <a id="a-file-<?=$File->id?>" href="<?=$File->download_url?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
+          <a id="a-file-<?=$File->id?>" href="<?=createDownloadURL($File)?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
             <?php if ($File->type == 0) {?>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
                 <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z"/>

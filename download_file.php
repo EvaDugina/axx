@@ -26,11 +26,11 @@ if (isset($_GET['download_task_files'])) {
     foreach($Task->getFiles() as $File) {
       // Если текст файла лежит в БД
       if ($File->download_url == null) {
-        $zip->addFromString($File->name, $File->full_text);
+        $zip->addFromString($File->name_without_prefix, $File->full_text);
       }
       // Если файл лежит на сервере
       else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
-        $zip->addFile($File->download_url, $File->name);
+        $zip->addFile($File->download_url, $File->name_without_prefix);
       }
     }
 
@@ -62,15 +62,23 @@ else if (isset($_GET['file_id']) /*|| isset($_GET['task_file_id'])*/) {
 
     if ($File == null) { exit("Файл не существует"); }
 
-    // Создаем файл в папке сервера 'upload_files'
-    $file_dir = 'upload_files/';
-    $file_path = $file_dir . $File->name;
-    file_put_contents($file_path, $File->full_text);
+    if ($File->download_url == null) {
+        // Создаем файл в папке сервера 'upload_files'
+        $file_dir = 'upload_files/';
+        $file_path = $file_dir . $File->name;
+        file_put_contents($file_path, $File->full_text);
+    }
+
+    // Если файл лежит на сервере
+    else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
+        $file_path = $File->download_url;
+    }
+
 
     // Даем пользователю скачать файл и удаляем его с сервера
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename=' . basename($file_path));
+    header('Content-Disposition: attachment; filename=' . $File->name_without_prefix);
     header('Content-Transfer-Encoding: binary');
     header('Content-Length: ' . filesize($file_path));
     
@@ -111,9 +119,8 @@ else if (isset($_GET['file_path'])) {
 
     // Даем пользователю скачать файл
     $file_name = basename($file_path);
-    if (isset($_GET['with_prefix'])) {
-        $file_name = delete_prefix($file_name);
-    }
+    $file_name = deleteRandomPrefix($file_name);
+
     header('Content-Description: File Transfer');
     header('Content-Type: ' . $mime_type);
     header('Content-Disposition: attachment; filename=' . $file_name);
