@@ -1,4 +1,4 @@
-let form_taskEdit  = document.getElementById('form-taskEdit');
+// let form_taskEdit  = document.getElementById('form-taskEdit');
 
 let input_Title = document.getElementById('input-title');
 let error_Title = document.getElementById('error-input-title');
@@ -6,11 +6,11 @@ let error_Title = document.getElementById('error-input-title');
 let textArea_Description = document.getElementById('textArea-description');
 let error_Description = document.getElementById('error-textArea-description');
 
-let inputRadio_individual = document.getElementById('input-deligate-by-individual');
-let inputRadio_group = document.getElementById('input-deligate-by-group');
+// let inputRadio_individual = document.getElementById('input-deligate-by-individual');
+// let inputRadio_group = document.getElementById('input-deligate-by-group');
 
-let button_save = document.getElementById('submit-save');
-let button_delete = document.getElementById('submit-archive');
+// let button_save = document.getElementById('submit-save');
+// let button_delete = document.getElementById('submit-archive');
 
 
 if(input_Title){
@@ -47,31 +47,31 @@ if(textArea_Description){
   });
 }
 
-if(form_taskEdit){
-  form_taskEdit.addEventListener('submit', function (event) {
+// if(form_taskEdit){
+//   form_taskEdit.addEventListener('submit', function (event) {
 
-    // Если нажата кнопка "Сохранить"
-    button_save.addEventListener('click', function (event) {
-      if(!input_Title.value /*|| !textArea_Description.value*/) {
-        // Если поля не заполнены, отображаем соответствующее сообщение об ошибке
-        showError();
-        // Затем предотвращаем стандартное событие отправки формы
-        event.preventDefault();
-      }
+//     // Если нажата кнопка "Сохранить"
+//     button_save.addEventListener('click', function (event) {
+//       if(!input_Title.value /*|| !textArea_Description.value*/) {
+//         // Если поля не заполнены, отображаем соответствующее сообщение об ошибке
+//         showError();
+//         // Затем предотвращаем стандартное событие отправки формы
+//         event.preventDefault();
+//       }
 
-      // Проверка прикреплённых студентов
-      // Если задан finish_limit - должны быть и заданы студенты
-      if(!checkStudentCheckboxes() && (inputRadio_individual.checked || inputRadio_group.checked)) {
-        let error_execution = document.getElementById('error-choose-executor');
-        error_execution.textContent = "Не выбраны пользователи";
-        error_execution.className = 'error-input active';
+//       // Проверка прикреплённых студентов
+//       // Если задан finish_limit - должны быть и заданы студенты
+//       if(!checkStudentCheckboxes() && (inputRadio_individual.checked || inputRadio_group.checked)) {
+//         let error_execution = document.getElementById('error-choose-executor');
+//         error_execution.textContent = "Не выбраны пользователи";
+//         error_execution.className = 'error-input active';
 
-        event.preventDefault();
-      }
-    });
+//         event.preventDefault();
+//       }
+//     });
 
-  });
-}
+//   });
+// }
 
 function showError() {
   if(!input_Title.value) {
@@ -85,56 +85,56 @@ function showError() {
 }
 
 
-// СКРИПТ ИЗМЕНЕНИЯ ЦВЕТА РАДИО-КНОПОК
-inputRadio_individual.addEventListener('click', function (event) {
-  console.log("НАЖАТА КНОПКА: НАЗНАЧИТЬ ИНДИВИДУАЛЬНО");
-  if (inputRadio_group.parentElement.classList.contains('btn-primary')){
-    inputRadio_group.parentElement.classList.remove('btn-primary');
-    inputRadio_group.parentElement.classList.add('btn-outline-default');
-    console.log("ЭТАП 1 ЗАКОНЧЕН");
-  } 
-  if (inputRadio_individual.parentElement.classList.contains('btn-outline-default')){
-    inputRadio_individual.parentElement.classList.remove('btn-outline-default');
-    inputRadio_individual.parentElement.classList.add('btn-primary');
-    console.log("ЭТАП 2 ЗАКОНЧЕН");
-  }
+// // СКРИПТ ИЗМЕНЕНИЯ ЦВЕТА РАДИО-КНОПОК
+// inputRadio_individual.addEventListener('click', function (event) {
+//   console.log("НАЖАТА КНОПКА: НАЗНАЧИТЬ ИНДИВИДУАЛЬНО");
+//   if (inputRadio_group.parentElement.classList.contains('btn-primary')){
+//     inputRadio_group.parentElement.classList.remove('btn-primary');
+//     inputRadio_group.parentElement.classList.add('btn-outline-default');
+//     console.log("ЭТАП 1 ЗАКОНЧЕН");
+//   } 
+//   if (inputRadio_individual.parentElement.classList.contains('btn-outline-default')){
+//     inputRadio_individual.parentElement.classList.remove('btn-outline-default');
+//     inputRadio_individual.parentElement.classList.add('btn-primary');
+//     console.log("ЭТАП 2 ЗАКОНЧЕН");
+//   }
 
-});
-inputRadio_group.addEventListener('click', function (event) {
-  console.log("НАЖАТА КНОПКА: НАЗНАЧИТЬ ПО ГРУППАМ");
-  if (inputRadio_individual.parentElement.classList.contains('btn-primary')){
-    inputRadio_individual.parentElement.classList.remove('btn-primary');
-    inputRadio_individual.parentElement.classList.add('btn-outline-default');
-    console.log("ЭТАП 1 ЗАКОНЧЕН");
-  } 
-  if (inputRadio_group.parentElement.classList.contains('btn-outline-default')){
-    inputRadio_group.parentElement.classList.remove('btn-outline-default');
-    inputRadio_group.parentElement.classList.add('btn-primary');
-    console.log("ЭТАП 2 ЗАКОНЧЕН");
-  }
-});
+// });
+// inputRadio_group.addEventListener('click', function (event) {
+//   console.log("НАЖАТА КНОПКА: НАЗНАЧИТЬ ПО ГРУППАМ");
+//   if (inputRadio_individual.parentElement.classList.contains('btn-primary')){
+//     inputRadio_individual.parentElement.classList.remove('btn-primary');
+//     inputRadio_individual.parentElement.classList.add('btn-outline-default');
+//     console.log("ЭТАП 1 ЗАКОНЧЕН");
+//   } 
+//   if (inputRadio_group.parentElement.classList.contains('btn-outline-default')){
+//     inputRadio_group.parentElement.classList.remove('btn-outline-default');
+//     inputRadio_group.parentElement.classList.add('btn-primary');
+//     console.log("ЭТАП 2 ЗАКОНЧЕН");
+//   }
+// });
 
 
 
-//СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
-function checkStudentCheckboxes(){
-  var accordion = $('.js-accordion');
-  const accordion_student_elems = accordion.find('.form-check');
-  for (let i = 0; i < accordion_student_elems.length; i++) {
-    //console.log(student);
-    if(accordion_student_elems[i].children[0].checked) {
-      console.log('id: ' + accordion_student_elems[i].children[0].id);
-      return true;
-    }
-  }
-  console.log("Ничего не выбрано");
-  return false;
-}
+// //СКРИПТ "НАЗНАЧЕНИЯ ИСПОЛНИТЕЛЕЙ"
+// function checkStudentCheckboxes(){
+//   var accordion = $('.js-accordion');
+//   const accordion_student_elems = accordion.find('.form-check');
+//   for (let i = 0; i < accordion_student_elems.length; i++) {
+//     //console.log(student);
+//     if(accordion_student_elems[i].children[0].checked) {
+//       console.log('id: ' + accordion_student_elems[i].children[0].id);
+//       return true;
+//     }
+//   }
+//   console.log("Ничего не выбрано");
+//   return false;
+// }
 
-// Проставить автоматические галочки на студентов
-function markStudentElements(group_id){
+// // Проставить автоматические галочки на студентов
+// function markStudentElements(group_id){
   
-}
+// }
 
 
 // СКРИПТ ВКЛЮЧЕНИЯ / ОТКЛЮЧЕНИЯ ПОЛЕЙ КОДА ОШИБКИ И ЧЕГО_ТО ТАКОГО. НЕ ПОНЯЛ ДО КОНЦА
@@ -162,36 +162,36 @@ if(task_select){
 
 
 
-// ACCORDION SCRIPT 
+// // ACCORDION SCRIPT 
 
-let array_accordion_groups_inputs = document.getElementsByClassName("input-group");
-let array_accordion_students_inputs = document.getElementsByClassName("input-student");
+// let array_accordion_groups_inputs = document.getElementsByClassName("input-group");
+// let array_accordion_students_inputs = document.getElementsByClassName("input-student");
 
-//console.log(array_accordion_groups_inputs);
+// //console.log(array_accordion_groups_inputs);
 
-for(let i = 0; i < array_accordion_groups_inputs.length; i ++) {
-  // console.log(array_accordion_groups_inputs[i]);
-  array_accordion_groups_inputs[i].addEventListener('change', function() {
-    if (this.checked) {
-      // console.log("Checkbox group is checked..");
+// for(let i = 0; i < array_accordion_groups_inputs.length; i ++) {
+//   // console.log(array_accordion_groups_inputs[i]);
+//   array_accordion_groups_inputs[i].addEventListener('change', function() {
+//     if (this.checked) {
+//       // console.log("Checkbox group is checked..");
 
-    } else {
+//     } else {
 
-    }
-  });
-}
+//     }
+//   });
+// }
 
-for(let i = 0; i < array_accordion_students_inputs.length; i ++) {
-  // console.log(array_accordion_students_inputs[i]);
-  array_accordion_students_inputs[i].addEventListener('change', function() {
-    if (this.checked) {
-      // console.log("Checkbox group is checked..");
-    } else {
+// for(let i = 0; i < array_accordion_students_inputs.length; i ++) {
+//   // console.log(array_accordion_students_inputs[i]);
+//   array_accordion_students_inputs[i].addEventListener('change', function() {
+//     if (this.checked) {
+//       // console.log("Checkbox group is checked..");
+//     } else {
       
 
-    }
-  });
-}
+//     }
+//   });
+// }
 
 
 

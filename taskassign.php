@@ -479,8 +479,8 @@ $Page = new Page((int)getPageByTask($Task->id));
 				<b>Файлы, приложенные к заданию:</b> 
 				<br>
 				<?php 
-				  $task_files = getTaskFiles($dbconnect, $Task->id);
-				  show_task_files($task_files); 
+				  // $task_files = getTaskFiles($dbconnect, $Task->id);
+				  showFiles($Task->getFiles()); 
 				?>
 			  </p>
 			</div>
@@ -515,15 +515,23 @@ $Page = new Page((int)getPageByTask($Task->id));
   <script type="text/javascript">
 
     $('#checks-save').click(function () {
-      window.onunload = null;
+      window.onbeforeunload = null;
     })
+
 
     if (<?=$isNewAssignment?>) {
       // Автоматически удаляем Assignment
-      window.onunload = function() {
-        ajaxChangeStatus('delete');
+      window.onbeforeunload = function() {
+        deleteAssignment();
+        return "";
+        // ajaxChangeStatus('delete');
       };
     }
+
+    async function deleteAssignment() {
+      const res = await ajaxChangeStatus('delete');
+    }
+
 
     function confirmRejectAssignment(form_id) {
       $('#dialogMark').modal('show');

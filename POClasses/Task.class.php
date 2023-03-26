@@ -313,7 +313,7 @@ function getFilesByTask($task_id) {
   return $files;
 }
 
-function getPageBytask($task_id) {
+function getPageByTask($task_id) {
   global $dbconnect;
 
   $query = queryGetPageByTask($task_id);

@@ -115,6 +115,24 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function setFinishLimit($finish_limit) {
+    global $dbconnect;
+
+    $this->finish_limit = $finish_limit;
+
+    $query = "UPDATE ax_assignment SET finish_limit = to_timestamp('$this->finish_limit 23:59:59', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function setStartLimit($start_limit) {
+    global $dbconnect;
+
+    $this->start_limit = $start_limit;
+
+    $query = "UPDATE ax_assignment SET start_limit = to_timestamp('$this->start_limit 00:00:00', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
 // -- END SETTERS
 
 

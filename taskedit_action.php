@@ -162,7 +162,6 @@ if (isset($_POST['flag-rejecAssignment']) && isset($_POST['task_id'], $_POST['st
 }
 */
 if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action'] == 'reject') && ($_POST['assignment_id'] != 0)) {
-  // TODO: Проверить!
   $Asssignment = new Assignment((int)$_POST['assignment_id']);
   // $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
   $Asssignment->deleteFromDB();
@@ -183,75 +182,75 @@ if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
   exit;
 }
 
-$assignments_id = array();
-// Изменение списка студентов, прикреплённых к заданию
-if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) && !empty($_POST['checkboxStudents'])) {
-  // Всё нормально, просто прикрепляем новых студентов
-  $checked_elems = $_POST['checkboxStudents'];
-  $flag_checked_group = false;
-  $checked_group_id = -10;
-  foreach ($checked_elems as $id => $checked_elem) {
-    $elem_id = (int) substr($checked_elem, 1, strlen($checked_elem) - 1);
-    if ($checked_elem[0] == 's') {
-      // Обработка выделенного checkbox-студента
-      $student_id = $elem_id;
-      //      echo "<br>STUDENT_ID: ".$student_id;
-      //      echo "<br>";
+// $assignments_id = array();
+// // Изменение списка студентов, прикреплённых к заданию
+// if (isset($_POST['task-status-deligate']) && isset($_POST['checkboxStudents']) && !empty($_POST['checkboxStudents'])) {
+//   // Всё нормально, просто прикрепляем новых студентов
+//   $checked_elems = $_POST['checkboxStudents'];
+//   $flag_checked_group = false;
+//   $checked_group_id = -10;
+//   foreach ($checked_elems as $id => $checked_elem) {
+//     $elem_id = (int) substr($checked_elem, 1, strlen($checked_elem) - 1);
+//     if ($checked_elem[0] == 's') {
+//       // Обработка выделенного checkbox-студента
+//       $student_id = $elem_id;
+//       //      echo "<br>STUDENT_ID: ".$student_id;
+//       //      echo "<br>";
 
-      $query = select_group_id_by_student_id($student_id);
-      $result = pg_query($dbconnect, $query);
-      $group_id = pg_fetch_assoc($result)['group_id'];
+//       $query = select_group_id_by_student_id($student_id);
+//       $result = pg_query($dbconnect, $query);
+//       $group_id = pg_fetch_assoc($result)['group_id'];
 
-      //      echo "STUDENT_GROUP_ID: ".$group_id;
-      //      echo "<br>";
+//       //      echo "STUDENT_GROUP_ID: ".$group_id;
+//       //      echo "<br>";
 
-      // Проспускаем, если его группа уже добавлена целиком
-      if ($flag_checked_group && $group_id == $checked_group_id) {
-        echo "CONTINUE";
-        echo "<br>";
-        continue;
-      }
+//       // Проспускаем, если его группа уже добавлена целиком
+//       if ($flag_checked_group && $group_id == $checked_group_id) {
+//         echo "CONTINUE";
+//         echo "<br>";
+//         continue;
+//       }
 
-      // TODO: ПРОВЕРИТЬ
-      array_push($assignments_id, add_assignment_to_students($student_id, $Task->id));
+//       array_push($assignments_id, add_assignment_to_students($student_id, $Task->id));
 
-      add_group_to_ax_page_group($page_id, $group_id);
-    } else if ($checked_elem[0] == 'g') {
-      // Обработка выделенного checkbox-группы
-      $group_id = $elem_id;
-      //        echo "<br>GROUP_ID: ".$group_id;
-      //        echo "<br>";
+//       add_group_to_ax_page_group($page_id, $group_id);
+//     } else if ($checked_elem[0] == 'g') {
+//       // Обработка выделенного checkbox-группы
+//       $group_id = $elem_id;
+//       //        echo "<br>GROUP_ID: ".$group_id;
+//       //        echo "<br>";
 
-      add_group_to_ax_page_group($page_id, $group_id);
+//       add_group_to_ax_page_group($page_id, $group_id);
 
-      $query = select_students_id_by_group($group_id);
-      $result = pg_query($dbconnect, $query);
-      $students = pg_fetch_all($result);
-      foreach ($students as $student) {
-        // TODO: ПРОВЕРИТЬ
-        array_push($assignments_id, add_assignment_to_students($student['student_id'], $Task->id));
-      }
+//       $query = select_students_id_by_group($group_id);
+//       $result = pg_query($dbconnect, $query);
+//       $students = pg_fetch_all($result);
+//       foreach ($students as $student) {
+//         array_push($assignments_id, add_assignment_to_students($student['student_id'], $Task->id));
+//       }
 
-      $flag_checked_group = true;
-      $checked_group_id = $group_id;
-    }
+//       $flag_checked_group = true;
+//       $checked_group_id = $group_id;
+//     }
+//   }
+// }
+
+if (isset($_POST['action']) && $_POST['action'] == "editFinishLimit") {
+  if(isset($_POST['task_id'])) {
+    $Task = new Task((int)$_POST['task_id']);
+  } else {
+    header('Location: index.php');
+    exit;
   }
-}
 
-if (isset($_POST['finish-limit']) && $_POST['finish-limit'] != "") {
-  // Должны быть выбраны студенты!
-  //  echo "<br>FINISH_LIMIT: ".$_POST['finish-limit'];
-  //  echo "<br>";
+  // $timestamp = conver_calendar_to_timestamp($_POST['finish-limit']);
 
-  $timestamp = conver_calendar_to_timestamp($_POST['finish-limit']);
-  //  echo "TIMESTAMP: ".$timestamp;
-  //  echo "<br>";
-
-  foreach ($assignments_id as $assignment_id) {
-    $query = update_ax_assignment_finish_limit($assignment_id, $timestamp);
-    $result = pg_query($dbconnect, $query);
+  foreach ($Task->getAssignments() as $Asssignment) {
+    $Asssignment->setFinishLimit($_POST['finish_limit']);
   }
-} else if (count($assignments_id) > 0) {
+
+  // header('Location: preptasks.php?page=' . getPageByTask($Task->id));
+  exit();
 }
 
 header('Location: preptasks.php?page=' . $page_id);

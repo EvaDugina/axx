@@ -4,7 +4,6 @@ require_once("common.php");
 require_once("dbqueries.php");
 
 
-// TODO: ПРОВЕРИТЬ!
 $Task = new Task((int)$_POST['task_id']);
 
 if($_POST['type'] == 1){
@@ -44,7 +43,6 @@ if($_POST['type'] == 1){
 
 }
 
-// TODO: ПРОВЕРИТЬ!
 $Task->type = $_POST['type'];
 $Task->title = $_POST['title'];
 $Task->description = $_POST['description'];

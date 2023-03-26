@@ -29,7 +29,7 @@ if (isset($_GET['task'])){
   $Task = new Task((int)$_REQUEST['task']);
 
   $user_id = $au->getUserId();
-  $Page = new Page((int)getPageBytask($Task->id));
+  $Page = new Page((int)getPageByTask($Task->id));
 
   $TestFiles = $Task->getFilesByType(2);
   $TestOfTestFiles = $Task->getFilesByType(3);
@@ -169,69 +169,73 @@ show_header($dbconnect, 'Редактор заданий',
         </div>
 
         <div class="col-4">
-        <form class="p-3 border bg-light" style="max-height: calc(100vh - 80px);"
-        id="form-taskEdit" name="form-taskEdit" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-          <input type="hidden" name="task_id" value="<?=$Task->id?>"></input>
-          <input type="hidden" name="page_id" value="<?=$Page->id?>"></input>
-          <input type="hidden" name="flag-editDeligation" value="true"></input>
-          <!-- <input type="hidden" name="assignment_id" value="<?=$assignment_id?>"></input> -->
+        <div class="p-3 border bg-light" style="max-height: calc(100vh - 80px);">
           
             <div class="pt-1 pb-1">
-              <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;НАЗНАЧИТЬ ИСПОЛНИТЕЛЕЙ</small></label>
+              <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;РЕДАКТОР ВСЕХ НАЗНАЧЕНИЙ</small></label>
             </div>
 
-            <section class="w-100 py-2 d-flex justify-content-center">
-              <div class="form-outline datetimepicker w-100" style="width: 22rem">
-                <input id="datetimepickerExample" type="date" class="form-control active" name="finish-limit" 
+            <section class="w-100 py-2 d-flex">
+              <div class="form-outline datetimepicker me-3" style="width: 65%;">
+                <input id="input-finishLimit" type="date" class="form-control active" name="finish-limit" 
                 <?php /*if()*/?>>
-                <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Срок выполения</label>
+                <label for="input-finishLimit" class="form-label" style="margin-left: 0px;">Срок выполения всех назначений</label>
                 <div class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
                   <div class="form-notch-trailing"></div>
                 </div>
               </div>
+
+              <div class="d-flex align-items-center">
+                <button onclick="setFinishLimit()" type="submit" class="btn btn-outline-primary me-1">Применить</button>
+                <div id="spinner-finishLimit" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div> 
+
             </section>
 
             <?php
             // Получение студентов, прикреплённызх к заданию
-            $query = select_students_by_group_by_page_by_task($Page->id, $Task->id);
-            $result = pg_query($dbconnect, $query);
-            $students = pg_fetch_all_assoc($result);  ?>
+            // $query = select_students_by_group_by_page_by_task($Page->id, $Task->id);
+            // $result = pg_query($dbconnect, $query);
+            // $students = pg_fetch_all_assoc($result);  ?>
 
-            <section class="w-100 d-flex border" style="height: 50%;">
+            <!-- <section class="w-100 d-flex border" style="height: 50%;">
               <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
                 <div id="main-accordion-students" class="accordion accordion-flush" style="overflow-y: auto; height: 100%; width: 100%;">
 
                   <?php
-                  $now_group_id = -1;
-                  $count_chosen_students = 0;
-                  if ($students){
-                    foreach ($students as $key => $student) {
-                      if($student['group_id'] != $now_group_id) {
-                        $count_chosen_students=0;
+                  // $now_group_id = -1;
+                  // $count_chosen_students = 0;
+                  // if ($students){
+                  //   foreach ($students as $key => $student) {
+                  //     if($student['group_id'] != $now_group_id) {
+                  //       $count_chosen_students=0;
 
-                        $query = pg_query($dbconnect, select_group_students_count($student['group_id']));
-                        $group_students_count = pg_fetch_assoc($query)['count'];
+                  //       $query = pg_query($dbconnect, select_group_students_count($student['group_id']));
+                  //       $group_students_count = pg_fetch_assoc($query)['count'];
 
-                        // Обработка полностью выбранных групп
-                        $flag_full_group = true;
-                        if ($Task->id != -1) {
-                          for($i=$key; $i < count($students); $i++){
-                            if($students[$i]['group_id'] != $student['group_id'])
-                              break;
-                            if($students[$i]['task_id'] != $Task->id)
-                              $flag_full_group = false;
-                            else $count_chosen_students++;
-                          }
-                        } else
-                          $flag_full_group = false;
-                        if($key > 0) { ?>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <?php }?>
+                  //       // Обработка полностью выбранных групп
+                  //       $flag_full_group = true;
+                  //       if ($Task->id != -1) {
+                  //         for($i=$key; $i < count($students); $i++){
+                  //           if($students[$i]['group_id'] != $student['group_id'])
+                  //             break;
+                  //           if($students[$i]['task_id'] != $Task->id)
+                  //             $flag_full_group = false;
+                  //           else $count_chosen_students++;
+                  //         }
+                  //       } else
+                  //         $flag_full_group = false;
+                  //       if($key > 0) { ?>
+                  //             </div>
+                  //           </div>
+                  //         </div>
+                  //       </div>
+                  //       <?php 
+                      //}?>
                         <div class="accordion-item">
                           <div id="accordion-gheader-<?=$student['group_id']?>" class="accordion-header">
                             <button class="accordion-button" type="button"
@@ -252,31 +256,34 @@ show_header($dbconnect, 'Редактор заданий',
                           data-mdb-parent="#main-accordion-students">
                             <div class="accordion-body">
                               <div id="group-accordion-students" class="accordion accordion-flush">
-                      <?php }?>
+                      <?php 
+                    // }?>
                       <div id="item-from-group-<?=$student['group_id']?>" class="accordion-item">
                         <div id="accordion-sheader-<?=$student['id']?>" class="accordion-header">
                           <div d-flex justify-content-between" type="button">
                             <div class="form-check ms-3">
                               <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input input-student" 
                               type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
-                              <?php if($Task->id != -1 && isset($student['task_id']) && $student['task_id'] == $Task->id) echo 'checked';?>>
+                              <?php 
+                              // if($Task->id != -1 && isset($student['task_id']) && $student['task_id'] == $Task->id) echo 'checked';?>>
                               <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
                             </div>
                           </div>
                         </div>
                       </div>
                       <?php 
-                      $now_group_id = $student['group_id'];
-                    }
-                  } else {?>
+                  //     $now_group_id = $student['group_id'];
+                  //   }
+                  // } else {?>
                     <strong>СТУДЕНТЫ ОТСУТСТВУЮТ</strong>
-                  <?php }?>
+                  <?php 
+                // }?>
 
                 </div>
               </div>
-            </section>
+            </section> -->
 
-            <div class="p-1 border bg-light">
+            <!-- <div class="p-1 border bg-light">
               <div class="d-flex" data-toggle="buttons">
                 <label class="btn btn-outline-default py-2 px-4 me-2">
                   <input id="input-deligate-by-individual" type="radio" name="task-status-deligate" style="display: none;" value="by-individual">
@@ -287,10 +294,10 @@ show_header($dbconnect, 'Редактор заданий',
                     <i class="fas fa-users fa-lg"></i>&nbsp; Назначить <br> группе
                 </label>  
               </div>
-            </div>
+            </div> -->
 
-            <span id="error-choose-executor" class="error-input" aria-live="polite"></span>
-          </form>
+            <!-- <span id="error-choose-executor" class="error-input" aria-live="polite"></span> -->
+          </div>
 
           <div class="p-3 border bg-light">
 
@@ -326,6 +333,14 @@ show_header($dbconnect, 'Редактор заданий',
   <script type="text/javascript" src="js/taskedit.js"></script>
   
   <script type="text/javascript">
+
+    window.onbeforeunload = function () {
+      let unsaved_fields = checkFields();
+      if (unsaved_fields != "") {
+        return "Сохранить изменения?";
+      }
+    };
+
     let form_addFiles  = document.getElementById('form-addTaskFiles');
     var added_files = <?=json_encode($Task->getFiles())?>;
 
@@ -346,9 +361,15 @@ show_header($dbconnect, 'Редактор заданий',
         return;
       }
 
-      let confirm = checkFields();
-      if (confirm)
-        form_addFiles.submit();
+      let unsaved_fields = checkFields();
+      if (unsaved_fields != "") {
+        let confirm = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+        if (!confirm)
+          return;
+      }
+
+      window.onbeforeunload = null;
+      form_addFiles.submit();
       
       // Реализовать через ajax, чтобы быстрее было
       // var formData = new FormData();
@@ -409,9 +430,9 @@ show_header($dbconnect, 'Редактор заданий',
     }
 
     if (flag) {
-      return confirm("Изменения в полях: " + name_unsaveFields + " - остались не сохранёнными. Продолжить без сохранения?");
+      return name_unsaveFields;
     }
-    return true;
+    return "";
   }
 
 
@@ -466,6 +487,36 @@ show_header($dbconnect, 'Редактор заданий',
     })
   });
 
+
+  function setFinishLimit() {
+    var formData = new FormData();
+
+    let finish_limit = $('#input-finishLimit').val();
+
+    if(finish_limit == "")
+      return;
+
+    formData.append('task_id', <?=$Task->id?>);
+    formData.append('finish_limit', finish_limit);
+    formData.append('action', 'editFinishLimit');
+
+    $('#spinner-finishLimit').removeClass("d-none");
+
+    $.ajax({
+      type: "POST",
+      url: 'taskedit_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+      },
+      complete: function() {
+        $('#spinner-finishLimit').addClass("d-none");
+      }
+    });
+  }
 
   function saveFields() {
     var formData = new FormData();
