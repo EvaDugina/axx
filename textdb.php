@@ -114,7 +114,7 @@
 	
 	// выбираем файл по названию и номеру коммита
   // TODO: Проверить!
-	$result = pg_query($dbconnect, "SELECT id, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+	$result = pg_query($dbconnect, "SELECT ax_file.id, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
 	$result = pg_fetch_all($result);
     foreach($result as $item) {
       if($item['id'] == $file_id) {
@@ -129,7 +129,7 @@
 	  
     $id = 0;
     // TODO: Проверить!
-    $result = pg_query($dbconnect, "SELECT id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+    $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
     $result = pg_fetch_assoc($result);
 	if (count($result) > 0)
 	  $id = $result['id'];
@@ -199,7 +199,7 @@
 	
 	// тут нужно монотонное возрастание id-шников файлов
   // TODO: Проверить!
-  $result = pg_query($dbconnect, "SELECT id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+  $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
 	$result = pg_fetch_assoc($result);
 	if ($result === false) {
       echo "Не удалось найти удаляемый файл";
@@ -242,7 +242,7 @@
 	  $new_id = $result[0]['id'];	
 			
     // TODO: Проверить!
-    $pg_query = pg_query($dbconnect, "SELECT * from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
+    $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
     while ($file = pg_fetch_assoc($pg_query)) {
       $File = new File((int)$file['type'], $file['file_name'], $file['download_url'], $file['full_text']);
       $Commit = new Commit((int)$new_id);
@@ -264,6 +264,7 @@
       // TODO: Проверить!
       $Message = new Message((int)$msg_id);
       $File = new File(null, 'проверить', "editor.php?assignment=$assignment&commit=$new_id", null);
+	  $Message->addFile($File->id);
 	    // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
 			// 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
 		pg_query($dbconnect, "update ax_assignment set status_code = 5, status_text = 'ожидает проверки' where id = $assignment");
@@ -277,6 +278,7 @@
       // TODO: Проверить!
       $Message = new Message((int)$msg_id);
       $File = new File(null, 'проверенная версия', "editor.php?assignment=$assignment&commit=$new_id", null);
+	  $Message->addFile($File->id);
 	    // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
 			// 				 "     values ($msg_id, 'проверенная версия', 'editor.php?assignment=$assignment&commit=$new_id', null)");
 		pg_query($dbconnect, "update ax_assignment set status_code = 2, status_text = 'проверено' where id = $assignment");
@@ -346,7 +348,7 @@
       mkdir($folder, 0777, true);
 
 	// получение файла проверки
-	$result = pg_query($dbconnect,  "select * from ax_task_file f inner join ax_assignment a on f.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
+	$result = pg_query($dbconnect,  "SELECT ax_file.* from ax_file f INNER JOIN ax_task_file ON ax_task_file.file_id = ax_file.id inner join ax_assignment a on ax_task_file.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
 	$result = pg_fetch_assoc($result);
 	if (!$result && array_key_exists('autotests', $checks['tools']))
 	  $checks['tools']['autotests']['enabled'] = false;
@@ -363,7 +365,8 @@
 	fwrite($myfile, $checks);
 	fclose($myfile);
 
-	$result = pg_query($dbconnect,  "select * from ax_solution_file where commit_id = ".$commit_id);
+	// $result = pg_query($dbconnect,  "SELECT * from ax_solution_file where commit_id = ".$commit_id);
+	$result = pg_query($dbconnect, "SELECT * FROM ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id WHERE ax_commit_file.commit_id = $commit_id");
 	$files = array();
 	while ($row = pg_fetch_assoc($result)) {
 	  $myfile = fopen($folder.'/'.$row['file_name'], "w") or die("Unable to open file!");

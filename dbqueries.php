@@ -344,9 +344,12 @@ function select_prev_students($assignment_id) {
 
 // - получение файлов по коммитам аналогичного задания
 function select_prev_files($assignment_id) {
-  return "SELECT id, assignment_id, commit_id, file_name, full_text 
-            from ax_solution_file 
-           where assignment_id in (select a.id from ax_assignment sa inner join ax_assignment a on sa.task_id = a.task_id and sa.id != a.id where sa.id = $assignment_id) 
+  return "SELECT ax_file.id, ax_solution_commit.assignment_id, ax_solution_commit.id as commit_id, 
+          ax_file.file_name, ax_file.full_text 
+          from ax_solution_commit 
+          INNER JOIN ax_commit_file ON ax_commit_file.commit_id = ax_solution_commit.id  
+          INNER JOIN ax_file ON ax_file.id = ax_commit_file.file_id
+           where ax_solution_commit.assignment_id in (select a.id from ax_assignment sa inner join ax_assignment a on sa.task_id = a.task_id and sa.id != a.id where sa.id = $assignment_id) 
              and commit_id in (select max(id) from ax_solution_commit group by assignment_id)";
 }
 
