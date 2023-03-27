@@ -136,33 +136,48 @@ class Page {
 
 // WORK WITH TASKS
 
-public function addTask($task_id) {
-  $Task = new Task((int)$task_id);
-  array_push($this->Tasks, $Task);
-}
-public function deleteTask($task_id) {
-  $index = $this->findTaskById($task_id);
-  if ($index != -1) {
-    $this->Tasks[$index]->deleteFromDB();
-    unset($this->Tasks[$index]);
+  public function addTask($task_id) {
+    $Task = new Task((int)$task_id);
+    array_push($this->Tasks, $Task);
   }
-}
-private function findTaskById($task_id) {
-  $index = 0;
-  foreach($this->Tasks as $Task) {
-    if ($Task->id == $task_id)
-      return $index;
-    $index++;
+  public function deleteTask($task_id) {
+    $index = $this->findTaskById($task_id);
+    if ($index != -1) {
+      $this->Tasks[$index]->deleteFromDB();
+      unset($this->Tasks[$index]);
+    }
   }
-  return -1;
-}
-public function getTaskById($task_id) {
-  foreach($this->Tasks as $Task) {
-    if ($Task->id == $task_id)
-      return $Task;
+  private function findTaskById($task_id) {
+    $index = 0;
+    foreach($this->Tasks as $Task) {
+      if ($Task->id == $task_id)
+        return $index;
+      $index++;
+    }
+    return -1;
   }
-  return null;
-}
+  public function getTaskById($task_id) {
+    foreach($this->Tasks as $Task) {
+      if ($Task->id == $task_id)
+        return $Task;
+    }
+    return null;
+  }
+  public function hasUncheckedTasks($student_id) {
+    foreach($this->Tasks as $Task) {
+      if ($Task->hasUncheckedAssignments($student_id))
+        return true;
+    }
+    return false;
+  }
+  public function getNotArchivedTasks() {
+    $return_Tasks = array();
+    foreach($this->Tasks as $Task) {
+      if ($Task->status == 1)
+        array_push($return_Tasks, $Task);
+    }
+    return $return_Tasks;
+  }
 
 // -- END WORK WITH TASKS
 
@@ -170,68 +185,68 @@ public function getTaskById($task_id) {
 
 // WORK WITH GROUPS
 
-public function addGroup($group_id) {
-  $Group = new Group((int)$group_id);
-  $this->pushGroupToPageDB($group_id);
-  array_push($this->Groups, $Group);
-}
-public function deleteGroup($group_id) {
-  $index = $this->findGroupById($group_id);
-  if ($index != -1) {
-    $this->deleteGroupFromPageDB($group_id);
-    unset($this->Groups[$index]);
+  public function addGroup($group_id) {
+    $Group = new Group((int)$group_id);
+    $this->pushGroupToPageDB($group_id);
+    array_push($this->Groups, $Group);
   }
-}
-private function findGroupById($group_id) {
-  $index = 0;
-  foreach($this->Groups as $Group) {
-    if ($Group->id == $group_id)
-      return $index;
-    $index++;
-  }
-  return -1;
-}
-public function getGroupById($group_id) {
-  foreach($this->Groups as $Group) {
-    if ($Group->id == $group_id)
-      return $Group;
-  }
-  return null;
-}
-
-public function pushGroupToPageDB($group_id) {
-  global $dbconnect;
-
-  $query = "INSERT INTO ax_page_group(page_id, group_id)
-            VALUES ($this->id, $group_id)";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-public function deleteGroupFromPageDB($group_id) {
-  global $dbconnect;
-
-  $query = "DELETE FROM ax_page_group WHERE group_id = $group_id";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-public function synchGroupsToPageDB() {
-  global $dbconnect;
-
-  $this->deleteGroupsFromPageDB();
-
-  $query = "";
-    if (!empty($this->Groups)) {
-      foreach($this->Groups as $Group) {
-        $query .= "INSERT INTO ax_page_group (page_id, group_id) VALUES ($this->id, $Group->id);";
-      }
+  public function deleteGroup($group_id) {
+    $index = $this->findGroupById($group_id);
+    if ($index != -1) {
+      $this->deleteGroupFromPageDB($group_id);
+      unset($this->Groups[$index]);
     }
-    
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-public function deleteGroupsFromPageDB() {
-  global $dbconnect;
+  }
+  private function findGroupById($group_id) {
+    $index = 0;
+    foreach($this->Groups as $Group) {
+      if ($Group->id == $group_id)
+        return $index;
+      $index++;
+    }
+    return -1;
+  }
+  public function getGroupById($group_id) {
+    foreach($this->Groups as $Group) {
+      if ($Group->id == $group_id)
+        return $Group;
+    }
+    return null;
+  }
 
-  $query = "DELETE FROM ax_page_group WHERE page_id = $this->id";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
+  public function pushGroupToPageDB($group_id) {
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_page_group(page_id, group_id)
+              VALUES ($this->id, $group_id)";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteGroupFromPageDB($group_id) {
+    global $dbconnect;
+
+    $query = "DELETE FROM ax_page_group WHERE group_id = $group_id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function synchGroupsToPageDB() {
+    global $dbconnect;
+
+    $this->deleteGroupsFromPageDB();
+
+    $query = "";
+      if (!empty($this->Groups)) {
+        foreach($this->Groups as $Group) {
+          $query .= "INSERT INTO ax_page_group (page_id, group_id) VALUES ($this->id, $Group->id);";
+        }
+      }
+      
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteGroupsFromPageDB() {
+    global $dbconnect;
+
+    $query = "DELETE FROM ax_page_group WHERE page_id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
 
 // -- END WORK WITH GROUPS
 
@@ -388,7 +403,9 @@ function queryGetTasksByPage($page_id) {
 } 
 
 function queryGetGroupsByPage($page_id) {
-  return "SELECT ax_page_group.group_id as id FROM ax_page_group WHERE page_id = $page_id ORDER BY group_id";
+  return "SELECT ax_page_group.group_id as id FROM ax_page_group 
+          INNER JOIN groups ON groups.id = ax_page_group.group_id 
+          WHERE page_id = $page_id ORDER BY groups.name";
 } 
 
 function queryGetTeachersByPage($page_id) {

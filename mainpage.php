@@ -127,9 +127,8 @@ function full_name($discipline_id, $dbconnect) {
                       <ul class="dropdown-menu dropdown-menu-end dropup" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                         <?php if ($notify_count > 0 && $array_notify) { $i=0;
                           foreach ($array_notify as $notify) { $i++; ?>
-                            <li class="dropdown-item bg-primary" <?php if($i != $notify_count) echo 'style="border-bottom: 1px solid;"'?>> 
-                            <?php //FIXME: Исправить. Посылать assignment_id?>
-                            <a href="taskchat.php?task=<?php echo $notify['id']?>&page=<?php echo $notify['page_id'];?>&id_student=<?php echo $notify['student_user_id'];?>"> 
+                            <li class="dropdown-item bg-primary" <?php if($i != $notify_count) echo 'style="border-bottom: 1px solid;"'?>>
+                            <a href="taskchat.php?assignment=<?=$notify['assignment_id'];?>"> 
                             <span class="text-white" style="border-bottom: 1px solid;"><?=$notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")"?></span>
                             <br><span class="text-white"><?=$notify['title']?></span>
                             </a>

@@ -8,9 +8,10 @@ require_once("utilities.php");
 require_once("resultparse.php");
 
 $assignment_id = 0;
-if ( array_key_exists('assignment', $_GET))
+if ( array_key_exists('assignment', $_GET)) {
   $assignment_id = $_GET['assignment'];
-else {
+  // $Assignment = new Assignment((int)$assignment_id);
+} else {
   //echo "Некорректное обращение";
   //http_response_code(400);
   header('Location: index.php');
@@ -97,15 +98,15 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <body>
 	<?php 
 	if ($au->isTeacher()) 
+  // XXX: ПРОВЕРИТЬ
 		show_header($dbconnect, $page_title, 
 			array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
       $task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => '')
     ); 
-	else 
-	// FIXME: подавать assignment_id
+	else
 		show_header($dbconnect, $page_title, 
 			array($page_name => 'studtasks.php?page='.$page_id, 
-      $task_title => 'taskchat.php?task='.$task_id.'&page='.$page_id, $page_title => '')
+      $task_title => "taskchat.php?assignment=$assignment_id")
     ); 
 	?>
 

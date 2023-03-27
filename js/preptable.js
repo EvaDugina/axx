@@ -117,6 +117,8 @@ function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_ma
     if (answer_type == 2) { // mark
         //const dialog = document.getElementById('dialogMark');
         document.getElementById('dialogMarkMessageId').value = message_id;
+        if (max_mark == null)
+          max_mark = 5;  
         document.getElementById('dialogMarkMarkInput').max = max_mark;
         document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
         $('#dialogMark').modal('show');
@@ -128,7 +130,7 @@ function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_ma
     }
 }
 
-function popoverAssignment($task_id, $student_id){
+function unblockAssignment($assignment_id){
   
 }
 

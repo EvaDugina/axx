@@ -237,7 +237,7 @@ function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_i
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
         INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
         INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = '$teacher_id' AND ax_task.id = '$task_id'
+        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $teacher_id AND ax_task.id = $task_id
         AND ax_message.sender_user_type != 2 AND ax_message.type != 3;
     ";
 }
@@ -249,7 +249,7 @@ function select_count_unreaded_messages_by_task_for_student($student_id, $task_i
         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
         INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
         INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = '$student_id' AND ax_task.id = '$task_id'
+        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $student_id AND ax_task.id = $task_id
         AND ax_message.sender_user_type != 3;
     ";
 }

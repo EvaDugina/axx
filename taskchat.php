@@ -4,7 +4,7 @@ require_once("dbqueries.php");
 require_once("settings.php");
 require_once("utilities.php");
 
-// FIXME: Всё исправить
+// TODO: Переписать c использованием POClasses
 // Обработка некорректного перехода между страницами
 if (!(isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) && !isset($_REQUEST['assignment'])) {
 	header('Location:index.php');
@@ -12,6 +12,10 @@ if (!(isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) && !
 }
 
 $user_id = $_SESSION['hash'];
+
+if (isset($_REQUEST['assignment'])) {
+  $Assignment = new Assignment((int)$_REQUEST['assignment']);
+}
 
 $au = new auth_ssh();
 if ($au->isAdmin() && isset($_REQUEST['id_student'])){
@@ -113,8 +117,8 @@ if ($row) {
 
 $task_status_texts = ['Недоступно для просмотра', 'Недоступно для выполнения', 'Активно', 'Выполнено', 'Отменено', 'Ожидает проверки'];
 $task_status_text = '';
-if ($task_status_code != '') {
-	$task_status_text = $task_status_texts[$task_status_code-1];
+if ($Assignment->status_code != '') {
+	$task_status_text = $task_status_texts[$Assignment->status_code];
 }
 
 $task_files = getTaskFiles($dbconnect, $task_id);
@@ -184,7 +188,7 @@ $task_number = explode('.', $task_title)[0];
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" id="flexCheckDisabled" 
 								<?php if ($task_status_code == 3) echo 'checked'; ?> disabled>
-                <?php //FIXME: Исправить $task_status_text?>
+                <?php //XXX: Проверить?>
 							<label id="label-task-status-text"><?= $task_status_text ?></label>
 						</div>
             <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>

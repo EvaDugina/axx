@@ -69,12 +69,17 @@ class Task {
   }
 
 
+// GETTERS:
+
   public function getAssignments() {
     return $this->Assignments;
   }
   public function getFiles() {
     return $this->Files;
   }
+
+// -- END GETTERS
+
 
 
 // SETTERS:
@@ -185,6 +190,39 @@ class Task {
         return $Assignment;
     }
     return null;
+  }
+
+  public function getActiveAssignments() {
+    $active_Assignments = array();
+    foreach($this->Assignments as $Assignment) {
+      if ($Assignment->status_code == 2 || $Assignment->status_code == 3 || $Assignment->status_code == 5)
+        array_push($active_Assignments, $Assignment);
+    }
+    return $active_Assignments;
+  }
+  public function getAssignmemntsByStudent($student_id) {
+    $student_Assignments = array();
+    foreach($this->Assignments as $Assignment) {
+      if (($Assignment->status_code == 2 || $Assignment->status_code == 3 || $Assignment->status_code == 5) 
+      && $Assignment->checkStudent($student_id))
+        array_push($student_Assignments, $Assignment);
+    }
+    return $student_Assignments;
+  }
+  public function hasUncheckedAssignments($student_id) {
+    foreach($this->Assignments as $Assignment) {
+      if (($Assignment->status_code == 5) && $Assignment->checkStudent($student_id))
+        return true;
+    }
+    return false;
+  }
+  public function getLastAssignmentByStudent($student_id) {
+    $last_Assignment = null;
+    foreach($this->Assignments as $Assignment) {
+      if ($Assignment->checkStudent($student_id))
+        $last_Assignment = $Assignment;
+    }
+    return $last_Assignment;
   }
 
 // -- END WORK WITH ASSIGNMENT

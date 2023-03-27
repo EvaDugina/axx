@@ -5,6 +5,7 @@
 require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
+require_once("./POClasses/User.class.php");
 $scripts = null;
 
 // защита от случайного перехода
@@ -19,6 +20,8 @@ if (!isset($_GET['page']) || !is_numeric($_GET['page'])){
 	header('Location:mainpage.php');
   exit;
 }
+
+$Page = new Page((int)$_GET['page']);
 
 // получение параметров запроса
 $user_id = $_SESSION['hash'];
@@ -151,7 +154,7 @@ if ($scripts) echo $scripts; ?>
                 </tr>
                 <tr>
                   <th scope="col" colspan="1"> </th>
-                  <th scope="col" data-mdb-toggle="tooltip" title="Номер варианта">#</th>
+                  <!-- <th scope="col" data-mdb-toggle="tooltip" title="Номер варианта">#</th> -->
                   <?php
                   for ($t = 0; $t < count($tasks); $t++) {
                   ?>
@@ -163,87 +166,75 @@ if ($scripts) echo $scripts; ?>
               </thead>
               <tbody>
                 <?php
-                $student_count = 0;
-                if ($students){
-                  foreach ($students as $student) {
-                    $query = select_page_tasks_with_assignment($page_id, 1, $student['id']);
-                    $result = pg_query($dbconnect, $query);
-                    $array_student_tasks = pg_fetch_all($result); 
 
-                    if ($group != $student['grp']) {
-                      $group = $student['grp']; ?>
-                      <tr class="table-row-header">
-                        <th scope="row" colspan="1"><?= $group ?></th>
-                        <th colspan="1"> </th>
-                        <td colspan="<?= count($tasks) ?>" style="background: var(--mdb-gray-200);"> </td>
-                      </tr>
-                    <?php
-                    } ?>
-
-                    <tr>
-                      <th scope="row" data-group="<?= $student['grp'] ?>"><?= $student_count + 1 ?>. <?= $student['fio'] ?></th>
-                      <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?= $student['vtext'] ?>"><?= $student['vnum'] ?></th>
-                      <?php
-                      $now_index = 0;
-                      foreach ($tasks as $key => $task) { // tasks cycle
-                        $task_message = null;
-
-                        $query = pg_query($dbconnect, select_assignment_with_task($student['id'], $task['id']));
-                        $assignment = pg_fetch_assoc($query);
-                        
-                        if ($messages) {
-                          foreach ($messages as $message) { // search for last student+task message
-                            if ($message['tid'] == $task['id'] && $message['sid'] == $student['id'] && $message['type'] == 1) {
-                              $task_message = $message;
-                            }
-                          }
-                        }
-
-                        // пометить клетки серыми, если задание недоступно для выполнения
-                        if (!isset($array_student_tasks[$now_index]) || 
-                        (isset($array_student_tasks[$now_index]) && $array_student_tasks[$now_index]['id'] != $task['id'])) { ?>
-                          <td onclick="popoverAssignment(<?=$task['id']?>, <?=$student['id']?>)"
-                          style="background: var(--mdb-gray-100);">
-                          </td>
-                          <?php
-                          continue;
-                        } 
-
-                        // Задание требует проверки
-                        if ($array_student_tasks[$now_index]['status_code'] == 5 && $task_message) { ?>
-                          <td tabindex="0" onclick="showPopover(this)" 
-                          title="<?=$task_message['fio']?> <?=convert_mtime($task_message['mtime'])?>" 
-                          data-mdb-content="<?=getPopoverContent($task_message, $user_id)?>">
-                            <?php if ($array_student_tasks[$now_index]['mark'] != null) {?>
-                              <?=$array_student_tasks[$now_index]['mark']?>
-                              <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                              </svg>
-                              </span>
-                            <?php } else {?>
-                              ?
-                            <?php }?>
-                          </td>
-                        <?php 
-                        } else {?>
-                            <td onclick="answerPress(2,null,<?=$assignment['id']?>,<?=$user_id?>,<?=$assignment['max_mark']?>)">
-                              <?php if ($array_student_tasks[$now_index]['mark'] != null) {
-                                echo $array_student_tasks[$now_index]['mark'];
-                              } ?>
-                            </td>
-                        <?php }
-
-                        $now_index++;
-                        
-                      } // $tasks cycle ?>
-                    </tr>
+                foreach ($Page->getGroups() as $Group) { ?>
+                  <tr class="table-row-header">
+                    <th scope="row" colspan="1"><?=$Group->name?></th>
+                    <!-- <th colspan="1"> </th> -->
+                    <td colspan="<?=count($Page->getNotArchivedTasks())?>" style="background: var(--mdb-gray-200);"> </td>
+                  </tr>
                   <?php 
-                  $student_count ++;
-                  } // students cycle
-                }
-                ?>
+                  foreach ($Group->getStudents() as $count => $Student) {?>
+                    <tr>
+                      <th scope="row" data-group="<?=$Group->id?>"><?=$count+1?>. <?=$Student->getFI()?></th>
+                      <?php 
+                      foreach($Page->getNotArchivedTasks() as $Task) {
+                        $Assginment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
+                        <?php
+                        if ($Assginment != null) {
+                          
+                          // if ($Assginment->variant_number != null) { 
+                            // $Variant = new Variant((int)$Assginment->variant_number);?>
+                            <!-- <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?=$Variant->comment?>"><?=$Variant->number?></th> -->
+                          <?php //} else { ?>
+                            <!-- <th colspan="1"> </th> -->
+                          <?php //}
+
+                          if ($Assginment->status_code == 0 || $Assginment->status_code == 1) {?>
+                            <td onclick="unblockAssignment(<?=$Assginment->id?>)"
+                            style="background: var(--mdb-gray-100);">
+                            </td>
+                          <?php }
+
+                          else if ($Assginment->status_code == 5) {
+                            $last_Message = $Assginment->getLastAnswerMessage();
+                            $last_message_Student = new User((int)$last_Message->sender_user_id);
+                            ?>
+                            <td tabindex="0" onclick="showPopover(this)" 
+                            title="<?=$last_message_Student->getFI()?> <?=convert_mtime($last_Message->date_time)?>" 
+                            data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assginment->id, $user_id)?>">
+                              <?php if ($Task->max_mark != null) {?>
+                                <?=$Task->max_mark?>
+                                <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                  <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                                </svg>
+                                </span>
+                              <?php } else {?>
+                                ?
+                              <?php }?>
+                            </td>
+                          <?php } 
+                          
+                          else {?>
+                              <td onclick="answerPress(2,null,<?=$Assginment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)">
+                                <?php if ($Assginment->mark != null) {
+                                  echo $Assginment->mark;
+                                } ?>
+                              </td>
+                          <?php }
+                        
+                        } else {?>
+                          <td style="background: var(--mdb-gray-100);">
+                          </td>
+                        <?php } 
+
+                      }?>
+                    </tr>
+                  <?php
+                  }
+                } ?>
               </tbody>
             </table>
           </div>
@@ -254,90 +245,75 @@ if ($scripts) echo $scripts; ?>
           $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
           $result = pg_query($dbconnect, $query);
 					$array_notify = pg_fetch_all($result);
-
-          if ($students && $tasks) {?>
+          ?>
 
             <div class="my-4 pt-2">
               <h4 class="mx-3" style="color: black; font-style:normal;">История сообщений</h4>
               <ul class="accordion list-group" style="margin-bottom: 40px;" id="accordion-student-list">
                 <?php
                 // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
-                foreach ($students as $key => $student) { 
-                  $array_messages_count = array();
-                  $sum_unreaded_message_count = 0;
 
-                  $query = select_page_tasks_with_assignment($page_id,1, $student['id']);
-                  $result = pg_query($dbconnect, $query);
-                  $array_student_tasks = pg_fetch_all($result); 
-
-                  for($i = 0; $i < count($array_student_tasks); $i++){
-                    $query = select_count_unreaded_messages_by_task_for_teacher($student['id'], $array_student_tasks[$i]['id']);
-                    $result = pg_query($dbconnect, $query);
-                    array_push($array_messages_count, pg_fetch_assoc($result));
-                    $sum_unreaded_message_count += $array_messages_count[$i]['count'];
-                  }
-
-                  ?>
-
+                $key = 0;
+                foreach ($Page->getGroups() as $Group) {
+                  // FIXME: Не отображаются файлы у сообщений
+                  foreach ($Group->getStudents() as $Student) {?>
                   <div class="student-item">
-                    <li id="<?=$key+1?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
+                    <li id="<?=$key++?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
                       <div class="row">
                         <div class="d-flex justify-content-between align-items-center">
                           <div class="div-accordion-student-fio">
-                            <!--<i id="icon-down-right-<?=$key+1?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
-                            <strong class="strong-accordion-student-fio"><?= $student['fio']?></strong>
+                            <!--<i id="icon-down-right-<?=$key?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
+                            <strong class="strong-accordion-student-fio"><?=$Student->getFI();?></strong>
                           </div>
-                          <span class="badge badge-primary badge-pill" 
-                            <?php /* if($array_notify && in_array($student['id'], array_column($array_notify, 'student_user_id'))) { */
-                            if($array_notify && in_array($student['id'], array_map(function($element){
-                            return $element['student_user_id'];}, $array_notify))) {?> 
-                              style="color: white; background: #dc3545;"> 
-                              <?php 
-                              //echo $sum_unreaded_message_count + count(array_keys(array_column($array_notify, 'student_user_id'), $student['id']));
-                              echo count(array_keys(array_map(function($element){
-                              return $element['student_user_id'];}, $array_notify), $student['id']));
-                            } else {?> >
-                              <?=$sum_unreaded_message_count?> 
-                            <?php } ?>
-                          </span>
+                          <?php
+                          if ($Page->hasUncheckedTasks($Student->id)) {?>
+                            <span class="badge badge-primary badge-pill bg-warning text-white">
+                              Задания ожидают выполнения
+                            </span>
+                          <?php }?>
                         </div>
                       </div> 
                     </li>
-                    <div class="inner-accordion noselect" style="display: none;">
-                      <?php $i=0;
-                      if($array_student_tasks) {
-                      foreach ($array_student_tasks as $task) {
-                        //FIXME: ИСПРАВИТЬ. ПОДАВАТЬ В taskchat assignment_id?>
-                        <a href="taskchat.php?task=<?=$task['id']?>&page=<?=$task['page_id']?>&id_student=<?=$student['id']?>">
-                          <li class="list-group-item" >
-                            <div class="row">
-                              <div class="d-flex justify-content-between align-items-center">
-                                &nbsp;&nbsp;&nbsp;<?=$task['title']?>
-                                <span class="badge badge-primary badge-pill"
-                                  <?php 
-                                  // if($array_notify && in_array($task['assignment_id'], array_column($array_notify, 'assignment_id'))) {
-                                  if($array_notify && in_array($task['assignment_id'], array_map(function($element){
-                                  return $element['assignment_id']; }, $array_notify))) {?>
-                                    style="color: white; background: #dc3545;">
+                    <?php 
+                    foreach ($Page->getTasks() as $Task) {
+                      foreach ($Task->getAssignmemntsByStudent($Student->id) as $Assignment) {?>
 
-                                    <?php if($array_messages_count[$i]['count'] == 0 || !$array_messages_count[$i]['count']) 
-                                      $array_messages_count[$i]['count'] = 1; 
-                                    echo $array_messages_count[$i]['count'];
-                                  } else {
-                                    echo ">".$array_messages_count[$i]['count'];
-                                  }?>
-                                </span>
-                              </div>
-                            </div>
-                          </li> 
-                        </a>  
-                      <?php $i++; } }?>
-                    </div>
+                        <div class="inner-accordion noselect" style="display: none;">
+                          <?php 
+                              //XXX: Проверить?>
+                              <a href="taskchat.php?assignment=<?=$Assignment->id?>">
+                                <li class="list-group-item" >
+                                  <div class="row">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                      &nbsp;&nbsp;&nbsp;<?=$Task->title?>
+                                      <?php 
+                                      $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
+                                      if($Assignment->status_code == 5) { ?>
+                                        <span class="badge badge-primary badge-pill bg-warning text-white">
+                                          Ожидает проверки
+                                        <span>
+                                      <?php } else if ($Assignment->status_code == 3) {?>
+                                        <span class="badge badge-primary badge-pill bg-success text-white">
+                                          Выполнено
+                                        <span>
+                                      <?php } ?>
+                                    </div>
+                                  </div>
+                                </li> 
+                              </a>
+                        </div>
+
+                        <?php }?>
+                      
+                        <?php
+                    }?>
                   </div>
-                <?php }?>            
+                  <?php
+                  } 
+                }?>
+           
               </ul>
             </div>
-          <?php } ?>
         </div>
       </div>
 
@@ -475,20 +451,20 @@ if ($scripts) echo $scripts; ?>
 <?php }?>
 
 <?php
-function getPopoverContent($message, $user_id) {
+function getPopoverContent($Message, $Task, $assignment_id, $user_id) {
 
   // $message_files = get_message_attachments($task_message['mid']);
   $data_mdb_content = "";
 
-  $data_mdb_content .= generate_message_for_student_task_commit($message['task']);
-  $data_mdb_content .= showAttachedFilesByMessageId($message['mid']);
+  $data_mdb_content .= generate_message_for_student_task_commit($Task->title);
+  $data_mdb_content .= showAttachedFilesByMessageId($Message->id);
 
   $data_mdb_content .= "
-  <a href='javascript:answerPress(2,". $message['mid'].", " . $message['aid'] . ", " . $user_id .", ". $message['max_mark'].")'
+  <a href='javascript:answerPress(2,". $Message->id.", " . $assignment_id . ", " . $user_id .", ". $Task->max_mark.")'
   type='message' class='btn btn-outline-primary'>
     Зачесть
   </a> 
-  <a href='javascript:answerPress(0,". $message['mid'].", " . $message['aid'] . ", " . $user_id.")' 
+  <a href='javascript:answerPress(0,". $Message->id.", " . $assignment_id . ", " . $user_id.")' 
   type='message' class='btn btn-outline-primary'>
     Ответить
   </a>";
@@ -503,20 +479,25 @@ function show_preptable_message($message, $flag_marked_message = false) {
   $message_style = ($message['mtype'] == 2) ? 'message-prep' : 'message-stud';
     
   $message_text = "";
-  if($message['type'] != 1){
-    $message_text = $message['mtext'];
-  }
     
   if ($message['mreply_id'] != null){ // is reply message, add citing
     $message_text .= "<p class='note note-light'>";
     $message_text .= generate_message_for_student_task_commit($message['task']);
+    if($message['type'] != 1){
+      $message_text .= $message['mtext'];
+    }
     $message_text .= showAttachedFilesByMessageId($message['mreply_id']);
     $message_text .= "</p>";
   } else if ($message['status_code'] == 5 && $message['type'] == 1 && !$flag_marked_message) { 
     // is student message need to be checked
-    $message_text .= getPopoverContent($message, $_SESSION['hash']);
+    $Message = new Message((int)$message['mid']);
+    $Task = new Task((int)$message['tid']);
+    $message_text .= getPopoverContent($Message, $Task, $message['aid'], $_SESSION['hash']);
   } else {
     $message_text .= generate_message_for_student_task_commit($message['task']);
+    if($message['type'] != 1){
+      $message_text .= $message['mtext'];
+    }
     $message_text .= showAttachedFilesByMessageId($message['mid']); 
   }?>
 
@@ -548,7 +529,7 @@ function getPopoverHtml($message_fio, $message_group, $message_task_title, $mess
 }
 
 function generate_message_for_student_task_commit($task_title){
-  $message_text = "<strong>".$task_title."</strong>";
+  $message_text = "<strong>".$task_title."</strong> </br>";
   return $message_text;
 }
 ?>

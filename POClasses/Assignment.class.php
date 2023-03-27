@@ -8,7 +8,7 @@ require_once("Page.class.php");
 class Assignment {
 
   public $id = null;
-  public $variant_comment = null;
+  public $variant_number = null;
   public $start_limit = null, $finish_limit = null;
   public $status_code = null, $status_text = null;
   public $delay = null; // не понятно, зачем нужно
@@ -34,7 +34,7 @@ class Assignment {
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       $assignment = pg_fetch_assoc($result);
 
-      $this->variant_comment = $assignment['variant_comment'];
+      $this->variant_number = $assignment['variant_number'];
       $this->start_limit = convert_timestamp_to_date($assignment['start_limit'], "d-m-Y H:i:s");
       $this->finish_limit = convert_timestamp_to_date($assignment['finish_limit'], "d-m-Y H:i:s");
 
@@ -61,7 +61,7 @@ class Assignment {
     else if ($count_args == 9) { // всё + task_id
       $task_id = $args[0];
 
-      $this->variant_comment = $args[1];
+      $this->variant_number = $args[1];
       $this->start_limit = $args[2];
       $this->finish_limit = $args[3];
 
@@ -141,9 +141,9 @@ class Assignment {
   public function pushNewToDB($task_id) {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, 
+    $query = "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, 
               status_code, delay, status_text, mark, checks)
-              VALUES ($task_id, '$this->variant_comment', '$this->start_limit', '$this->finish_limit', 
+              VALUES ($task_id, $this->variant_number, '$this->start_limit', '$this->finish_limit', 
               $this->status_code, $this->delay, '$this->status_text', '$this->mark', '$this->checks') 
               RETURNING id;";
 
@@ -167,7 +167,7 @@ class Assignment {
   public function pushChangesToDB(){
     global $dbconnect;
 
-    $query = "UPDATE ax_assignment SET variant_comment='$this->variant_comment', start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
+    $query = "UPDATE ax_assignment SET variant_number=$this->variant_number, start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
               status_code=$this->status_code, delay=$this->delay, status_text='$this->status_text', mark='$this->mark', checks='$this->checks' 
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -228,6 +228,13 @@ class Assignment {
         return $Student;
     }
     return null;
+  }
+  public function checkStudent($student_id) {
+    foreach($this->Students as $Student) {
+      if ($Student->id == $student_id)
+        return true;
+    }
+    return false;
   }
 
   private function pushStudentToAssignmentDB($student_id){
@@ -370,6 +377,15 @@ class Assignment {
         array_push($new_messages, $Message);
     }
     return $new_messages;
+  }
+
+  public function getCountUnreadedMessages($user_id) {
+    $count_unreaded = 0;
+    foreach ($this->Messages as $Message) {
+      if ($Message->status == 0)
+        $count_unreaded++;
+    }
+    return $count_unreaded;
   }
 
 // -- END WORK WITH MESSAGES 
