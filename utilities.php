@@ -422,7 +422,7 @@ function str2bool($str = '')
 
 function str2int($str = '')
 {
-	if (settype($str)) 
+	if (settype($str, "integer")) 
 		return $str;
 	else
 		return 0;

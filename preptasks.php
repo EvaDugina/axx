@@ -236,7 +236,7 @@ if (!$result || pg_num_rows($result) < 1) {
                                 <input type="hidden" name="tasknum" id="tasknum" value="<?=$row['id']?>" />
                                 <button type="submit" class="btn btn-outline-primary px-3"><i class="fas fa-undo fa-lg"></i></button>&nbsp;
                               </form>
-                              <form name="form-deleteTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+                              <form id="form-deleteTask" name="form-deleteTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="task_id" value="<?=$row['id']?>">
                                 <button type="submit" class="btn btn-outline-danger px-3">
@@ -386,7 +386,7 @@ if (!$result || pg_num_rows($result) < 1) {
           </button>
         </div>
         <div class="modal-body">
-          <p>Внимание! Если отменить назначение, соответсвующие посылки от студента будут утеряны!</p>
+          <p id="dialogMark-text">Внимание! Если отменить назначение, соответсвующие посылки от студента будут утеряны!</p>
         </div>
         <div class="modal-footer">
           <button id="modal-btn-continue" type="button" class="btn btn-danger" data-mdb-dismiss="modal">Продолжить</button>
@@ -397,7 +397,35 @@ if (!$result || pg_num_rows($result) < 1) {
   </div>
 
   <script type="text/javascript">
+
+    $('#form-deleteTask').submit(function(event) {
+      $('#dialogMark-text').text("Внимание! Если удалить задание все его назначения и посылки будут утеряны. Вы хотите продолжить?");
+      $('#dialogMark').modal('show');
+
+      event.preventDefault();
+
+      $('#modal-btn-continue').click(function() {
+        // let form_reject = document.getElementById(form_id);
+        // form_reject.submit();
+        // ajaxChangeAssignmentStatus(assignment_id, new_status);
+        // $('#form-deleteTask').submit();
+        $('#form-deleteTask').unbind('submit').submit()
+
+      });
+      
+      $('#modal-btn-escape').click(function() {
+        $('#dialogMark').modal('hide');
+      });
+
+      // if(confirm_deleteTask) {
+      //   this.submit();
+      // } else {
+      //   event.preventDefault();
+      // }
+    });
+
     function confirmRejectAssignment(assignment_id, new_status) {
+      $('#dialogMark-text').text("Внимание! Если отменить назначение, соответсвующие посылки от студента будут утеряны!");
       $('#dialogMark').modal('show');
 
       $('#modal-btn-continue').click(function() {
