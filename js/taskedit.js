@@ -47,6 +47,43 @@ if(textArea_Description){
   });
 }
 
+
+// СКРИПТ ВКЛЮЧЕНИЯ / ОТКЛЮЧЕНИЯ ПОЛЕЙ КОДА ОШИБКИ И ЧЕГО_ТО ТАКОГО. НЕ ПОНЯЛ ДО КОНЦА
+let tools = document.getElementById("tools");
+let task_select = document.getElementById("task-type");
+  
+if(task_select){
+  let select_change = function(){
+    
+    //alert(task_select.value);
+    if(task_select.value == 0)
+      tools.classList.add("d-none");
+    else 
+      tools.classList.remove("d-none");
+  }
+
+  task_select.addEventListener("change", select_change);
+
+  //var type = <?php echo json_encode($task["type"]); ?>;
+  //alert(type);
+
+  //task_select.selectedIndex = parseInt(type);
+  select_change();
+}
+
+
+function showError() {
+  if(!input_Title.value) {
+    error_Title.textContent = "Не заполненное поле <Названия задания>";
+    error_Title.className = 'error-input active';
+  }
+  /*if(!textArea_Description.value) {
+    error_Description.textContent = "Не заполненное поле <Описания задания>";
+    error_Description.className = 'error-input active';
+  }*/
+}
+
+
 // if(form_taskEdit){
 //   form_taskEdit.addEventListener('submit', function (event) {
 
@@ -73,16 +110,6 @@ if(textArea_Description){
 //   });
 // }
 
-function showError() {
-  if(!input_Title.value) {
-    error_Title.textContent = "Не заполненное поле <Названия задания>";
-    error_Title.className = 'error-input active';
-  }
-  /*if(!textArea_Description.value) {
-    error_Description.textContent = "Не заполненное поле <Описания задания>";
-    error_Description.className = 'error-input active';
-  }*/
-}
 
 
 // // СКРИПТ ИЗМЕНЕНИЯ ЦВЕТА РАДИО-КНОПОК
@@ -135,31 +162,6 @@ function showError() {
 // function markStudentElements(group_id){
   
 // }
-
-
-// СКРИПТ ВКЛЮЧЕНИЯ / ОТКЛЮЧЕНИЯ ПОЛЕЙ КОДА ОШИБКИ И ЧЕГО_ТО ТАКОГО. НЕ ПОНЯЛ ДО КОНЦА
-let tools = document.getElementById("tools");
-let task_select = document.getElementById("task-type");
-  
-if(task_select){
-  let select_change = function(){
-    
-    //alert(task_select.value);
-    if(task_select.value == 0)
-      tools.classList.add("d-none");
-    else 
-      tools.classList.remove("d-none");
-  }
-
-  task_select.addEventListener("change", select_change);
-
-  //var type = <?php echo json_encode($task["type"]); ?>;
-  //alert(type);
-
-  //task_select.selectedIndex = parseInt(type);
-  select_change();
-}
-
 
 
 // // ACCORDION SCRIPT 
