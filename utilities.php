@@ -116,55 +116,19 @@ function getTaskFiles($dbconnect, $task_id){
 
 
 function showAttachedFilesByMessageId($message_id){
-  $message_files = get_message_attachments($message_id);
-  $message_text = "</br>";
-  if (count($message_files) > 0) { 
-    foreach ($message_files as $file) { 
-      $message_text .= "
-      <a target='_blank' download href='" . $file['download_url'] . "'>
+  $Message = new Message((int)$message_id);
+  $message_text = "";
+
+  foreach ($Message->getFiles() as $File) {
+    $message_text .= "
+      <a target='_blank' download href='" . $File->getDownloadLink() . "'>
         <i class='fa fa-paperclip' aria-hidden='true'></i> " . 
-        $file['file_name']. "
+        $File->name_without_prefix. "
       </a><br/>";
-    }
   }
+
   return $message_text;
 }
-
-  // Возвращает двумерный массив вложений для сообщения по message_id
-  function get_message_attachments($message_id) {
-
-    // TODO: ПРОВЕРИТЬ!
-    $Message = new Message((int)$message_id);
-    // $query = select_message_attachment($message_id);
-    // $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    
-    $files = [];
-    foreach ($Message->getFiles() as $File) {
-      // Если текст файла лежит в БД
-      if ($File->download_url == null) {
-        $File->download_url = 'download_file.php?file_id=' . $File->id;
-      }
-      // Если файл лежит на сервере
-      else if (!preg_match('#^http[s]{0,1}://#', $File->download_url)) {
-        if (strpos($File->download_url, 'editor.php') === false)
-        $File->download_url = 'download_file.php?file_path=' . $File->download_url;
-      }
-      $files[] = ['id' => $File->id, 'file_name' => delete_prefix($File->name), 'download_url' => $File->download_url];
-    }
-    // for ($row = pg_fetch_assoc($result); $row; $row = pg_fetch_assoc($result)) {
-    //   // Если текст файла лежит в БД
-    //   if ($row['download_url'] == null) {
-    //     $row['download_url'] = 'download_file.php?attachment_id=' . $row['id'];
-    //   }
-    //   // Если файл лежит на сервере
-    //   else if (!preg_match('#^http[s]{0,1}://#', $row['download_url'])) {
-    //     if (strpos($row['download_url'], 'editor.php') === false)
-    //       $row['download_url'] = 'download_file.php?file_path=' . $row['download_url'] . '&with_prefix=';
-    //   }
-    //   $messages[] = ['id' => $row['id'], 'file_name' => delete_prefix($row['file_name']), 'download_url' => $row['download_url']];
-    // }
-    return $files;
-  }
   
 
 // Выводит прикрепленные к странице с заданием файлы

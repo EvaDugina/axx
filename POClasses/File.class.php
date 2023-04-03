@@ -71,6 +71,23 @@ public function getFileExt() {
   return strtolower(preg_replace('#.{0,}[.]#', '', $this->name_without_prefix));
 }
 
+function getDownloadLink() {
+  if ($this->download_url == null) {
+    return 'download_file.php?file_id=' . $this->id;
+  }
+
+  // Если файл лежит на сервере
+  else if (!preg_match('#^http[s]{0,1}://#', $this->download_url)) {
+    if (strpos($this->download_url, 'editor.php') === false)
+    return 'download_file.php?file_path=' . $this->download_url;
+  }
+
+  // Такого не может быть
+  else {
+    return null;
+  }
+}
+
 // -- END GETTERS
 
 // SETTERS

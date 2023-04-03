@@ -92,6 +92,8 @@ if ($row) {
 	$task_title = $row['title'];
 	$task_description = $row['description'];
   $task_max_mark = (int)$row['max_mark'];
+  if ($task_max_mark == 0)
+    $task_max_mark = 5;
 }
 
 $task_finish_limit = '';

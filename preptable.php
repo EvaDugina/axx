@@ -255,7 +255,6 @@ if ($scripts) echo $scripts; ?>
 
                 $key = 0;
                 foreach ($Page->getGroups() as $Group) {
-                  // FIXME: Не отображаются файлы у сообщений
                   foreach ($Group->getStudents() as $Student) {?>
                   <div class="student-item">
                     <li id="<?=$key++?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
@@ -452,8 +451,6 @@ if ($scripts) echo $scripts; ?>
 
 <?php
 function getPopoverContent($Message, $Task, $assignment_id, $user_id) {
-
-  // $message_files = get_message_attachments($task_message['mid']);
   $data_mdb_content = "";
 
   $data_mdb_content .= generate_message_for_student_task_commit($Task->title);

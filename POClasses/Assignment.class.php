@@ -329,7 +329,7 @@ class Assignment {
   }
   public function getLastAnswerMessage() {
     for ($i=count($this->Messages)-1; $i >= 0; $i--) { 
-      if ($this->Messages[$i]->getCommit() != null)
+      if ($this->Messages[$i]->getCommit() != null && $this->Messages[$i]->type != 3)
         return $this->Messages[$i];
     }
   }
