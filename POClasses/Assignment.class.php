@@ -133,6 +133,15 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function setVariantNumber($variant_number) {
+    global $dbconnect;
+
+    $this->variant_number = $variant_number;
+
+    $query = "UPDATE ax_assignment SET variant_number = $variant_number WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
 // -- END SETTERS
 
 

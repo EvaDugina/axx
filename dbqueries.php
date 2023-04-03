@@ -401,7 +401,7 @@ function update_ax_assignment_by_id ($assignment_id, $finish_limit=null, $varian
   if ($finish_limit)
     $query .= "finish_limit = '$finish_limit'";
   if ($variant)
-    $query .= ", variant_comment = '$variant'";
+    $query .= ", variant_number = '$variant'";
   if ($status_code != -1)
     $query .= ", status_code = '$status_code'";
   if ($delay != -1)
@@ -423,7 +423,7 @@ function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $sta
 }
 
 function insert_assignment($task_id){
-  return "INSERT INTO ax_assignment(task_id, variant_comment, start_limit, finish_limit, status_code, delay, status_text, mark)
+  return "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, status_code, delay, status_text, mark)
           VALUES ($task_id, null, now(), now()+'1 year', 2, null, null, null) RETURNING id;
   ";
 }

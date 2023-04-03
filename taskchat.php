@@ -123,7 +123,9 @@ if ($Assignment->status_code != '') {
 	$task_status_text = $task_status_texts[$Assignment->status_code];
 }
 
-$task_files = getTaskFiles($dbconnect, $task_id);
+$Task = new Task((int)$task_id);
+$task_files = $Task->getFiles();
+// $task_files = getTaskFiles($dbconnect, $task_id);
 
 $task_finish_date_time = '';
 $query = "SELECT date_time from ax_message where assignment_id = $assignment_id and type = 2";
@@ -174,7 +176,7 @@ $task_number = explode('.', $task_title)[0];
 			      if ($task_files)
 			      {
 			        echo '<b>Файлы, приложенные к заданию:</b>';
-			        show_task_files($task_files);
+			        showFiles($task_files);
 			      }
 			    ?> 
           </p>

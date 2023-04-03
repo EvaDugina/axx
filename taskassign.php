@@ -309,7 +309,7 @@ $Page = new Page((int)getPageByTask($Task->id));
 
 			  <h5><i class="fa fa-ticket" aria-hidden="true"></i> Вариант</h5>
 			  <div class="ps-5 mb-4">
-			    <input id="variant" name="variant" class="w-100" value="<?=$Assignment->variant_comment?>" wrap="off" rows="1">
+			    <input id="variant" name="variant" class="w-100" value="<?=$Assignment->variant_number?>" wrap="off" rows="1">
 			  </div>
 
 			  <h5><i class="fa fa-check-circle fa-lg" aria-hidden="true"></i> Параметры проверки</h5>
@@ -559,10 +559,10 @@ $Page = new Page((int)getPageByTask($Task->id));
 
     $('#checks-save').click(function () {
       window.onbeforeunload = null;
-    })
+    });
 
-
-    if (<?=$isNewAssignment?>) {
+    // FIX: ЗНАЧКИ
+    if () {
       // Автоматически удаляем Assignment
       window.onbeforeunload = function() {
         deleteAssignment();

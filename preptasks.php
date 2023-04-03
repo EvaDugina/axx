@@ -155,14 +155,17 @@ if (!$result || pg_num_rows($result) < 1) {
                           <!-- <div id="div-task-files" class="mb-3"> -->
                             <?php 
 							/* 
-							$task_files = getTaskFiles($dbconnect, $task['id']);
+              $Task = new Task((int)$task_id);
+
+              $task_files = $Task->getFiles();
+							// $task_files = getTaskFiles($dbconnect, $task['id']);
                             if (count($task_files) > 0) { 
 							*/
 							?>
                             <!--  <div class="small"><strong>Приложения:</strong></div> -->
                             <?php 
 							/*
-							show_task_files($task_files);
+							showFiles($task_files);
                             }
 							*/ 
 							?>

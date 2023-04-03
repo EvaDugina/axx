@@ -128,7 +128,7 @@ switch($action)
             $assignnums = array();
 
             foreach($tasknums as $tn) {
-                $query = 'insert into ax_assignment(task_id, variant_comment, start_limit, finish_limit, '.
+                $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, '.
                             ' status_code, delay, status_text, mark) values '.
                             ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
                             ' , 2, 0, \'ожидает выполнения\', null) returning id;';
@@ -150,7 +150,7 @@ switch($action)
             $assignnum = 0;
             foreach($students as $s) {
                 foreach($tasknums as $tn) {
-                    $query = 'insert into ax_assignment(task_id, variant_comment, start_limit, finish_limit, '.
+                    $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, '.
                                 ' status_code, delay, status_text, mark) values '.
                                 ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
                                 ' , 2, 0, \'ожидает выполнения\', null) returning id;';

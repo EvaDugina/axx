@@ -137,11 +137,26 @@
 	//header('Content-Type: application/json');
 	//echo $json;
 
-    $result = pg_query($dbconnect, 'update ax_assignment set checks = $accel$'.$json.'$accel$, start_limit = '.
-									($_POST['fromtime'] == "" ?"null" :"to_timestamp('".$_POST['fromtime']." 00:00:00', 'YYYY-MM-DD HH24:MI:SS')").
-									" , finish_limit = ".($_POST['tilltime'] == "" ?"null" :"to_timestamp('".$_POST['tilltime']." 23:59:59', 'YYYY-MM-DD HH24:MI:SS')").
-									' , variant_comment=$accel$'.$_POST['variant'].'$accel$ '.
-									" where id = ".$_POST['assignment_id']);
+  // $query = 'update ax_assignment set start_limit = '.
+  // ($_POST['fromtime'] == "" ?"null" :"to_timestamp('".$_POST['fromtime']." 00:00:00', 'YYYY-MM-DD HH24:MI:SS')").
+  // " , finish_limit = ".($_POST['tilltime'] == "" ?"null" :"to_timestamp('".$_POST['tilltime']." 23:59:59', 'YYYY-MM-DD HH24:MI:SS')").
+  // ' , variant_number=$accel$'.$_POST['variant'].'$accel$ '.
+  // " where id = ".$_POST['assignment_id'];
+  //   $result = pg_query($dbconnect, $query);
+  
+  $Assignment = new Assignment((int)$_POST['assignment_id']);
+
+  if (isset($_POST['fromtime']) && $_POST['fromtime'] != "")
+    $Assignment->setStartLimit($_POST['fromtime']);
+
+  if (isset($_POST['tilltime']) && $_POST['tilltime'] != "")
+    $Assignment->setFinishLimit($_POST['tilltime']);
+  
+  if (isset($_POST['variant']) && $_POST['variant'] != "")
+    $Assignment->setVariantNumber($_POST['variant']);
+
+  $query = 'update ax_assignment set checks = $accel$'.$json.'$accel$';
+  $result = pg_query($dbconnect, $query);
 
 	$result = pg_query($dbconnect, "delete from ax_assignment_student where assignment_id=".$_POST['assignment_id']);
 

@@ -41,8 +41,10 @@ if ($row) {
   exit;
 }
 
+$Task = new Task((int)$task_id);
 
-$task_files = getTaskFiles($dbconnect, $task_id);
+$task_files = $Task->getFiles();
+// getTaskFiles($dbconnect, $task_id);
 
 $last_commit_id = NULL;
 if ( array_key_exists('commit', $_GET))
@@ -200,7 +202,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 			    if ($task_files)
 			    {
 			      echo '<b>Файлы, приложенные к заданию:</b>';
-			      show_task_files($task_files);
+			      showFiles($task_files);
 			    }
 			  ?>
 			</p>
