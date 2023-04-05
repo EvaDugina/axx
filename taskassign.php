@@ -24,14 +24,19 @@ if ((!isset($_GET['assignment_id']) || !is_numeric($_GET['assignment_id']))
 
 $isNewAssignment = false;
 if (isset($_GET['assignment_id'])) {
+  $isNewAssignment = false;
+  echo("<script>var isNewAssignment=false</script>");
   $Assignment = new Assignment((int)$_GET['assignment_id']);
   $Task = new Task((int)getTaskByAssignment($Assignment->id));
-  $isNewAssignment = false;
 } else {
+  $isNewAssignment = true;
+  echo("<script>var isNewAssignment=true;</script>");
   $Task = new Task((int)$_GET['task_id']);
   $Assignment = new Assignment($Task->id, 1);
-  $isNewAssignment = true;
 }
+
+
+
 
 $Page = new Page((int)getPageByTask($Task->id));
 
@@ -560,16 +565,7 @@ $Page = new Page((int)getPageByTask($Task->id));
     $('#checks-save').click(function () {
       window.onbeforeunload = null;
     });
-
-    // FIX: ЗНАЧКИ
-    if () {
-      // Автоматически удаляем Assignment
-      window.onbeforeunload = function() {
-        deleteAssignment();
-        return "";
-        // ajaxChangeStatus('delete');
-      };
-    }
+    
 
     async function deleteAssignment() {
       const res = await ajaxChangeStatus('delete');
@@ -639,6 +635,16 @@ $Page = new Page((int)getPageByTask($Task->id));
           }
         }
       });   
+    }
+
+
+    if (isNewAssignment) {
+      // Автоматически удаляем Assignment
+      window.onbeforeunload = function() {
+        deleteAssignment();
+        return "";
+        // ajaxChangeStatus('delete');
+      };
     }
 
 

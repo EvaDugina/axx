@@ -25,11 +25,15 @@ class Commit {
       $query = queryGetCommitInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       $commit = pg_fetch_assoc($result);
-  
-      $this->session_id = $commit['session_id'];
-      $this->student_user_id = $commit['student_user_id'];
-      $this->type = $commit['type'];
-      $this->autotest_results = $commit['autotest_results'];
+
+      if (isset($commit['session_id']) )
+        $this->session_id = $commit['session_id'];
+      if (isset($commit['student_user_id']) )
+        $this->student_user_id = $commit['student_user_id'];
+      if (isset($commit['type']) )
+        $this->type = $commit['type'];
+      if (isset($commit['autotest_results']) )
+        $this->autotest_results = $commit['autotest_results'];
       //$this->comment = $file[''];
 
       $this->Files = getFilesByCommit($this->id);
