@@ -175,6 +175,27 @@ show_header($dbconnect, 'Редактор заданий',
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;РЕДАКТОР ВСЕХ НАЗНАЧЕНИЙ</small></label>
             </div>
 
+            <!-- <section class="w-100 py-2 d-flex">
+              <div class="form-outline datetimepicker me-3">
+                <button id="btn-assignment-status-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
+                onclick="ajaxChangeStatusAllAssignments(0)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                    <?php //getSVGByAssignmentStatus(0);?>
+                </button>
+                <button id="btn-assignment-status-1" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
+                onclick="ajaxChangeStatusAllAssignments(1)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                  <?php //getSVGByAssignmentStatus(1);?>
+                </button>
+                <button id="btn-assignment-status-2" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
+                onclick="ajaxChangeStatusAllAssignments(2)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                  <?php //getSVGByAssignmentStatus(2);?>
+                </button>
+                <button id="btn-assignment-status-4" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
+                onclick="ajaxChangeStatusAllAssignments(4)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                  <?php //getSVGByAssignmentStatus(4);?>
+                </button>
+              </div>
+            </section> -->
+
             <section class="w-100 py-2 d-flex">
               <div class="form-outline datetimepicker me-3" style="width: 65%;">
                 <input id="input-finishLimit" type="date" class="form-control active" name="finish-limit" 
@@ -195,108 +216,6 @@ show_header($dbconnect, 'Редактор заданий',
               </div> 
 
             </section>
-
-            <?php
-            // Получение студентов, прикреплённызх к заданию
-            // $query = select_students_by_group_by_page_by_task($Page->id, $Task->id);
-            // $result = pg_query($dbconnect, $query);
-            // $students = pg_fetch_all_assoc($result);  ?>
-
-            <!-- <section class="w-100 d-flex border" style="height: 50%;">
-              <div class="w-100 h-100 d-flex" style="margin:10px; height: 100%; text-align: left;">
-                <div id="main-accordion-students" class="accordion accordion-flush" style="overflow-y: auto; height: 100%; width: 100%;">
-
-                  <?php
-                  // $now_group_id = -1;
-                  // $count_chosen_students = 0;
-                  // if ($students){
-                  //   foreach ($students as $key => $student) {
-                  //     if($student['group_id'] != $now_group_id) {
-                  //       $count_chosen_students=0;
-
-                  //       $query = pg_query($dbconnect, select_group_students_count($student['group_id']));
-                  //       $group_students_count = pg_fetch_assoc($query)['count'];
-
-                  //       // Обработка полностью выбранных групп
-                  //       $flag_full_group = true;
-                  //       if ($Task->id != -1) {
-                  //         for($i=$key; $i < count($students); $i++){
-                  //           if($students[$i]['group_id'] != $student['group_id'])
-                  //             break;
-                  //           if($students[$i]['task_id'] != $Task->id)
-                  //             $flag_full_group = false;
-                  //           else $count_chosen_students++;
-                  //         }
-                  //       } else
-                  //         $flag_full_group = false;
-                  //       if($key > 0) { ?>
-                  //             </div>
-                  //           </div>
-                  //         </div>
-                  //       </div>
-                  //       <?php 
-                      //}?>
-                        <div class="accordion-item">
-                          <div id="accordion-gheader-<?=$student['group_id']?>" class="accordion-header">
-                            <button class="accordion-button" type="button"
-                            data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-<?=$key?>" aria-expanded="true"
-                            aria-controls="accordion-collapse-<?=$key?>">
-                              <div class="form-check d-flex">
-                                <input id="group-<?=$student['group_id']?>" class="accordion-input-item form-check-input input-group" type="checkbox" 
-                                value="g<?=$student['group_id']?>" id="flexCheck1" onclick="markStudentElements(<?=$student['group_id']?>)" 
-                                name="checkboxStudents[]" <?php if($flag_full_group) echo 'checked';?>>
-                                <span id="group-<?=$student['group_id']?>-stat" class="badge badge-primary align-self-center" style="color: black;">
-                                  <?=$count_chosen_students?> / <?=$group_students_count?>
-                                </span>   
-                                <label class="ms-1 form-check-label" for="flexCheck1" style="font-weight: bold;"><?=$student['group_name']?></label>
-                              </div>                   
-                            </button>
-                          </div>
-                          <div id="accordion-collapse-<?=$key?>" class="accordion-collapse collapse" aria-labelledby="accordion-gheader-<?=$key?>"
-                          data-mdb-parent="#main-accordion-students">
-                            <div class="accordion-body">
-                              <div id="group-accordion-students" class="accordion accordion-flush">
-                      <?php 
-                    // }?>
-                      <div id="item-from-group-<?=$student['group_id']?>" class="accordion-item">
-                        <div id="accordion-sheader-<?=$student['id']?>" class="accordion-header">
-                          <div d-flex justify-content-between" type="button">
-                            <div class="form-check ms-3">
-                              <input id="student-<?=$student['id']?>" class="accordion-input-item form-check-input input-student" 
-                              type="checkbox" value="s<?=$student['id']?>" name="checkboxStudents[]" 
-                              <?php 
-                              // if($Task->id != -1 && isset($student['task_id']) && $student['task_id'] == $Task->id) echo 'checked';?>>
-                              <label class="form-check-label" for="flexCheck1"><?=$student['fi']?></label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <?php 
-                  //     $now_group_id = $student['group_id'];
-                  //   }
-                  // } else {?>
-                    <strong>СТУДЕНТЫ ОТСУТСТВУЮТ</strong>
-                  <?php 
-                // }?>
-
-                </div>
-              </div>
-            </section> -->
-
-            <!-- <div class="p-1 border bg-light">
-              <div class="d-flex" data-toggle="buttons">
-                <label class="btn btn-outline-default py-2 px-4 me-2">
-                  <input id="input-deligate-by-individual" type="radio" name="task-status-deligate" style="display: none;" value="by-individual">
-                    <i class="fas fa-user fa-lg"></i>&nbsp; Назначить <br> индивидуально
-                </label>  
-                <label class="btn btn-outline-default py-2 px-4">
-                  <input id="input-deligate-by-group" type="radio" name="task-status-deligate" style="display: none;" value="by-group">
-                    <i class="fas fa-users fa-lg"></i>&nbsp; Назначить <br> группе
-                </label>  
-              </div>
-            </div> -->
-
-            <!-- <span id="error-choose-executor" class="error-input" aria-live="polite"></span> -->
           </div>
 
           <div class="p-3 border bg-light">
@@ -496,6 +415,44 @@ show_header($dbconnect, 'Редактор заданий',
       form.submit();
     })
   });
+
+
+  function ajaxChangeStatusAllAssignments(new_status) {
+
+    var confirm_answer = confirm("Это действие изменит статус всех назначений, прикреплённых к данному заданию. Вы уверены, что хотите продолжить?");
+    if (!confirm_answer)
+      return;
+
+    var formData = new FormData();
+
+    formData.append('task_id', <?=$Task->id?>);
+    formData.append('status', new_status);
+    formData.append('action', 'editStatus');
+
+    $.ajax({
+      type: "POST",
+      url: 'taskedit_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+      },
+      complete: function() {
+        if(new_status != "delete") {
+          $('.btn-assignment-status').removeClass('btn-outline-primary');
+          $('.btn-assignment-status').addClass('btn-outline-light');
+          $('.btn-assignment-status').css('color', 'var(--mdb-gray-400)');
+          $('.btn-assignment-status').css('border-color', 'var(--mdb-gray-400)');
+          $('#btn-assignment-status-' + new_status).css('color', 'var(--mdb-primary)');
+          $('#btn-assignment-status-' + new_status).css('border-color', 'var(--mdb-primary)');
+          $('#btn-assignment-status-' + new_status).removeClass('btn-outline-light');
+          $('#btn-assignment-status-' + new_status).addClass('btn-outline-primary');
+        }
+      }
+    });   
+  }
 
 
   function setFinishLimit() {

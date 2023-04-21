@@ -258,6 +258,8 @@ if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
 //   }
 // }
 
+
+// Изменение finish_limit всех Assignments прикреплённых к Task
 if (isset($_POST['action']) && $_POST['action'] == "editFinishLimit") {
   if(isset($_POST['task_id'])) {
     $Task = new Task((int)$_POST['task_id']);
@@ -266,13 +268,26 @@ if (isset($_POST['action']) && $_POST['action'] == "editFinishLimit") {
     exit;
   }
 
-  // $timestamp = conver_calendar_to_timestamp($_POST['finish-limit']);
-
   foreach ($Task->getAssignments() as $Asssignment) {
     $Asssignment->setFinishLimit($_POST['finish_limit']);
   }
 
-  // header('Location: preptasks.php?page=' . getPageByTask($Task->id));
+  exit();
+}
+
+// Изменение status всех Assignments прикреплённых к Task
+if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
+  if(isset($_POST['task_id'])) {
+    $Task = new Task((int)$_POST['task_id']);
+  } else {
+    header('Location: index.php');
+    exit;
+  }
+
+  foreach ($Task->getAssignments() as $Asssignment) {
+    $Asssignment->setStatus($_POST['status']);
+  }
+
   exit();
 }
 

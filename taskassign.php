@@ -133,7 +133,6 @@ $Page = new Page((int)getPageByTask($Task->id));
             <?=$Assignment->status_code == 5 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
               <?php getSVGByAssignmentStatus(5);?>
             </button>
-          </button>
         </div>
       </div>
       

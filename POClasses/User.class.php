@@ -63,7 +63,7 @@ class User {
         return $this->middle_name . " " . $this->last_name;
     if (empty($this->middle_name))
       return $this->first_name . " " . $this->last_name;
-    return $this->first_name . " " . $this->middle_name . " " . $this->last_name; 
+    return $this->middle_name . " " . $this->first_name . " " . $this->last_name; 
   }
   public function getNotifications() {
     global $dbconnect;
@@ -79,6 +79,10 @@ class User {
     $array_notify = pg_fetch_all($result);
 
     return $array_notify;
+  }
+
+  public function getFIOspecial() {
+    return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
   }
   // public function getGroup() {
   //   return $this->Group;

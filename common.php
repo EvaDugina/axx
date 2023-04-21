@@ -126,6 +126,7 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
             if ($page_title != "Вход в систему") { 
               // [x]: Убрать
               $au = new auth_ssh();
+              // TODO: Проверить
               if ($user != null) {
                 $array_notify = $user->getNotifications();
               } 
@@ -157,6 +158,8 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
                 <?php $i = 0;
                 if ($array_notify){
                   foreach ($array_notify as $notify) { $i++; 
+
+                    // TODO: Проверить
                     if ($user != null)
                       $count_unreaded_messages_by_notify = $user->getCountUnreadedMessagesByTask($notify['aid']);
 
@@ -198,7 +201,9 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
               <!-- Avatar -->
               <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                 <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2"><?=$_SESSION['username']?></span>
+                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2">
+                  <?php // [x]: убрать // TODO: Проверить
+                  if($user != null) echo $user->getFIOspecial(); else echo $_SESSION['username'];?></span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
                 <li><a class="dropdown-item" href="profile.php">Профиль</a></li>

@@ -15,6 +15,10 @@ class Assignment {
   public $mark = null;
   public $checks = null;
 
+  // TODO: добавить колонку в БД
+  // status_complete integer, где: 
+  // 0 - не выполнено, 1 - ожидает проверки, 2 - выполнено
+
   private $Students = array();
   private $Messages = array();
   private $Commits = array();
