@@ -257,7 +257,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 					<?php if ($page_id != 0) {?>
 						<div class="col-lg-2">
-							<button class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
+							<button id="btn-delete" class="btn btn-outline-danger" style="color: red;" type="submit" name="action" value="delete">
 								Удалить раздел
 							</button>
 						</div>
@@ -364,10 +364,10 @@ if (array_key_exists('page', $_REQUEST)) {
 		}
 
 
-    $('#pageedit_action').submit(function(event) {
+    $('#btn-save').click(function(event) {
       event.preventDefault();
       if (checkFiledsBeforeSave()) {
-        $(this).submit();
+        $('#pageedit_action').submit();
       }
     });
 
@@ -380,7 +380,7 @@ if (array_key_exists('page', $_REQUEST)) {
     });
 
     $('#selectDiscipline').change(function() {
-      if ($('#selectDiscipline').val()!="0"){
+      if ($('#selectDiscipline').val()!="0" && $('#selectDiscipline').val()!=""){
         $('#div-popover-select').popover('enable');
         $('#div-popover-select').popover('hide');
         $('#div-popover-select').popover('disable');
@@ -391,7 +391,8 @@ if (array_key_exists('page', $_REQUEST)) {
 
     function checkFiledsBeforeSave() {
       flag = true;
-      if (!$('#selectDiscipline').val()=="0") {
+      console.log($('#selectDiscipline').val());
+      if ($('#selectDiscipline').val()=="0" || $('#selectDiscipline').val()=="") {
         $('#div-popover-select').popover('enable');
         $('#div-popover-select').popover('show');
         $('#div-popover-select').popover('disable');

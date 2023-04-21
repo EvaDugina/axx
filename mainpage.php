@@ -118,9 +118,10 @@ function full_name($discipline_id, $dbconnect) {
                           </a>
                         </div>
                       </div>
-                      <div class="card_image_content" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?=$page_id?>'">
-                        <div class="p-2" style="text-align: left;">
-                            <a class="text-white" href="preptable.php?page=<?=$page_id?>" style="font-weight: bold;"><?php echo $page['short_name']; ?></a>
+                      <div class="card_image_content p-2" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?=$page_id?>'">
+                        <div class="" style="text-align: left; overflow:hidden;">
+                            <a class="text-white" href="preptable.php?page=<?=$page_id?>" 
+                            style="font-weight: bold; white-space: nowrap;"><?php echo $page['short_name']; ?></a>
                             <br><a><?php echo $full_name; ?></a>
                         </div>
                       </div>
