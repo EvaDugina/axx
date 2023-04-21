@@ -125,7 +125,8 @@ if (!$result || pg_num_rows($result) < 1) {
                                   <span class="mx-1">
                                   <?php if($stud_list == "")
                                     echo "~СТУДЕНТЫ ОТСУТСТВУЮТ~";
-                                  else { ?>
+                                  else { 
+                                    getSVGByAssignmentStatus($Assignment->status_code);?> &nbsp;
                                     <i class="fas fa-user<?=(($icon_multiusers) ? "s" :"")?>"></i> <?=$stud_list?>
                                    <?php } 
                                   if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
@@ -262,7 +263,7 @@ if (!$result || pg_num_rows($result) < 1) {
         <div class="col-4">
           <div class="p-3 border bg-light" id="mutable">
             <h6>Массовые операции <span id="hint" class="hint">Выберите задания</span></h6>
-            <form method="get" action="preptasks_edit.php" name="linkFileForm" id="linkFileForm" enctype="multipart/form-data" >
+            <form method="POST" action="preptasks_edit.php" name="linkFileForm" id="linkFileForm" enctype="multipart/form-data" >
               <input type="hidden" name="action" value="linkFile" />
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
@@ -271,8 +272,7 @@ if (!$result || pg_num_rows($result) < 1) {
               </div>
               <div class="pt-1 pb-1 ps-5">
                 <input type="file" class="form-control" id="customFile" name="customFile" 
-                  onclick="$(linkFileForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get())"
-                  onChange="$(linkFileForm).trigger('submit')" />
+                  onChange="setTaskNum(); $('#linkFileForm').trigger('submit')" />
               </div>
             </form>
             <form method="get" action="preptasks_edit.php" name="assignForm" id="assignForm" enctype="multipart/form-data" >
@@ -461,6 +461,12 @@ if (!$result || pg_num_rows($result) < 1) {
           location.reload();
         }
       });   
+    }
+
+    function setTaskNum() {
+      $('#linkFileForm').find('#tasknum').val($('#checkActiveForm').find('#checkActive:checked:enabled').map(function(){
+        return $(this).val();
+      }).get());
     }
 
 

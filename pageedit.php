@@ -51,7 +51,8 @@ $groups = pg_fetch_all($result);
 $page = null;
 
 if (array_key_exists('page', $_REQUEST)) {
-	$page_id = $_REQUEST['page'];
+  $page_id = $_REQUEST['page'];
+  $Page = new Page((int)$page_id);
 	
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
@@ -62,7 +63,7 @@ if (array_key_exists('page', $_REQUEST)) {
 		if($discipline['id'] == $page['disc_id'])
 			$name = $discipline['name'];
 	}
-	$short_name = $page['short_name'];
+	$short_name = $Page->name;
 
 	$query = select_page_prep_name($page_id);
 	$result = pg_query($dbconnect, $query);
@@ -73,6 +74,7 @@ if (array_key_exists('page', $_REQUEST)) {
 	$page_groups = pg_fetch_all($result);
 } else {
 	$page_id = 0;
+  // TODO: Сделать создание страницы
 	
 	if (array_key_exists('year', $_REQUEST) && array_key_exists('sem', $_REQUEST))	
 		$semester = $_REQUEST['year']."/".convert_sem_from_number($_REQUEST['sem']);
@@ -112,15 +114,16 @@ if (array_key_exists('page', $_REQUEST)) {
 				<div class="row align-items-center m-3">
 					<div class="col-lg-2 row justify-content-left">Название раздела:</div>
 					<div class="col-lg-2">
-						<input type="text" id="form12" class="form-control" maxlength="19" value="<?=$short_name?>" name="short_name" autocomplete="off" required/>
+						<input type="text" id="input-name" class="form-control" maxlength="19" value="<?=$short_name?>" name="short_name" autocomplete="off"
+            data-container="body" data-placement="right" title="Это поле должно быть заполнено!"/>
 					</div>
 				</div>
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
 					<div class="col-lg-2 row justify-content-left">Полное название дисциплины:</div>
 					<div class="col-lg-4">
-						<div class="btn-group shadow-0">
-						<select id="selectDiscipline" class="form-select" name="disc_id" required>
+						<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right" title="Это поле должно быть заполнено!">
+						<select id="selectDiscipline" class="form-select" name="disc_id">
 							<option selected value="<?=$disc_id?>">
 								<?=$name?>
 							</option>
@@ -247,7 +250,7 @@ if (array_key_exists('page', $_REQUEST)) {
 				
 				<div class="row mx-2">
 					<div class="col-lg-2 row justify-content-left">
-						<button type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark">
+						<button id="btn-save" type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark">
 							Сохранить
 						</button>
 					</div>
@@ -359,24 +362,74 @@ if (array_key_exists('page', $_REQUEST)) {
       //console.log(input);
 			element.append(input);
 		}
+
+
+    $('#pageedit_action').submit(function(event) {
+      event.preventDefault();
+      if (checkFiledsBeforeSave()) {
+        $(this).submit();
+      }
+    });
+
+    $('#input-name').change(function() {
+      if($('#input-name').val() != "") {
+        $('#input-name').popover('enable');
+        $('#input-name').popover('hide');
+        $('#input-name').popover('disable');
+      }
+    });
+
+    $('#selectDiscipline').change(function() {
+      if ($('#selectDiscipline').val()!="0"){
+        $('#div-popover-select').popover('enable');
+        $('#div-popover-select').popover('hide');
+        $('#div-popover-select').popover('disable');
+      } else {
+
+      }
+    });
+
+    function checkFiledsBeforeSave() {
+      flag = true;
+      if (!$('#selectDiscipline').val()=="0") {
+        $('#div-popover-select').popover('enable');
+        $('#div-popover-select').popover('show');
+        $('#div-popover-select').popover('disable');
+        flag = false;
+      }
+
+      if (!$('#input-name').val()) {
+        $('#input-name').popover('enable');
+        $('#input-name').popover('show');
+        $('#input-name').popover('disable');
+        flag = false;
+      }
+
+      return flag;
+
+    }
 		
 	</script>
+
+
 
 	<script type="text/javascript">
 		// Скрипт синхронизации выбора дисциплины и оформления для раздела
 		var select = document.querySelector('#selectDiscipline');
 		select.addEventListener('click', function(){
 
-    		console.log("input-" + select.value);
-			var input = document.getElementById("input-" + select.value);
+      if ($('#selectDiscipline').val()!="0") {
+        console.log("input-" + select.value);
+        var input = document.getElementById("input-" + select.value);
 
-			var divLabels = input.parentElement.parentElement;
-			var labelList = divLabels.children;
-			for (let i = 0; i<labelList.length; i++){
-				labelList[i].children[1].checked = false;
-			}
+        var divLabels = input.parentElement.parentElement;
+        var labelList = divLabels.children;
+        for (let i = 0; i<labelList.length; i++){
+          labelList[i].children[1].checked = false;
+        }
 
-			input.checked = true;
+        input.checked = true;
+      }
 		});
 
 

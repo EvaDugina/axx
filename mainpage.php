@@ -3,6 +3,15 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("settings.php");
 
+function getTextSemester($year, $sem){
+  $semester = $year."/".($year+1). " ";
+  if ($sem == 1) 
+    $semester .= "Осень";
+  else
+    $semester .= "Весна"; 
+  return $semester;
+}
+
 // защита от случайного перехода
 $au = new auth_ssh();
 if (!$au->isAdmin() && !$au->isTeacher()){
@@ -40,10 +49,11 @@ function full_name($discipline_id, $dbconnect) {
 				// array_multisort(array_column($pages, 'y'), SORT_DESC, $pages);
 				//array_multisort(array_map(function($element){return $element['y'];}, $pages), SORT_DESC, $pages);
 				$curr_sem = $pages[0]['sem']; // first sem 
-				$curr_y = $pages[0]['y'];
-				$curr_s = $pages[0]['s'];
+				$year = $pages[0]['y'];
+				$sem = $pages[0]['s'];
+        
 			?>
-			<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $curr_sem; ?></h2><br>
+			<h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo getTextSemester($year, $sem); ?></h2><br>
 			<div class="container">
 				<div class="row g-5 container-fluid">
 					<?php foreach($pages as $page) {
@@ -63,7 +73,7 @@ function full_name($discipline_id, $dbconnect) {
             if ($curr_sem != $page['sem']) { ?>
               <div class="col-2 align-self-center popover-message-message-stud" 
               style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
-                <a class="btn btn-link" href="pageedit.php?addpage=1&year=<?=$curr_y?>&sem=<?=$curr_s?>" type="button" 
+                <a class="btn btn-link" href="pageedit.php?addpage=1&year=<?=$year?>&sem=<?=$sem?>" type="button" 
                 style="width: 100%; height: 100%; padding-top: 20%;">
                   <div class="row">
                     <i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
@@ -75,10 +85,10 @@ function full_name($discipline_id, $dbconnect) {
               </div>
               <?php 
                 $curr_sem = $page['sem'];
-                $curr_y = $page['y'];
-                $curr_s = $page['s'];
+                $year = $page['y'];
+                $sem = $page['s'];
               ?>
-              <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo $curr_sem; ?></h2><br>
+              <h2 class="row" style="margin-top: 30px; margin-left: 50px;"> <?php echo getTextSemester($year, $sem); ?></h2><br>
               <div class="container">
                 <div class="row g-5 container-fluid">
             <?php } ?>

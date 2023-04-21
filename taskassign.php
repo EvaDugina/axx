@@ -111,41 +111,28 @@ $Page = new Page((int)getPageByTask($Task->id));
         <div class="">
             <button id="btn-assignment-status-0" class="btn btn-outline-<?=$Assignment->status_code == 0 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
             onclick="ajaxChangeStatus(0)" <?=$Assignment->status_code == 0 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16">
-                  <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"/>
-                  <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"/>
-                </svg>
-              </button>
-              <button id="btn-assignment-status-1" class="btn btn-outline-<?=$Assignment->status_code == 1 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-              onclick="ajaxChangeStatus(1)" <?=$Assignment->status_code == 1 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16">
-                  <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
-                </svg>
-              </button>
-              <button id="btn-assignment-status-2" class="btn btn-outline-<?=$Assignment->status_code == 2 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-              onclick="ajaxChangeStatus(2)" <?=$Assignment->status_code == 2 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock-fill" viewBox="0 0 16 16">
-                  <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"/>
-                </svg>
-              </button>
-              <button id="btn-assignment-status-3" class="btn btn-outline-<?=$Assignment->status_code == 3 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-              onclick="ajaxChangeStatus(3)" <?=$Assignment->status_code == 3 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
-                  <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
-                </svg>
-              </button>
-              <button id="btn-assignment-status-4" class="btn btn-outline-<?=$Assignment->status_code == 4 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-              onclick="ajaxChangeStatus(4)" <?=$Assignment->status_code == 4 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-octagon-fill" viewBox="0 0 16 16">
-                  <path d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm-6.106 4.5L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                </svg>
-              </button>
-              <button id="btn-assignment-status-5" class="btn btn-outline-<?=$Assignment->status_code == 5 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-              <?=$Assignment->status_code == 5 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-fill" viewBox="0 0 16 16">
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
-                </svg>
-              </button>
+                <?php getSVGByAssignmentStatus(0);?>
+            </button>
+            <button id="btn-assignment-status-1" class="btn btn-outline-<?=$Assignment->status_code == 1 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
+            onclick="ajaxChangeStatus(1)" <?=$Assignment->status_code == 1 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
+              <?php getSVGByAssignmentStatus(1);?>
+            </button>
+            <button id="btn-assignment-status-2" class="btn btn-outline-<?=$Assignment->status_code == 2 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
+            onclick="ajaxChangeStatus(2)" <?=$Assignment->status_code == 2 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
+              <?php getSVGByAssignmentStatus(2);?>
+            </button>
+            <button id="btn-assignment-status-3" class="btn btn-outline-<?=$Assignment->status_code == 3 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
+            onclick="ajaxChangeStatus(3)" <?=$Assignment->status_code == 3 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
+              <?php getSVGByAssignmentStatus(3);?>
+            </button>
+            <button id="btn-assignment-status-4" class="btn btn-outline-<?=$Assignment->status_code == 4 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
+            onclick="ajaxChangeStatus(4)" <?=$Assignment->status_code == 4 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
+              <?php getSVGByAssignmentStatus(4);?>
+            </button>
+            <button id="btn-assignment-status-5" class="btn btn-outline-<?=$Assignment->status_code == 5 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
+            <?=$Assignment->status_code == 5 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
+              <?php getSVGByAssignmentStatus(5);?>
+            </button>
           </button>
         </div>
       </div>
@@ -638,6 +625,7 @@ $Page = new Page((int)getPageByTask($Task->id));
     }
 
 
+    // FIXME: Иногда срабатывает, иногда не срабатывает, при нажатии стрелочки назад
     if (isNewAssignment) {
       // Автоматически удаляем Assignment
       window.onbeforeunload = function() {
