@@ -346,12 +346,12 @@ show_header($dbconnect, 'Редактор заданий',
     let form_addFiles  = document.getElementById('form-addTaskFiles');
     var added_files = <?=json_encode($Task->getFiles())?>;
 
-    let original_title = "<?=$Task->title?>";
-    let original_type = "<?=$Task->type?>";
-    let original_description = "<?=$Task->description?>";
-    let original_codeTest = "<?=$textArea_codeTest?>";
-    let original_codeCheck = "<?=$textArea_codeCheck?>";
-
+    let original_title = $('#input-title').val();
+    let original_type = $('#task-type').val();
+    let original_description = easyMDE.value();
+    let original_codeTest = $('#textArea-codeTest').val();
+    let original_codeCheck = $('#textArea-codeCheck').val();
+    
     // Показывает количество прикрепленных для отправки файлов
     $('#task-files').on('change', function() {
       //$('#files-count').html(this.files.length);

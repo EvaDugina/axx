@@ -45,6 +45,7 @@ function convert_timestamp_from_string($str){
   return array('year' => $year, 'semester' => $sem_number);
 }
 
+// FIXME: Неверно конвертирует, прибавляет час
 function convert_timestamp_to_date($timestamp, $format = "d-m-Y") {
   return date($format, strtotime($timestamp));
 }
