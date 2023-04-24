@@ -44,21 +44,22 @@ if (isset($_POST['action'])) {
         print_r($_POST['teachers']);
 				foreach($_POST['teachers'] as $teacher) {
           // echo '</br>';
-          $pos = explode(" ", $teacher);
-          $first_name = $pos[0];
-          $middle_name = "";
-          if (isset($pos[1]))
-            $middle_name = $pos[1];
-          //echo $first_name .' ' . $middle_name;  
-          //echo $teacher;
-          $query = prep_ax_prep_page($id, $first_name, $middle_name);
+          // $pos = explode(" ", $teacher);
+          // $first_name = $pos[0];
+          // $middle_name = "";
+          // if (isset($pos[1]))
+          //   $middle_name = $pos[1];
+          // //echo $first_name .' ' . $middle_name;  
+          // //echo $teacher;
+          // $query = prep_ax_prep_page($id, $first_name, $middle_name);
+          $query = addTeacherToPage($id, (int)$teacher);
           pg_query($dbconnect, $query);
 				}
 			}
 
 			if (isset($_POST['groups'])){
 				foreach($_POST['groups'] as $group) {
-          $query = update_ax_page_group($id, $group);
+          $query = addGroupToPage($id, (int)$group);
           pg_query($dbconnect, $query);
 				}
 			}

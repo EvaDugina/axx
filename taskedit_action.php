@@ -288,6 +288,9 @@ if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
     $Asssignment->setVisibility($_POST['status']);
   }
 
+  // Не простое эхо, комментировать нельзя!
+  echo getSVGByAssignmentVisibility((int)$_POST['status']);
+
   exit();
 }
 

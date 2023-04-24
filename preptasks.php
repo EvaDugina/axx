@@ -121,14 +121,16 @@ if (!$result || pg_num_rows($result) < 1) {
                                 <input type="hidden" name="action" value="reject"></input>
 
                                 <div class="d-flex justify-content-between align-items-center me-2 mx-5 badge-primary 
-                                <?php if ($stud_list == "") echo "bg-warning";?> text-wrap small">
+                                <?php if ($stud_list == "") echo "bg-warning";?> text-wrap small"> 
                                   <span class="mx-1">
-                                  <?php if($stud_list == "")
-                                    echo "~СТУДЕНТЫ ОТСУТСТВУЮТ~";
-                                  else { 
-                                    getSVGByAssignmentVisibility($Assignment->visibility);?> &nbsp;
-                                    <i class="fas fa-user<?=(($icon_multiusers) ? "s" :"")?>"></i> <?=$stud_list?>
-                                   <?php } 
+                                    <?php if($stud_list == "") {?>
+                                      ~СТУДЕНТЫ ОТСУТСТВУЮТ~
+                                    <?php } else {?> 
+                                      <span class="span-assignmentVisibility-<?=$Task->id?>" class="p-0 m-0">
+                                        <?php getSVGByAssignmentVisibility($Assignment->visibility);?> &nbsp;
+                                      </span>
+                                      <i class="fas fa-user<?=(($icon_multiusers) ? "s" :"")?>"></i> <?=$stud_list?>
+                                    <?php } 
                                   if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
                                     echo " (до $Assignment->finish_limit)";
                                   else 
@@ -174,7 +176,28 @@ if (!$result || pg_num_rows($result) < 1) {
 
                         </td>
                         <td class="text-nowrap" style="--mdb-table-accent-bg:unset;">
+                          
                           <div class="d-flex flex-row">
+                            <section class="w-100 d-flex">
+                              <div class="form-outline datetimepicker me-3">
+                                <button id="btn-assignment-status-<?=$task['id']?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$task['id']?>" 
+                                onclick="ajaxChangeStatusAllAssignmentsByTask(0, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                                    <?php getSVGByAssignmentVisibility(0);?>
+                                </button>
+                                <button id="btn-assignment-status-<?=$task['id']?>-1" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$task['id']?>" 
+                                onclick="ajaxChangeStatusAllAssignmentsByTask(1, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                                  <?php getSVGByAssignmentVisibility(1);?>
+                                </button>
+                                <button id="btn-assignment-status-<?=$task['id']?>-2" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$task['id']?>" 
+                                onclick="ajaxChangeStatusAllAssignmentsByTask(2, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                                  <?php getSVGByAssignmentVisibility(2);?>
+                                </button>
+                                <button id="btn-assignment-status-<?=$task['id']?>-4" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$task['id']?>" 
+                                onclick="ajaxChangeStatusAllAssignmentsByTask(4, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                                  <?php getSVGByAssignmentVisibility(4);?>
+                                </button>
+                              </div>
+                            </section>
                           <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="archive">
                             <input type="hidden" name="task_id" value="<?=$task['id']?>">
@@ -467,6 +490,47 @@ if (!$result || pg_num_rows($result) < 1) {
       $('#linkFileForm').find('#tasknum').val($('#checkActiveForm').find('#checkActive:checked:enabled').map(function(){
         return $(this).val();
       }).get());
+    }
+
+
+    function ajaxChangeStatusAllAssignmentsByTask(new_status, task_id) {
+
+      var confirm_answer = confirm("Это действие изменит ВИДИМОСТЬ ВСЕХ НАЗНАЧЕНИЙ, прикреплённых к данному заданию. Вы уверены, что хотите продолжить?");
+      if (!confirm_answer)
+        return;
+
+      var formData = new FormData();
+
+      formData.append('task_id', task_id);
+      formData.append('status', new_status);
+      formData.append('action', 'editStatus');
+
+      $.ajax({
+        type: "POST",
+        url: 'taskedit_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          console.log(response);
+          $('.span-assignmentVisibility-' + task_id).html(response);
+        },
+        complete: function() {
+          if(new_status != "delete") {
+            $('.btn-assignment-status-' + task_id).removeClass('btn-outline-primary');
+            $('.btn-assignment-status-' + task_id).addClass('btn-outline-light');
+            $('.btn-assignment-status-' + task_id).css('color', 'var(--mdb-gray-400)');
+            $('.btn-assignment-status-' + task_id).css('border-color', 'var(--mdb-gray-400)');
+            $('#btn-assignment-status-' + task_id + '-' + new_status).css('color', 'var(--mdb-primary)');
+            $('#btn-assignment-status-' + task_id + '-' + new_status).css('border-color', 'var(--mdb-primary)');
+            $('#btn-assignment-status-' + task_id + '-' + new_status).removeClass('btn-outline-light');
+            $('#btn-assignment-status-' + task_id + '-' + new_status).addClass('btn-outline-primary');
+
+          }
+        }
+      });   
     }
 
 

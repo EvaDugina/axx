@@ -253,7 +253,10 @@
 		
 	  // $result = pg_query($dbconnect, "update ax_solution_commit set type = 1 where id = $commit_id");
 
-      pg_query($dbconnect, "UPDATE ax_assignment SET status_code=".(($user_role == 3) ? "5" : "2")." where id=$assignment");
+    if ($user_role == 3)
+      pg_query($dbconnect, "UPDATE ax_assignment SET status=1, status_code=2 where id=$assignment");
+    else 
+      pg_query($dbconnect, "UPDATE ax_assignment SET status=4, status_code=2 where id=$assignment");
 	  
 	  if ($user_role == 3) {
   	    $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)".
@@ -267,7 +270,7 @@
 	  $Message->addFile($File->id);
 	    // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
 			// 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-		pg_query($dbconnect, "update ax_assignment set status_code = 5, status_text = 'ожидает проверки' where id = $assignment");
+		pg_query($dbconnect, "update ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
 	  }
 	  else {
   	    $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)".
@@ -281,7 +284,7 @@
 	  $Message->addFile($File->id);
 	    // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
 			// 				 "     values ($msg_id, 'проверенная версия', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-		pg_query($dbconnect, "update ax_assignment set status_code = 2, status_text = 'проверено' where id = $assignment");
+		pg_query($dbconnect, "update ax_assignment set status_code = 2, status = 4, where id = $assignment");
 	  }		  
 	}		
   }

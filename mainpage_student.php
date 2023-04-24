@@ -68,8 +68,8 @@ $disc_count = pg_fetch_all($result1); ?>
                                     $result_assignment = pg_query($dbconnect, select_task_assignment_with_limit($row_task['id'], $_SESSION['hash']));
                                     if ($result_assignment && pg_num_rows($result_assignment) >= 1) {
                                         $row_task_assignment = pg_fetch_assoc($result_assignment);
-                                        if ($row_task_assignment['status_code'] == 3) $count_succes_tasks++;
-                                        if($row_task_assignment['status_code'] == 2 || $row_task_assignment['status_code'] == 5) $count_unsucces_tasks++;
+                                        if ($row_task_assignment['status'] == 4) $count_succes_tasks++;
+                                        else $count_unsucces_tasks++;
                                     }
                                 }
                             }

@@ -417,44 +417,6 @@ show_header($dbconnect, 'Редактор заданий',
   });
 
 
-  function ajaxChangeStatusAllAssignments(new_status) {
-
-    var confirm_answer = confirm("Это действие изменит статус всех назначений, прикреплённых к данному заданию. Вы уверены, что хотите продолжить?");
-    if (!confirm_answer)
-      return;
-
-    var formData = new FormData();
-
-    formData.append('task_id', <?=$Task->id?>);
-    formData.append('status', new_status);
-    formData.append('action', 'editStatus');
-
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType : 'html',
-      success: function(response) {
-      },
-      complete: function() {
-        if(new_status != "delete") {
-          $('.btn-assignment-status').removeClass('btn-outline-primary');
-          $('.btn-assignment-status').addClass('btn-outline-light');
-          $('.btn-assignment-status').css('color', 'var(--mdb-gray-400)');
-          $('.btn-assignment-status').css('border-color', 'var(--mdb-gray-400)');
-          $('#btn-assignment-status-' + new_status).css('color', 'var(--mdb-primary)');
-          $('#btn-assignment-status-' + new_status).css('border-color', 'var(--mdb-primary)');
-          $('#btn-assignment-status-' + new_status).removeClass('btn-outline-light');
-          $('#btn-assignment-status-' + new_status).addClass('btn-outline-primary');
-        }
-      }
-    });   
-  }
-
-
   function setFinishLimit() {
     var formData = new FormData();
 

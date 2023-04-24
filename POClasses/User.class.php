@@ -170,7 +170,7 @@ function querySetEmail($id, $email) {
 
 // получение уведомлений, отсортированных по message_id для студента по невыполненным заданиям
 function queryGetNotifiesForStudentHeader($student_id){
-  return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, 
+  return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, ax_assignment.status, 
             teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.id as message_id, ax_message.full_text FROM ax_task
           INNER JOIN ax_page ON ax_page.id = ax_task.page_id
           INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
@@ -186,7 +186,7 @@ function queryGetNotifiesForStudentHeader($student_id){
 // получение уведомлений для преподавателя по непроверенным заданиям
 function queryGetNotifiesForTeacherHeader($teacher_id){
   return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
-              ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment_student.student_user_id,
+              ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, ax_assignment_student.student_user_id,
               s1.middle_name, s1.first_name FROM ax_task
           INNER JOIN ax_page ON ax_page.id = ax_task.page_id
           INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id

@@ -180,7 +180,7 @@ if (array_key_exists('page', $_REQUEST)) {
 							<select class="form-select" id = "select_teacher">
 								<?php
 									foreach($teachers as $teacher){?>
-										<option><?=$teacher['first_name'].' '.$teacher['middle_name']?></option>;
+										<option value="<?=$teacher['id']?>"><?=$teacher['first_name'].' '.$teacher['middle_name']?></option>;
 									<?php }
 								?>
 							</select>&nbsp;
@@ -204,9 +204,9 @@ if (array_key_exists('page', $_REQUEST)) {
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
-									foreach($groups as $page_group){
-										echo "<option>".$page_group['name']."</option>";
-									}
+									foreach($groups as $page_group){?>
+										<option value="<?=$page_group['id']?>"><?=$page_group['name']?></option>
+									<?php }
 									echo "<option>Нет учебной группы</option>";
 								?>
 							</select>&nbsp;
@@ -282,16 +282,16 @@ if (array_key_exists('page', $_REQUEST)) {
 		if(actual_teachers_json){
       actual_teachers_json.forEach(function(r){
         let name = r.first_name + ' ' + r.middle_name;
-        add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
-        teachers.add(name);
+        add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers, r.id);
+        teachers.add(r.id);
       });
     }
 		
     if(page_groups_json){
       page_groups_json.forEach(function(r){
         let name = r.name;
-        add_element(document.getElementById("groups_container"), name, "groups[]", groups);
-        groups.add(name);
+        add_element(document.getElementById("groups_container"), name, "groups[]", groups, r.id);
+        groups.add(r.id);
       });
     }
 
@@ -303,18 +303,33 @@ if (array_key_exists('page', $_REQUEST)) {
 		
 		
 		function add_teacher() {
-			let name = document.getElementById("select_teacher").value;
-      if (teachers.has(name))
+      let teacher_id = $('#select_teacher').val();
+			var name;
+      Array.from($('#select_teacher').children()).forEach((option) => {
+        if(option.value == teacher_id) {
+          name = option.innerText;
+          return;
+        }
+      });
+
+      if (teachers.has(teacher_id))
 				return;
       console.log(name);
-			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers);
-			teachers.add(name);
+			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers, teacher_id);
+			teachers.add(teacher_id);
 		}
 		
 		function add_groups(){
-			let name = document.getElementById("select_groups").value;
+			let group_id = $('#select_groups').val();
+			var name;
+      Array.from($('#select_groups').children()).forEach((option) => {
+        if(option.value == group_id) {
+          name = option.innerText;
+          return;
+        }
+      });
 			
-			if (groups.has(name))
+			if (groups.has(group_id))
 				return;
 			if (groups.size != 0 && name =="Нет учебной группы"){
 				//console.log("Нет учебной группы");
@@ -322,19 +337,19 @@ if (array_key_exists('page', $_REQUEST)) {
 				return;
 			}
 			
-			add_element(document.getElementById("groups_container"), name, "groups[]", groups);
+			add_element(document.getElementById("groups_container"), name, "groups[]", groups, group_id);
 
-			groups.add(name);
+			groups.add(group_id);
 		}
 		
-		function add_element(parent, name, tag, set) {
+		function add_element(parent, name, tag, set, id) {
 			let element = document.createElement("div");
 
 			//element.classList.add("col-lg-2");
       element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 badge badge-primary text-wrap");
 
 			let text = document.createElement("span");
-			text.classList.add("p-1", "me-1");
+			text.classList.add("p-1", "me-1", "teacher-text");
 			text.setAttribute("style", "font-size: 15px; /*border-right: 1px solid; border-color: grey;*/");
 			text.innerText = name;
 			
@@ -350,14 +365,14 @@ if (array_key_exists('page', $_REQUEST)) {
 			parent.append(element);
 			
 			button.addEventListener('click', function (event){
-				let name = event.target.parentNode.textContent;
+				let name = event.target.parentNode.value;
 				set.delete(name);
 				parent.removeChild(event.target.parentNode);
 			});
 			
 			let input = document.createElement("input");
 			input.setAttribute("type", "hidden");
-			input.setAttribute("value", name);
+			input.setAttribute("value", id);
 			input.setAttribute("name", tag);
       //console.log(input);
 			element.append(input);
@@ -367,6 +382,7 @@ if (array_key_exists('page', $_REQUEST)) {
     $('#btn-save').click(function(event) {
       event.preventDefault();
       if (checkFiledsBeforeSave()) {
+        $('#pageedit_action').append('<input type="text" name="action" value="save" hidden>');
         $('#pageedit_action').submit();
       }
     });
@@ -399,15 +415,27 @@ if (array_key_exists('page', $_REQUEST)) {
         flag = false;
       }
 
+      
       if (!$('#input-name').val()) {
         $('#input-name').popover('enable');
         $('#input-name').popover('show');
         $('#input-name').popover('disable');
         flag = false;
       }
+      
+      if (checkTeachersList()) {
 
+      }
+      
       return flag;
 
+    }
+
+    function checkTeachersList() {
+      $('#teachers_container').find(".teacher-text").each(function(){
+        return false;
+        
+      });
     }
 		
 	</script>

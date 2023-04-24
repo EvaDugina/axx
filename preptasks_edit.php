@@ -179,9 +179,9 @@ switch($action)
 
             foreach($tasknums as $tn) {
                 $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, '.
-                            ' status_code, delay, status_text, mark) values '.
+                            ' status_code, status, delay, status_text, mark) values '.
                             ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
-                            ' , 2, 0, \'ожидает выполнения\', null) returning id;';
+                            ' , 2, 0, 0, \'недоступно для выполнения\', null) returning id;';
                 $result = pg_query($dbconnect, $query);
 
                 if ($row = pg_fetch_assoc($result))
@@ -201,9 +201,9 @@ switch($action)
             foreach($students as $s) {
                 foreach($tasknums as $tn) {
                     $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, '.
-                                ' status_code, delay, status_text, mark) values '.
+                                ' status_code, status, delay, status_text, mark) values '.
                                 ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
-                                ' , 2, 0, \'ожидает выполнения\', null) returning id;';
+                                ' , 2, 0, 0, \'недоступно для выполнения\', null) returning id;';
                     $result = pg_query($dbconnect, $query);
 
 

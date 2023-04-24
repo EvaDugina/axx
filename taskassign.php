@@ -559,6 +559,15 @@ $Page = new Page((int)getPageByTask($Task->id));
 
   <script type="text/javascript">
 
+    // BUG: Не срабатывает, если не сделать на странице никакого действия, даже прокрутки
+    if (isNewAssignment) {
+      // Автоматически удаляем Assignment
+      window.onbeforeunload = function(event) {
+        deleteAssignment();
+        return "";
+      };
+    }
+
     $('#checks-save').click(function () {
       window.onbeforeunload = null;
     });
@@ -632,17 +641,6 @@ $Page = new Page((int)getPageByTask($Task->id));
           }
         }
       });   
-    }
-
-
-    // FIXME: Иногда срабатывает, иногда не срабатывает, при нажатии стрелочки назад
-    if (isNewAssignment) {
-      // Автоматически удаляем Assignment
-      window.onbeforeunload = function() {
-        deleteAssignment();
-        return "";
-        // ajaxChangeVisibility('delete');
-      };
     }
 
 

@@ -113,14 +113,13 @@ if ($row) {
 		$time = explode(":", $time_date[1]);
 		$task_finish_limit .= " " . $time[0] . ":" . $time[1];
 	}
-	$task_status_code = $row['status_code'];
+	$task_status_code = $row['status'];
 	$task_mark = $row['mark'];
 }
 
-$task_status_texts = ['Недоступно для просмотра', 'Недоступно для выполнения', 'Активно', 'Выполнено', 'Отменено', 'Ожидает проверки'];
 $task_status_text = '';
 if ($Assignment->visibility != '') {
-	$task_status_text = $task_status_texts[$Assignment->visibility];
+	$task_status_text = visibility_to_text($Assignment->visibility);
 }
 
 $Task = new Task((int)$task_id);
@@ -164,13 +163,13 @@ $task_number = explode('.', $task_title)[0];
 			<h2><?= $task_title ?></h2>
 			<div>
 				<div class="task-desc-wrapper">
-          <small>
-					  <p id="TaskDescr" style="overflow: auto;"><?= $task_description ?></p>
-   				  <script>
-  						document.getElementById('TaskDescr').innerHTML =
-							  marked.parse(document.getElementById('TaskDescr').innerHTML);
-					  </script>
-          </small>
+          <b class="mb-0">Описание задания:</b>
+          <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;"><?= $task_description ?></p>
+          <script>
+            document.getElementById('TaskDescr').innerHTML =
+              marked.parse(document.getElementById('TaskDescr').innerHTML);
+            $('#TaskDescr').children().addClass("m-0");
+          </script>
 					<p style="line-height: 0.5em;">
           <?php
 			      if ($task_files)
@@ -191,12 +190,12 @@ $task_number = explode('.', $task_title)[0];
 					<div>
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" id="flexCheckDisabled" 
-								<?php if ($task_status_code == 3) echo 'checked'; ?> disabled>
+								<?php if ($task_status_code == 4) echo 'checked'; ?> disabled>
                 <?php //XXX: Проверить?>
 							<label id="label-task-status-text"><?= $task_status_text ?></label>
 						</div>
             <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
-            <span id="span-text-mark"><?php if($task_status_code == 3){?> 
+            <span id="span-text-mark"><?php if($task_status_code == 4){?> 
               Оценка: <b id="b-mark"><?=$task_mark?></b>
             <?php }?>
             </span>
@@ -229,7 +228,7 @@ $task_number = explode('.', $task_title)[0];
                   <div class="file-input-wrapper me-1">
                     <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
                     <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                    <label for="user-answer-files" <?php if($task_status_code == 3) echo 'style="cursor: default;"';?>>
+                    <label for="user-answer-files" <?php if($task_status_code == 4) echo 'style="cursor: default;"';?>>
                       <i class="fa-solid fa-paperclip"></i>
                       <span id="files-answer-count" class="text-success"></span>
                     </label>

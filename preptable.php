@@ -196,7 +196,7 @@ if ($scripts) echo $scripts; ?>
                             </td>
                           <?php }
 
-                          else if ($Assginment->visibility == 5) {
+                          else if ($Assginment->status == 1) {
                             $last_Message = $Assginment->getLastAnswerMessage();
                             $last_message_Student = new User((int)$last_Message->sender_user_id);
                             ?>
@@ -273,39 +273,35 @@ if ($scripts) echo $scripts; ?>
                         </div>
                       </div> 
                     </li>
-                    <?php 
-                    foreach ($Page->getTasks() as $Task) {
-                      foreach ($Task->getAssignmemntsByStudent($Student->id) as $Assignment) {?>
-
-                        <div class="inner-accordion noselect" style="display: none;">
+                    <div class="inner-accordion noselect" style="display: none;">
+                      <?php 
+                      foreach ($Page->getTasks() as $Task) {
+                        foreach ($Task->getAssignmemntsByStudent($Student->id) as $Assignment) {?>
                           <?php 
-                              //XXX: Проверить?>
-                              <a href="taskchat.php?assignment=<?=$Assignment->id?>">
-                                <li class="list-group-item" >
-                                  <div class="row">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                      &nbsp;&nbsp;&nbsp;<?=$Task->title?>
-                                      <?php 
-                                      $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
-                                      if($Assignment->visibility == 5) { ?>
-                                        <span class="badge badge-primary badge-pill bg-warning text-white">
-                                          Ожидает проверки
-                                        <span>
-                                      <?php } else if ($Assignment->visibility == 3) {?>
-                                        <span class="badge badge-primary badge-pill bg-success text-white">
-                                          Выполнено
-                                        <span>
-                                      <?php } ?>
-                                    </div>
-                                  </div>
-                                </li> 
-                              </a>
-                        </div>
-
+                          //XXX: Проверить?>
+                          <a href="taskchat.php?assignment=<?=$Assignment->id?>">
+                            <li class="list-group-item" >
+                              <div class="row">
+                                <div class="d-flex justify-content-between align-items-center">
+                                  &nbsp;&nbsp;&nbsp;<?=$Task->title?>
+                                  <?php 
+                                  $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
+                                  if($Assignment->status == 1) { ?>
+                                    <span class="badge badge-primary badge-pill bg-warning text-white">
+                                      Ожидает проверки
+                                    <span>
+                                  <?php } else if ($Assignment->status == 4) {?>
+                                    <span class="badge badge-primary badge-pill bg-success text-white">
+                                      Выполнено
+                                    <span>
+                                  <?php } ?>
+                                </div>
+                              </div>
+                            </li> 
+                          </a>
                         <?php }?>
-                      
-                        <?php
-                    }?>
+                      <?php }?>
+                    </div>
                   </div>
                   <?php
                   } 
@@ -485,7 +481,7 @@ function show_preptable_message($message, $flag_marked_message = false) {
     }
     $message_text .= showAttachedFilesByMessageId($message['mreply_id']);
     $message_text .= "</p>";
-  } else if ($message['status_code'] == 5 && $message['type'] == 1 && !$flag_marked_message) { 
+  } else if ($message['status'] == 1 && $message['type'] == 1 && !$flag_marked_message) { 
     // is student message need to be checked
     $Message = new Message((int)$message['mid']);
     $Task = new Task((int)$message['tid']);
