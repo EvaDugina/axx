@@ -431,6 +431,8 @@ if (array_key_exists('page', $_REQUEST)) {
 
     }
 
+    // TODO: Сделать проверку на то, что при сохранени дисциплину без себя в кач-ве препода пользователь её не увидит
+    // + сделать добавление своей карточки в кач-ве препода по умолчанию
     function checkTeachersList() {
       $('#teachers_container').find(".teacher-text").each(function(){
         return false;
