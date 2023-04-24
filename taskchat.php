@@ -119,8 +119,8 @@ if ($row) {
 
 $task_status_texts = ['Недоступно для просмотра', 'Недоступно для выполнения', 'Активно', 'Выполнено', 'Отменено', 'Ожидает проверки'];
 $task_status_text = '';
-if ($Assignment->status_code != '') {
-	$task_status_text = $task_status_texts[$Assignment->status_code];
+if ($Assignment->visibility != '') {
+	$task_status_text = $task_status_texts[$Assignment->visibility];
 }
 
 $Task = new Task((int)$task_id);

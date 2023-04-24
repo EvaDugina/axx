@@ -108,31 +108,42 @@ $Page = new Page((int)getPageByTask($Task->id));
         <?php } ?>
 
 
-        <div class="">
-            <button id="btn-assignment-status-0" class="btn btn-outline-<?=$Assignment->status_code == 0 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-            onclick="ajaxChangeStatus(0)" <?=$Assignment->status_code == 0 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-                <?php getSVGByAssignmentStatus(0);?>
+
+        <div class="d-flex">
+          <?php if (!$isNewAssignment) {?>
+            <div class="me-2 pe-2" style="border-right: 1px solid; border-color:var(--mdb-gray-400); cursor: help;"
+            data-toggle="tooltip" data-placement="down" title="<?=status_to_text($Assignment->status)?>">
+              <button class="btn btn-outline-primary px-3 me-1" disabled>
+                <?php getSVGByAssignmentStatus($Assignment->status);?>
+              </button>
+            </div>
+          <?php }?>
+          <div>
+            <button id="btn-assignment-visibility-0" class="btn btn-outline-<?=$Assignment->visibility == 0 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
+            onclick="ajaxChangeVisibility(0)" <?=$Assignment->visibility == 0 ?  '': 'style="color: var(--mdb-gray-400);"'?>
+            data-toggle="tooltip" data-placement="down" 
+            title="<?=$Assignment->visibility == 0 ? '' : 'Изменить видимость задания на:'?> '<?=strtoupper(visibility_to_text(0))?>'">
+                <?php getSVGByAssignmentVisibility(0);?>
             </button>
-            <button id="btn-assignment-status-1" class="btn btn-outline-<?=$Assignment->status_code == 1 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-            onclick="ajaxChangeStatus(1)" <?=$Assignment->status_code == 1 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-              <?php getSVGByAssignmentStatus(1);?>
+            <button id="btn-assignment-visibility-1" class="btn btn-outline-<?=$Assignment->visibility == 1 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
+            onclick="ajaxChangeVisibility(1)" <?=$Assignment->visibility == 1 ?  '': 'style="color: var(--mdb-gray-400);"'?>
+            data-toggle="tooltip" data-placement="down" 
+            title="<?=$Assignment->visibility == 1 ? '' : 'Изменить видимость задания на:'?> '<?=strtoupper(visibility_to_text(1))?>'">
+              <?php getSVGByAssignmentVisibility(1);?>
             </button>
-            <button id="btn-assignment-status-2" class="btn btn-outline-<?=$Assignment->status_code == 2 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-            onclick="ajaxChangeStatus(2)" <?=$Assignment->status_code == 2 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-              <?php getSVGByAssignmentStatus(2);?>
+            <button id="btn-assignment-visibility-2" class="btn btn-outline-<?=$Assignment->visibility == 2 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
+            onclick="ajaxChangeVisibility(2)" <?=$Assignment->visibility == 2 ?  '': 'style="color: var(--mdb-gray-400);"'?>
+            data-toggle="tooltip" data-placement="down" 
+            title="<?=$Assignment->visibility == 2 ? '' : 'Изменить видимость задания на:'?> '<?=strtoupper(visibility_to_text(2))?>'">
+              <?php getSVGByAssignmentVisibility(2);?>
             </button>
-            <button id="btn-assignment-status-3" class="btn btn-outline-<?=$Assignment->status_code == 3 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-            onclick="ajaxChangeStatus(3)" <?=$Assignment->status_code == 3 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-              <?php getSVGByAssignmentStatus(3);?>
+            <button id="btn-assignment-visibility-4" class="btn btn-outline-<?=$Assignment->visibility == 4 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
+            onclick="ajaxChangeVisibility(4)" <?=$Assignment->visibility == 4 ?  '': 'style="color: var(--mdb-gray-400);"'?>
+            data-toggle="tooltip" data-placement="down" 
+            title="<?=$Assignment->visibility == 4 ? '' : 'Изменить видимость задания на:'?> '<?=strtoupper(visibility_to_text(4))?>'">
+              <?php getSVGByAssignmentVisibility(4);?>
             </button>
-            <button id="btn-assignment-status-4" class="btn btn-outline-<?=$Assignment->status_code == 4 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-            onclick="ajaxChangeStatus(4)" <?=$Assignment->status_code == 4 ?  '': 'style="color: var(--mdb-gray-400);"'?>>
-              <?php getSVGByAssignmentStatus(4);?>
-            </button>
-            <button id="btn-assignment-status-5" class="btn btn-outline-<?=$Assignment->status_code == 5 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
-            <?=$Assignment->status_code == 5 ?  '': 'style="color: var(--mdb-gray-400);"'?> disabled>
-              <?php getSVGByAssignmentStatus(5);?>
-            </button>
+          </div>
         </div>
       </div>
       
@@ -554,7 +565,7 @@ $Page = new Page((int)getPageByTask($Task->id));
     
 
     async function deleteAssignment() {
-      const res = await ajaxChangeStatus('delete');
+      const res = await ajaxChangeVisibility('delete');
     }
 
 
@@ -587,7 +598,7 @@ $Page = new Page((int)getPageByTask($Task->id));
       }
     }
 
-    function ajaxChangeStatus(new_status) {
+    function ajaxChangeVisibility(new_status) {
 
       var formData = new FormData();
       // if (isGeneralTaskAssignPage) {
@@ -612,12 +623,12 @@ $Page = new Page((int)getPageByTask($Task->id));
         },
         complete: function() {
           if(new_status != "delete") {
-            $('.btn-assignment-status').removeClass('btn-outline-primary');
-            $('.btn-assignment-status').addClass('btn-outline-light');
-            $('.btn-assignment-status').css('color', 'var(--mdb-gray-400)');
-            $('#btn-assignment-status-' + new_status).css('color', 'var(--mdb-primary)');
-            $('#btn-assignment-status-' + new_status).removeClass('btn-outline-light');
-            $('#btn-assignment-status-' + new_status).addClass('btn-outline-primary');
+            $('.btn-assignment-visibility').removeClass('btn-outline-primary');
+            $('.btn-assignment-visibility').addClass('btn-outline-light');
+            $('.btn-assignment-visibility').css('color', 'var(--mdb-gray-400)');
+            $('#btn-assignment-visibility-' + new_status).css('color', 'var(--mdb-primary)');
+            $('#btn-assignment-visibility-' + new_status).removeClass('btn-outline-light');
+            $('#btn-assignment-visibility-' + new_status).addClass('btn-outline-primary');
           }
         }
       });   
@@ -630,12 +641,15 @@ $Page = new Page((int)getPageByTask($Task->id));
       window.onbeforeunload = function() {
         deleteAssignment();
         return "";
-        // ajaxChangeStatus('delete');
+        // ajaxChangeVisibility('delete');
       };
     }
 
 
   </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   
 </body>
 </html>

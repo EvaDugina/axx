@@ -190,13 +190,13 @@ if ($scripts) echo $scripts; ?>
                             <!-- <th colspan="1"> </th> -->
                           <?php //}
 
-                          if ($Assginment->status_code == 0 || $Assginment->status_code == 1) {?>
+                          if ($Assginment->visibility == 0 || $Assginment->visibility == 1) {?>
                             <td onclick="unblockAssignment(<?=$Assginment->id?>)"
                             style="background: var(--mdb-gray-100);">
                             </td>
                           <?php }
 
-                          else if ($Assginment->status_code == 5) {
+                          else if ($Assginment->visibility == 5) {
                             $last_Message = $Assginment->getLastAnswerMessage();
                             $last_message_Student = new User((int)$last_Message->sender_user_id);
                             ?>
@@ -287,11 +287,11 @@ if ($scripts) echo $scripts; ?>
                                       &nbsp;&nbsp;&nbsp;<?=$Task->title?>
                                       <?php 
                                       $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
-                                      if($Assignment->status_code == 5) { ?>
+                                      if($Assignment->visibility == 5) { ?>
                                         <span class="badge badge-primary badge-pill bg-warning text-white">
                                           Ожидает проверки
                                         <span>
-                                      <?php } else if ($Assignment->status_code == 3) {?>
+                                      <?php } else if ($Assignment->visibility == 3) {?>
                                         <span class="badge badge-primary badge-pill bg-success text-white">
                                           Выполнено
                                         <span>

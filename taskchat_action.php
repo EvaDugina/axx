@@ -37,7 +37,7 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
     $Message_link = new Message((int)$assignment_id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$Commit->id", 0, 2);
     $Assignment->addMessage($Message_link->id);
     
-    $Assignment->setStatus(5);
+    $Assignment->setVisibility(5);
 
     $delay = -1;
     if ($Assignment->finish_limit) {

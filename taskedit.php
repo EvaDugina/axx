@@ -179,19 +179,19 @@ show_header($dbconnect, 'Редактор заданий',
               <div class="form-outline datetimepicker me-3">
                 <button id="btn-assignment-status-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
                 onclick="ajaxChangeStatusAllAssignments(0)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                    <?php //getSVGByAssignmentStatus(0);?>
+                    <?php //getSVGByAssignmentVisibility(0);?>
                 </button>
                 <button id="btn-assignment-status-1" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
                 onclick="ajaxChangeStatusAllAssignments(1)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentStatus(1);?>
+                  <?php //getSVGByAssignmentVisibility(1);?>
                 </button>
                 <button id="btn-assignment-status-2" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
                 onclick="ajaxChangeStatusAllAssignments(2)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentStatus(2);?>
+                  <?php //getSVGByAssignmentVisibility(2);?>
                 </button>
                 <button id="btn-assignment-status-4" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
                 onclick="ajaxChangeStatusAllAssignments(4)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentStatus(4);?>
+                  <?php //getSVGByAssignmentVisibility(4);?>
                 </button>
               </div>
             </section> -->

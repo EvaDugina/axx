@@ -126,7 +126,7 @@ if (!$result || pg_num_rows($result) < 1) {
                                   <?php if($stud_list == "")
                                     echo "~СТУДЕНТЫ ОТСУТСТВУЮТ~";
                                   else { 
-                                    getSVGByAssignmentStatus($Assignment->status_code);?> &nbsp;
+                                    getSVGByAssignmentVisibility($Assignment->visibility);?> &nbsp;
                                     <i class="fas fa-user<?=(($icon_multiusers) ? "s" :"")?>"></i> <?=$stud_list?>
                                    <?php } 
                                   if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 

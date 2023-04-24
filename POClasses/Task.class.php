@@ -195,7 +195,7 @@ class Task {
   public function getActiveAssignments() {
     $active_Assignments = array();
     foreach($this->Assignments as $Assignment) {
-      if ($Assignment->status_code == 2 || $Assignment->status_code == 3 || $Assignment->status_code == 5)
+      if ($Assignment->visibility == 2 || $Assignment->visibility == 3 || $Assignment->visibility == 5)
         array_push($active_Assignments, $Assignment);
     }
     return $active_Assignments;
@@ -203,7 +203,7 @@ class Task {
   public function getAssignmemntsByStudent($student_id) {
     $student_Assignments = array();
     foreach($this->Assignments as $Assignment) {
-      if (($Assignment->status_code == 2 || $Assignment->status_code == 3 || $Assignment->status_code == 5) 
+      if (($Assignment->visibility == 2 || $Assignment->visibility == 3 || $Assignment->visibility == 5) 
       && $Assignment->checkStudent($student_id))
         array_push($student_Assignments, $Assignment);
     }
@@ -211,7 +211,7 @@ class Task {
   }
   public function hasUncheckedAssignments($student_id) {
     foreach($this->Assignments as $Assignment) {
-      if (($Assignment->status_code == 5) && $Assignment->checkStudent($student_id))
+      if (($Assignment->visibility == 5) && $Assignment->checkStudent($student_id))
         return true;
     }
     return false;

@@ -285,7 +285,7 @@ if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
   }
 
   foreach ($Task->getAssignments() as $Asssignment) {
-    $Asssignment->setStatus($_POST['status']);
+    $Asssignment->setVisibility($_POST['status']);
   }
 
   exit();

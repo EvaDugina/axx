@@ -14,7 +14,7 @@
 		if ($_POST['changeStatus'] == 'delete')
 			$Assignment->deleteFromDB();
 		else 
-			$Assignment->setStatus((int)$_POST['changeStatus']);
+			$Assignment->setVisibility((int)$_POST['changeStatus']);
 	} 
 	
 	// changeStatus для всех Assignments
@@ -24,7 +24,7 @@
 			if ($_POST['changeStatus'] == 'delete')
 				$Assignment->deleteFromDB();
 			else 
-				$Assignment->setStatus((int)$_POST['changeStatus']);
+				$Assignment->setVisibility((int)$_POST['changeStatus']);
 		}
 	}
     exit;

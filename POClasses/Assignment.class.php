@@ -10,9 +10,11 @@ class Assignment {
   public $id = null;
   public $variant_number = null;
   public $start_limit = null, $finish_limit = null;
-  public $status_code = null, $status_text = null;
+  // public $status_code = null, $status_text = null;
   public $delay = null; // не понятно, зачем нужно
   public $mark = null;
+  public $status = null;
+  public $visibility = null;
   public $checks = null;
 
   // TODO: добавить колонку в БД
@@ -42,8 +44,9 @@ class Assignment {
       $this->start_limit = convert_timestamp_to_date($assignment['start_limit'], "d-m-Y H:i:s");
       $this->finish_limit = convert_timestamp_to_date($assignment['finish_limit'], "d-m-Y H:i:s");
 
-      $this->status_code = $assignment['status_code'];
-      $this->status_text = $assignment['status_text'];
+      $this->visibility = $assignment['status_code'];
+      $this->status = $assignment['status'];
+      // $this->status_text = $assignment['status_text'];
 
       $this->delay = $assignment['delay'];
       $this->mark = $assignment['mark'];
@@ -56,8 +59,8 @@ class Assignment {
 
     else if ($count_args == 2) {
       $task_id = $args[0];
-      $this->status_code = $args[1];
-      $this->status_text = status_code_to_text($this->status_code);
+      $this->visibility = $args[1];
+      // $this->status_text = status_code_to_text($this->visibility);
 
       $this->pushNewEmptyToDB($task_id);
     }
@@ -69,8 +72,8 @@ class Assignment {
       $this->start_limit = $args[2];
       $this->finish_limit = $args[3];
 
-      $this->status_code = $args[4];
-      $this->status_text = $args[5];
+      $this->visibility = $args[4];
+      // $this->status_text = $args[5];
 
       $this->delay = $args[6];
       $this->mark = $args[7];
@@ -99,13 +102,12 @@ class Assignment {
 
 // SETTERS
 
-  public function setStatus($status_code) {
+  public function setStatus($status) {
     global $dbconnect;
 
-    $this->status_code = $status_code;
-    $this->status_text = status_code_to_text($this->status_code);
+    $this->status = $status;
 
-    $query = "UPDATE ax_assignment SET status_code = $this->status_code, status_text = '$this->status_text' 
+    $query = "UPDATE ax_assignment SET status = $this->status
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -116,6 +118,17 @@ class Assignment {
     $this->delay = $delay;
 
     $query = "UPDATE ax_assignment SET delay = $this->delay WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function setVisibility($visibility) {
+    global $dbconnect;
+
+    $this->visibility = $visibility;
+    // $this->status_text = status_code_to_text($this->visibility);
+
+    $query = "UPDATE ax_assignment SET status_code = $this->visibility
+              WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -155,9 +168,9 @@ class Assignment {
     global $dbconnect;
 
     $query = "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, 
-              status_code, delay, status_text, mark, checks)
+              status_code, delay, mark, checks)
               VALUES ($task_id, $this->variant_number, '$this->start_limit', '$this->finish_limit', 
-              $this->status_code, $this->delay, '$this->status_text', '$this->mark', '$this->checks') 
+              $this->visibility, $this->delay, '$this->mark', '$this->checks') 
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -168,8 +181,8 @@ class Assignment {
   public function pushNewEmptyToDB($task_id) {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_assignment(task_id, status_code, status_text)
-              VALUES ($task_id, $this->status_code, '$this->status_text') 
+    $query = "INSERT INTO ax_assignment(task_id, status_code)
+              VALUES ($task_id, $this->visibility) 
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -181,7 +194,7 @@ class Assignment {
     global $dbconnect;
 
     $query = "UPDATE ax_assignment SET variant_number=$this->variant_number, start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
-              status_code=$this->status_code, delay=$this->delay, status_text='$this->status_text', mark='$this->mark', checks='$this->checks' 
+              status_code=$this->visibility, delay=$this->delay, mark='$this->mark', checks='$this->checks' 
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -544,22 +557,35 @@ function queryGetPageByAssignment($assignment_id) {
 
 
 
-function status_code_to_text($status_code) {
-    switch ($status_code) {
-      case 0:
-        return "недоступно для просмотра"; 
-      case 1:
-        return "недоступно для выполнения";
-      case 2: 
-        return "активно";
-      case 3:
-        return "выполнено";
-      case 4:
-        return "отменено";
-      case 5:
-        return "ожидает проверки";
-      default:
-        return "ERROR!";
-    }
+function visibility_to_text($status_code) {
+  switch ($status_code) {
+    case 0:
+      return "Недоступно для просмотра"; 
+    case 1:
+      return "Недоступно для выполнения";
+    case 2: 
+      return "Доступно для выполнения";
+    case 4:
+      return "Отменено";
+    default:
+      return "";
   }
+}
+
+function status_to_text($status_code) {
+  switch ($status_code) {
+    case 0:
+      return "Ожидает выполнения"; 
+    case 1:
+      return "Ожидает проверки";
+    case 2: 
+      return "Проверено, не оценено";
+    case 3:
+      return "Ожидает повторного выполнения";
+    case 4:
+      return "Оценено";
+    default:
+      return "";
+  }
+}
 ?>
