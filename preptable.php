@@ -179,32 +179,32 @@ if ($scripts) echo $scripts; ?>
                       <th scope="row" data-group="<?=$Group->id?>"><?=$count+1?>. <?=$Student->getFI()?></th>
                       <?php 
                       foreach($Page->getActiveTasks() as $Task) {
-                        $Assginment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
+                        $Assignment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
                         <?php
-                        if ($Assginment != null) {
+                        if ($Assignment != null) {
                           
-                          // if ($Assginment->variant_number != null) { 
-                            // $Variant = new Variant((int)$Assginment->variant_number);?>
+                          // if ($Assignment->variant_number != null) { 
+                            // $Variant = new Variant((int)$Assignment->variant_number);?>
                             <!-- <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?=$Variant->comment?>"><?=$Variant->number?></th> -->
                           <?php //} else { ?>
                             <!-- <th colspan="1"> </th> -->
                           <?php //}
                           // TODO: Изменить логику отрисовки таблицы в зависимости от того, стоит ли оценка или нет
-                          if ($Assginment->visibility == 0 || $Assginment->visibility == 1) {?>
-                            <td onclick="unblockAssignment(<?=$Assginment->id?>)"
+                          if ($Assignment->visibility == 0 || $Assignment->visibility == 1) {?>
+                            <td onclick="unblockAssignment(<?=$Assignment->id?>)"
                             style="background: var(--mdb-gray-100);">
                             </td>
                           <?php }
 
-                          else if ($Assginment->status == 1) {
-                            $last_Message = $Assginment->getLastAnswerMessage();
+                          else if ($Assignment->status == 1) {
+                            $last_Message = $Assignment->getLastAnswerMessage();
                             $last_message_Student = new User((int)$last_Message->sender_user_id);
                             ?>
                             <td tabindex="0" onclick="showPopover(this)" 
                             title="<?=$last_message_Student->getFI()?> <?=convert_mtime($last_Message->date_time)?>" 
-                            data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assginment->id, $user_id)?>">
-                              <?php if ($Task->max_mark != null) {?>
-                                <?=$Task->max_mark?>
+                            data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assignment->id, $user_id)?>">
+                              <?php if ($Assignment->mark != null) {?>
+                                <?=$Assignment->mark?>
                                 <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                   <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
@@ -218,9 +218,9 @@ if ($scripts) echo $scripts; ?>
                           <?php } 
                           
                           else {?>
-                              <td onclick="answerPress(2,null,<?=$Assginment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)">
-                                <?php if ($Assginment->mark != null) {
-                                  echo $Assginment->mark;
+                              <td onclick="answerPress(2,null,<?=$Assignment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)">
+                                <?php if ($Assignment->mark != null) {
+                                  echo $Assignment->mark;
                                 } ?>
                               </td>
                           <?php }
