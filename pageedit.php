@@ -72,13 +72,20 @@ if (array_key_exists('page', $_REQUEST)) {
 	$query = select_discipline_groups($page_id);
 	$result = pg_query($dbconnect, $query);
 	$page_groups = pg_fetch_all($result);
+  echo "<script>var isNewPage=false;</script>";
 } else {
 	$page_id = 0;
   // TODO: Сделать создание страницы
+  echo "<script>var isNewPage=true;</script>";
+
 	
 	if (array_key_exists('year', $_REQUEST) && array_key_exists('sem', $_REQUEST))	
 		$semester = $_REQUEST['year']."/".convert_sem_from_number($_REQUEST['sem']);
 }
+
+
+echo "<script>var user_id=".$au->getUserId().";</script>";
+echo "<script>var isAdmin=".$au->isAdmin().";</script>";
 
 #echo "<pre>";
 #var_dump(json_decode($page_groups_json));
@@ -282,7 +289,7 @@ if (array_key_exists('page', $_REQUEST)) {
 		if(actual_teachers_json){
       actual_teachers_json.forEach(function(r){
         let name = r.first_name + ' ' + r.middle_name;
-        add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers, r.id);
+        add_element(document.getElementById("teachers_container"), name, "teachers[]", "t", r.id);
         teachers.add(r.id);
       });
     }
@@ -290,20 +297,28 @@ if (array_key_exists('page', $_REQUEST)) {
     if(page_groups_json){
       page_groups_json.forEach(function(r){
         let name = r.name;
-        add_element(document.getElementById("groups_container"), name, "groups[]", groups, r.id);
+        add_element(document.getElementById("groups_container"), name, "groups[]", "g", r.id);
         groups.add(r.id);
       });
     }
 
+    if(isNewPage && !isAdmin) {
+      add_teacher(user_id);
+    }
+
 		let add_teachers_button = document.getElementById("add_teachers");
-		add_teachers_button.addEventListener('click', add_teacher);
+		add_teachers_button.addEventListener('click', addElementTeacher);
 		
 		let add_groups_button = document.getElementById("add_groups");
 		add_groups_button.addEventListener('click', add_groups);
 		
+
+    function addElementTeacher() {
+      teacher_id = $('#select_teacher').val();
+      add_teacher(teacher_id);
+    }
 		
-		function add_teacher() {
-      let teacher_id = $('#select_teacher').val();
+		function add_teacher(teacher_id) {
 			var name;
       Array.from($('#select_teacher').children()).forEach((option) => {
         if(option.value == teacher_id) {
@@ -315,7 +330,7 @@ if (array_key_exists('page', $_REQUEST)) {
       if (teachers.has(teacher_id))
 				return;
       console.log(name);
-			add_element(document.getElementById("teachers_container"), name, "teachers[]", teachers, teacher_id);
+			add_element(document.getElementById("teachers_container"), name, "teachers[]", "t", teacher_id);
 			teachers.add(teacher_id);
 		}
 		
@@ -337,7 +352,7 @@ if (array_key_exists('page', $_REQUEST)) {
 				return;
 			}
 			
-			add_element(document.getElementById("groups_container"), name, "groups[]", groups, group_id);
+			add_element(document.getElementById("groups_container"), name, "groups[]", "g", group_id);
 
 			groups.add(group_id);
 		}
@@ -346,10 +361,11 @@ if (array_key_exists('page', $_REQUEST)) {
 			let element = document.createElement("div");
 
 			//element.classList.add("col-lg-2");
-      element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 badge badge-primary text-wrap");
+      element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 badge badge-primary text-wrap teacher-element");
+      element.id = "t-" + id;
 
 			let text = document.createElement("span");
-			text.classList.add("p-1", "me-1", "teacher-text");
+			text.classList.add("p-1", "me-1");
 			text.setAttribute("style", "font-size: 15px; /*border-right: 1px solid; border-color: grey;*/");
 			text.innerText = name;
 			
@@ -366,7 +382,10 @@ if (array_key_exists('page', $_REQUEST)) {
 			
 			button.addEventListener('click', function (event){
 				let name = event.target.parentNode.value;
-				set.delete(name);
+        if (tag == "groups[]")
+          groups.delete(id);
+        else 
+          teachers.delete(id);
 				parent.removeChild(event.target.parentNode);
 			});
 			
@@ -423,21 +442,26 @@ if (array_key_exists('page', $_REQUEST)) {
         flag = false;
       }
       
-      if (checkTeachersList()) {
-
+      if (!checkTeachersList() && !isAdmin) {
+        let answer_confirm = confirm("Вы не выбрали себя в качестве преподавателя! Дисциплина будет недоступна вам для просмотра. Вы уверены, что хотите продолжить?");
+        if(!answer_confirm)
+          flag = false;
       }
       
       return flag;
 
     }
 
-    // TODO: Сделать проверку на то, что при сохранени дисциплину без себя в кач-ве препода пользователь её не увидит
-    // + сделать добавление своей карточки в кач-ве препода по умолчанию
+    // TODO: сделать добавление своей карточки в кач-ве препода по умолчанию
     function checkTeachersList() {
-      $('#teachers_container').find(".teacher-text").each(function(){
-        return false;
-        
+      var flag = false;
+      Array.from($('#teachers_container').children()).forEach((teacher) => {
+        if(teacher.id == "t-" + user_id) {
+          flag = true;
+          return;
+        }
       });
+      return flag;
     }
 		
 	</script>

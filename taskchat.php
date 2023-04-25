@@ -150,7 +150,7 @@ $task_number = explode('.', $task_title)[0];
 
 <body>
 	<?php 
-	if ($au->isTeacher()) 
+	if ($au->isTeacher() || $au->isAdmin()) 
 		show_header($dbconnect, 'Чат c перподавателем', 
 			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => '')); 
 	else 
