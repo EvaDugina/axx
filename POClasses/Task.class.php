@@ -78,6 +78,14 @@ class Task {
     return $this->Files;
   }
 
+  public function isCompleted($student_id){
+    foreach($this->Assignments as $Assignment) {
+      if ($Assignment->checkStudent($student_id) && $Assignment->status != 4)
+        return false;
+    }
+    return true;
+  }
+
 // -- END GETTERS
 
 

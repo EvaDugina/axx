@@ -87,7 +87,9 @@ show_header($dbconnect, 'Задания по дисциплине',
 							<?php
 							if (!$result_tasks || pg_num_rows($result_tasks) < 1);
 							else {
-                foreach($tasks as $key => $task) { 
+                foreach($tasks as $key => $task) {
+                  if ($task['status'] == 0)
+                    continue; 
 									$query_assignment = select_task_assignment_with_limit($task['id'], $_SESSION['hash']);
 									$result_assignment = pg_query($dbconnect, $query_assignment);
 									$row_assignment = pg_fetch_assoc($result_assignment);

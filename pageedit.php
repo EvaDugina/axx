@@ -85,7 +85,10 @@ if (array_key_exists('page', $_REQUEST)) {
 
 
 echo "<script>var user_id=".$au->getUserId().";</script>";
-echo "<script>var isAdmin=".$au->isAdmin().";</script>";
+if ($au->isAdmin())
+  echo "<script>var isAdmin=true;</script>";
+else 
+  echo "<script>var isAdmin=false;</script>";
 
 #echo "<pre>";
 #var_dump(json_decode($page_groups_json));

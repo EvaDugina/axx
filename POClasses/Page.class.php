@@ -130,6 +130,13 @@ class Page {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  function getColorThemeSrcUrl() {
+    global $dbconnect;
+
+    $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl($this->color_theme_id)) or die('Ошибка запроса: ' . pg_last_error());
+    return pg_fetch_assoc($pg_query)['src_url'];
+  }
+
 // -- END WORK WITH PAGE
   
 
@@ -177,6 +184,22 @@ class Page {
         array_push($return_Tasks, $Task);
     }
     return $return_Tasks;
+  }
+  public function getCountSuccessTasks($student_id) {
+    $count_success = 0;
+    foreach($this->Tasks as $Task) {
+      if ($Task->status == 1 && $Task->isCompleted($student_id))
+        $count_success++;
+    }
+    return $count_success;
+  }
+  public function getCountActiveTasks($student_id) {
+    $count = 0;
+    foreach($this->Tasks as $Task) {
+      if ($Task->status == 1)
+        $count++;
+    }
+    return $count;
   }
 
 // -- END WORK WITH TASKS
@@ -326,16 +349,9 @@ public function deleteTeachersFromPageDB() {
     return 'Весна';
   }
 
-  //
-  public function getSemesterNumber() {
-    // TODO: Реализовать возвращение порядкового номера семестра (от 1 до 8)
-    /*if ($this->semester == 1)
-      return 2*((int)date('Y')-(int)$this->year + 1);
-    return 2*((int)date('Y')-(int)$this->year + 1)-1;*/
-  }
-
-
 }
+
+
 
 
 // TODO: Протестировать!
@@ -385,6 +401,20 @@ function getTeachersByPage($page_id) {
 }
 
 
+function getSemesterNumberByGroup($page_year, $page_semester, $group_year) {
+  // TODO: Реализовать возвращение порядкового номера семестра (от 1 до 8)
+  /*if ($this->semester == 1)
+    return 2*((int)date('Y')-(int)$this->year + 1);
+  return 2*((int)date('Y')-(int)$this->year + 1)-1;*/
+  $semester = 0;
+  for ($i=$group_year; $i <= (int)$page_year; $i++) {
+    $semester++;
+    if($page_semester == 2)
+      $semester++;
+  }
+  return $semester;
+}
+
 
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
@@ -396,6 +426,19 @@ function queryGetPageInfo($page_id) { // FIXME:
           INNER JOIN discipline d ON d.id = p.disc_id
           WHERE p.id = $page_id;
   ";
+}
+
+function queryGetColorThemeSrcUrl($color_theme_id) {
+  return "SELECT src_url FROM ax_color_theme ax_ct 
+          WHERE id = $color_theme_id;
+  ";
+}
+
+function queryGetAllPagesByGroup($group_id) {
+  return "SELECT p.id FROM ax_page p
+          INNER JOIN ax_page_group ON ax_page_group.page_id = p.id
+          WHERE ax_page_group.group_id = $group_id
+          ORDER BY p.year DESC, p.semester DESC";
 }
 
 function queryGetTasksByPage($page_id) {
