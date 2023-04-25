@@ -175,27 +175,6 @@ show_header($dbconnect, 'Редактор заданий',
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;РЕДАКТОР ВСЕХ НАЗНАЧЕНИЙ</small></label>
             </div>
 
-            <!-- <section class="w-100 py-2 d-flex">
-              <div class="form-outline datetimepicker me-3">
-                <button id="btn-assignment-status-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(0)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                    <?php //getSVGByAssignmentVisibility(0);?>
-                </button>
-                <button id="btn-assignment-status-1" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(1)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentVisibility(1);?>
-                </button>
-                <button id="btn-assignment-status-2" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(2)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentVisibility(2);?>
-                </button>
-                <button id="btn-assignment-status-4" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(4)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentVisibility(4);?>
-                </button>
-              </div>
-            </section> -->
-
             <section class="w-100 py-2 d-flex">
               <div class="form-outline datetimepicker me-3" style="width: 65%;">
                 <input id="input-finishLimit" type="date" class="form-control active" name="finish-limit" 

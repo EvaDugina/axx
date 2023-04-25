@@ -223,6 +223,24 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function isVisible() {
+    if($this->visibility == 2)
+      return true;
+    return false;
+  }
+
+  public function isCompleteable() {
+    if($this->status != -1 && $this->visibility != 4)
+      return true;
+    return false;
+  }
+
+  public function isCompleted() {
+    if($this->status == 4)
+      return true;
+    return false;
+  }
+
 // -- END WORK WITH ASSIGNMENT
 
 
@@ -569,11 +587,9 @@ function queryGetPageByAssignment($assignment_id) {
 function visibility_to_text($visibility) {
   switch ($visibility) {
     case 0:
-      return "Недоступно для просмотра"; 
-    case 1:
-      return "Недоступно для выполнения";
+      return "Недоступно для просмотра";
     case 2: 
-      return "Доступно для выполнения";
+      return "Доступно для просмотра";
     case 4:
       return "Отменено";
     default:
@@ -583,6 +599,8 @@ function visibility_to_text($visibility) {
 
 function status_to_text($status) {
   switch ($status) {
+    case -1:
+      return "Недоступно для выполнения";
     case 0:
       return "Ожидает выполнения"; 
     case 1:

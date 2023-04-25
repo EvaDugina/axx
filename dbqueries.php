@@ -917,7 +917,7 @@ function select_last_ax_solution_file_by_commit_id($commit_id) {
 // TODO: ПРОВЕРИТЬ!
 // получение сообщений для таблицы посылок
 function select_preptable_messages($page_id) {
-    return "SELECT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
+    return "SELECT DISTINCT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
       ax_task.id tid, ax_assignment.id aid, ax_assignment.status_code, ax_assignment.status, m1.id mid, s1.id sid, 
       m1.type, ax_task.title task, ax_task.max_mark max_mark, ax_assignment.mark amark, 
       ax_assignment.delay adelay, ax_assignment.status_code astatus, 

@@ -276,7 +276,7 @@ if (isset($_POST['action']) && $_POST['action'] == "editFinishLimit") {
 }
 
 // Изменение status всех Assignments прикреплённых к Task
-if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
+if(isset($_POST['action']) && $_POST['action'] == "editVisibility") {
   if(isset($_POST['task_id'])) {
     $Task = new Task((int)$_POST['task_id']);
   } else {
@@ -285,11 +285,32 @@ if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
   }
 
   foreach ($Task->getAssignments() as $Asssignment) {
-    $Asssignment->setVisibility($_POST['status']);
+    $Asssignment->setVisibility($_POST['visibility']);
   }
 
   // Не простое эхо, комментировать нельзя!
-  echo getSVGByAssignmentVisibility((int)$_POST['status']);
+  echo getSVGByAssignmentVisibility((int)$_POST['visibility']);
+
+  exit();
+}
+
+if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
+  if(isset($_POST['task_id'])) {
+    $Task = new Task((int)$_POST['task_id']);
+  } else {
+    header('Location: index.php');
+    exit;
+  }
+
+  foreach ($Task->getAssignments() as $Assignment) {
+    if($Assignment->mark != null)
+      $Assignment->setStatus(4);
+    else 
+      $Assignment->setStatus($_POST['status']);
+  }
+
+  // Не простое эхо, комментировать нельзя!
+  echo getSVGByAssignmentStatus((int)$_POST['status']);
 
   exit();
 }

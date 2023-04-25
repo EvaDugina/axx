@@ -177,7 +177,7 @@ class Page {
     }
     return false;
   }
-  public function getNotArchivedTasks() {
+  public function getActiveTasks() {
     $return_Tasks = array();
     foreach($this->Tasks as $Task) {
       if ($Task->status == 1)
@@ -185,19 +185,24 @@ class Page {
     }
     return $return_Tasks;
   }
-  public function getCountSuccessTasks($student_id) {
+  public function getCountSuccessAssignments($student_id) {
     $count_success = 0;
     foreach($this->Tasks as $Task) {
-      if ($Task->status == 1 && $Task->isCompleted($student_id))
-        $count_success++;
+      if ($Task->status == 1){
+        foreach($Task->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
+          if($Assignment->isCompleted())
+            $count_success++;
+        }
+      }
     }
     return $count_success;
   }
-  public function getCountActiveTasks($student_id) {
+  public function getCountActiveAssignments($student_id) {
     $count = 0;
     foreach($this->Tasks as $Task) {
-      if ($Task->status == 1)
-        $count++;
+      if ($Task->status == 1){
+        $count += count($Task->getVisibleAssignmemntsByStudent($student_id));
+      }
     }
     return $count;
   }
@@ -402,17 +407,7 @@ function getTeachersByPage($page_id) {
 
 
 function getSemesterNumberByGroup($page_year, $page_semester, $group_year) {
-  // TODO: Реализовать возвращение порядкового номера семестра (от 1 до 8)
-  /*if ($this->semester == 1)
-    return 2*((int)date('Y')-(int)$this->year + 1);
-  return 2*((int)date('Y')-(int)$this->year + 1)-1;*/
-  $semester = 0;
-  for ($i=$group_year; $i <= (int)$page_year; $i++) {
-    $semester++;
-    if($page_semester == 2)
-      $semester++;
-  }
-  return $semester;
+  return 2*((int)$page_year - $group_year) + $page_semester;
 }
 
 

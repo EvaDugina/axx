@@ -203,16 +203,15 @@ class Task {
   public function getActiveAssignments() {
     $active_Assignments = array();
     foreach($this->Assignments as $Assignment) {
-      if ($Assignment->visibility == 2)
+      if ($Assignment->isVisible())
         array_push($active_Assignments, $Assignment);
     }
     return $active_Assignments;
   }
-  public function getAssignmemntsByStudent($student_id) {
+  public function getVisibleAssignmemntsByStudent($student_id) {
     $student_Assignments = array();
     foreach($this->Assignments as $Assignment) {
-      if (($Assignment->visibility == 2) 
-      && $Assignment->checkStudent($student_id))
+      if (($Assignment->isVisible()) && $Assignment->checkStudent($student_id))
         array_push($student_Assignments, $Assignment);
     }
     return $student_Assignments;

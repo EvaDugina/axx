@@ -76,7 +76,7 @@ if(isset($_POST['action']) && $_POST['action'] == "linkFile") {
   */
 
   header('Location:preptasks.php?page='.$_POST['page']);
-  break;
+  exit();
 }
 
 $action = @$_REQUEST['action'];
@@ -177,11 +177,12 @@ switch($action)
         if ($group == "1") {
             $assignnums = array();
 
+            // TODO: Проверить!
             foreach($tasknums as $tn) {
                 $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, '.
                             ' status_code, status, delay, status_text, mark) values '.
                             ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
-                            ' , 2, 0, 0, \'недоступно для выполнения\', null) returning id;';
+                            ' , 2, -1, 0, \'Доступно для просмотра\', null) returning id;';
                 $result = pg_query($dbconnect, $query);
 
                 if ($row = pg_fetch_assoc($result))
@@ -197,13 +198,14 @@ switch($action)
         }
         else
         {
+            // TODO: Проверить!
             $assignnum = 0;
             foreach($students as $s) {
                 foreach($tasknums as $tn) {
                     $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, '.
                                 ' status_code, status, delay, status_text, mark) values '.
                                 ' ('.$tn.', null, null, '.(($tilltime=="") ?'null' :$tilltime).
-                                ' , 2, 0, 0, \'недоступно для выполнения\', null) returning id;';
+                                ' , 2, -1, 0, \'Доступно для просмотра\', null) returning id;';
                     $result = pg_query($dbconnect, $query);
 
 

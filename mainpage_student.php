@@ -68,8 +68,8 @@ $Group = new Group((int)$group_id);
                 <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px;" >
                     <?php 
 
-                    $count_succes_tasks = $Page->getCountSuccessTasks($User->id);
-                    $count_tasks = $Page->getCountActiveTasks($User->id);
+                    $count_succes_tasks = $Page->getCountSuccessAssignments($User->id);
+                    $count_tasks = $Page->getCountActiveAssignments($User->id);
 
                     // $count_succes_tasks = 0;
                     // $count_unsucces_tasks = 0;

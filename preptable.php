@@ -171,14 +171,14 @@ if ($scripts) echo $scripts; ?>
                   <tr class="table-row-header">
                     <th scope="row" colspan="1"><?=$Group->name?></th>
                     <!-- <th colspan="1"> </th> -->
-                    <td colspan="<?=count($Page->getNotArchivedTasks())?>" style="background: var(--mdb-gray-200);"> </td>
+                    <td colspan="<?=count($Page->getActiveTasks())?>" style="background: var(--mdb-gray-200);"> </td>
                   </tr>
                   <?php 
                   foreach ($Group->getStudents() as $count => $Student) {?>
                     <tr>
                       <th scope="row" data-group="<?=$Group->id?>"><?=$count+1?>. <?=$Student->getFI()?></th>
                       <?php 
-                      foreach($Page->getNotArchivedTasks() as $Task) {
+                      foreach($Page->getActiveTasks() as $Task) {
                         $Assginment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
                         <?php
                         if ($Assginment != null) {
@@ -189,7 +189,7 @@ if ($scripts) echo $scripts; ?>
                           <?php //} else { ?>
                             <!-- <th colspan="1"> </th> -->
                           <?php //}
-
+                          // TODO: Изменить логику отрисовки таблицы в зависимости от того, стоит ли оценка или нет
                           if ($Assginment->visibility == 0 || $Assginment->visibility == 1) {?>
                             <td onclick="unblockAssignment(<?=$Assginment->id?>)"
                             style="background: var(--mdb-gray-100);">
@@ -276,7 +276,7 @@ if ($scripts) echo $scripts; ?>
                     <div class="inner-accordion noselect" style="display: none;">
                       <?php 
                       foreach ($Page->getTasks() as $Task) {
-                        foreach ($Task->getAssignmemntsByStudent($Student->id) as $Assignment) {?>
+                        foreach ($Task->getVisibleAssignmemntsByStudent($Student->id) as $Assignment) {?>
                           <?php 
                           //XXX: Проверить?>
                           <a href="taskchat.php?assignment=<?=$Assignment->id?>">

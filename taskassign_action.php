@@ -6,6 +6,30 @@
 	require_once("utilities.php");	
 	
 	
+  if(isset($_POST['changeVisibility'])) {
+
+	// changeVisibility для одного Assignment
+	if(isset($_POST['assignment_id'])) {
+		$Assignment = new Assignment((int)$_POST['assignment_id']);
+		if ($_POST['changeVisibility'] == 'delete')
+			$Assignment->deleteFromDB();
+		else 
+			$Assignment->setVisibility((int)$_POST['changeVisibility']);
+	} 
+	
+	// changeVisibility для всех Assignments
+	else if (isset($_POST['task_id'])) {
+		$Task = new Task((int)$_POST['task_id']);
+		foreach($Task->getAssignments() as $Assignment) {
+			if ($_POST['changeVisibility'] == 'delete')
+				$Assignment->deleteFromDB();
+			else 
+				$Assignment->setVisibility((int)$_POST['changeVisibility']);
+		}
+	}
+    exit;
+  }
+
   if(isset($_POST['changeStatus'])) {
 
 	// changeStatus для одного Assignment
@@ -13,20 +37,33 @@
 		$Assignment = new Assignment((int)$_POST['assignment_id']);
 		if ($_POST['changeStatus'] == 'delete')
 			$Assignment->deleteFromDB();
-		else 
-			$Assignment->setVisibility((int)$_POST['changeStatus']);
+		else {
+			if($Assignment->mark != null)
+				$Assignment->setStatus(4);
+			else 
+				$Assignment->setStatus((int)$_POST['changeStatus']);
+		}
 	} 
 	
-	// changeStatus для всех Assignments
+	// changeVisibility для всех Assignments
 	else if (isset($_POST['task_id'])) {
 		$Task = new Task((int)$_POST['task_id']);
 		foreach($Task->getAssignments() as $Assignment) {
 			if ($_POST['changeStatus'] == 'delete')
 				$Assignment->deleteFromDB();
-			else 
-				$Assignment->setVisibility((int)$_POST['changeStatus']);
+			else {
+				if($Assignment->mark != null){
+					$Assignment->setStatus(4);
+					echo getSVGByAssignmentStatus(4);
+				}
+				else {
+					$Assignment->setStatus((int)$_POST['changeStatus']);
+					echo getSVGByAssignmentStatus((int)$_POST['status']);
+				}
+			}
 		}
 	}
+
     exit;
   }
 
