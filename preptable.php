@@ -242,9 +242,9 @@ if ($scripts) echo $scripts; ?>
           <?php } ?>
 
           <?php
-          $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
-          $result = pg_query($dbconnect, $query);
-					$array_notify = pg_fetch_all($result);
+          // $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
+          // $result = pg_query($dbconnect, $query);
+					// $array_notify = pg_fetch_all($result);
           ?>
 
             <div class="my-4 pt-2">

@@ -208,7 +208,7 @@ function select_notify_count_by_page_for_mainpage($page_id){
 // получение уведомлений по каждой странице предмета для преподавательского дэшборда
 function select_notify_by_page_for_mainpage($teacher_id, $page_id){
     return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
-        ax_assignment.status, ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
+        ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
         INNER JOIN ax_page ON ax_page.id = ax_task.page_id
         INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
         INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
@@ -218,18 +218,18 @@ function select_notify_by_page_for_mainpage($teacher_id, $page_id){
     ";
 }
 
-// получение уведомлений по каждой странице предмета для преподавательского дэшборда
-function select_unchecked_by_page($teacher_id, $page_id){
-    return "SELECT ax_task.id, ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, 
-        ax_assignment_student.student_user_id FROM ax_task
-        INNER JOIN ax_page ON ax_page.id = ax_task.page_id
-        INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-        INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
-        INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-        INNER JOIN students ON students.id = ax_assignment_student.student_user_id
-        WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status = 1 AND ax_page.id = $page_id;
-    ";
-}
+// // получение уведомлений по каждой странице предмета для преподавательского дэшборда
+// function select_unchecked_by_page($teacher_id, $page_id){
+//     return "SELECT ax_task.id, ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, 
+//         ax_assignment_student.student_user_id FROM ax_task
+//         INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+//         INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+//         INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+//         INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+//         INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+//         WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status = 1 AND ax_page.id = $page_id;
+//     ";
+// }
 
 //[x]: убрать
 function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_id){
@@ -283,14 +283,14 @@ function select_task_assignment_student_id($student_id, $task_id) {
     ";
 }
 
-function select_assignment_with_task($student_id, $task_id){
-  return "SELECT ax_assignment.id, ax_task.title, ax_task.status, ax_task.id as tid, ax_task.page_id as pid,
-    ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status, ax_assignment.mark, ax_task.max_mark, ax_assignment.status_text FROM ax_task 
-    INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
-    INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
-    INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
-    WHERE ax_task.id = '$task_id' AND students.id = '$student_id' ORDER BY id";
-}
+// function select_assignment_with_task($student_id, $task_id){
+//   return "SELECT ax_assignment.id, ax_task.title, ax_task.status, ax_task.id as tid, ax_task.page_id as pid,
+//     ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status as astatus, ax_assignment.mark, ax_task.max_mark, ax_assignment.status_text FROM ax_task 
+//     INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
+//     INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
+//     INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
+//     WHERE ax_task.id = '$task_id' AND students.id = '$student_id' ORDER BY id";
+// }
 
 // - получение всех заданий по странице дисциплины
 function select_page_tasks($page_id, $status) {
@@ -311,11 +311,11 @@ function select_ax_assignment_with_task_by_id ($assignment_id) {
 
 function select_page_tasks_with_assignment($page_id, $status, $student_id) {
     return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id, 
-    ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status, ax_assignment.mark, ax_assignment.status_text FROM ax_task 
+    ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status as astatus, ax_assignment.mark, ax_assignment.status_text FROM ax_task 
     INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
     INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
     INNER JOIN students ON students.id = ax_assignment_student.student_user_id 
-    WHERE page_id = '$page_id' AND status = '$status' AND students.id = '$student_id' ORDER BY id";
+    WHERE page_id = '$page_id' AND ax_task.status = '$status' AND students.id = '$student_id' ORDER BY id";
 }
 
 // - получение студентов, которым назначено задание
@@ -396,23 +396,23 @@ function update_ax_assignment_finish_limit($assignment_id, $finish_limit) {
   ";
 }
 
-function update_ax_assignment_by_id ($assignment_id, $finish_limit=null, $variant=null, $status_code=-1, $delay=-1, $status_text=null, $mark=null){  
-  $query = "UPDATE ax_assignment SET ";
-  if ($finish_limit)
-    $query .= "finish_limit = '$finish_limit'";
-  if ($variant)
-    $query .= ", variant_number = '$variant'";
-  if ($status_code != -1)
-    $query .= ", status_code = '$status_code'";
-  if ($delay != -1)
-    $query .= ", delay = '$delay'";
-  if ($status_text)
-    $query .= ", status_text = '$status_text'";
-  if ($mark)
-    $query .= ", mark='$mark'";
-  $query .= "WHERE id = '$assignment_id';";
-  return $query;
-}
+// function update_ax_assignment_by_id ($assignment_id, $finish_limit=null, $variant=null, $status_code=-1, $delay=-1, $status_text=null, $mark=null){  
+//   $query = "UPDATE ax_assignment SET ";
+//   if ($finish_limit)
+//     $query .= "finish_limit = '$finish_limit'";
+//   if ($variant)
+//     $query .= ", variant_number = '$variant'";
+//   if ($status_code != -1)
+//     $query .= ", status_code = '$status_code'";
+//   if ($delay != -1)
+//     $query .= ", delay = '$delay'";
+//   if ($status_text)
+//     $query .= ", status_text = '$status_text'";
+//   if ($mark)
+//     $query .= ", mark='$mark'";
+//   $query .= "WHERE id = '$assignment_id';";
+//   return $query;
+// }
 
 function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $status=1){
   return "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 

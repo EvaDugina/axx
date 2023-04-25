@@ -48,7 +48,7 @@ $tasks = pg_fetch_all($result_tasks);
 if (!$result_tasks || pg_num_rows($result_tasks) < 1);
 else {
   foreach($tasks as $key => $task) { 
-      if ($task['status'] == 4) $count_succes_tasks++;
+      if ($task['astatus'] == 4) $count_succes_tasks++;
       $count_tasks++;
     }
 }
@@ -95,7 +95,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 									$status = false;
 									if ($result_assignment && $row_assignment && $row_assignment['status_code']!=0) {
 										$date_finish = "";
-										$text_status = $row_assignment['status_text'];
+										$text_status = status_to_text($row_assignment['status']);
 										if ($row_assignment['finish_limit'] != null)
 											if ($row_assignment['status_code'] == 1 || $row_assignment['status_code'] == 4)
 												$date_finish = "(". visibility_to_text($row_assignment['status_code']) . ")";
@@ -105,8 +105,7 @@ show_header($dbconnect, 'Задания по дисциплине',
 											// подтянуть информацию об оценке или изменить таблицу
 											$text_status = 'Проверено (оценка: '. $row_assignment['mark'] .')';
 											$status = true;
-										} else if ($row_assignment['status'] == 1)
-											$text_status = 'Отправлено на проверку';?>
+										}?>
 										
 										<button class="list-group-item list-group-item-action d-flex justify-content-between mb-3" 
 										<?php if($row_assignment['status_code'] == 1 || $row_assignment['status_code'] == 4) echo "disabled"; ?>
