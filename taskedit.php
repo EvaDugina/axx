@@ -262,14 +262,14 @@ show_header($dbconnect, 'Редактор заданий',
       }
     };
 
-    let form_addFiles  = document.getElementById('form-addTaskFiles');
+    var form_addFiles  = document.getElementById('form-addTaskFiles');
     var added_files = <?=json_encode($Task->getFiles())?>;
 
-    let original_title = $('#input-title').val();
-    let original_type = $('#task-type').val();
-    let original_description = easyMDE.value();
-    let original_codeTest = $('#textArea-codeTest').val();
-    let original_codeCheck = $('#textArea-codeCheck').val();
+    var original_title = $('#input-title').val();
+    var original_type = $('#task-type').val();
+    var original_description = easyMDE.value().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");;
+    var original_codeTest = $('#textArea-codeTest').val();
+    var original_codeCheck = $('#textArea-codeCheck').val();
     
     // Показывает количество прикрепленных для отправки файлов
     $('#task-files').on('change', function() {
@@ -322,7 +322,7 @@ show_header($dbconnect, 'Редактор заданий',
   function checkFields() {
     let now_title = $('#input-title').val();
     let now_type = $('#task-type').val();
-    let now_description = easyMDE.value();
+    let now_description = easyMDE.value().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");;
     let now_codeTest = $('#textArea-codeTest').val();
     let now_codeCheck = $('#textArea-codeCheck').val();
 
