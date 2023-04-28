@@ -284,12 +284,23 @@ if(isset($_POST['action']) && $_POST['action'] == "editVisibility") {
     exit;
   }
 
-  foreach ($Task->getAssignments() as $Asssignment) {
-    $Asssignment->setVisibility($_POST['visibility']);
+  $return_values = array();
+
+  foreach ($Task->getAssignments() as $Assignment) {
+    $Assignment->setVisibility((int)$_POST['visibility']);
+    $return_value = array(
+      "assignment_id" => $Assignment->id,
+      "svg" => getSVGByAssignmentVisibilityAsText($Assignment->visibility), 
+      "next_visibility" => $Assignment->getNextAssignmentVisibility(),
+      "visibility_to_text" => visibility_to_text($Assignment->getNextAssignmentVisibility())
+    );
+
+    array_push($return_values, $return_value);
   }
 
   // Не простое эхо, комментировать нельзя!
-  echo getSVGByAssignmentVisibility((int)$_POST['visibility']);
+  // echo getSVGByAssignmentVisibility((int)$_POST['visibility']);
+  echo json_encode($return_values);
 
   exit();
 }

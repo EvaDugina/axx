@@ -131,7 +131,7 @@ if (!$result || pg_num_rows($result) < 1) {
                                     <?php if($stud_list == "") {?>
                                       ~СТУДЕНТЫ ОТСУТСТВУЮТ~
                                     <?php } else {?> 
-                                      <span class="span-assignmentVisibility-<?=$Task->id?>" class="p-0 m-0">
+                                      <span id="span-assignmentVisibility-<?=$Assignment->id?>" class="p-0 m-0">
                                         <?php getSVGByAssignmentVisibility($Assignment->visibility);?> &nbsp;
                                       </span>
                                       <span class="span-assignmentStatus-<?=$Task->id?>" class="p-0 m-0">
@@ -508,7 +508,10 @@ if (!$result || pg_num_rows($result) < 1) {
         dataType : 'html',
         success: function(response) {
           console.log(response);
-          $('.span-assignmentVisibility-' + task_id).html(response);
+          response = JSON.parse(response);
+          response.forEach((element) => {
+            $('#span-assignmentVisibility-' + element.assignment_id).html(element.svg);
+          });
         },
         complete: function() {
           if(new_status != "delete") {
@@ -548,6 +551,10 @@ if (!$result || pg_num_rows($result) < 1) {
         dataType : 'html',
         success: function(response) {
           console.log(response);
+          // response = JSON.parse(response);
+          // response.forEach((element) => {
+          //   $('#span-assignmentStatus-' + element.assignment_id).html(element.svg);
+          // });
           $('.span-assignmentStatus-' + task_id).html(response);
         },
         complete: function() {

@@ -148,9 +148,14 @@ if ($scripts) echo $scripts; ?>
               <thead>
                 <tr class="table-row-header" style="text-align:center;">
                   <th scope="col" colspan="1">Студенты и группы</th>
-                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">Задания <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?=$page_id?>';" style="">
-                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                          </button></th>
+                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span style="font-size: large;"> Задания </span>
+                      <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?=$page_id?>';" style="">
+                        <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </th>
                 </tr>
                 <tr>
                   <th scope="col" colspan="1"> </th>
@@ -183,16 +188,23 @@ if ($scripts) echo $scripts; ?>
                         <?php
                         if ($Assignment != null) {
                           
-                          // if ($Assignment->variant_number != null) { 
-                            // $Variant = new Variant((int)$Assignment->variant_number);?>
-                            <!-- <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?=$Variant->comment?>"><?=$Variant->number?></th> -->
-                          <?php //} else { ?>
-                            <!-- <th colspan="1"> </th> -->
-                          <?php //}
                           // TODO: Изменить логику отрисовки таблицы в зависимости от того, стоит ли оценка или нет
                           if ($Assignment->visibility == 0 || $Assignment->visibility == 1) {?>
                             <td onclick="unblockAssignment(<?=$Assignment->id?>)"
                             style="background: var(--mdb-gray-100);">
+                              <!-- <button id="btn-assignment-visibility-<?=$Assignment->id?>" class="btn px-3 me-1 btn-assignment-visibility-<?=$Task->id?>" 
+                              onclick="ajaxChangeVisibility(<?=$Assignment->id?>, <?=$Assignment->getNextAssignmentVisibility()?>)"
+                              style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
+                              title="<?='Изменить ВИДМОСТЬ назначения на:'?> '<?=visibility_to_text($Assignment->getNextAssignmentVisibility())?>'">
+                                  <?php getSVGByAssignmentVisibility($Assignment->visibility);?>
+                              </button>
+                              <button id="btn-assignment-status-<?=$Assignment->id?>" class="btn px-3 me-1 btn-assignment-status-<?=$Task->id?>" 
+                              onclick="ajaxChangeStatus(<?=$Assignment->id?>, <?=$Assignment->getNextAssignmentStatus()?>)"
+                              style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
+                              title="<?='Изменить СТАТУС назначения на:'?> '<?=status_to_text($Assignment->getNextAssignmentStatus())?>'"
+                              <?=($Assignment->status == -1 || $Assignment->status == 0) ? "" : "disabled"?>>
+                                  <?php getSVGByAssignmentStatus($Assignment->status);?>
+                              </button> -->
                             </td>
                           <?php }
 
@@ -212,7 +224,7 @@ if ($scripts) echo $scripts; ?>
                                 </svg>
                                 </span>
                               <?php } else {?>
-                                ?
+                                <span style="font-size: larger;">?</span>
                               <?php }?>
                             </td>
                           <?php } 
@@ -276,7 +288,8 @@ if ($scripts) echo $scripts; ?>
                     <div class="inner-accordion noselect" style="display: none;">
                       <?php 
                       foreach ($Page->getTasks() as $Task) {
-                        foreach ($Task->getVisibleAssignmemntsByStudent($Student->id) as $Assignment) {?>
+                        $Assignment = $Task->getLastAssignmentByStudent($Student->id);
+                        if ($Assignment != null) {?>
                           <?php 
                           //XXX: Проверить?>
                           <a href="taskchat.php?assignment=<?=$Assignment->id?>">
@@ -532,6 +545,63 @@ function generate_message_for_student_task_commit($task_title){
 
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/preptable.js"></script>
+
+<script type="text/javascript">
+  function ajaxChangeVisibility(assignment_id, new_visibility) {
+
+    var formData = new FormData();
+
+    formData.append('assignment_id', assignment_id);
+    formData.append('changeVisibility', new_visibility);
+
+    $.ajax({
+      type: "POST",
+      url: 'taskassign_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+        response = JSON.parse(response);
+        $('#btn-assignment-visibility-' + assignment_id).html(response[0].svg);
+        $('#btn-assignment-visibility-' + assignment_id).prop('title', "Изменить СТАТУС назначения на: " + response[0].visibility_to_text);
+        $('#btn-assignment-visibility-' + assignment_id).attr("onclick", 'ajaxChangeVisibility(' + assignment_id + ', ' + response[0].next_visibility + ')');
+      },
+      complete: function() {
+      }
+    });   
+  }
+
+  function ajaxChangeStatus(assignment_id, new_status) {
+
+    console.log("CLICK!");
+
+    var formData = new FormData();
+
+    formData.append('assignment_id', assignment_id);
+    formData.append('changeStatus', new_status);
+
+    $.ajax({
+      type: "POST",
+      url: 'taskassign_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+        response = JSON.parse(response);
+        $('#btn-assignment-status-' + assignment_id).html(response[0].svg);
+        $('#btn-assignment-status-' + assignment_id).prop('title', "Изменить СТАТУС назначения на: " + response[0].status_to_text);
+        $('#btn-assignment-status-' + assignment_id).attr("onclick", 'ajaxChangeStatus(' + assignment_id + ', ' + response[0].next_status + ')');
+      },
+      complete: function() {
+      }
+    });   
+  }
+
+</script>
 
 
 <!-- End your project here-->

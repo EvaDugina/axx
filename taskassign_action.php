@@ -8,62 +8,98 @@
 	
   if(isset($_POST['changeVisibility'])) {
 
-	// changeVisibility для одного Assignment
-	if(isset($_POST['assignment_id'])) {
-		$Assignment = new Assignment((int)$_POST['assignment_id']);
-		if ($_POST['changeVisibility'] == 'delete')
-			$Assignment->deleteFromDB();
-		else 
-			$Assignment->setVisibility((int)$_POST['changeVisibility']);
-	} 
-	
-	// changeVisibility для всех Assignments
-	else if (isset($_POST['task_id'])) {
-		$Task = new Task((int)$_POST['task_id']);
-		foreach($Task->getAssignments() as $Assignment) {
-			if ($_POST['changeVisibility'] == 'delete')
-				$Assignment->deleteFromDB();
-			else 
-				$Assignment->setVisibility((int)$_POST['changeVisibility']);
-		}
-	}
+    $return_values = array();
+
+    // changeVisibility для одного Assignment
+    if(isset($_POST['assignment_id'])) {
+      $Assignment = new Assignment((int)$_POST['assignment_id']);
+      if ($_POST['changeVisibility'] == 'delete')
+        $Assignment->deleteFromDB();
+      else 
+        $Assignment->setVisibility((int)$_POST['changeVisibility']);
+      
+      $return_value = array(
+        "assignment_id" => $Assignment->id,
+        "svg" => getSVGByAssignmentVisibilityAsText($Assignment->visibility), 
+        "next_visibility" => $Assignment->getNextAssignmentVisibility(),
+        "visibility_to_text" => visibility_to_text($Assignment->getNextAssignmentVisibility())
+      );
+
+      array_push($return_values, $return_value);
+    } 
+    
+    // changeVisibility для всех Assignments
+    else if (isset($_POST['task_id'])) {
+      $Task = new Task((int)$_POST['task_id']);
+      foreach($Task->getAssignments() as $Assignment) {
+        if ($_POST['changeVisibility'] == 'delete')
+          $Assignment->deleteFromDB();
+        else 
+          $Assignment->setVisibility((int)$_POST['changeVisibility']);
+
+        $return_value = array(
+          "assignment_id" => $Assignment->id,
+          "svg" => getSVGByAssignmentVisibilityAsText($Assignment->visibility), 
+          "next_visibility" => $Assignment->getNextAssignmentVisibility(),
+          "visibility_to_text" => visibility_to_text($Assignment->getNextAssignmentVisibility())
+        );
+  
+        array_push($return_values, $return_value);
+      }
+      
+    }
+    
+    echo json_encode($return_values);
     exit;
   }
 
   if(isset($_POST['changeStatus'])) {
 
-	// changeStatus для одного Assignment
-	if(isset($_POST['assignment_id'])) {
-		$Assignment = new Assignment((int)$_POST['assignment_id']);
-		if ($_POST['changeStatus'] == 'delete')
-			$Assignment->deleteFromDB();
-		else {
-			if($Assignment->mark != null)
-				$Assignment->setStatus(4);
-			else 
-				$Assignment->setStatus((int)$_POST['changeStatus']);
-		}
-	} 
-	
-	// changeVisibility для всех Assignments
-	else if (isset($_POST['task_id'])) {
-		$Task = new Task((int)$_POST['task_id']);
-		foreach($Task->getAssignments() as $Assignment) {
-			if ($_POST['changeStatus'] == 'delete')
-				$Assignment->deleteFromDB();
-			else {
-				if($Assignment->mark != null){
-					$Assignment->setStatus(4);
-					echo getSVGByAssignmentStatus(4);
-				}
-				else {
-					$Assignment->setStatus((int)$_POST['changeStatus']);
-					echo getSVGByAssignmentStatus((int)$_POST['status']);
-				}
-			}
-		}
-	}
+    $return_values = array();
 
+    // changeStatus для одного Assignment
+    if(isset($_POST['assignment_id'])) {
+      $Assignment = new Assignment((int)$_POST['assignment_id']);
+      if ($_POST['changeStatus'] == 'delete')
+        $Assignment->deleteFromDB();
+      else {
+        if($Assignment->mark != null)
+          $Assignment->setStatus(4);
+        else 
+          $Assignment->setStatus((int)$_POST['changeStatus']);
+      }
+      $return_value = array(
+        "assignment_id" => $Assignment->id,
+        "svg" => getSVGByAssignmentStatusAsText($Assignment->status), 
+        "next_status" => $Assignment->getNextAssignmentStatus(),
+        "status_to_text" => status_to_text($Assignment->getNextAssignmentStatus())
+      );
+
+      array_push($return_values, $return_value);
+    } 
+    
+    // changeStatus для всех Assignments
+    else if (isset($_POST['task_id'])) {
+      $Task = new Task((int)$_POST['task_id']);
+      foreach($Task->getAssignments() as $Assignment) {
+        if ($_POST['changeStatus'] == 'delete')
+          $Assignment->deleteFromDB();
+        else {
+          if($Assignment->mark == null){
+            $Assignment->setStatus((int)$_POST['changeStatus']);
+            $return_value = array(
+              "assignment_id" => $Assignment->id,
+              "svg" => getSVGByAssignmentStatusAsText($Assignment->status), 
+              "next_status" => $Assignment->getNextAssignmentStatus(),
+              "status_to_text" => status_to_text($Assignment->getNextAssignmentStatus())
+            );
+            array_push($return_values, $return_value);
+          }
+        }
+      }
+    }
+
+    echo json_encode($return_values);
     exit;
   }
 

@@ -223,22 +223,42 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+
+
   public function isVisible() {
     if($this->visibility == 2)
       return true;
     return false;
   }
-
   public function isCompleteable() {
     if($this->status != -1 && $this->visibility != 4)
       return true;
     return false;
   }
-
   public function isCompleted() {
     if($this->status == 4)
       return true;
     return false;
+  }
+
+
+  // TODO: на будущее - исправить
+  public function getNextAssignmentVisibility() {
+    if ($this->visibility == 0)
+      return 2;
+    else if ($this->visibility == 2)
+      return 4;
+    else if ($this->visibility == 4)
+      return 0;
+    else $this->visibility;
+  }
+  public function getNextAssignmentStatus() {
+    if ($this->status == 0) {
+      return -1;
+    } else if ($this->status == -1) {
+      return 0;
+    }
+    return $this->status;
   }
 
 // -- END WORK WITH ASSIGNMENT
@@ -432,6 +452,7 @@ class Assignment {
     return $new_messages;
   }
 
+  // TODO: Исправить на работу с таблицей ax_message_delivery
   public function getCountUnreadedMessages($user_id) {
     $count_unreaded = 0;
     foreach ($this->Messages as $Message) {
