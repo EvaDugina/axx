@@ -3,8 +3,8 @@
 <?php
 require_once("settings.php");
 require_once("common.php");
-require_once("POClasses\User.class.php");
-require_once("POClasses\Group.class.php");
+require_once("POClasses/User.class.php");
+require_once("POClasses/Group.class.php");
 
 $user = new User((int)$_SESSION['hash']);
 $group = new Group((int)$user->group_id);
