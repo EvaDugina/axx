@@ -10,10 +10,12 @@ class Assignment {
   public $id = null;
   public $variant_number = null;
   public $start_limit = null, $finish_limit = null;
-  public $status_code = null, $status_text = null;
+  public $visibility = null, $visibility_text = null;
   public $delay = null; // не понятно, зачем нужно
   public $mark = null;
+  public $status = null;
   public $checks = null;
+  // public $new = false;
 
   // TODO: добавить колонку в БД
   // status_complete integer, где: 
@@ -42,8 +44,9 @@ class Assignment {
       $this->start_limit = convert_timestamp_to_date($assignment['start_limit'], "d-m-Y H:i:s");
       $this->finish_limit = convert_timestamp_to_date($assignment['finish_limit'], "d-m-Y H:i:s");
 
-      $this->status_code = $assignment['status_code'];
-      $this->status_text = $assignment['status_text'];
+      $this->visibility = $assignment['status_code'];
+      $this->visibility_text = $assignment['status_text'];
+      $this->status = $assignment['status'];
 
       $this->delay = $assignment['delay'];
       $this->mark = $assignment['mark'];
@@ -56,34 +59,42 @@ class Assignment {
 
     else if ($count_args == 2) {
       $task_id = $args[0];
-      $this->status_code = $args[1];
-      $this->status_text = status_code_to_text($this->status_code);
+      $this->visibility = $args[1];
+      $this->visibility_text = visibility_to_text($this->visibility);
+      $this->status = 0;
 
       $this->pushNewEmptyToDB($task_id);
     }
 
-    else if ($count_args == 9) { // всё + task_id
-      $task_id = $args[0];
+    // else if ($count_args == 9) { // всё + task_id
+    //   $task_id = $args[0];
 
-      $this->variant_number = $args[1];
-      $this->start_limit = $args[2];
-      $this->finish_limit = $args[3];
+    //   $this->variant_number = $args[1];
+    //   $this->start_limit = $args[2];
+    //   $this->finish_limit = $args[3];
 
-      $this->status_code = $args[4];
-      $this->status_text = $args[5];
+    //   $this->visibility = $args[4];
+    //   // $this->status_text = $args[5];
 
-      $this->delay = $args[6];
-      $this->mark = $args[7];
-      $this->checks = $args[8];
+    //   $this->delay = $args[6];
+    //   $this->mark = $args[7];
+    //   $this->checks = $args[8];
 
-      $this->pushNewToDB($task_id);
-    }
+    //   $this->pushNewToDB($task_id);
+    // }
 
     else {
       die('Неверные аргументы в конструкторе Assignment');
     }
 
   }
+
+  // function __destruct() {
+  //   if ($this->new) {
+  //     $this->deleteFromDB();
+  //   }
+    
+  // }
 
   public function getStudents() {
     return $this->Students;
@@ -99,13 +110,12 @@ class Assignment {
 
 // SETTERS
 
-  public function setStatus($status_code) {
+  public function setStatus($status) {
     global $dbconnect;
 
-    $this->status_code = $status_code;
-    $this->status_text = status_code_to_text($this->status_code);
+    $this->status = $status;
 
-    $query = "UPDATE ax_assignment SET status_code = $this->status_code, status_text = '$this->status_text' 
+    $query = "UPDATE ax_assignment SET status = $this->status
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -116,6 +126,17 @@ class Assignment {
     $this->delay = $delay;
 
     $query = "UPDATE ax_assignment SET delay = $this->delay WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function setVisibility($visibility) {
+    global $dbconnect;
+
+    $this->visibility = $visibility;
+    $this->visibility_text = visibility_to_text($this->visibility);
+
+    $query = "UPDATE ax_assignment SET status_code = $this->visibility, status_text = '$this->visibility_text'
+              WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -155,9 +176,9 @@ class Assignment {
     global $dbconnect;
 
     $query = "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, 
-              status_code, delay, status_text, mark, checks)
+              status_code, status_text, status, delay, mark, checks)
               VALUES ($task_id, $this->variant_number, '$this->start_limit', '$this->finish_limit', 
-              $this->status_code, $this->delay, '$this->status_text', '$this->mark', '$this->checks') 
+              $this->visibility, '$this->visibility_text', $this->status, $this->delay, '$this->mark', '$this->checks') 
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -168,8 +189,8 @@ class Assignment {
   public function pushNewEmptyToDB($task_id) {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_assignment(task_id, status_code, status_text)
-              VALUES ($task_id, $this->status_code, '$this->status_text') 
+    $query = "INSERT INTO ax_assignment(task_id, status_code, status_text, status)
+              VALUES ($task_id, $this->visibility, '$this->visibility_text', $this->status) 
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -181,7 +202,8 @@ class Assignment {
     global $dbconnect;
 
     $query = "UPDATE ax_assignment SET variant_number=$this->variant_number, start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
-              status_code=$this->status_code, delay=$this->delay, status_text='$this->status_text', mark='$this->mark', checks='$this->checks' 
+              status_code=$this->visibility, status_text='$this->visibility_text', delay=$this->delay, mark='$this->mark', checks='$this->checks', 
+              status=$this->status
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -199,6 +221,44 @@ class Assignment {
 
     $query = "DELETE FROM ax_assignment WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+
+
+  public function isVisible() {
+    if($this->visibility == 2)
+      return true;
+    return false;
+  }
+  public function isCompleteable() {
+    if($this->status != -1 && $this->visibility != 4)
+      return true;
+    return false;
+  }
+  public function isCompleted() {
+    if($this->status == 4)
+      return true;
+    return false;
+  }
+
+
+  // TODO: на будущее - исправить
+  public function getNextAssignmentVisibility() {
+    if ($this->visibility == 0)
+      return 2;
+    else if ($this->visibility == 2)
+      return 4;
+    else if ($this->visibility == 4)
+      return 0;
+    else $this->visibility;
+  }
+  public function getNextAssignmentStatus() {
+    if ($this->status == 0) {
+      return -1;
+    } else if ($this->status == -1) {
+      return 0;
+    }
+    return $this->status;
   }
 
 // -- END WORK WITH ASSIGNMENT
@@ -244,7 +304,7 @@ class Assignment {
   }
   public function checkStudent($student_id) {
     foreach($this->Students as $Student) {
-      if ($Student->id == $student_id)
+      if ((int)$Student->id == (int)$student_id)
         return true;
     }
     return false;
@@ -392,6 +452,7 @@ class Assignment {
     return $new_messages;
   }
 
+  // TODO: Исправить на работу с таблицей ax_message_delivery
   public function getCountUnreadedMessages($user_id) {
     $count_unreaded = 0;
     foreach ($this->Messages as $Message) {
@@ -544,22 +605,35 @@ function queryGetPageByAssignment($assignment_id) {
 
 
 
-function status_code_to_text($status_code) {
-    switch ($status_code) {
-      case 0:
-        return "недоступно для просмотра"; 
-      case 1:
-        return "недоступно для выполнения";
-      case 2: 
-        return "активно";
-      case 3:
-        return "выполнено";
-      case 4:
-        return "отменено";
-      case 5:
-        return "ожидает проверки";
-      default:
-        return "ERROR!";
-    }
+function visibility_to_text($visibility) {
+  switch ($visibility) {
+    case 0:
+      return "Недоступно для просмотра";
+    case 2: 
+      return "Доступно для просмотра";
+    case 4:
+      return "Отменено";
+    default:
+      return "";
   }
+}
+
+function status_to_text($status) {
+  switch ($status) {
+    case -1:
+      return "Недоступно для выполнения";
+    case 0:
+      return "Ожидает выполнения"; 
+    case 1:
+      return "Ожидает проверки";
+    case 2: 
+      return "Проверено, не оценено";
+    case 3:
+      return "Ожидает повторного выполнения";
+    case 4:
+      return "Оценено";
+    default:
+      return "";
+  }
+}
 ?>

@@ -148,9 +148,14 @@ if ($scripts) echo $scripts; ?>
               <thead>
                 <tr class="table-row-header" style="text-align:center;">
                   <th scope="col" colspan="1">Студенты и группы</th>
-                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">Задания <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?=$page_id?>';" style="">
-                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                          </button></th>
+                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span style="font-size: large;"> Задания </span>
+                      <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?=$page_id?>';" style="">
+                        <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </th>
                 </tr>
                 <tr>
                   <th scope="col" colspan="1"> </th>
@@ -171,40 +176,47 @@ if ($scripts) echo $scripts; ?>
                   <tr class="table-row-header">
                     <th scope="row" colspan="1"><?=$Group->name?></th>
                     <!-- <th colspan="1"> </th> -->
-                    <td colspan="<?=count($Page->getNotArchivedTasks())?>" style="background: var(--mdb-gray-200);"> </td>
+                    <td colspan="<?=count($Page->getActiveTasks())?>" style="background: var(--mdb-gray-200);"> </td>
                   </tr>
                   <?php 
                   foreach ($Group->getStudents() as $count => $Student) {?>
                     <tr>
                       <th scope="row" data-group="<?=$Group->id?>"><?=$count+1?>. <?=$Student->getFI()?></th>
                       <?php 
-                      foreach($Page->getNotArchivedTasks() as $Task) {
-                        $Assginment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
+                      foreach($Page->getActiveTasks() as $Task) {
+                        $Assignment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
                         <?php
-                        if ($Assginment != null) {
+                        if ($Assignment != null) {
                           
-                          // if ($Assginment->variant_number != null) { 
-                            // $Variant = new Variant((int)$Assginment->variant_number);?>
-                            <!-- <th data-mdb-toggle="tooltip" data-mdb-html="true" title="<?=$Variant->comment?>"><?=$Variant->number?></th> -->
-                          <?php //} else { ?>
-                            <!-- <th colspan="1"> </th> -->
-                          <?php //}
-
-                          if ($Assginment->status_code == 0 || $Assginment->status_code == 1) {?>
-                            <td onclick="unblockAssignment(<?=$Assginment->id?>)"
+                          // TODO: Изменить логику отрисовки таблицы в зависимости от того, стоит ли оценка или нет
+                          if ($Assignment->visibility == 0 || $Assignment->visibility == 1) {?>
+                            <td onclick="unblockAssignment(<?=$Assignment->id?>)"
                             style="background: var(--mdb-gray-100);">
+                              <!-- <button id="btn-assignment-visibility-<?=$Assignment->id?>" class="btn px-3 me-1 btn-assignment-visibility-<?=$Task->id?>" 
+                              onclick="ajaxChangeVisibility(<?=$Assignment->id?>, <?=$Assignment->getNextAssignmentVisibility()?>)"
+                              style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
+                              title="<?='Изменить ВИДМОСТЬ назначения на:'?> '<?=visibility_to_text($Assignment->getNextAssignmentVisibility())?>'">
+                                  <?php getSVGByAssignmentVisibility($Assignment->visibility);?>
+                              </button>
+                              <button id="btn-assignment-status-<?=$Assignment->id?>" class="btn px-3 me-1 btn-assignment-status-<?=$Task->id?>" 
+                              onclick="ajaxChangeStatus(<?=$Assignment->id?>, <?=$Assignment->getNextAssignmentStatus()?>)"
+                              style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
+                              title="<?='Изменить СТАТУС назначения на:'?> '<?=status_to_text($Assignment->getNextAssignmentStatus())?>'"
+                              <?=($Assignment->status == -1 || $Assignment->status == 0) ? "" : "disabled"?>>
+                                  <?php getSVGByAssignmentStatus($Assignment->status);?>
+                              </button> -->
                             </td>
                           <?php }
 
-                          else if ($Assginment->status_code == 5) {
-                            $last_Message = $Assginment->getLastAnswerMessage();
+                          else if ($Assignment->status == 1) {
+                            $last_Message = $Assignment->getLastAnswerMessage();
                             $last_message_Student = new User((int)$last_Message->sender_user_id);
                             ?>
                             <td tabindex="0" onclick="showPopover(this)" 
                             title="<?=$last_message_Student->getFI()?> <?=convert_mtime($last_Message->date_time)?>" 
-                            data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assginment->id, $user_id)?>">
-                              <?php if ($Task->max_mark != null) {?>
-                                <?=$Task->max_mark?>
+                            data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assignment->id, $user_id)?>">
+                              <?php if ($Assignment->mark != null) {?>
+                                <?=$Assignment->mark?>
                                 <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                   <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
@@ -212,15 +224,15 @@ if ($scripts) echo $scripts; ?>
                                 </svg>
                                 </span>
                               <?php } else {?>
-                                ?
+                                <span style="font-size: larger;">?</span>
                               <?php }?>
                             </td>
                           <?php } 
                           
                           else {?>
-                              <td onclick="answerPress(2,null,<?=$Assginment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)">
-                                <?php if ($Assginment->mark != null) {
-                                  echo $Assginment->mark;
+                              <td onclick="answerPress(2,null,<?=$Assignment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)">
+                                <?php if ($Assignment->mark != null) {
+                                  echo $Assignment->mark;
                                 } ?>
                               </td>
                           <?php }
@@ -242,9 +254,9 @@ if ($scripts) echo $scripts; ?>
           <?php } ?>
 
           <?php
-          $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
-          $result = pg_query($dbconnect, $query);
-					$array_notify = pg_fetch_all($result);
+          // $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
+          // $result = pg_query($dbconnect, $query);
+					// $array_notify = pg_fetch_all($result);
           ?>
 
             <div class="my-4 pt-2">
@@ -273,39 +285,36 @@ if ($scripts) echo $scripts; ?>
                         </div>
                       </div> 
                     </li>
-                    <?php 
-                    foreach ($Page->getTasks() as $Task) {
-                      foreach ($Task->getAssignmemntsByStudent($Student->id) as $Assignment) {?>
-
-                        <div class="inner-accordion noselect" style="display: none;">
+                    <div class="inner-accordion noselect" style="display: none;">
+                      <?php 
+                      foreach ($Page->getTasks() as $Task) {
+                        $Assignment = $Task->getLastAssignmentByStudent($Student->id);
+                        if ($Assignment != null) {?>
                           <?php 
-                              //XXX: Проверить?>
-                              <a href="taskchat.php?assignment=<?=$Assignment->id?>">
-                                <li class="list-group-item" >
-                                  <div class="row">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                      &nbsp;&nbsp;&nbsp;<?=$Task->title?>
-                                      <?php 
-                                      $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
-                                      if($Assignment->status_code == 5) { ?>
-                                        <span class="badge badge-primary badge-pill bg-warning text-white">
-                                          Ожидает проверки
-                                        <span>
-                                      <?php } else if ($Assignment->status_code == 3) {?>
-                                        <span class="badge badge-primary badge-pill bg-success text-white">
-                                          Выполнено
-                                        <span>
-                                      <?php } ?>
-                                    </div>
-                                  </div>
-                                </li> 
-                              </a>
-                        </div>
-
+                          //XXX: Проверить?>
+                          <a href="taskchat.php?assignment=<?=$Assignment->id?>">
+                            <li class="list-group-item" >
+                              <div class="row">
+                                <div class="d-flex justify-content-between align-items-center">
+                                  &nbsp;&nbsp;&nbsp;<?=$Task->title?>
+                                  <?php 
+                                  $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
+                                  if($Assignment->status == 1) { ?>
+                                    <span class="badge badge-primary badge-pill bg-warning text-white">
+                                      Ожидает проверки
+                                    <span>
+                                  <?php } else if ($Assignment->status == 4) {?>
+                                    <span class="badge badge-primary badge-pill bg-success text-white">
+                                      Выполнено
+                                    <span>
+                                  <?php } ?>
+                                </div>
+                              </div>
+                            </li> 
+                          </a>
                         <?php }?>
-                      
-                        <?php
-                    }?>
+                      <?php }?>
+                    </div>
                   </div>
                   <?php
                   } 
@@ -485,7 +494,7 @@ function show_preptable_message($message, $flag_marked_message = false) {
     }
     $message_text .= showAttachedFilesByMessageId($message['mreply_id']);
     $message_text .= "</p>";
-  } else if ($message['status_code'] == 5 && $message['type'] == 1 && !$flag_marked_message) { 
+  } else if ($message['status'] == 1 && $message['type'] == 1 && !$flag_marked_message) { 
     // is student message need to be checked
     $Message = new Message((int)$message['mid']);
     $Task = new Task((int)$message['tid']);
@@ -536,6 +545,63 @@ function generate_message_for_student_task_commit($task_title){
 
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/preptable.js"></script>
+
+<script type="text/javascript">
+  function ajaxChangeVisibility(assignment_id, new_visibility) {
+
+    var formData = new FormData();
+
+    formData.append('assignment_id', assignment_id);
+    formData.append('changeVisibility', new_visibility);
+
+    $.ajax({
+      type: "POST",
+      url: 'taskassign_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+        response = JSON.parse(response);
+        $('#btn-assignment-visibility-' + assignment_id).html(response[0].svg);
+        $('#btn-assignment-visibility-' + assignment_id).prop('title', "Изменить СТАТУС назначения на: " + response[0].visibility_to_text);
+        $('#btn-assignment-visibility-' + assignment_id).attr("onclick", 'ajaxChangeVisibility(' + assignment_id + ', ' + response[0].next_visibility + ')');
+      },
+      complete: function() {
+      }
+    });   
+  }
+
+  function ajaxChangeStatus(assignment_id, new_status) {
+
+    console.log("CLICK!");
+
+    var formData = new FormData();
+
+    formData.append('assignment_id', assignment_id);
+    formData.append('changeStatus', new_status);
+
+    $.ajax({
+      type: "POST",
+      url: 'taskassign_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+        response = JSON.parse(response);
+        $('#btn-assignment-status-' + assignment_id).html(response[0].svg);
+        $('#btn-assignment-status-' + assignment_id).prop('title', "Изменить СТАТУС назначения на: " + response[0].status_to_text);
+        $('#btn-assignment-status-' + assignment_id).attr("onclick", 'ajaxChangeStatus(' + assignment_id + ', ' + response[0].next_status + ')');
+      },
+      complete: function() {
+      }
+    });   
+  }
+
+</script>
 
 
 <!-- End your project here-->

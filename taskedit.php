@@ -175,27 +175,6 @@ show_header($dbconnect, 'Редактор заданий',
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;РЕДАКТОР ВСЕХ НАЗНАЧЕНИЙ</small></label>
             </div>
 
-            <!-- <section class="w-100 py-2 d-flex">
-              <div class="form-outline datetimepicker me-3">
-                <button id="btn-assignment-status-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(0)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                    <?php //getSVGByAssignmentStatus(0);?>
-                </button>
-                <button id="btn-assignment-status-1" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(1)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentStatus(1);?>
-                </button>
-                <button id="btn-assignment-status-2" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(2)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentStatus(2);?>
-                </button>
-                <button id="btn-assignment-status-4" class="btn btn-outline-light px-3 me-1 btn-assignment-status" 
-                onclick="ajaxChangeStatusAllAssignments(4)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
-                  <?php //getSVGByAssignmentStatus(4);?>
-                </button>
-              </div>
-            </section> -->
-
             <section class="w-100 py-2 d-flex">
               <div class="form-outline datetimepicker me-3" style="width: 65%;">
                 <input id="input-finishLimit" type="date" class="form-control active" name="finish-limit" 
@@ -415,44 +394,6 @@ show_header($dbconnect, 'Редактор заданий',
       form.submit();
     })
   });
-
-
-  function ajaxChangeStatusAllAssignments(new_status) {
-
-    var confirm_answer = confirm("Это действие изменит статус всех назначений, прикреплённых к данному заданию. Вы уверены, что хотите продолжить?");
-    if (!confirm_answer)
-      return;
-
-    var formData = new FormData();
-
-    formData.append('task_id', <?=$Task->id?>);
-    formData.append('status', new_status);
-    formData.append('action', 'editStatus');
-
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType : 'html',
-      success: function(response) {
-      },
-      complete: function() {
-        if(new_status != "delete") {
-          $('.btn-assignment-status').removeClass('btn-outline-primary');
-          $('.btn-assignment-status').addClass('btn-outline-light');
-          $('.btn-assignment-status').css('color', 'var(--mdb-gray-400)');
-          $('.btn-assignment-status').css('border-color', 'var(--mdb-gray-400)');
-          $('#btn-assignment-status-' + new_status).css('color', 'var(--mdb-primary)');
-          $('#btn-assignment-status-' + new_status).css('border-color', 'var(--mdb-primary)');
-          $('#btn-assignment-status-' + new_status).removeClass('btn-outline-light');
-          $('#btn-assignment-status-' + new_status).addClass('btn-outline-primary');
-        }
-      }
-    });   
-  }
 
 
   function setFinishLimit() {

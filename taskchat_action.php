@@ -37,7 +37,7 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
     $Message_link = new Message((int)$assignment_id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$Commit->id", 0, 2);
     $Assignment->addMessage($Message_link->id);
     
-    $Assignment->setStatus(5);
+    $Assignment->setStatus(1);
 
     $delay = -1;
     if ($Assignment->finish_limit) {
@@ -167,7 +167,9 @@ function showMessages($messages, $min_new_message_id) {
     if ($message->visibility == 0 || $message->visibility == $User->role) {
     ?>
     <div id="message-<?=$message->id?>" class="chat-box-message <?=$float_class?>" style="height: auto;">
-      <div class="chat-box-message chat-box-message-wrapper <?=$background_color_class?>">
+      <div class="chat-box-message chat-box-message-wrapper <?=$background_color_class?>" 
+      style="<?php if ($message->type == 1) echo "border-color: green; border-width: 2px;"; 
+      else if ($message->type == 2) echo "border-color: red; border-width: 2px;";?>">
         <strong><?=$sender_User->getFI()?></strong> </br>
         <?php 
         if ($message->full_text != '') {

@@ -178,7 +178,7 @@ function getDownloadLink() {
   public function deleteFromDB() {
     global $dbconnect;
 
-    if ($this->download_url != "")
+    if ($this->download_url != "" && file_exists($this->download_url))
       unlink($this->download_url);
   
     $query = "DELETE FROM ax_file WHERE id = $this->id;";

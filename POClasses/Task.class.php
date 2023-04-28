@@ -78,6 +78,14 @@ class Task {
     return $this->Files;
   }
 
+  public function isCompleted($student_id){
+    foreach($this->Assignments as $Assignment) {
+      if ($Assignment->checkStudent($student_id) && $Assignment->status != 4)
+        return false;
+    }
+    return true;
+  }
+
 // -- END GETTERS
 
 
@@ -195,23 +203,22 @@ class Task {
   public function getActiveAssignments() {
     $active_Assignments = array();
     foreach($this->Assignments as $Assignment) {
-      if ($Assignment->status_code == 2 || $Assignment->status_code == 3 || $Assignment->status_code == 5)
+      if ($Assignment->isVisible())
         array_push($active_Assignments, $Assignment);
     }
     return $active_Assignments;
   }
-  public function getAssignmemntsByStudent($student_id) {
+  public function getVisibleAssignmemntsByStudent($student_id) {
     $student_Assignments = array();
     foreach($this->Assignments as $Assignment) {
-      if (($Assignment->status_code == 2 || $Assignment->status_code == 3 || $Assignment->status_code == 5) 
-      && $Assignment->checkStudent($student_id))
+      if (($Assignment->isVisible()) && $Assignment->checkStudent($student_id))
         array_push($student_Assignments, $Assignment);
     }
     return $student_Assignments;
   }
   public function hasUncheckedAssignments($student_id) {
     foreach($this->Assignments as $Assignment) {
-      if (($Assignment->status_code == 5) && $Assignment->checkStudent($student_id))
+      if (($Assignment->status == 1) && $Assignment->checkStudent($student_id))
         return true;
     }
     return false;

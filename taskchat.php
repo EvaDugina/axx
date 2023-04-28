@@ -113,14 +113,13 @@ if ($row) {
 		$time = explode(":", $time_date[1]);
 		$task_finish_limit .= " " . $time[0] . ":" . $time[1];
 	}
-	$task_status_code = $row['status_code'];
+	$task_status_code = $row['status'];
 	$task_mark = $row['mark'];
 }
 
-$task_status_texts = ['Недоступно для просмотра', 'Недоступно для выполнения', 'Активно', 'Выполнено', 'Отменено', 'Ожидает проверки'];
 $task_status_text = '';
-if ($Assignment->status_code != '') {
-	$task_status_text = $task_status_texts[$Assignment->status_code];
+if ($Assignment->visibility != '') {
+	$task_status_text = visibility_to_text($Assignment->visibility);
 }
 
 $Task = new Task((int)$task_id);
@@ -151,7 +150,7 @@ $task_number = explode('.', $task_title)[0];
 
 <body>
 	<?php 
-	if ($au->isTeacher()) 
+	if ($au->isTeacher() || $au->isAdmin()) 
 		show_header($dbconnect, 'Чат c перподавателем', 
 			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => '')); 
 	else 
@@ -164,13 +163,13 @@ $task_number = explode('.', $task_title)[0];
 			<h2><?= $task_title ?></h2>
 			<div>
 				<div class="task-desc-wrapper">
-          <small>
-					  <p id="TaskDescr" style="overflow: auto;"><?= $task_description ?></p>
-   				  <script>
-  						document.getElementById('TaskDescr').innerHTML =
-							  marked.parse(document.getElementById('TaskDescr').innerHTML);
-					  </script>
-          </small>
+          <b class="mb-0">Описание задания:</b>
+          <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;"><?= $task_description ?></p>
+          <script>
+            document.getElementById('TaskDescr').innerHTML =
+              marked.parse(document.getElementById('TaskDescr').innerHTML);
+            $('#TaskDescr').children().addClass("m-0");
+          </script>
 					<p style="line-height: 0.5em;">
           <?php
 			      if ($task_files)
@@ -191,12 +190,12 @@ $task_number = explode('.', $task_title)[0];
 					<div>
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" id="flexCheckDisabled" 
-								<?php if ($task_status_code == 3) echo 'checked'; ?> disabled>
+								<?php if ($Assignment->isCompleted()) echo 'checked'; ?> disabled>
                 <?php //XXX: Проверить?>
-							<label id="label-task-status-text"><?= $task_status_text ?></label>
+							<label id="label-task-status-text"><?=status_to_text($Assignment->status)?></label>
 						</div>
             <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
-            <span id="span-text-mark"><?php if($task_status_code == 3){?> 
+            <span id="span-text-mark"><?php if($task_status_code == 4){?> 
               Оценка: <b id="b-mark"><?=$task_mark?></b>
             <?php }?>
             </span>
@@ -204,7 +203,9 @@ $task_number = explode('.', $task_title)[0];
           <div>
             <div>
               <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
-                <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;Онлайн редактор кода</a>
+                <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;
+                Онлайн редактор кода
+              </a>
             </div>
 
             <?php if($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание ?>
@@ -223,13 +224,13 @@ $task_number = explode('.', $task_title)[0];
                     <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
                 </div>
               </form>
-            <?php } else { // Отправить задание на проверку ?>
+            <?php } else if ($Assignment->isCompleteable()){ // Отправить задание на проверку ?>
               <form id="form-send-answer" action="taskchat_action.php" method="POST">
                 <div class="d-flex flex-row my-2">
                   <div class="file-input-wrapper me-1">
                     <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
                     <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                    <label for="user-answer-files" <?php if($task_status_code == 3) echo 'style="cursor: default;"';?>>
+                    <label for="user-answer-files" <?php if($task_status_code == 4) echo 'style="cursor: default;"';?>>
                       <i class="fa-solid fa-paperclip"></i>
                       <span id="files-answer-count" class="text-success"></span>
                     </label>
@@ -254,19 +255,21 @@ $task_number = explode('.', $task_title)[0];
 				<!-- Вывод сообщений на страницу -->
 			</div>
 
-			<form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
-				<div class="message-input-wrapper">
-					<div class="file-input-wrapper">
-            <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
-						<input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
-						<label for="user-files">
-              <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
-            </label>
-					</div>
-					<textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
-					<button type="submit" name="submit-message" id="submit-message">Отправить</button>
-				</div>
-			</form>
+      <?php if($Assignment->isCompleteable()) {?>
+        <form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
+          <div class="message-input-wrapper">
+            <div class="file-input-wrapper">
+              <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
+              <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
+              <label for="user-files">
+                <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
+              </label>
+            </div>
+            <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+            <button type="submit" name="submit-message" id="submit-message">Отправить</button>
+          </div>
+        </form>
+      <?php }?>
 
 		</div>
 	</main>
@@ -364,7 +367,7 @@ $task_number = explode('.', $task_title)[0];
       // Первое обновление лога чата
       loadChatLog(true);
       // Обновление лога чата раз в 1 секунд
-      setInterval(loadChatLog, 10000);
+      setInterval(loadChatLog, 1000);
 
       
     });

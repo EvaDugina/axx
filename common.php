@@ -185,7 +185,7 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
                               }?>
                             </div>
                             <span class="badge badge-primary badge-pill"
-                              <?php if ($au->isTeacher() && $notify['status_code'] == 5) {?> 
+                              <?php if ($au->isTeacher() && $notify['status'] == 1) {?> 
                                 style="background: #dc3545; color: white;"
                               <?php }?>><?=$count_unreaded_messages_by_notify['count']?>
                             </span>

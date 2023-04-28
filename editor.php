@@ -24,7 +24,9 @@ $task_title = '';
 $task_description = '';
 $task_finish_limit = '';
 $task_status_code = '';
+$assignment_status = '';
 $task_max_mark = 5;
+// TODO: Проверить на наличие конфликата!
 $query = select_ax_assignment_with_task_by_id($assignment_id);
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $row = pg_fetch_assoc($result);
@@ -33,6 +35,7 @@ if ($row) {
 	$task_finish_limit = $row['finish_limit'];
   $task_title = $row['title'];
 	$task_status_code = $row['status_code'];
+	$assignment_status = $row['status'];
   $task_description = $row['description'];
 	$task_max_mark = (int)$row['mark'];
 } else {
@@ -171,8 +174,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 4) ?"disabled" :"")?> >Завершить проверку</button>
 <?php 
 		} else { // Оценить отправленное на проверку задание 
-?>
-            <button type="button" class="btn btn-primary" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 1) ?"disabled" :"")?> >Отправить на проверку</button>
+// TODO: Проверить!?>	
+            <button type="button" class="btn btn-primary" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($assignment_status == -1) ?"disabled" :"")?> >Отправить на проверку</button>
 <?php 
 		}
 ?>
