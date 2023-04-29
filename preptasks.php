@@ -78,7 +78,8 @@ if (!$result || pg_num_rows($result) < 1) {
                   </thead>
                   <tbody>
                     <?php
-                    while ($task = pg_fetch_assoc($result)) {?>
+                    while ($task = pg_fetch_assoc($result)) {
+                      $Task = new Task((int)$task['id']);?>
                       <tr>
                         <div class="row">
                         <td class="col-1" scope="row" style="--mdb-table-accent-bg:unset;">
@@ -106,8 +107,6 @@ if (!$result || pg_num_rows($result) < 1) {
                             <div class="small">Назначения:</div>
                             <div id="student_container">
                               <?php 
-							  
-                              $Task = new Task((int)$task['id']);
                               
                               foreach($Task->getAssignments() as $Assignment) {
                                 $stud_list = "";
@@ -185,6 +184,8 @@ if (!$result || pg_num_rows($result) < 1) {
                             </button>
                           </div>
 
+                          <?php 
+                          if(count($Task->getAssignments()) > 0) {?>
                           <section class="d-flex justify-content-end">
                               <button id="btn-assignment-visibility-<?=$task['id']?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?=$task['id']?>" 
                               onclick="ajaxChangeVisibilityAllAssignmentsByTask(0, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
@@ -208,6 +209,8 @@ if (!$result || pg_num_rows($result) < 1) {
                                   <?php getSVGByAssignmentStatus(0);?>
                               </button>
                           </section>
+                          <?php }?>
+
                         </td>
                       </tr>
                     <?php }	?>
