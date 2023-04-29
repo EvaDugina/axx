@@ -1,0 +1,1 @@
+UPDATE ax_file SET file_name = regexp_replace(file_name, '^[0-9]{0,}_', '') WHERE download_url IS NULL;
