@@ -66,6 +66,7 @@ if ($last_commit_id) {
   //echo select_last_ax_solution_file_by_commit_id($last_commit_id);
   if ($file_rows) {
     foreach($file_rows as $file_row) {
+		$File = new File((int)$file_row['id']);
       $file_full_text = "";
       if (isset($file_row['download_url'])) {
         $file_path = $file_row['download_url'];
@@ -73,10 +74,7 @@ if ($last_commit_id) {
         $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
       } else if (isset($file_row['full_text']))
           $file_full_text = $file_row['full_text'];
-      //echo $file_row['file_name'];
-      $file_name = delete_random_prefix_from_file_name($file_row['file_name']);
-      //echo $file_name;
-      $solution_file = array('id'=>$file_row['id'], 'file_name'=>$file_name, 'text'=>$file_full_text);
+      $solution_file = array('id'=>$file_row['id'], 'file_name'=>$File->name_without_prefix, 'text'=>$file_full_text);
       array_push($solution_files, $solution_file);
     }
   }

@@ -172,8 +172,9 @@
     }
 
     // TODO: Проверить!
-    $File = new File(11, $file_name, null, null);
-    $Commit = new Commit((int)$commit_id);
+    $File = new File(11, $file_name, null, null);    
+	$File->setName(true, $file_name);
+	$Commit = new Commit((int)$commit_id);
     $Commit->addFile($File->id);
     $responce = $File->id;
   //   $result = pg_query($dbconnect, "INSERT INTO ax_solution_file (assignment_id, commit_id, file_name, type) VALUES ('$assignment', $commit_id, '$file_name', '11') returning id;");

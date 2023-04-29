@@ -66,30 +66,6 @@ function convert_mtime($mtime){
 }
 
 
-// [x]: Убрать, тк это есть в классе File
-function add_random_prefix_to_file_name($real_file_name) {
-  //return rand_prefix() . basename($real_file_name);
-  return $real_file_name;
-}
-function delete_random_prefix_from_file_name($db_file_name) {
-  // Декодирование названия файла
-  // $split_array = preg_split('/_/', $db_file_name);
-  // $decodedFileName = "";
-  // for ($i = 1; $i < count($split_array); $i++) {
-  //   $decodedFileName .= $split_array[$i];
-  // }
-  // return $decodedFileName;
-  return $db_file_name;
-}
-
-// Генерация префикса для уникальности названий файлов, которые хранятся на сервере
-function rand_prefix() {
-  return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
-}
-function delete_prefix($str) {
-	return preg_replace('#[0-9]{0,}_#', '', $str, 1);
-}
-
 
 
 function showAttachedFilesByMessageId($message_id){

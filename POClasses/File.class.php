@@ -28,15 +28,18 @@ class File {
 
       if ($file) {
         $this->name = $file['file_name'];
-        $this->name_without_prefix = deleteRandomPrefix($this->name);
-        $this->download_url = $file['download_url'];
-        $this->full_text = $file['full_text'];
         $this->type = $file['type'];
+        $this->download_url = $file['download_url'];
+        if ($this->download_url != null) {
+          $this->name_without_prefix = deleteRandomPrefix($this->name);
+        } else {
+          $this->name_without_prefix = $this->name;
+        }
+        $this->full_text = $file['full_text'];
       }
       
     } 
-    
-    // TODO: Доделать
+
     else if ($count_args == 2) {
       $this->type = $args[0];
       $this->name_without_prefix = $args[1];
@@ -92,6 +95,22 @@ function getDownloadLink() {
 
 // SETTERS
 
+  public function setName($textIsOnDB, $name) {
+    global $dbconnect;
+
+    $this->name = $name;
+    if ($textIsOnDB)
+      $this->name_without_prefix = $this->name;
+    else 
+      $this->name_without_prefix = deleteRandomPrefix($this->name);
+
+    $query = "UPDATE ax_file SET file_name = '$this->name'
+                WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
   public function setDownloadUrl($download_url) {
     global $dbconnect;
 
@@ -110,7 +129,7 @@ function getDownloadLink() {
                 WHERE id = $this->id;
     ";
     
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    pg_query($dbconnect, $query) or pg_query($dbconnect, mb_convert_encoding($query, 'UTF-8', 'CP1251')) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function setType($type) {
     global $dbconnect;
@@ -141,7 +160,7 @@ function getDownloadLink() {
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
       $query = "INSERT INTO ax_file (type, file_name, full_text) 
-                VALUES ($this->type, \$antihype1\$$this->name\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$) 
+                VALUES ($this->type, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$) 
                 RETURNING id;
       ";
     } else {
@@ -227,7 +246,6 @@ function getFileContentByPath($file_path) {
 
 
 
-
 // Object это Message или Task 
 function addFilesToObject($Object, $WEB_FILES, $type){
   // Файлы с этими расширениями надо хранить в БД
@@ -256,6 +274,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type) {
 
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
       
+      $File->setName(true, $File->name_without_prefix);
       $file_full_text = getFileContentByPath($file_path);
       $File->setFullText($file_full_text);
       $Object->addFile($File->id);
