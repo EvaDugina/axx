@@ -351,7 +351,7 @@
       mkdir($folder, 0777, true);
 
 	// получение файла проверки
-	$result = pg_query($dbconnect,  "SELECT ax_file.* from ax_file f INNER JOIN ax_task_file ON ax_task_file.file_id = ax_file.id inner join ax_assignment a on ax_task_file.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
+	$result = pg_query($dbconnect,  "SELECT f.* from ax_file f INNER JOIN ax_task_file ON ax_task_file.file_id = f.id inner join ax_assignment a on ax_task_file.task_id = a.task_id where f.type = 2 and a.id = ".$assignment);
 	$result = pg_fetch_assoc($result);
 	if (!$result && array_key_exists('autotests', $checks['tools']))
 	  $checks['tools']['autotests']['enabled'] = false;
