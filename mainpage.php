@@ -18,6 +18,7 @@ if (!$au->isAdmin() && !$au->isTeacher()){
 	$au->logout();
 	header('Location:login.php');
 }
+$User = new User((int)$au->getUserId());
 
 // $result = pg_query($dbconnect, 'select id, short_name, disc_id, get_semester(year, semester) sem, year y, semester s from ax_page order by y desc, s desc');
 
@@ -42,7 +43,7 @@ function full_name($discipline_id, $dbconnect) {
   
 	<?php show_head("Дашборд преподавателя");?>
   <body class="d-flex flex-column">
-	<?php show_header($dbconnect, 'Дашборд преподавателя', array()); ?>
+	<?php show_header($dbconnect, 'Дашборд преподавателя', array(), $User); ?>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
 				// array_multisort(array_column($pages, 'y'), SORT_DESC, $pages);

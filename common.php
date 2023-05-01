@@ -98,14 +98,13 @@ function show_head($page_title = '', $js = array(), $css = array())
 <?php 
 } 
 
+// FIXME: Обновить хэдер на всех страницах
 function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) { 
 ?>
   <script type="text/javascript">
     $(document).ready(function() {
-      console.log("HEADER HEIGHT", $('#header').css("height"));
       $('main').css("margin-top", parseFloat($('#header').css("height")) + parseFloat($('main').css("margin-top")));
       $('main').addClass("pt-1");
-      console.log("MAIN MARGIN-TOP", $('main').css("margin-top"));
     });
   </script>
   <header id="header" class="header header--fixed js-header is-show">
@@ -136,24 +135,8 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
             if (count($breadcrumbs) < 1) echo '</div>';
 
             if ($page_title != "Вход в систему") { 
-              // [x]: Убрать
-              $au = new auth_ssh();
-              // TODO: Проверить
               if ($user != null) {
                 $array_notify = $user->getNotifications();
-              } 
-              // [x]: Убрать
-              else if (array_key_exists('username', $_SESSION) && $_SESSION['username'] != '') {
-                // Подгрузка уведомления для разных групп пользователей
-                $array_notify = array();
-
-                if ($au->isTeacher())
-                  $query = select_notify_for_teacher_header($_SESSION['hash']);
-                else if ($au->loggedIn())
-                  $query = select_notify_for_student_header($_SESSION['hash']);
-
-                $result = pg_query($dbconnect, $query);
-                $array_notify = pg_fetch_all($result);
               }?>
           </div>
 
@@ -168,44 +151,40 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                 <?php $i = 0;
-                if ($array_notify){
-                  foreach ($array_notify as $notify) { $i++; 
-
-                    // TODO: Проверить
-                    if ($user != null)
-                      $count_unreaded_messages_by_notify = $user->getCountUnreadedMessagesByTask($notify['aid']);
-
-                    // [x]: Убрать
-                    else {
-                      if($au->isTeacher()){
-                        $query = select_count_unreaded_messages_by_task_for_teacher($notify['student_user_id'], $notify['task_id']);
-                      } else {
-                        $query = select_count_unreaded_messages_by_task_for_student($_SESSION['hash'], $notify['task_id']);
-                      }
-                      $result = pg_query($dbconnect, $query);
-                      $count_unreaded_messages_by_notify = pg_fetch_assoc($result);
-                    }?>
-                    <a href="taskchat.php?assignment=<?=$notify['aid']?>"> 
-                        <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
-                          <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                              <?php if ($au->isTeacher()) {
-                                echo '<span style="border-bottom: 1px solid;">'. $notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")" .'</span>';?>
-                                <br><?php echo $notify['title'];
-                              } else {
-                                echo '<span style="border-bottom: 1px solid;">'.$notify['short_name'] .'</span>';?><br><?php echo $notify['title']; 
+                foreach ($array_notify as $notify) { 
+                  $i++;?>
+                  <a href="taskchat.php?assignment=<?=$notify['assignment_id']?>"> 
+                      <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <span style="border-bottom: 1px solid;">
+                              <?php if ($user->isTeacher()) {
+                                foreach($notify['students'] as $i => $Student) {?>
+                                    <?=$Student->getFI()?> <?=($i + 1 < count($notify['students'])) ? "| " : ""?>
+                                <?php 
+                                } 
+                              } else {?>
+                                <?php foreach($notify['teachers'] as $i => $Teacher) {?>
+                                  <?=$Teacher->getFIOspecial()?>  <?=($i + 1 < count($notify['teachers'])) ? "| " : ""?>
+                                <?php }
                               }?>
-                            </div>
-                            <span class="badge badge-primary badge-pill"
-                              <?php if ($au->isTeacher() && $notify['status'] == 1) {?> 
-                                style="background: #dc3545; color: white;"
-                              <?php }?>><?=$count_unreaded_messages_by_notify['count']?>
+                              (<?=$notify['page_name']?>)
                             </span>
+                            <br><?php echo $notify['taskTitle']; ?>
                           </div>
-                        </li>
-                    </a>
-                  <?php }
-                }?>
+                          <span class="badge badge-primary badge-pill"
+                            <?php if ($user->isTeacher() && $notify['needToCheck']) {?> 
+                              style="background: red; color: white;"
+                            <?php } else if($user->isStudent() && $notify['completed']) {?>
+                              style="background: green; color: white;"
+                            <?php }?>
+                          >
+                            <?=$notify['countUnreaded']?>
+                          </span>
+                        </div>
+                      </li>
+                  </a>
+                <?php }?>
               </ul>
             </ul>
 
@@ -213,9 +192,29 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
               <!-- Avatar -->
               <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                 <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                <button type="button" class="btn btn-floating"><i class="fas fa-user-alt fa-lg"></i></button> <span class="text-reset ms-2">
+                <button type="button" class="btn btn-floating">
+                  <?php if($user != null && $user->getImageFile() != null) {?>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="embed-responsive embed-responsive-1by1 text-center">
+                                <div class="embed-responsive-item">
+                                  <img class="w-100 h-100 p-0 m-0 rounded-circle user-icon"  src="<?=$user->getImageFile()->download_url?>"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  <?php } else { ?>
+                    <svg class="w-100 h-100" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                      <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                  <?php }?>
+                </button> 
+                <span class="text-reset ms-2">
                   <?php // [x]: убрать // TODO: Проверить
-                  if($user != null) echo $user->getFIOspecial(); else echo $_SESSION['username'];?></span>
+                  if($user != null) echo $user->getFIOspecial(); 
+                  else echo $_SESSION['username'];?>
+                </span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
                 <li><a class="dropdown-item" href="profile.php">Профиль</a></li>

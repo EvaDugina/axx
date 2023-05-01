@@ -10,6 +10,8 @@ class User {
   public $github_url;
 
   public $group_id;
+  
+  private $Image = null;
 
   // private $Group = null;
 
@@ -43,6 +45,9 @@ class User {
 
       $this->group_id = $user['group_id'];
 
+      if ($user['image_file_id'])
+        $this->Image = new File((int)$user['image_file_id']);
+
       // $this->Group = new Group((int)$user['group_id']);
     }
 
@@ -72,22 +77,82 @@ class User {
   }
   public function getNotifications() {
     global $dbconnect;
-
-    // TODO: получить список уведомлений пользователя
-    if ($this->role == 1);
-    else if ($this->role == 2) // Уведомления для преподавателя
-      $query = queryGetNotifiesForTeacherHeader($this->id);
-    else if ($this->role == 3) // Уведомления для студента
-      $query = queryGetNotifiesForStudentHeader($this->id);
     
-    $result = pg_query($dbconnect, $query);
-    $array_notify = pg_fetch_all($result);
+     if ($this->isAdmin()) {
+      $query = queryGetAllPages();
+      return null;
+     } else if ($this->isTeacher()) // Уведомления для преподавателя
+       $query = queryGetPagesByTeacher($this->id);
+     else if ($this->isStudent()) // Уведомления для студента
+       $query = queryGetAllPagesByGroup($this->group_id);
+     
+     $result = pg_query($dbconnect, $query);
+     $page_ids = pg_fetch_assoc($result);
 
-    return $array_notify;
+     $notifies = array();
+
+     // FIXME: НАЙТИ ОШИБКУ, некорректно выводится список уведомлений у студента
+     foreach ($page_ids as $page_id) {
+      $Page = new Page((int)$page_id);
+      if ($this->isTeacher()) { // Уведомления для преподавателя 
+        foreach($Page->getTasks() as $Task) {
+          foreach($Task->getActiveAssignments() as $Assignment) {
+            $unreadedMessages = $Assignment->getUnreadedMessagesForTeacher();
+            if (count($unreadedMessages) > 0) {
+              $notify = array(
+                "task_id" => $Task->id,
+                "taskTitle" => $Task->title,
+                "countUnreaded" => count($unreadedMessages),
+                "assignment_id" => $Assignment->id,
+                "students" => $Assignment->getStudents(),
+                "page_name" => $Page->name,
+                "needToCheck" => ($Assignment->isWaitingForCheck()) ? true : false
+              ); 
+              array_push($notifies, $notify);
+            }
+          }
+        }
+      } else if ($this->isStudent()) { // Уведомления для студента
+        foreach($Page->getTasks() as $Task) {
+          foreach($Task->getVisibleAssignmemntsByStudent($this->id) as $Assignment) {
+            $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
+            if (count($unreadedMessages) > 0) {
+              $notify = array(
+                "task_id" => $Task->id,
+                "taskTitle" => $Task->title,
+                "countUnreaded" => count($unreadedMessages),
+                "assignment_id" => $Assignment->id,
+                "teachers" => $Page->getTeachers(),
+                "page_name" => $Page->name,
+                "completed" => ($Assignment->isCompleted()) ? true : false
+              ); 
+              array_push($notifies, $notify);
+            }
+          }
+        }
+      }
+     }
+ 
+     return $notifies;
   }
 
   public function getFIOspecial() {
     return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
+  }
+
+  public function getImageFile() {
+    return $this->Image;
+  }
+
+ 
+  public function isAdmin() {
+    return isAdmin($this->role);
+  }
+  public function isTeacher() {
+    return isTeacher($this->role);
+  }
+  public function isStudent() {
+    return isStudent($this->role);
   }
   
 // -- END GETTERS
@@ -102,6 +167,19 @@ class User {
     $query = "UPDATE ax_settings SET github_url = '$this->github_url'
               WHERE user_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function setImage($image_file_id) {
+    global $dbconnect;
+
+    $this->Image = new File((int)$image_file_id);
+
+    $query = "UPDATE ax_settings SET image_file_id = '$image_file_id'
+              WHERE user_id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function addFile($file_id) {
+    $this->setImage($file_id);
   }
 
 // -- END SETTERS
@@ -127,6 +205,22 @@ class User {
  
 }
 
+function isAdmin($role) {
+  if ($role == 1)
+    return true;
+  return false;
+} 
+function isTeacher($role) {
+  if ($role == 2)
+    return true;
+  return false;
+}
+function isStudent($role) {
+  if ($role == 3)
+    return true;
+  return false;
+}
+
 
 function getGroupByStudent($student_id) {
   global $dbconnect;
@@ -145,7 +239,7 @@ function getGroupByStudent($student_id) {
 
 function queryGetUserInfo($id){
   return "SELECT first_name, middle_name, last_name, login, role, students_to_groups.group_id as group_id,
-          ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark, ax_settings.github_url
+          ax_settings.*
           FROM students
           LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
           LEFT JOIN ax_settings ON ax_settings.user_id = students.id
@@ -203,37 +297,37 @@ function queryGetNotifiesForStudentHeader($student_id){
 // получение уведомлений для преподавателя по непроверенным заданиям
 function queryGetNotifiesForTeacherHeader($teacher_id){
   return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
-              ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, ax_assignment_student.student_user_id,
-              s1.middle_name, s1.first_name FROM ax_task
-          INNER JOIN ax_page ON ax_page.id = ax_task.page_id
-          INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-          INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
-          INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-          INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
-          LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
-          LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
-          WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 2 
-          AND ax_message.status = 0 AND (ax_message.visibility = 2 OR ax_message.visibility = 0);
+                ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, ax_assignment_student.student_user_id,
+                s1.middle_name, s1.first_name FROM ax_task
+            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+            INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
+            LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+            LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
+            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 2 
+            AND ax_message.status = 0 AND (ax_message.visibility = 2 OR ax_message.visibility = 0);
   ";
 }
 
-function queryGetCountUnreadedMessagesBytaskForTeacher($assignment_id){
+function queryGetCountUnreadedMessagesByTaskForTeacher($teacher_id, $task_id){
   return "SELECT COUNT(*) FROM ax_message
-      INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
-      INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
-      INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-      WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $assignment_id
-      AND ax_message.sender_user_type != 2 AND ax_message.type != 3;
+          INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
+          INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+          INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
+          WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $teacher_id AND ax_task.id = $task_id
+          AND ax_message.sender_user_type != 2 AND ax_message.type != 3;
   ";
 }
 
-function queryGetCountUnreadedMessagesBytaskForStudent($assignment_id){
+function queryGetCountUnreadedMessagesByTaskForStudent($student_id, $task_id){
   return "SELECT COUNT(*) FROM ax_message
-      INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
-      INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
-      INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-      WHERE ax_message.status = 0 AND ax_assignment.id = $assignment_id
-      AND ax_message.sender_user_type != 3;
+          INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
+          INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+          INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
+          WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $student_id AND ax_task.id = $task_id
+          AND ax_message.sender_user_type != 3;
   ";
 }
 

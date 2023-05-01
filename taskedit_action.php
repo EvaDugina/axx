@@ -333,20 +333,6 @@ header('Location: preptasks.php?page=' . $page_id);
 
 <?php // ФУНКЦИИ
 
-function convertWebFilesToFiles($name_files) {
-  $files = array();
-  for ($i = 0; $i < count($_FILES[$name_files]['tmp_name']); $i++) {
-    if (!is_uploaded_file($_FILES[$name_files]['tmp_name'][$i])) {
-      continue;
-    } else {
-      array_push($files, [
-        'name' => $_FILES[$name_files]['name'][$i], 'tmp_name' => $_FILES[$name_files]['tmp_name'][$i]
-      ]);
-    }
-  }
-  return $files;
-}
-
 
 function addFileToTask($Task, $type, $file_name, $file_tmp_name) {
 

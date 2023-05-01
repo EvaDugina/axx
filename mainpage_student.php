@@ -10,7 +10,7 @@ if ($au->isAdmin() && $au->isTeacher()){
 	header('Location:mainpage.php');
   exit;
 } else if ($au->loggedIn()) {
-  $student_id = $_SESSION['hash'];
+  $student_id = $au->getUserId();
   $result = pg_query($dbconnect, select_group_id_by_student_id($student_id));
   $group_id = pg_fetch_assoc($result)['group_id'];
 } else {
@@ -38,7 +38,7 @@ $Group = new Group((int)$group_id);
     <?php show_head($pge_title='Дашборд студента');?>
 
     <body>
-        <?php show_header($dbconnect, 'Дашборд студента', array()); ?>
+        <?php show_header($dbconnect, 'Дашборд студента', array(), $User); ?>
         <main class="justify-content-start" style="margin-bottom: 30px;">
             <?php
             $array_year = 0;

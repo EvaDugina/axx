@@ -6,6 +6,7 @@ class File {
   public $id = null;
   public $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
                         // 10 - просто файл с результатами, 11 - файл проекта)
+                        // 21 - иконка пользователя
   public $name = null, $download_url = null, $full_text = null;
 
   public $name_without_prefix = null;
@@ -242,6 +243,20 @@ function getFileContentByPath($file_path) {
   $file_full_text = file_get_contents($file_path);
   $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
   return $file_full_text;
+}
+
+function convertWebFilesToFiles($name_files) {
+  $files = array();
+  for ($i = 0; $i < count($_FILES[$name_files]['tmp_name']); $i++) {
+    if (!is_uploaded_file($_FILES[$name_files]['tmp_name'][$i])) {
+      continue;
+    } else {
+      array_push($files, [
+        'name' => $_FILES[$name_files]['name'][$i], 'tmp_name' => $_FILES[$name_files]['tmp_name'][$i]
+      ]);
+    }
+  }
+  return $files;
 }
 
 

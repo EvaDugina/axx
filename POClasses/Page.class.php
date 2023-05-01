@@ -467,6 +467,17 @@ function queryCreateColorTheme($src_url) {
   ";
 }
 
+function queryGetPagesByTeacher ($teacher_id) {
+  return "SELECT p.id FROM ax_page p
+          INNER JOIN ax_page_prep ON ax_page_prep.page_id = p.id
+          WHERE ax_page_prep.prep_user_id = $teacher_id
+  ";
+}
+
+function queryGetAllPages () {
+  return "SELECT ax_page.id FROM ax_page";
+}
+
 
 
 ?>

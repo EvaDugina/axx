@@ -178,6 +178,21 @@ class Message {
 
 // WORK WITH DELIVERY
 
+  public function isReadedByTeacher() {
+    if (!isTeacher($this->sender_user_type) && $this->status == 1)
+      return true;
+    else if (isTeacher($this->sender_user_type))
+      return true; 
+    return false;
+  }
+  public function isReadedByStudent() {
+    if (!isStudent($this->sender_user_type) && $this->status == 1)
+      return true;
+    else if (isStudent($this->sender_user_type))
+      return true; 
+    return false;
+  }
+
   public function getDeliveryStatus($user_id) {
     global $dbconnect;
 

@@ -240,6 +240,11 @@ class Assignment {
       return true;
     return false;
   }
+  public function isWaitingForCheck() {
+    if($this->status == 1)
+      return true;
+    return false;
+  }
 
 
   // TODO: на будущее - исправить
@@ -406,6 +411,23 @@ class Assignment {
         return $this->Messages[$i];
     }
   }
+  public function getUnreadedMessagesForTeacher() {
+    $unreadedMessages = array();
+    foreach($this->Messages as $Message) {
+      if (!$Message->isReadedByTeacher())
+        array_push($unreadedMessages, $Message);
+    }
+    return $unreadedMessages;
+  }
+  public function getUnreadedMessagesForStudent() {
+    $unreadedMessages = array();
+    foreach($this->Messages as $Message) {
+      if (!$Message->isReadedByStudent())
+        array_push($unreadedMessages, $Message);
+    }
+    return $unreadedMessages;
+  }
+  
 
 
   function pushNewToDeliveryDB($Message) {
