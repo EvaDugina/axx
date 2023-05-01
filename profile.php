@@ -7,9 +7,14 @@ require_once("POClasses/User.class.php");
 require_once("POClasses/Group.class.php");
 
 $au = new auth_ssh();
+checkAuLoggedIN($au);
 
-$user = new User((int)$au->getUserId());
-$group = new Group((int)$user->group_id);
+if (isset($_GET['user_id'])) {
+  $User = new User((int)$_GET['user_id']);
+} else {
+  $User = new User((int)$au->getUserId());
+}
+$group = new Group((int)$User->group_id);
 
 ?>
 
@@ -38,19 +43,42 @@ show_head('Профиль'); ?>
             </div>
           </div>
 
-          <form clacc="col-md-6 form-check" action="profile_edit.php" method="POST">
-            <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?=$user->getFIO()?></span> </p>
-            <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$user->login?></span> </p>
+          <form clacc="col-md-4 form-check" style="width:inherit;" action="profile_edit.php" method="POST">
+            <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?=$User->getFIO()?></span> </p>
+            <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$User->login?></span> </p>
             <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$group->name?></span> </p>
-            <p> <span class="font-weight-bold">ПОЧТА: </span> 
-                    <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?=$user->email?>">        
-            </p>
-            
-            <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" 
-                    <?php if($user->notify_status==1) echo "checked"; ?>> <span class="font-weight-normal">
+
+            <?php if ((int)$au->getUserId() == (int)$User->id) {?>
+              <p class="d-flex align-items-center mb-0"> 
+                <span class="font-weight-bold">ПОЧТА:</span> &nbsp; &nbsp;
+                <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?=$User->email?>">        
+              </p>
+              <p class="d-flex align-items-center mb-0"> 
+                <span class="font-weight-bold">GITHUB:</span> &nbsp; &nbsp;
+                <input type="url" name="github_url" class="form-control" id="exampleFormControlInput1" placeholder="https://github.com/ВАШ_ЛОГИН" value="<?=$User->github_url?>">        
+              </p>
+              <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" 
+                    <?php if($User->notify_status==1) echo "checked"; ?>> <span class="font-weight-normal">
                       Получать уведомления на почту</span> </p>
 
-            <button type="submit" class="btn btn-primary">CОХРАНИТЬ</button>
+              <button type="submit" class="btn btn-primary">CОХРАНИТЬ</button>
+
+            <?php } else {?>
+
+              <?php if($au->isAdminOrTeacher() && $User->email != null) {?>
+                <p> <span class="font-weight-bold">ПОЧТА: </span> <span class="font-weight-normal"><?=$User->email?></span> </p>
+              <?php }?>
+
+              <?php if($User->github_url != null) {?>
+                <div> 
+                  <span class="font-weight-bold">GITHUB: </span> 
+                  <a href="<?=$User->github_url?>" target="_blank" rel="noopener noreferrer">
+                    <?=$User->github_url?>
+                  </a> 
+                </div>
+              <?php }?>
+
+            <?php }?>
                   
           </form>
         </div>

@@ -7,6 +7,7 @@ class User {
   public $first_name, $middle_name, $last_name;
   public $login, $role;
   public $email, $notify_status;
+  public $github_url;
 
   public $group_id;
 
@@ -38,6 +39,8 @@ class User {
       $this->email = $user['email'];
       $this->notify_status = $user['notification_type'];
 
+      $this->github_url = $user['github_url'];
+
       $this->group_id = $user['group_id'];
 
       // $this->Group = new Group((int)$user['group_id']);
@@ -49,6 +52,8 @@ class User {
 
   }
 
+
+// GETTERS
 
   public function getFI() {
     if (empty($this->first_name))
@@ -84,10 +89,22 @@ class User {
   public function getFIOspecial() {
     return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
   }
-  // public function getGroup() {
-  //   return $this->Group;
-  // }
   
+// -- END GETTERS
+
+
+// SETTERS
+  public function setGithub($github_url) {
+    global $dbconnect;
+
+    $this->github_url = $github_url;
+
+    $query = "UPDATE ax_settings SET github_url = '$this->github_url'
+              WHERE user_id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+// -- END SETTERS
 
 
   public function pushStudentChangesToDB() {
@@ -102,7 +119,7 @@ class User {
   public function pushSettingChangesToDB() {
     global $dbconnect;
 
-    $query = "UPDATE ax_settings SET email = '$this->email', notification_type = '$this->notify_status'
+    $query = "UPDATE ax_settings SET email = '$this->email', notification_type = '$this->notify_status', github_url = '$this->github_url'
               WHERE user_id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -128,7 +145,7 @@ function getGroupByStudent($student_id) {
 
 function queryGetUserInfo($id){
   return "SELECT first_name, middle_name, last_name, login, role, students_to_groups.group_id as group_id,
-          ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
+          ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark, ax_settings.github_url
           FROM students
           LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
           LEFT JOIN ax_settings ON ax_settings.user_id = students.id

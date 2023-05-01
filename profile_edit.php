@@ -11,6 +11,9 @@ if (isset($_POST['email'])){
   $user->email = $_POST['email'];
 }
 
+if (isset($_POST['github_url'])) {
+  $user->github_url = $_POST['github_url'];
+}
 
 if (isset($_POST['checkbox_notify'])){
   $user->notify_status = 1;

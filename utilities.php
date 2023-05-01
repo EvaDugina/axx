@@ -6,6 +6,13 @@ require_once("POClasses/Message.class.php");
 require_once("POClasses/Task.class.php");
 
 
+function checkAuLoggedIN($au) {
+  if (!$au->loggedIn()) {
+    header('Location:login.php');
+    exit;
+  }
+}
+
 function getPGQuotationMarks() {
   return "\$antihype1\$";
 }
