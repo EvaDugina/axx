@@ -34,10 +34,13 @@ $count_tasks = $Page->getCountActiveAssignments($student_id);
 
 <?php 
 show_head("Страница предмета ". $Page->name);
-show_header($dbconnect, 'Задания по дисциплине', 
-		array($Page->name => 'studtasks.php?page=' . $page_id)); ?>
+?>
 
 <body style="overflow-x: hidden;">
+	
+	<?php 
+	show_header($dbconnect, 'Задания по дисциплине', array($Page->name => 'studtasks.php?page=' . $page_id)); 
+	?>
 
 	<main class="container-fluid overflow-hidden">
 		<div class="pt-5 px-4">

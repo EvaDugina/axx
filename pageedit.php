@@ -98,13 +98,15 @@ else
 
 <html lang="en">
 
-	<?php
-	show_head("Добавление/Редактирование раздела");
-  if ($short_name) show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела: '.$short_name  => $_SERVER['REQUEST_URI'])); 
-  else show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI'])); 
-  ?>
+	<?php show_head("Добавление/Редактирование раздела");?>
 
 	<body>
+		
+		<?php if ($short_name) 
+			show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела: '.$short_name  => $_SERVER['REQUEST_URI'])); 
+  		else 
+			show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI'])); ?>
+
 		<main class="pt-2" aria-hidden="true">
 			<form class="container-fluid overflow-hidden" action="pageedit_action.php"  id="pageedit_action" name="action" method = "post"> 
 				<div class="row gy-5">

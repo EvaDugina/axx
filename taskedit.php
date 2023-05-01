@@ -47,14 +47,18 @@ if (isset($_GET['task'])){
 }
 
 show_head("Добавление\Редактирование задания", array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
-show_header($dbconnect, 'Редактор заданий', 
-	array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
-	"Редактор заданий" => $_SERVER['REQUEST_URI'])
-); ?>
+?>
 
 <main class="pt-2">
+
+  <?php 
+  show_header($dbconnect, 'Редактор заданий', 
+    array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
+    "Редактор заданий" => $_SERVER['REQUEST_URI'])
+  ); 
+  ?>
+
   <div class="container-fluid overflow-hidden">
-      
     <div class="pt-3">
       <div class="row gy-5">
         <div class="col-8">

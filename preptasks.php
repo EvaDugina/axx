@@ -36,13 +36,14 @@ if (!$result || pg_num_rows($result) < 1) {
   echo 'Неверно указана дисциплина';
   http_response_code(400);
   exit;
-} else {
-  $row = pg_fetch_assoc($result);
-  show_head("Задания по дисциплине: " . $row['disc_name'], array('js/preptasks.js'));
-  show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));
-} ?>
+} 
+$row = pg_fetch_assoc($result);
+
+show_head("Задания по дисциплине: " . $row['disc_name'], array('js/preptasks.js'));
+?>
 
 <body onload="enableOps(false);">
+  <?php show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));?>
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">
       <div class="row gy-5">

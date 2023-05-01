@@ -39,11 +39,10 @@ function full_name($discipline_id, $dbconnect) {
 <html> 
 	
 	<link rel="stylesheet" href="css/main.css">
-
-	<?php 
-	show_head("Дашборд преподавателя");
-	show_header($dbconnect, 'Дэшборд преподавателя', array('Дэшборд преподавателя' => 'mainpage.php')); ?>
-  <body>
+  
+	<?php show_head("Дашборд преподавателя");?>
+  <body class="d-flex flex-column">
+	<?php show_header($dbconnect, 'Дашборд преподавателя', array()); ?>
 		<main class="justify-content-start" style="margin-bottom: 30px;">
 			<?php
 				// array_multisort(array_column($pages, 'y'), SORT_DESC, $pages);

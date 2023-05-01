@@ -58,23 +58,25 @@ $query = select_page_name($page_id);
 $result = pg_query($dbconnect, $query);
 // echo select_page_name($page_id);
 $row = [];
-
 if (!$result || pg_num_rows($result) < 1) {
   echo 'Неверно указана дисциплина';
   http_response_code(400);
   exit;
-} else {
-  $row = pg_fetch_row($result);
-  show_head("Посылки по дисциплине: " . $row[1]);
-  show_header($dbconnect, 'Посылки по дисциплине', array($row[1]  => 'preptable.php?page=' . $page_id));
 }
+$row = pg_fetch_row($result);
 
-if ($scripts) echo $scripts; ?>
+show_head("Посылки по дисциплине: " . $row[1]);
+if ($scripts) echo $scripts; 
+
+?>
+
+
 
 <body>
 
-<main class="pt-2">
+<?php show_header($dbconnect, 'Посылки по дисциплине', array($row[1]  => 'preptable.php?page=' . $page_id));?>
 
+<main class="pt-2">
   <div class="container-fluid overflow-hidden">
     <div class="row gy-5">
       <div class="col-8">
@@ -224,7 +226,9 @@ if ($scripts) echo $scripts; ?>
                                 </svg>
                                 </span>
                               <?php } else {?>
-                                <span style="font-size: larger;">?</span>
+                                <span class="text-danger" style="font-size: larger;">
+                                  ?
+                                </span>
                               <?php }?>
                             </td>
                           <?php } 
@@ -326,7 +330,7 @@ if ($scripts) echo $scripts; ?>
       </div>
 
       <?php if ($messages && count($messages) > 0) {?>
-        <div class="col-4 bg-light p-3">
+        <div class="col-4 bg-light p-3" style="z-index: 999;">
           <h5>История посылок и оценок</h5>
           <div id="list-messages" class="bg-light" style="/*overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);*/">
             <div id="list-messages-id">
@@ -344,13 +348,8 @@ if ($scripts) echo $scripts; ?>
                   <div class="<?=$float_class?>">
                     <?php show_preptable_message($message, false);?>
                 </div>
-              <?php }
-              // for ($m = 0; $m < count($messages); $m++) { // list all messages
-              //   if ($messages[$m]['mtype'] != null)
-              //     show_preptable_message($messages[$m]);
-              // } ?>
+              <?php }?>
             </div>
-            <!--<div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary" data-mdb-toggle="modal" data-mdb-target="#dialogAnswer"><i class="fas fa-paperclip fa-lg"></i> Что-то сделать</button></div> -->
           </div>
         </div>
       <?php }?>

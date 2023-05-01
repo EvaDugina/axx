@@ -6,7 +6,9 @@ require_once("common.php");
 require_once("POClasses/User.class.php");
 require_once("POClasses/Group.class.php");
 
-$user = new User((int)$_SESSION['hash']);
+$au = new auth_ssh();
+
+$user = new User((int)$au->getUserId());
 $group = new Group((int)$user->group_id);
 
 ?>
@@ -17,10 +19,10 @@ $group = new Group((int)$user->group_id);
 show_head('Профиль'); ?>
 
 <body>
-  <?php
-  $au = new auth_ssh();
+  
+  <?php 
   show_header($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Профиль' => 'profile.php') 
-          : array('Дэшборд студента' => 'mainpage_student.php', 'Профиль' => 'profile.php')); 
+    : array('Профиль' => 'profile.php')); 
   ?>
 
 	<main style="max-width: 1000px; width:100%; margin: 0 auto;">

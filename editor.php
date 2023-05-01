@@ -98,21 +98,6 @@ $page_title = "Онлайн редактор кода";
 show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js')); 
 ?>
 
-<body>
-	<?php 
-	if ($au->isTeacher()) 
-  // XXX: ПРОВЕРИТЬ
-		show_header($dbconnect, $page_title, 
-			array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
-      $task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => '')
-    ); 
-	else
-		show_header($dbconnect, $page_title, 
-			array($page_name => 'studtasks.php?page='.$page_id, 
-      $task_title => "taskchat.php?assignment=$assignment_id")
-    ); 
-	?>
-
 <link rel="stylesheet" href="css/mdb/rdt.css" />
 
 <link rel="stylesheet" href="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm/css/xterm.css" />
@@ -121,6 +106,20 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 
 <body style="overflow-x: hidden;">
+
+<?php 
+if ($au->isTeacher()) 
+// XXX: ПРОВЕРИТЬ
+	show_header($dbconnect, $page_title, 
+		array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
+	$task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => '')
+); 
+else
+	show_header($dbconnect, $page_title, 
+		array($page_name => 'studtasks.php?page='.$page_id, 
+	$task_title => "taskchat.php?assignment=$assignment_id")
+); 
+?>
 
 <main class="container-fluid overflow-hidden">
 	<div class="pt-2">

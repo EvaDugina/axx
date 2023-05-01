@@ -42,14 +42,18 @@ $Page = new Page((int)getPageByTask($Task->id));
 
 
   show_head("Назначение задания", array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
-  show_header($dbconnect, 'Редактор заданий', 
-	array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
-	"Редактор заданий" => $_SERVER['REQUEST_URI'])
-);
 
 ?>
 
 <body>
+
+  <?php 
+  show_header($dbconnect, 'Редактор заданий', 
+    array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
+    "Редактор заданий" => $_SERVER['REQUEST_URI'])
+  );
+  ?>
+  
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">
       <div class="row gy-5">

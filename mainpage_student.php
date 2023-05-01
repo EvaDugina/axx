@@ -35,11 +35,10 @@ $Group = new Group((int)$group_id);
 <html lang="en">
 <html> 
 
-    <?php
-    show_head($pge_title='Дашборд студента');
-    show_header($dbconnect, 'Дашборд студента', array('Дашборд студента' => 'mainpage_student.php')); ?>
+    <?php show_head($pge_title='Дашборд студента');?>
 
     <body>
+        <?php show_header($dbconnect, 'Дашборд студента', array()); ?>
         <main class="justify-content-start" style="margin-bottom: 30px;">
             <?php
             $array_year = 0;
