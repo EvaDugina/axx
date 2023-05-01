@@ -91,7 +91,7 @@ class User {
 
      $notifies = array();
 
-     // FIXME: НАЙТИ ОШИБКУ, некорректно выводится список уведомлений у студента
+     // FIXME: НАЙТИ ОШИБКУ, некорректно выводится список уведомлений
      foreach ($page_ids as $page_id) {
       $Page = new Page((int)$page_id);
       if ($this->isTeacher()) { // Уведомления для преподавателя 

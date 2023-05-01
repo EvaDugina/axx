@@ -14,6 +14,7 @@ if ($au->isTeacher() || !$au->loggedIn()) {
 }
 
 $student_id = $au->getUserId();
+$User = new User((int)$student_id);
 
 // Обработка некорректного перехода между страницами
 if (isset($_GET['page']) && is_numeric($_GET['page'])){
@@ -66,6 +67,7 @@ show_head("Страница предмета ". $Page->name);
 							$key = 0;
 							foreach($Page->getActiveTasks() as $Task) {
 								foreach($Task->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
+									$unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
 									if ($Assignment->finish_limit != null){
 										$date_finish = "до " . convert_mtime($Assignment->finish_limit);
 									} else
@@ -76,7 +78,7 @@ show_head("Страница предмета ". $Page->name);
 										$text_status = status_to_text($Assignment->status);
 									}
 									?>
-									<button class="list-group-item list-group-item-action d-flex justify-content-between mb-3"
+									<button class="list-group-item list-group-item-action d-flex justify-content-between mb-3 align-items-center"
 									onclick="window.location='taskchat.php?assignment=<?=$Assignment->id?>'"
 									style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;"
 									id="studtasks-elem-<?php echo $key + 1; ?>">
@@ -92,6 +94,13 @@ show_head("Страница предмета ". $Page->name);
 											<button type="button" style="color:crimson; border-width: 0px; background: none;"> <i class="fas fa-file-download fa-lg"></i></button>
 											<button type="button" class="btn btn-outline-primary" style="color: darkcyan; background: white; border-color: darkcyan; margin-top: 0px; margin-bottom: 0px;"> Загрузить </button>
 											-->
+											<span class="badge badge-primary badge-pill me-2"
+												<?php if (count($unreadedMessages) > 0) {?> 
+													style="background: red; color: white;"
+												<?php }?>
+												>
+												<?=count($unreadedMessages)?>
+											</span>
 									</button>
 									<?php $key++;
 								}
@@ -99,9 +108,6 @@ show_head("Страница предмета ". $Page->name);
 						</div>
 					</div>
 				</div>
-
-
-
 			</div>
 		</div>
 	</main>

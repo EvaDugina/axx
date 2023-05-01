@@ -432,8 +432,7 @@ function queryGetColorThemeSrcUrl($color_theme_id) {
 function queryGetAllPagesByGroup($group_id) {
   return "SELECT p.id FROM ax_page p
           INNER JOIN ax_page_group ON ax_page_group.page_id = p.id
-          WHERE ax_page_group.group_id = $group_id
-          ORDER BY p.year DESC, p.semester DESC";
+          WHERE ax_page_group.group_id = $group_id";
 }
 
 function queryGetTasksByPage($page_id) {

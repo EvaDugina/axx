@@ -71,6 +71,7 @@ function show_head($page_title = '', $js = array(), $css = array())
 
     <!-- Extra -->
     <link rel="stylesheet" href="css/accelerator.css" /> 
+    <link rel="stylesheet" href="css/styles.css" /> 
     
     <!-- MDB -->
     <link rel="stylesheet" href="css/mdb/mdb.min.css" />
