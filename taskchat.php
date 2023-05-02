@@ -222,66 +222,70 @@ $task_number = explode('.', $task_title)[0];
             </a>
           </div>
 				</div>
-				<div class="task-status-wrapper">
-					<div>
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" id="flexCheckDisabled" 
-								<?php if ($Assignment->isCompleted()) echo 'checked'; ?> disabled>
-                <?php //XXX: Проверить?>
-							<label id="label-task-status-text"><?=status_to_text($Assignment->status)?></label>
-						</div>
-            <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
-            <span id="span-text-mark"><?php if($task_status_code == 4){?> 
-              Оценка: <b id="b-mark"><?=$task_mark?></b>
-            <?php }?>
-            </span>
-					</div>
-          <div>
+
+        <?php // FIXME: Посмотреть, доделать
+        if(!$Task->isConversation()) {?>}
+          <div class="task-status-wrapper">
             <div>
-              <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
-                <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;
-                Онлайн редактор кода
-              </a>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="flexCheckDisabled" 
+                  <?php if ($Assignment->isCompleted()) echo 'checked'; ?> disabled>
+                  <?php //XXX: Проверить?>
+                <label id="label-task-status-text"><?=status_to_text($Assignment->status)?></label>
+              </div>
+              <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
+              <span id="span-text-mark"><?php if($task_status_code == 4){?> 
+                Оценка: <b id="b-mark"><?=$task_mark?></b>
+              <?php }?>
+              </span>
             </div>
+            <div>
+              <div>
+                <a href="editor.php?assignment=<?=$assignment_id?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
+                  <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;
+                  Онлайн редактор кода
+                </a>
+              </div>
 
-            <?php if($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание ?>
-              <form id="form-check-task" action="taskchat_action.php" method="POST">
-                <div class="d-flex flex-row my-1">
-                  <div class="file-input-wrapper me-1">
-                    <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
-                      <option hidden value="-1"></option>
-                      <?php for($i=1; $i<=$task_max_mark; $i++) {?>
-                        <option value="<?=$i?>"><?=$i?></option>
-                      <?php }?>
-                    </select>
+              <?php if($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание ?>
+                <form id="form-check-task" action="taskchat_action.php" method="POST">
+                  <div class="d-flex flex-row my-1">
+                    <div class="file-input-wrapper me-1">
+                      <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+                        <option hidden value="-1"></option>
+                        <?php for($i=1; $i<=$task_max_mark; $i++) {?>
+                          <option value="<?=$i?>"><?=$i?></option>
+                        <?php }?>
+                      </select>
+                    </div>
+                    <button id="button-check" class="btn btn-success" target="_blank" type="submit"
+                    name="submit-check" style="width: 100%;">
+                      <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
                   </div>
-                  <button id="button-check" class="btn btn-success" target="_blank" type="submit"
-                  name="submit-check" style="width: 100%;">
-                    <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
-                </div>
-              </form>
-            <?php } else if ($Assignment->isCompleteable()){ // Отправить задание на проверку ?>
-              <form id="form-send-answer" action="taskchat_action.php" method="POST">
-                <div class="d-flex flex-row my-2">
-                  <div class="file-input-wrapper me-1">
-                    <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
-                    <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                    <label for="user-answer-files" <?php if($task_status_code == 4) echo 'style="cursor: default;"';?>>
-                      <i class="fa-solid fa-paperclip"></i>
-                      <span id="files-answer-count" class="text-success"></span>
-                    </label>
+                </form>
+              <?php } else if ($Assignment->isCompleteable()){ // Отправить задание на проверку ?>
+                <form id="form-send-answer" action="taskchat_action.php" method="POST">
+                  <div class="d-flex flex-row my-2">
+                    <div class="file-input-wrapper me-1">
+                      <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
+                      <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
+                      <label for="user-answer-files" <?php if($task_status_code == 4) echo 'style="cursor: default;"';?>>
+                        <i class="fa-solid fa-paperclip"></i>
+                        <span id="files-answer-count" class="text-success"></span>
+                      </label>
+                    </div>
+                    <button id="submit-answer" class="btn btn-success submit-files" target="_blank" type="submit" 
+                    name="submit-answer">
+                      <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
                   </div>
-                  <button id="submit-answer" class="btn btn-success submit-files" target="_blank" type="submit" 
-                  name="submit-answer">
-                    <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
-                </div>
-              </form>
-            <?php }?>
+                </form>
+              <?php }?>
 
 
 
+            </div>
           </div>
-				</div>
+        <?php }?>
 			</div>
 		</div>
 
@@ -291,7 +295,7 @@ $task_number = explode('.', $task_title)[0];
 				<!-- Вывод сообщений на страницу -->
 			</div>
 
-      <?php if($Assignment->isCompleteable()) {?>
+      <?php if($Assignment->isCompleteable() || $Task->isConversation()) {?>
         <form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
           <div class="message-input-wrapper">
             <div class="file-input-wrapper">

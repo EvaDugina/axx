@@ -264,7 +264,31 @@ if ($scripts) echo $scripts;
           ?>
 
             <div class="my-4 pt-2">
-              <h4 class="mx-3" style="color: black; font-style:normal;">История сообщений</h4>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="mx-3" style="color: black; font-style:normal; font-size: larger; font-weight: bold;">ИСТОРИЯ СООБЩЕНИЙ</span>
+                <?php if($Page->getConversationTask() == null) {?>
+                  <form id="form-createGeneralConversation" name="createGeneralConversation" action="taskassign_action.php" 
+                  method="POST" enctype="multipart/form-data" class="me-2">
+                    <input type="hidden" name="page_id" value="<?=$Page->id?>"></input>
+                    <input type="hidden" name="createGeneralConversation" value="true"></input>
+
+                    <button class="btn btn-outline-primary px-3" type="submit">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-square-text-fill" viewBox="0 0 16 16">
+                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+                      </svg>
+                      &nbsp; СОЗДАТЬ ОБЩУЮ БЕСЕДУ
+                    </button>
+                  </form>
+                <?php } else {?>
+                  <button class="btn btn-outline-primary px-3" 
+                  onclick="window.location='taskchat.php?assignment=<?=$Page->getConversationTask()->getConversationAssignment()->id?>'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                      <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                    </svg>
+                    &nbsp; БЕСЕДА ПРЕДМЕТА
+                  </button>
+                <?php }?>
+              </div>
               <ul class="accordion list-group" style="margin-bottom: 40px;" id="accordion-student-list">
                 <?php
                 // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 

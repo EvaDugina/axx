@@ -103,6 +103,13 @@
     exit;
   }
 
+  if(isset($_POST['createGeneralConversation'])) {
+    $Page = new Page((int)$_POST['page_id']);
+    $Page->createGeneralConversation();
+    header('Location:'.$_SERVER['HTTP_REFERER']);
+    exit();
+  }
+
   
 	if (!array_key_exists("assignment_id", $_POST) || !array_key_exists("from", $_POST)) {
 		http_response_code(401);

@@ -294,7 +294,7 @@ function select_task_assignment_student_id($student_id, $task_id) {
 
 // - получение всех заданий по странице дисциплины
 function select_page_tasks($page_id, $status) {
-    return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' ORDER BY id";
+    return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' AND (type = 0 OR type = 1) ORDER BY id";
 }
 
 // - получение количества всех заданий по странице дисциплины

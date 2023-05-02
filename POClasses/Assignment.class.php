@@ -66,6 +66,15 @@ class Assignment {
       $this->pushNewEmptyToDB($task_id);
     }
 
+    else if ($count_args == 3) {
+      $task_id = $args[0];
+      $this->visibility = $args[1];
+      $this->visibility_text = visibility_to_text($this->visibility);
+      $this->status = $args[2];
+
+      $this->pushNewEmptyToDB($task_id);
+    }
+
     // else if ($count_args == 9) { // всё + task_id
     //   $task_id = $args[0];
 

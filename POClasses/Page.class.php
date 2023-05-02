@@ -78,7 +78,12 @@ class Page {
   }
 
   public function getTasks() {
-    return $this->Tasks;
+    $Tasks = array();
+    foreach($this->Tasks as $Task) {
+      if(!$Task->isConversation())
+        array_push($Tasks, $Task);
+    }
+    return $Tasks;
   }
   public function getGroups() {
     return $this->Groups;
@@ -171,7 +176,7 @@ class Page {
     return null;
   }
   public function hasUncheckedTasks($student_id) {
-    foreach($this->Tasks as $Task) {
+    foreach($this->getTasks() as $Task) {
       if ($Task->hasUncheckedAssignments($student_id))
         return true;
     }
@@ -179,7 +184,7 @@ class Page {
   }
   public function getActiveTasks() {
     $return_Tasks = array();
-    foreach($this->Tasks as $Task) {
+    foreach($this->getTasks() as $Task) {
       if ($Task->status == 1)
         array_push($return_Tasks, $Task);
     }
@@ -187,7 +192,7 @@ class Page {
   }
   public function getCountSuccessAssignments($student_id) {
     $count_success = 0;
-    foreach($this->Tasks as $Task) {
+    foreach($this->getTasks() as $Task) {
       if ($Task->status == 1){
         foreach($Task->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
           if($Assignment->isCompleted())
@@ -199,7 +204,7 @@ class Page {
   }
   public function getCountActiveAssignments($student_id) {
     $count = 0;
-    foreach($this->Tasks as $Task) {
+    foreach($this->getTasks() as $Task) {
       if ($Task->status == 1){
         $count += count($Task->getVisibleAssignmemntsByStudent($student_id));
       }
@@ -280,79 +285,113 @@ class Page {
 
 
 
+
 // WORK WITH TEACHERS
 
-public function addTeacher($teacher_id) {
-  $Teacher = new User((int)$teacher_id);
-  $this->pushTeacherToPageDB($teacher_id);
-  array_push($this->Teachers, $Teacher);
-}
-public function deleteTeacher($teacher_id) {
-  $index = $this->findTeacherById($teacher_id);
-  if ($index != -1) {
-    $this->deleteTeacherFromPageDB($teacher_id);
-    unset($this->Teachers[$index]);
+  public function addTeacher($teacher_id) {
+    $Teacher = new User((int)$teacher_id);
+    $this->pushTeacherToPageDB($teacher_id);
+    array_push($this->Teachers, $Teacher);
   }
-}
-private function findTeacherById($teacher_id) {
-  $index = 0;
-  foreach($this->Teachers as $Teacher) {
-    if ($Teacher->id == $teacher_id)
-      return $index;
-    $index++;
-  }
-  return -1;
-}
-public function getTeacherById($teacher_id) {
-  foreach($this->Teachers as $Teacher) {
-    if ($Teacher->id == $teacher_id)
-      return $Teacher;
-  }
-  return null;
-}
-
-public function pushTeacherToPageDB($teacher_id) {
-  global $dbconnect;
-
-  $query = "INSERT INTO ax_page_prep(page_id, prep_user_id)
-            VALUES ($this->id, $teacher_id)";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-public function deleteTeacherFromPageDB($teacher_id) {
-  global $dbconnect;
-
-  $query = "DELETE FROM ax_page_prep WHERE prep_user_id = $teacher_id";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-public function synchTeachersToPageDB() {
-  global $dbconnect;
-
-  $this->deleteTeachersFromPageDB();
-
-  $query = "";
-    if (!empty($this->Teachers)) {
-      foreach($this->Teachers as $Teacher) {
-        $query .= "INSERT INTO ax_page_prep (page_id, prep_user_id) VALUES ($this->id, $Teacher->id);";
-      }
+  public function deleteTeacher($teacher_id) {
+    $index = $this->findTeacherById($teacher_id);
+    if ($index != -1) {
+      $this->deleteTeacherFromPageDB($teacher_id);
+      unset($this->Teachers[$index]);
     }
-    
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-public function deleteTeachersFromPageDB() {
-  global $dbconnect;
+  }
+  private function findTeacherById($teacher_id) {
+    $index = 0;
+    foreach($this->Teachers as $Teacher) {
+      if ($Teacher->id == $teacher_id)
+        return $index;
+      $index++;
+    }
+    return -1;
+  }
+  public function getTeacherById($teacher_id) {
+    foreach($this->Teachers as $Teacher) {
+      if ($Teacher->id == $teacher_id)
+        return $Teacher;
+    }
+    return null;
+  }
 
-  $query = "DELETE FROM ax_page_prep WHERE page_id = $this->id";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
+  public function pushTeacherToPageDB($teacher_id) {
+    global $dbconnect;
+
+    $query = "INSERT INTO ax_page_prep(page_id, prep_user_id)
+              VALUES ($this->id, $teacher_id)";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteTeacherFromPageDB($teacher_id) {
+    global $dbconnect;
+
+    $query = "DELETE FROM ax_page_prep WHERE prep_user_id = $teacher_id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function synchTeachersToPageDB() {
+    global $dbconnect;
+
+    $this->deleteTeachersFromPageDB();
+
+    $query = "";
+      if (!empty($this->Teachers)) {
+        foreach($this->Teachers as $Teacher) {
+          $query .= "INSERT INTO ax_page_prep (page_id, prep_user_id) VALUES ($this->id, $Teacher->id);";
+        }
+      }
+      
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function deleteTeachersFromPageDB() {
+    global $dbconnect;
+
+    $query = "DELETE FROM ax_page_prep WHERE page_id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
 
 // -- END WORK WITH TEACHERS
 
+
+
+
+// ELSE
 
   public function getSemesterName() {
     if ($this->semester == 1)
       return 'Осень';
     return 'Весна';
   }
+
+  public function createGeneralConversation($group_ids = null) {
+    $conversationTask = new Task($this->id, 2, 1);
+    $conversationTask->setTitle("ОБЩАЯ БЕСЕДА");
+    $Students = array();
+    if ($group_ids == null) {
+      foreach($this->getGroups() as $Group) {
+        foreach($Group->getStudents() as $Student) {
+          array_push($Students, $Student);
+        }
+      }
+    } else {
+      foreach($group_ids as $group_id) {
+        $Group = new Group((int)$group_id);
+        foreach($Group->getStudents() as $Student) {
+          array_push($Students, $Student);
+        }
+      }
+    }
+    $conversationTask->createConversationAssignment($Students);
+  }
+  public function getConversationTask() {
+    foreach($this->Tasks as $Task) {
+      if($Task->isConversation())
+        return $Task;
+    }
+    return null;
+  }
+  
 
 }
 

@@ -166,6 +166,12 @@ class Task {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function isConversation(){
+    if ($this->type == 2)
+      return true;
+    return false;
+  }
+
 // -- END WORK WITH TASK
 
 
@@ -230,6 +236,15 @@ class Task {
         $last_Assignment = $Assignment;
     }
     return $last_Assignment;
+  }
+
+  public function createConversationAssignment($Students) {
+    $conversationAssignment = new Assignment($this->id, 2, -1);
+    $conversationAssignment->addStudents($Students);
+    return $conversationAssignment;
+  }
+  public function getConversationAssignment() {
+    return $this->getAssignments()[0];
   }
 
 // -- END WORK WITH ASSIGNMENT
