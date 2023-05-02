@@ -5,16 +5,10 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
-// защита от случайного перехода
 $au = new auth_ssh();
-if ($au->isTeacher() || !$au->loggedIn()) {
-	echo "Некорректное обращение";
-	http_response_code(400);
-	exit;
-}
-
+checkAuLoggedIN($au);
+$User = new User((int)$au->getUserId());
 $student_id = $au->getUserId();
-$User = new User((int)$student_id);
 
 // Обработка некорректного перехода между страницами
 if (isset($_GET['page']) && is_numeric($_GET['page'])){
@@ -40,7 +34,7 @@ show_head("Страница предмета ". $Page->name);
 <body style="overflow-x: hidden;">
 	
 	<?php 
-	show_header($dbconnect, 'Задания по дисциплине', array($Page->name => 'studtasks.php?page=' . $page_id)); 
+	show_header($dbconnect, 'Задания по дисциплине', array($Page->name => 'studtasks.php?page=' . $page_id), $User); 
 	?>
 
 	<main class="container-fluid overflow-hidden">
@@ -94,11 +88,7 @@ show_head("Страница предмета ". $Page->name);
 											<button type="button" style="color:crimson; border-width: 0px; background: none;"> <i class="fas fa-file-download fa-lg"></i></button>
 											<button type="button" class="btn btn-outline-primary" style="color: darkcyan; background: white; border-color: darkcyan; margin-top: 0px; margin-bottom: 0px;"> Загрузить </button>
 											-->
-											<span class="badge badge-primary badge-pill me-2"
-												<?php if (count($unreadedMessages) > 0) {?> 
-													style="background: red; color: white;"
-												<?php }?>
-												>
+											<span class="badge badge-pill me-2 <?=(count($unreadedMessages) > 0) ? "badge-info" : "badge-light" ?>">
 												<?=count($unreadedMessages)?>
 											</span>
 									</button>

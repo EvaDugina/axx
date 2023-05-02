@@ -7,13 +7,11 @@ require_once("dbqueries.php");
 require_once("dbqueries.php");
 require_once("POClasses/Page.class.php");
 
-// защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdmin() && !$au->isTeacher()){
-	$au->logout();
-	header('Location:login.php');
-  exit;
-}
+checkAuLoggedIN($au);
+checkAuIsNotStudent($au);
+
+$User = new User((int)$au->getUserId());
 
 // Обработка некорректного перехода между страницами
 if ((!isset($_GET['task']) || !is_numeric($_GET['task'])) 
@@ -54,7 +52,8 @@ show_head("Добавление\Редактирование задания", ar
   <?php 
   show_header($dbconnect, 'Редактор заданий', 
     array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
-    "Редактор заданий" => $_SERVER['REQUEST_URI'])
+    "Редактор заданий" => $_SERVER['REQUEST_URI']),
+    $User
   ); 
   ?>
 

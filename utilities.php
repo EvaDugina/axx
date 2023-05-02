@@ -6,12 +6,22 @@ require_once("POClasses/Message.class.php");
 require_once("POClasses/Task.class.php");
 
 
+// защита от случайного перехода незарегистрированного пользователя
 function checkAuLoggedIN($au) {
   if (!$au->loggedIn()) {
     header('Location:login.php');
     exit;
   }
 }
+
+// защита от случайного перехода студента
+function checkAuIsNotStudent($au){
+  if (!$au->isAdmin() && !$au->isTeacher()){
+    $au->logout();
+    header('Location:login.php');
+  }
+}
+
 
 function getPGQuotationMarks() {
   return "\$antihype1\$";

@@ -7,6 +7,10 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("resultparse.php");
 
+$au = new auth_ssh();
+checkAuLoggedIN($au);
+$User = new User((int)$au->getUserId());
+
 $assignment_id = 0;
 if ( array_key_exists('assignment', $_GET)) {
   $assignment_id = $_GET['assignment'];
@@ -112,13 +116,15 @@ if ($au->isTeacher())
 // XXX: ПРОВЕРИТЬ
 	show_header($dbconnect, $page_title, 
 		array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
-	$task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => '')
-); 
+			$task_title => 'taskchat.php?assignment='.$assignment_id, $page_title => ''), 
+		$User
+	); 
 else
 	show_header($dbconnect, $page_title, 
 		array($page_name => 'studtasks.php?page='.$page_id, 
-	$task_title => "taskchat.php?assignment=$assignment_id")
-); 
+			$task_title => "taskchat.php?assignment=$assignment_id"), 
+		$User
+	); 
 ?>
 
 <main class="container-fluid overflow-hidden">

@@ -146,9 +146,14 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
             <ul class="navbar-nav me-1">
               <!-- Notifications -->
               <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bell fa-lg"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+                  <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+                </svg>
+                <?php // FIXME: Скачет иконка уведомлений ?>
                 <span class="badge rounded-pill badge-notification <?php if(!$array_notify || ($array_notify && count($array_notify) < 1)) echo 'd-none';?>" 
-                style="background: #dc3545;"><?php if($array_notify) echo count($array_notify);?></span>
+                style="background: #dc3545;">
+                  <?php if($array_notify) echo count($array_notify);?>
+                </span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                 <?php $i = 0;
@@ -192,8 +197,7 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
             <ul class="navbar-nav d-flex flex-row me-1">
               <!-- Avatar -->
               <a class="dropdown-toggle d-flex align-items-center hidden-arrow text-reset" href="#" id="navbarDropdownMenuLink2" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                <!-- <img src="img/user-24.png" class="rounded-circle" height="25" alt="" loading="lazy"/>--> 
-                <button type="button" class="btn btn-floating">
+                <button type="button" class="btn btn-floating shadow-none p-1">
                   <?php if($user != null && $user->getImageFile() != null) {?>
                     <div class="row mb-3">
                         <div class="col-12">

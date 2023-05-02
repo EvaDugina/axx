@@ -4,6 +4,12 @@ require_once("dbqueries.php");
 require_once("settings.php");
 require_once("utilities.php");
 
+
+$au = new auth_ssh();
+checkAuLoggedIN($au);
+
+$User = new User((int)$au->getUserId());
+
 // TODO: Переписать c использованием POClasses
 // Обработка некорректного перехода между страницами
 if (!(isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) && !isset($_REQUEST['assignment'])) {
@@ -11,7 +17,7 @@ if (!(isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) && !
   exit;
 }
 
-$user_id = $_SESSION['hash'];
+$user_id = $User->id;
 
 if (isset($_REQUEST['assignment'])) {
   $Assignment = new Assignment((int)$_REQUEST['assignment']);
@@ -152,10 +158,12 @@ $task_number = explode('.', $task_title)[0];
 	<?php 
 	if ($au->isTeacher() || $au->isAdmin()) 
 		show_header($dbconnect, 'Чат c перподавателем', 
-			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => '')); 
+			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => ''),
+    $User); 
 	else 
 		show_header($dbconnect, 'Чат c перподавателем', 
-			array($page_name => 'studtasks.php?page=' . $page_id, $task_title => '')); 
+			array($page_name => 'studtasks.php?page=' . $page_id, $task_title => ''),
+    $User); 
 	?>
 
 	<main>

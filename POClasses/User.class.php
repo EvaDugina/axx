@@ -87,13 +87,10 @@ class User {
        $query = queryGetAllPagesByGroup($this->group_id);
      
      $result = pg_query($dbconnect, $query);
-     $page_ids = pg_fetch_assoc($result);
-
      $notifies = array();
 
-     // FIXME: НАЙТИ ОШИБКУ, некорректно выводится список уведомлений
-     foreach ($page_ids as $page_id) {
-      $Page = new Page((int)$page_id);
+     while ($page_id = pg_fetch_assoc($result)) {
+      $Page = new Page((int)$page_id['id']);
       if ($this->isTeacher()) { // Уведомления для преподавателя 
         foreach($Page->getTasks() as $Task) {
           foreach($Task->getActiveAssignments() as $Assignment) {

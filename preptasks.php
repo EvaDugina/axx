@@ -10,12 +10,11 @@ require_once("./POClasses/Assignment.class.php");
 require_once("./POClasses/Task.class.php");
 require_once("./POClasses/User.class.php");
 
-// защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdmin() && !$au->isTeacher()){
-	$au->logout();
-	header('Location:login.php');
-}
+checkAuLoggedIN($au);
+checkAuIsNotStudent($au);
+
+$User = new User((int)$au->getUserId());
 
 // Обработка некорректного перехода между страницами
 if (!isset($_GET['page']) || !is_numeric($_GET['page'])){
@@ -43,7 +42,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
 ?>
 
 <body onload="enableOps(false);">
-  <?php show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']));?>
+  <?php show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']), $User);?>
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">
       <div class="row gy-5">

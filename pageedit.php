@@ -6,12 +6,11 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
-// защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdmin() && !$au->isTeacher()){
-	$au->logout();
-	header('Location:login.php');
-}
+checkAuLoggedIN($au);
+checkAuIsNotStudent($au);
+
+$User = new User((int)$au->getUserId());
 
 // Обработка некорректного перехода между страницами
 if ((!isset($_GET['page']) || !is_numeric($_GET['page'])) && !array_key_exists('addpage', $_REQUEST)){
@@ -103,9 +102,9 @@ else
 	<body>
 		
 		<?php if ($short_name) 
-			show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела: '.$short_name  => $_SERVER['REQUEST_URI'])); 
+			show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела: '.$short_name  => $_SERVER['REQUEST_URI']), $User); 
   		else 
-			show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI'])); ?>
+			show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI']), $User); ?>
 
 		<main class="pt-2" aria-hidden="true">
 			<form class="container-fluid overflow-hidden" action="pageedit_action.php"  id="pageedit_action" name="action" method = "post"> 

@@ -7,12 +7,11 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
-// защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdmin() && !$au->isTeacher()){
-	$au->logout();
-	header('Location:login.php');
-}
+checkAuLoggedIN($au);
+checkAuIsNotStudent($au);
+
+$User = new User((int)$au->getUserId());
 
 // Обработка некорректного перехода между страницами
 if ((!isset($_GET['assignment_id']) || !is_numeric($_GET['assignment_id'])) 
@@ -50,7 +49,8 @@ $Page = new Page((int)getPageByTask($Task->id));
   <?php 
   show_header($dbconnect, 'Редактор заданий', 
     array("Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page='. $Page->id,
-    "Редактор заданий" => $_SERVER['REQUEST_URI'])
+          "Редактор заданий" => $_SERVER['REQUEST_URI']),
+    $User
   );
   ?>
   

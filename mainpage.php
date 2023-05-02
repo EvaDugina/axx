@@ -12,12 +12,10 @@ function getTextSemester($year, $sem){
   return $semester;
 }
 
-// защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdmin() && !$au->isTeacher()){
-	$au->logout();
-	header('Location:login.php');
-}
+checkAuLoggedIN($au);
+checkAuIsNotStudent($au);
+
 $User = new User((int)$au->getUserId());
 
 // $result = pg_query($dbconnect, 'select id, short_name, disc_id, get_semester(year, semester) sem, year y, semester s from ax_page order by y desc, s desc');
