@@ -75,6 +75,10 @@ class User {
       return $this->first_name . " " . $this->last_name;
     return $this->middle_name . " " . $this->first_name . " " . $this->last_name; 
   }
+  public function getFIOspecial() {
+    return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
+  }
+
   public function getNotifications() {
     global $dbconnect;
     
@@ -131,10 +135,6 @@ class User {
      }
  
      return $notifies;
-  }
-
-  public function getFIOspecial() {
-    return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
   }
 
   public function getImageFile() {

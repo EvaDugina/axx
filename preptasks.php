@@ -169,17 +169,17 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                             <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                               <input type="hidden" name="action" value="archive">
                               <input type="hidden" name="task_id" value="<?=$task['id']?>">
-                              <button type="submit" class="btn btn-outline-secondary px-3 me-1" title="Перенести в архив">
+                              <button type="submit" class="btn btn-outline-secondary px-3 me-1" data-title="Перенести в архив">
                                 <i class="fas fa-ban"></i>
                               </button>
                             </form>
-                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';" title="Редактировать">
+                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';" data-title="Редактировать">
                               <i class="fas fa-pen fa-lg"></i>
                             </button>
-                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?=$task['id']?>';" title="Назначить">
+                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?=$task['id']?>';" data-title="Назначить">
                               <i class="fas fa-person fa-lg"></i>
                             </button>
-                            <button type="button" class="btn btn-primary px-3" title="Скачать" disabled>
+                            <button type="button" class="btn btn-primary px-3" data-title="Скачать" disabled>
                                 <i class="fas fa-download fa-lg"></i>
                             </button>
                           </div>

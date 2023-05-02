@@ -87,19 +87,19 @@ $Page = new Page((int)getPageByTask($Task->id));
           <div class="me-2 pe-2" style="border-right: 1px solid; border-color:var(--mdb-gray-400); cursor: help;">
             <button class="btn btn-outline-<?=!$Assignment->isCompleteable() ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status"
             id="btn-assignment-status--1" onclick="ajaxChangeStatus(-1)" <?=$Assignment->isCompleteable() ? 'style="color: var(--mdb-gray-400);"':''?>
-            title="<?=!$Assignment->isCompleteable() ? '' : 'Изменить статус назначения на:'?> <?=status_to_text(-1)?>">
+            data-title="<?=!$Assignment->isCompleteable() ? '' : 'Изменить статус назначения на:'?> <?=status_to_text(-1)?>">
               <?php getSVGByAssignmentStatus(-1);?>
             </button>
             <?php if($Assignment->isCompleteable()) {?>
               <button class="btn btn-outline-primary px-3 me-1 btn-assignment-status" 
               id="btn-assignment-status-<?=$Assignment->status?>"
-              data-toggle="tooltip" data-placement="down" title="<?=status_to_text($Assignment->status)?>">
+              data-toggle="tooltip" data-placement="down" data-title="<?=status_to_text($Assignment->status)?>">
                 <?php getSVGByAssignmentStatus($Assignment->status);?>
               </button>
             <?php } else {?>
               <button class="btn btn-outline-<?=$Assignment->isCompleteable() ? 'primary' : 'light'?> px-3 me-1 btn-assignment-status" 
               id="btn-assignment-status-0" onclick="ajaxChangeStatus(0)" style="color: var(--mdb-gray-400);"
-              title="<?=$Assignment->isCompleteable() ? '' : 'Изменить статус назначения на:'?> <?=status_to_text(0)?>">
+              data-title="<?=$Assignment->isCompleteable() ? '' : 'Изменить статус назначения на:'?> <?=status_to_text(0)?>">
                 <?php getSVGByAssignmentStatus(0);?>
               </button>
             <?php }?>
@@ -108,19 +108,19 @@ $Page = new Page((int)getPageByTask($Task->id));
             <button id="btn-assignment-visibility-0" class="btn btn-outline-<?=$Assignment->visibility == 0 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
             onclick="ajaxChangeVisibility(0)" <?=$Assignment->visibility == 0 ?  '': 'style="color: var(--mdb-gray-400);"'?>
             data-toggle="tooltip" data-placement="down" 
-            title="<?=$Assignment->visibility == 0 ? '' : 'Изменить видимость назначения на:'?> '<?=strtoupper(visibility_to_text(0))?>'">
+            data-title="<?=$Assignment->visibility == 0 ? '' : 'Изменить видимость назначения на:'?> '<?=strtoupper(visibility_to_text(0))?>'">
                 <?php getSVGByAssignmentVisibility(0);?>
             </button>
             <button id="btn-assignment-visibility-2" class="btn btn-outline-<?=$Assignment->visibility == 2 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
             onclick="ajaxChangeVisibility(2)" <?=$Assignment->visibility == 2 ?  '': 'style="color: var(--mdb-gray-400);"'?>
             data-toggle="tooltip" data-placement="down" 
-            title="<?=$Assignment->visibility == 2 ? '' : 'Изменить видимость назначения на:'?> '<?=strtoupper(visibility_to_text(2))?>'">
+            data-title="<?=$Assignment->visibility == 2 ? '' : 'Изменить видимость назначения на:'?> '<?=strtoupper(visibility_to_text(2))?>'">
               <?php getSVGByAssignmentVisibility(2);?>
             </button>
             <button id="btn-assignment-visibility-4" class="btn btn-outline-<?=$Assignment->visibility == 4 ? 'primary' : 'light'?> px-3 me-1 btn-assignment-visibility" 
             onclick="ajaxChangeVisibility(4)" <?=$Assignment->visibility == 4 ?  '': 'style="color: var(--mdb-gray-400);"'?>
             data-toggle="tooltip" data-placement="down" 
-            title="<?=$Assignment->visibility == 4 ? '' : 'Изменить видимость назначения на:'?> '<?=strtoupper(visibility_to_text(4))?>'">
+            data-title="<?=$Assignment->visibility == 4 ? '' : 'Изменить видимость назначения на:'?> '<?=strtoupper(visibility_to_text(4))?>'">
               <?php getSVGByAssignmentVisibility(4);?>
             </button>
           </div>

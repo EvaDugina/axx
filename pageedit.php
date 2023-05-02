@@ -126,14 +126,14 @@ else
 					<div class="col-lg-2 row justify-content-left">Название раздела:</div>
 					<div class="col-lg-2">
 						<input type="text" id="input-name" class="form-control" maxlength="19" value="<?=$short_name?>" name="short_name" autocomplete="off"
-            data-container="body" data-placement="right" title="Это поле должно быть заполнено!"/>
+            data-container="body" data-placement="right" data-title="Это поле должно быть заполнено!"/>
 					</div>
 				</div>
 				
 				<div class="row align-items-center m-3" style="height: 40px;">
 					<div class="col-lg-2 row justify-content-left">Полное название дисциплины:</div>
 					<div class="col-lg-4">
-						<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right" title="Это поле должно быть заполнено!">
+						<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right" data-title="Это поле должно быть заполнено!">
 						<select id="selectDiscipline" class="form-select" name="disc_id">
 							<option selected value="<?=$disc_id?>">
 								<?=$name?>

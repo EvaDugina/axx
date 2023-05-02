@@ -200,7 +200,7 @@ function visibilityFileButtons($File) {?>
 
     <button class="btn btn-primary me-0 p-1" type="submit"
     data-toggle="tooltip" data-placement="down" 
-    title="Изменение ВИДИМОСТИ файла">
+    data-title="Изменение ВИДИМОСТИ файла">
       <?php getSVGByAssignmentVisibility($File->visibility*2);?>
     </button>
   </form>

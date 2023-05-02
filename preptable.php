@@ -161,11 +161,11 @@ if ($scripts) echo $scripts;
                 </tr>
                 <tr>
                   <th scope="col" colspan="1"> </th>
-                  <!-- <th scope="col" data-mdb-toggle="tooltip" title="Номер варианта">#</th> -->
+                  <!-- <th scope="col" data-mdb-toggle="tooltip" data-title="Номер варианта">#</th> -->
                   <?php
                   for ($t = 0; $t < count($tasks); $t++) {
                   ?>
-                    <td scope="col" data-mdb-toggle="tooltip" title="<?= $tasks[$t]['title'] ?>"><?= $t + 1 ?></td>
+                    <td scope="col" data-mdb-toggle="tooltip" data-title="<?= $tasks[$t]['title'] ?>"><?= $t + 1 ?></td>
                   <?php
                   }
                   ?>
@@ -197,13 +197,13 @@ if ($scripts) echo $scripts;
                               <!-- <button id="btn-assignment-visibility-<?=$Assignment->id?>" class="btn px-3 me-1 btn-assignment-visibility-<?=$Task->id?>" 
                               onclick="ajaxChangeVisibility(<?=$Assignment->id?>, <?=$Assignment->getNextAssignmentVisibility()?>)"
                               style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
-                              title="<?='Изменить ВИДМОСТЬ назначения на:'?> '<?=visibility_to_text($Assignment->getNextAssignmentVisibility())?>'">
+                              data-title="<?='Изменить ВИДМОСТЬ назначения на:'?> '<?=visibility_to_text($Assignment->getNextAssignmentVisibility())?>'">
                                   <?php getSVGByAssignmentVisibility($Assignment->visibility);?>
                               </button>
                               <button id="btn-assignment-status-<?=$Assignment->id?>" class="btn px-3 me-1 btn-assignment-status-<?=$Task->id?>" 
                               onclick="ajaxChangeStatus(<?=$Assignment->id?>, <?=$Assignment->getNextAssignmentStatus()?>)"
                               style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
-                              title="<?='Изменить СТАТУС назначения на:'?> '<?=status_to_text($Assignment->getNextAssignmentStatus())?>'"
+                              data-title="<?='Изменить СТАТУС назначения на:'?> '<?=status_to_text($Assignment->getNextAssignmentStatus())?>'"
                               <?=($Assignment->status == -1 || $Assignment->status == 0) ? "" : "disabled"?>>
                                   <?php getSVGByAssignmentStatus($Assignment->status);?>
                               </button> -->
@@ -215,7 +215,7 @@ if ($scripts) echo $scripts;
                             $last_message_Student = new User((int)$last_Message->sender_user_id);
                             ?>
                             <td tabindex="0" onclick="showPopover(this)" 
-                            title="<?=$last_message_Student->getFI()?> <?=convert_mtime($last_Message->date_time)?>" 
+                            data-title="<?=$last_message_Student->getFI()?> <?=convert_mtime($last_Message->date_time)?>" 
                             data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assignment->id, $user_id)?>">
                               <?php if ($Assignment->mark != null) {?>
                                 <?=$Assignment->mark?>
@@ -509,7 +509,7 @@ function show_preptable_message($message, $flag_marked_message = false) {
   <div class="popover message <?=$message_style?> w-100" role="listitem">
     <div class="popover-arrow"></div>
     <div class="p-3 popover-header" style="background-color: #80E08040;">
-      <h6 style="margin-bottom: 0px;" title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
+      <h6 style="margin-bottom: 0px;" data-title="<?=$message['grp']. "\nЗадание: " . $message['task']?>">
         <?=$message['fio']. '<br>'?></h6>
       <p style="text-align: right; font-size: 8pt; margin-bottom: 0px;"><?=convert_mtime($message['mtime'])?></p>
     </div>
@@ -524,7 +524,7 @@ function getPopoverHtml($message_fio, $message_group, $message_task_title, $mess
   <div class='popover message role='listitem'>
     <div class='popover-arrow'></div>
     <div class='p-3 popover-header' style='background-color: #80E08040;'>
-      <h6 style='margin-bottom: 0px;' title='".$message_group. "\nЗадание: " . $message_task_title ."'>".
+      <h6 style='margin-bottom: 0px;' data-title='".$message_group. "\nЗадание: " . $message_task_title ."'>".
         $message_fio. "<br></h6>
       <p style='text-align: right; font-size: 8pt; margin-bottom: 0px;'>".convert_mtime($message_time)."</p>
     </div>

@@ -191,10 +191,35 @@ $task_number = explode('.', $task_title)[0];
 			    ?> 
           </p>
 					<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
-          <div class="d-flex justify-content-end align-self-end">
-          <a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
+          
+          <div class="d-flex justify-content-end align-self-end align-items-center">
+            <div class="me-2 align-items-center" style="display: inline-block">
+                <div class="d-flex p-2">
+                  <?php foreach($Assignment->getStudents() as $Student) {?>
+                    <button class="btn btn-floating shadow-none p-0 m-0" data-title="<?=$Student->getFI()?>"
+                    onclick="window.location='profile.php?user_id=<?=$Student->id?>'">
+                      <?php if($Student->getImageFile() != null) {?>
+                          <div class="embed-responsive embed-responsive-1by1" style="display: block;">
+                              <div class="embed-responsive-item">
+                                <img class="w-100 h-100 p-0 m-0 rounded-circle user-icon" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?=$Student->getImageFile()->download_url?>"/>
+                              </div>
+                          </div>
+                        </button>
+                      <?php } else { ?>
+                          <svg class="w-100 h-100" xmlns="http://www.w3.org/2000/svg" width="24" fill="currentColor" class="bi bi-person-circle" 
+                          viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                          </svg>
+                          <?php }?>
+                    </button>
+                  <?php }?>
+                </div>
+              </div>
+            <a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
             class="btn btn-primary" target="_blank"><i class="fa-solid fa-file-arrow-down"></i>
-              <span>&nbsp;&nbsp;Скачать задание</span></a>
+              <span>&nbsp;&nbsp;Скачать задание</span>
+            </a>
           </div>
 				</div>
 				<div class="task-status-wrapper">
