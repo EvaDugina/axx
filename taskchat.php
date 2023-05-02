@@ -129,8 +129,7 @@ if ($Assignment->visibility != '') {
 }
 
 $Task = new Task((int)$task_id);
-$task_files = $Task->getFiles();
-// $task_files = getTaskFiles($dbconnect, $task_id);
+
 
 $task_finish_date_time = '';
 $query = "SELECT date_time from ax_message where assignment_id = $assignment_id and type = 2";
@@ -180,19 +179,23 @@ $task_number = explode('.', $task_title)[0];
           </script>
 					<p style="line-height: 0.5em;">
           <?php
-			      if ($task_files)
-			      {
-			        echo '<b>Файлы, приложенные к заданию:</b>';
-			        showFiles($task_files);
-			      }
+			      if ($User->isTeacher() || $User->isAdmin())
+              $task_files = $Task->getFiles();
+			      else
+              $task_files = $Task->getVisibleFiles();
+
+            if ($task_files) {
+              echo '<b>Файлы, приложенные к заданию:</b>';
+              showFiles($task_files);
+            }
 			    ?> 
           </p>
-					<div>
-						<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
-						<a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
+					<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
+          <div class="d-flex justify-content-end align-self-end">
+          <a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
             class="btn btn-primary" target="_blank"><i class="fa-solid fa-file-arrow-down"></i>
               <span>&nbsp;&nbsp;Скачать задание</span></a>
-					</div>
+          </div>
 				</div>
 				<div class="task-status-wrapper">
 					<div>

@@ -398,6 +398,20 @@ show_head("Добавление\Редактирование задания", ar
     })
   });
 
+  document.querySelectorAll("#form-changeVisibilityTaskFile").forEach(function (form) {
+    form.addEventListener("submit", function (e) {
+      let unsaved_fields = checkFields();
+      if (unsaved_fields != "") {
+        e.preventDefault();
+        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+        if (!confirm_answer)
+          return;
+      }
+      form.submit();
+    })
+  });
+  
+
 
   function setFinishLimit() {
     var formData = new FormData();

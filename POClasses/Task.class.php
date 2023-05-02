@@ -281,6 +281,14 @@ class Task {
     }
     return $Files;
   }
+  public function getVisibleFiles(){
+    $Files = array();
+    foreach($this->Files as $File) {
+      if ($File->isVisible())
+        array_push($Files, $File);
+    }
+    return $Files;
+  }
 
   private function pushFileToTaskDB($file_id) {
     global $dbconnect;

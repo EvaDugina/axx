@@ -8,6 +8,7 @@ class File {
                         // 10 - просто файл с результатами, 11 - файл проекта)
                         // 21 - иконка пользователя
   public $name = null, $download_url = null, $full_text = null;
+  public $visibility = null;
 
   public $name_without_prefix = null;
 
@@ -30,6 +31,7 @@ class File {
       if ($file) {
         $this->name = $file['file_name'];
         $this->type = $file['type'];
+        $this->visibility = $file['visibility'];
         $this->download_url = $file['download_url'];
         if ($this->download_url != null) {
           $this->name_without_prefix = deleteRandomPrefix($this->name);
@@ -43,6 +45,7 @@ class File {
 
     else if ($count_args == 2) {
       $this->type = $args[0];
+      $this->visibility = 1;
       $this->name_without_prefix = $args[1];
       $this->name = addRandomPrefix($this->name_without_prefix);
 
@@ -51,6 +54,7 @@ class File {
     
     else if ($count_args == 4) {
       $this->type = $args[0];
+      $this->visibility = 1;
       $this->name_without_prefix = $args[1];
       $this->name = addRandomPrefix($this->name_without_prefix);
 
@@ -92,6 +96,9 @@ function getDownloadLink() {
   }
 }
 
+function isVisible(){
+  return $this->visibility == 1;
+}
 // -- END GETTERS
 
 // SETTERS
@@ -143,6 +150,17 @@ function getDownloadLink() {
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function setVisibility($visibility) {
+    global $dbconnect;
+
+    $this->visibility = $visibility;
+
+    $query = "UPDATE ax_file SET visibility = $this->visibility
+              WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
 
 // -- END SETTERS
 
@@ -155,18 +173,18 @@ function getDownloadLink() {
     global $dbconnect;
 
     if ($this->full_text == null && $this->download_url != null) {
-      $query = "INSERT INTO ax_file (type, file_name, download_url) 
-                VALUES ($this->type, \$antihype1\$$this->name\$antihype1\$, '$this->download_url') 
+      $query = "INSERT INTO ax_file (type, visibility, file_name, download_url) 
+                VALUES ($this->type, 1, \$antihype1\$$this->name\$antihype1\$, '$this->download_url') 
                 RETURNING id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
-      $query = "INSERT INTO ax_file (type, file_name, full_text) 
-                VALUES ($this->type, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$) 
+      $query = "INSERT INTO ax_file (type, visibility, file_name, full_text) 
+                VALUES ($this->type, 1, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$) 
                 RETURNING id;
       ";
     } else {
-      $query = "INSERT INTO ax_file (type, file_name) 
-                VALUES ($this->type, '$this->name') 
+      $query = "INSERT INTO ax_file (type, visibility, file_name) 
+                VALUES ($this->type, 1, '$this->name') 
                 RETURNING id;
       ";
     }
@@ -180,12 +198,12 @@ function getDownloadLink() {
     global $dbconnect;
 
     if (isset($this->download_url)) {
-      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name', 
+      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = '$this->name', 
                 download_url = '$this->download_url'
                 WHERE id = $this->id;
       ";
     } else if (isset($this->full_text)) {
-      $query = "UPDATE ax_file SET type = $this->type, file_name = '$this->name',  
+      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = '$this->name',  
                 full_text = \$antihype1\$$this->full_text\$antihype1\$
                 WHERE id = $this->id;
       ";
