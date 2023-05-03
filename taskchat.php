@@ -316,33 +316,52 @@ $task_number = explode('.', $task_title)[0];
 			</div>
 		</div>
 
-		<div class="chat-wrapper">
+		<div class="chat-wrapper mb-5">
 
 			<div id="chat-box">
 				<!-- Вывод сообщений на страницу -->
 			</div>
 
-      <?php if($Assignment->isCompleteable() || $Task->isConversation()) {?>
-        <form action="taskchat_action.php" method="POST" enctype="multipart/form-data">
-          <div class="message-input-wrapper">
-            <div class="file-input-wrapper">
-              <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
-              <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
-              <label for="user-files">
-                <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
-              </label>
+      <div class="d-flex align-items-center">
+
+      <div class="btn-group d-none" id="btn-group-more">
+          <button type="button" class="btn btn-primary dropdown-toggle p-1 me-1" data-bs-toggle="dropdown" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+            </svg>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Действие</a></li>
+            <li><a class="dropdown-item" href="#">Другое действие</a></li>
+            <li><a class="dropdown-item" href="#">Что-то еще здесь</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Отделенная ссылка</a></li>
+          </ul>
+        </div>
+
+        <?php if($Assignment->isCompleteable() || $Task->isConversation()) {?>
+          <form class="w-100  align-items-center" action="taskchat_action.php" method="POST" enctype="multipart/form-data">
+            <div class="message-input-wrapper h-100 align-items-center p-0 m-0">
+              <div class="file-input-wrapper">
+                <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
+                <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
+                <label for="user-files">
+                  <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
+                </label>
+              </div>
+              <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+              <button type="submit" name="submit-message" id="submit-message">Отправить</button>
             </div>
-            <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
-            <button type="submit" name="submit-message" id="submit-message">Отправить</button>
-          </div>
-        </form>
-      <?php }?>
+          </form>
+        <?php }?>
+
+      </div>
 
 		</div>
 	</main>
 	
   <!-- <script type="text/javascript" src="js/messageHandler.js"></script> -->
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="js/taskchat.js"></script>
 
   <script type="text/javascript">
@@ -567,10 +586,17 @@ $task_number = explode('.', $task_title)[0];
         let index = selectedMessages.indexOf(message_id);
         selectedMessages.splice(index, 1); 
         $('#btn-message-' + message_id).removeClass("bg-info");
+        if(selectedMessages.length == 0)
+          $('#btn-group-more').addClass("d-none");
       } else {
         selectedMessages.push(message_id);
         $('#btn-message-' + message_id).addClass("bg-info");
+        $('#btn-group-more').removeClass("d-none");
       }
+    }
+
+    function moreActions(){
+
     }
 
   </script>
