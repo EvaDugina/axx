@@ -434,7 +434,7 @@ $task_number = explode('.', $task_title)[0];
       // Первое обновление лога чата
       loadChatLog(true);
       // Обновление лога чата раз в 1 секунд
-      setInterval(loadChatLog, 1000);
+      setInterval(loadChatLog, 100000);
 
       
     });
@@ -557,6 +557,20 @@ $task_number = explode('.', $task_title)[0];
 
 
       return true;
+    }
+
+
+    var selectedMessages = [];
+
+    function selectMessage(message_id){
+      if(selectedMessages.includes(message_id)) {
+        let index = selectedMessages.indexOf(message_id);
+        selectedMessages.splice(index, 1); 
+        $('#btn-message-' + message_id).removeClass("bg-info");
+      } else {
+        selectedMessages.push(message_id);
+        $('#btn-message-' + message_id).addClass("bg-info");
+      }
     }
 
   </script>

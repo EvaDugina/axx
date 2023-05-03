@@ -166,22 +166,31 @@ function showMessages($messages, $min_new_message_id) {
     
     if ($message->visibility == 0 || $message->visibility == $User->role) {
     ?>
-    <div id="message-<?=$message->id?>" class="chat-box-message <?=$float_class?>" style="height: auto;">
-      <div class="chat-box-message chat-box-message-wrapper <?=$background_color_class?>" 
-      style="<?php if ($message->type == 1) echo "border-color: green; border-width: 2px;"; 
-      else if ($message->type == 2) echo "border-color: red; border-width: 2px;";?>">
-        <strong><?=$sender_User->getFI()?></strong> </br>
-        <?php 
-        if ($message->full_text != '') {
-          if ($message->type == 3){ // если ссылка
-            echo '<a href="'.$message->full_text.'">Проверить код</a>';
-          } else
-            echo stripslashes(htmlspecialchars($message->full_text)) . "<br>";
-        }
-        showFiles($message->getFiles());
-        ?>
-      </div>
-      <div class="chat-box-message-date mb-2">
+    <div id="message-<?=$message->id?>" class="<?=$float_class?> d-flex flex-column p-2" 
+    style="height: fit-content; max-width: 60%; min-width: 30%;">
+      <button id="btn-message-<?=$message->id?>" 
+      class="btn btn-outline-<?=($message->sender_user_id == $user_id) ? "primary" : "dark"?> shadow-none text-black <?=$background_color_class?> d-flex flex-column w-100 h-auto mb-1" 
+      style="<?php if ($message->type == 1) echo "border-color: green;"; 
+      else if ($message->type == 2) echo "border-color: red;"?>" onclick="selectMessage(<?=$message->id?>)">
+        <div class="d-flex align-self-<?=($message->sender_user_id == $user_id) ? "end" : "start"?> mb-1">
+          <strong>
+            <?=$sender_User->getFI()?>
+          </strong> 
+        </div>
+        </br>
+        <div class="align-self-<?=($message->sender_user_id == $user_id) ? "end" : "start"?>">
+          <?php 
+          if ($message->full_text != '') {
+            if ($message->type == 3){ // если ссылка
+              echo '<a href="'.$message->full_text.'">Проверить код</a>';
+            } else
+              echo stripslashes(htmlspecialchars($message->full_text)) . "<br>";
+          }
+          showFiles($message->getFiles());
+          ?>
+        </div>
+      </button>
+      <div class="mb-2 align-self-<?=($message->sender_user_id == $user_id) ? "start" : "end"?>">
         <?=$message->getConvertedDateTime()?>
       </div>
     </div>
