@@ -60,10 +60,10 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
             </div>    
 
             <?php
-            $query = select_page_tasks($page_id, 1);
-            $result = pg_query($dbconnect, $query);
+            $Page = new Page((int)$page_id);
+            $Tasks = $Page->getAllTasks();
             
-            if (!$result || pg_num_rows($result) < 1)
+            if (count($Tasks) < 1)
               echo 'Задания по этой дисциплине отсутствуют';
             else {?>
               <div id="checkActiveForm">
@@ -78,28 +78,23 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                   </thead>
                   <tbody>
                     <?php
-                    while ($task = pg_fetch_assoc($result)) {
-                      $Task = new Task((int)$task['id']);?>
+                    foreach ($Tasks as $Task) {?>
                       <tr>
                         <div class="row">
                         <td class="col-1" scope="row" style="--mdb-table-accent-bg:unset;">
                           <div class="form-check"><input class="form-check-input enabler" type="checkbox" 
-                          value="<?=$task['id']?>" name="activeTasks[]" id="checkActive" onChange="updateOps();"/>
+                          value="<?=$Task->id?>" name="activeTasks[]" id="checkActive" onChange="updateOps();"/>
                           </div>
                         </td>
                         <td class="col-3" style="--mdb-table-accent-bg:unset;">
-                          <h6>
-                            <?php if ($task['type'] == 1) {?>
-                              <i class="fas fa-code fa-lg"></i>
-                            <?php } else { ?>
-                              <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
-                            <?php } ?>
-                            <?=$task['title']?>
+                          <h6 class="d-flex">
+                            <?php getSVGByTaskType($Task->type);?>
+                            &nbsp;&nbsp;<?=$Task->title?>
                           </h6>
 
                           
                           <?php
-                          $query = select_assigned_students($task['id']);
+                          $query = select_assigned_students($Task->id);
                           $result2 = pg_query($dbconnect, $query);
                           if ($result2 && pg_num_rows($result2) > 0) {
                             $i=0;?> 
@@ -168,15 +163,15 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                           <div class="d-flex justify-content-end mb-3">
                             <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                               <input type="hidden" name="action" value="archive">
-                              <input type="hidden" name="task_id" value="<?=$task['id']?>">
+                              <input type="hidden" name="task_id" value="<?=$Task->id?>">
                               <button type="submit" class="btn btn-outline-secondary px-3 me-1" data-title="Перенести в архив">
                                 <i class="fas fa-ban"></i>
                               </button>
                             </form>
-                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?=$task['id']?>';" data-title="Редактировать">
+                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?=$Task->id?>';" data-title="Редактировать">
                               <i class="fas fa-pen fa-lg"></i>
                             </button>
-                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?=$task['id']?>';" data-title="Назначить">
+                            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?=$Task->id?>';" data-title="Назначить">
                               <i class="fas fa-person fa-lg"></i>
                             </button>
                             <button type="button" class="btn btn-primary px-3" data-title="Скачать" disabled>
@@ -187,25 +182,25 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                           <?php 
                           if(count($Task->getAssignments()) > 0) {?>
                           <section class="d-flex justify-content-end">
-                              <button id="btn-assignment-visibility-<?=$task['id']?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?=$task['id']?>" 
-                              onclick="ajaxChangeVisibilityAllAssignmentsByTask(0, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                              <button id="btn-assignment-visibility-<?=$Task->id?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?=$Task->id?>" 
+                              onclick="ajaxChangeVisibilityAllAssignmentsByTask(0, <?=$Task->id?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
                                   <?php getSVGByAssignmentVisibility(0);?>
                               </button>
-                              <button id="btn-assignment-visibility-<?=$task['id']?>-2" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?=$task['id']?>" 
-                              onclick="ajaxChangeVisibilityAllAssignmentsByTask(2, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                              <button id="btn-assignment-visibility-<?=$Task->id?>-2" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?=$Task->id?>" 
+                              onclick="ajaxChangeVisibilityAllAssignmentsByTask(2, <?=$Task->id?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
                                 <?php getSVGByAssignmentVisibility(2);?>
                               </button>
-                              <button id="btn-assignment-visibility-<?=$task['id']?>-4" class="btn btn-outline-light px-3 me-3 btn-assignment-visibility-<?=$task['id']?>" 
-                              onclick="ajaxChangeVisibilityAllAssignmentsByTask(4, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                              <button id="btn-assignment-visibility-<?=$Task->id?>-4" class="btn btn-outline-light px-3 me-3 btn-assignment-visibility-<?=$Task->id?>" 
+                              onclick="ajaxChangeVisibilityAllAssignmentsByTask(4, <?=$Task->id?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
                                 <?php getSVGByAssignmentVisibility(4);?>
                               </button>
 
-                              <button id="btn-assignment-status-<?=$task['id']?>--1" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$task['id']?>" 
-                              onclick="ajaxChangeStatusAllAssignmentsByTask(-1, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                              <button id="btn-assignment-status-<?=$Task->id?>--1" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$Task->id?>" 
+                              onclick="ajaxChangeStatusAllAssignmentsByTask(-1, <?=$Task->id?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
                                   <?php getSVGByAssignmentStatus(-1);?>
                               </button>
-                              <button id="btn-assignment-status-<?=$task['id']?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$task['id']?>" 
-                              onclick="ajaxChangeStatusAllAssignmentsByTask(0, <?=$task['id']?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
+                              <button id="btn-assignment-status-<?=$Task->id?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?=$Task->id?>" 
+                              onclick="ajaxChangeStatusAllAssignmentsByTask(0, <?=$Task->id?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);">
                                   <?php getSVGByAssignmentStatus(0);?>
                               </button>
                           </section>

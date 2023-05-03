@@ -77,6 +77,9 @@ class Page {
 
   }
 
+  public function getAllTasks() {
+    return $this->Tasks;
+  }
   public function getTasks() {
     $Tasks = array();
     foreach($this->Tasks as $Task) {
@@ -383,6 +386,7 @@ class Page {
       }
     }
     $conversationTask->createConversationAssignment($Students);
+    return $conversationTask;
   }
   public function getConversationTask() {
     foreach($this->Tasks as $Task) {

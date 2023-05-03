@@ -80,9 +80,11 @@ show_head("Добавление\Редактирование задания", ar
 				
             <div class="pt-3">
               <label>Тип задания:</label>
-              <select id = "task-type" class="form-select" aria-label=".form-select" name="task-type">
+              <select id = "task-type" class="form-select" aria-label=".form-select" name="task-type"
+              <?=$Task->isConversation() ? "disabled" : ""?>>
                 <option value = "0" <?=(($Task->type==0) ? "selected" : "")?> >Обычное</option>
                 <option value = "1" <?=(($Task->type==1) ? "selected" : "")?>>Программирование</option>
+                <option value = "2" <?=(($Task->type==2) ? "selected" : "")?>>Беседа</option>
               </select>
             </div>
 

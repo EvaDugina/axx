@@ -105,7 +105,8 @@
 
   if(isset($_POST['createGeneralConversation'])) {
     $Page = new Page((int)$_POST['page_id']);
-    $Page->createGeneralConversation();
+    $Task = $Page->createGeneralConversation();
+    $Task->setTitle("Беседа со всеми пользователями курса");
     header('Location:'.$_SERVER['HTTP_REFERER']);
     exit();
   }

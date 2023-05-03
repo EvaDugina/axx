@@ -169,8 +169,20 @@ $task_number = explode('.', $task_title)[0];
 		<div class="task-wrapper">
 			<h2><?= $task_title ?></h2>
 			<div>
-				<div class="task-desc-wrapper">
-          <b class="mb-0">Описание задания:</b>
+				<div class="task-desc-wrapper <?=$Task->isConversation() ? "me-0" : ""?>">
+          <div class="d-flex justify-content-between align-self-start align-items-center">
+            <b class="mb-0">Описание задания:</b>
+            <?php if(!$User->isStudent()) {?>
+              <a href="taskassign.php?assignment_id=<?=$Assignment->id?>" 
+              class="btn btn-outline-primary d-flex" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                </svg>
+                <span>&nbsp;&nbsp;Редактировать назначение</span>
+              </a>
+            <?php }?>
+          </div>
           <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;"><?= $task_description ?></p>
           <script>
             document.getElementById('TaskDescr').innerHTML =
@@ -190,42 +202,57 @@ $task_number = explode('.', $task_title)[0];
             }
 			    ?> 
           </p>
-					<p><b>Срок выполнения: </b> <?= $task_finish_limit ?></p>
           
-          <div class="d-flex justify-content-end align-self-end align-items-center">
-            <div class="me-2 align-items-center" style="display: inline-block">
-                <div class="d-flex p-2">
-                  <?php foreach($Assignment->getStudents() as $Student) {?>
-                    <button class="btn btn-floating shadow-none p-0 m-0" data-title="<?=$Student->getFI()?>"
-                    onclick="window.location='profile.php?user_id=<?=$Student->id?>'">
-                      <?php if($Student->getImageFile() != null) {?>
-                          <div class="embed-responsive embed-responsive-1by1" style="display: block;">
-                              <div class="embed-responsive-item">
-                                <img class="w-100 h-100 p-0 m-0 rounded-circle user-icon" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?=$Student->getImageFile()->download_url?>"/>
-                              </div>
-                          </div>
-                        </button>
-                      <?php } else { ?>
-                          <svg class="w-100 h-100" xmlns="http://www.w3.org/2000/svg" width="24" fill="currentColor" class="bi bi-person-circle" 
-                          viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                          </svg>
-                          <?php }?>
-                    </button>
-                  <?php }?>
-                </div>
+          
+          
+          <div class="d-flex justify-content-between align-self-end align-items-center">
+            <?php if (!$Task->isConversation()) {?>
+              <div>
+                <b>Срок выполнения: </b> 
+                &nbsp;<?=(!$Assignment->finish_limit) ? "бессрочно" : $Assignment->finish_limit?>
               </div>
-            <a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" 
-            class="btn btn-primary" target="_blank"><i class="fa-solid fa-file-arrow-down"></i>
-              <span>&nbsp;&nbsp;Скачать задание</span>
-            </a>
+            <?php }?>
+            <div class="d-flex align-items-center">
+              <div class="me-2 align-items-center" style="display: inline-block">
+                  <div class="d-flex">
+                    <?php foreach($Assignment->getStudents() as $i => $Student) {?>
+                      <div data-title="<?=$Student->getFI()?>">
+                        <button class="btn btn-floating shadow-none p-1 m-0 bg-image hover-overlay hover-zoom hover-shadow ripple" 
+                        onclick="window.location='profile.php?user_id=<?=$Student->id?>'" style="/*left: -<?=$i*5?>%*/">
+                          <?php if($Student->getImageFile() != null) {?>
+                              <div class="embed-responsive embed-responsive-1by1" style="display: block;">
+                                  <div class="embed-responsive-item">
+                                    <img class="h-100 w-100 p-0 m-0 rounded-circle user-icon" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?=$Student->getImageFile()->download_url?>"/>
+                                  </div>
+                              </div>
+                          <?php } else { ?>
+                              <svg class="h-100 w-100" xmlns="http://www.w3.org/2000/svg" width="20" fill="black" class="bi bi-person-circle" 
+                              viewBox="0 0 16 16">
+                              <path fill-rule="nonzero" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                              <path fill-rule="nonzero" d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                              </svg>
+                          <?php }?>
+                          <a href="">
+                            <div class="mask" style="background-color: rgba(var(--mdb-info-rgb), 0.2);"></div>
+                          </a>
+                        </button>
+                      </div>
+                    <?php }?>
+                  </div>
+                </div>
+              <?php if(!$Task->isConversation()) {?>
+                <a href="download_file.php?download_task_files=&task_id=<?=$task_id?>" style="height:fit-content;"
+                class="btn btn-primary" target="_blank"><i class="fa-solid fa-file-arrow-down"></i>
+                  <span>&nbsp;&nbsp;Скачать задание</span>
+                </a>
+              <?php }?>
+            </div>
           </div>
 				</div>
 
         <?php // FIXME: Посмотреть, доделать
-        if(!$Task->isConversation()) {?>}
-          <div class="task-status-wrapper">
+        if(!$Task->isConversation()) {?>
+          <div class="task-status-wrapper me-0">
             <div>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="flexCheckDisabled" 

@@ -56,9 +56,9 @@ if(task_select){
   let select_change = function(){
     
     //alert(task_select.value);
-    if(task_select.value == 0)
+    if(task_select.value != 1)
       tools.classList.add("d-none");
-    else 
+    else
       tools.classList.remove("d-none");
   }
 

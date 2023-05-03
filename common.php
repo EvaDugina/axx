@@ -99,7 +99,6 @@ function show_head($page_title = '', $js = array(), $css = array())
 <?php 
 } 
 
-// FIXME: Обновить хэдер на всех страницах
 function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) { 
 ?>
   <script type="text/javascript">
