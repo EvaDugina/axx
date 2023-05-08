@@ -40,12 +40,17 @@ class Assignment {
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       $assignment = pg_fetch_assoc($result);
 
-      $this->variant_number = $assignment['variant_number'];
+      if (isset($assignment['variant_number']))
+        $this->variant_number = $assignment['variant_number'];
+      else if (isset($assignment['variant_comment']))
+        $this->variant_number = $assignment['variant_comment'];
+
       $this->start_limit = convert_timestamp_to_date($assignment['start_limit'], "d-m-Y H:i:s");
       $this->finish_limit = convert_timestamp_to_date($assignment['finish_limit'], "d-m-Y H:i:s");
 
       $this->visibility = $assignment['status_code'];
       $this->visibility_text = $assignment['status_text'];
+      if (isset($assignment['status']))
       $this->status = $assignment['status'];
 
       $this->delay = $assignment['delay'];
@@ -546,15 +551,6 @@ function getTaskByAssignment($assignment_id) {
 }
 
 
-function getTeachersByAssignment($assignment_id) {
-  global $dbconnect;
-
-  $query = queryGetPageByAssignment($assignment_id);
-  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $page_id = pg_fetch_assoc($pg_query)['page_id'];
-
-  return getTeachersByPage($page_id);
-}
 
 
 function getStudentsByAssignment($assignment_id) {
@@ -626,9 +622,6 @@ function queryGetCommitsByAssignment($assignment_id){
           WHERE assignment_id = $assignment_id;";
 }
 
-function queryGetPageByAssignment($assignment_id) {
-  return "SELECT page_id FROM ax_task WHERE ax_task.id = (SELECT task_id FROM ax_assignment WHERE ax_assignment.id = $assignment_id)";
-}
 
 
 

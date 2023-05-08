@@ -454,6 +454,28 @@ function getSemesterNumberByGroup($page_year, $page_semester, $group_year) {
 }
 
 
+function getPageByAssignment($assignment_id) {
+  global $dbconnect;
+
+  $query = queryGetPageByAssignment($assignment_id);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $page_id = pg_fetch_assoc($result)['page_id'];
+
+  return $page_id;
+}
+
+function getPageByTask($task_id) {
+  global $dbconnect;
+
+  $query = queryGetPageByTask($task_id);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $page_id = pg_fetch_assoc($result)['page_id'];
+
+  return $page_id;
+}
+
+
+
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
 
@@ -477,6 +499,14 @@ function queryGetAllPagesByGroup($group_id) {
           INNER JOIN ax_page_group ON ax_page_group.page_id = p.id
           WHERE ax_page_group.group_id = $group_id
           ORDER BY p.year DESC, p.semester DESC";
+}
+
+function queryGetPageByTask($task_id) {
+  return "SELECT page_id FROM ax_task WHERE id =$task_id;
+  ";
+}
+function queryGetPageByAssignment($assignment_id) {
+  return "SELECT page_id FROM ax_task WHERE ax_task.id = (SELECT task_id FROM ax_assignment WHERE ax_assignment.id = $assignment_id)";
 }
 
 function queryGetTasksByPage($page_id) {

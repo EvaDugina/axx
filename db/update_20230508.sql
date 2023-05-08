@@ -1,0 +1,1 @@
+ALTER TABLE ax_message ADD COLUMN resended_from_id integer;

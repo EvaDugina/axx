@@ -10,6 +10,8 @@ checkAuLoggedIN($au);
 
 $User = new User((int)$au->getUserId());
 
+echo "<script>var user_role=".$User->role.";</script>";
+
 // TODO: Переписать c использованием POClasses
 // Обработка некорректного перехода между страницами
 if (!(isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) && !isset($_REQUEST['assignment'])) {
@@ -322,38 +324,71 @@ $task_number = explode('.', $task_title)[0];
 				<!-- Вывод сообщений на страницу -->
 			</div>
 
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center" >
 
-      <div class="btn-group d-none" id="btn-group-more">
-          <button type="button" class="btn btn-primary dropdown-toggle p-1 me-1" data-bs-toggle="dropdown" aria-expanded="false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-            </svg>
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Действие</a></li>
-            <li><a class="dropdown-item" href="#">Другое действие</a></li>
-            <li><a class="dropdown-item" href="#">Что-то еще здесь</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Отделенная ссылка</a></li>
-          </ul>
-        </div>
+      <div class="dropdown d-none me-1" id="btn-group-more">
+        <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="ul-dropdownMenu-more"
+        data-mdb-toggle="dropdown" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+          </svg>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-more">
+          <li>
+            <a class="dropdown-item align-items-center" href="#">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right me-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"/>
+              </svg>
+              Переслать
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+              </svg>
+            </a>
+            <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
+              <?php 
+              $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
+              $conversationTask = $Page->getConversationTask();
+              if($conversationTask) {?>
+                <li>
+                  <a class="dropdown-item" onclick="resendMessages(<?=$conversationTask->getConversationAssignment()->id?>, <?=$User->id?>, false)">
+                    В общую беседу
+                  </a>
+                </li>
+              <?php }?>
+              <li>
+                <a class="dropdown-item" onclick="resendMessages(<?=$Assignment->id?>, <?=$User->id?>, true)">
+                  В текущий диалог
+                </a>
+              </li>
+              
+            </ul>
+          </li>
+          <li> 
+            <a class="dropdown-item align-items-center" href="#" id="a-messages-delete" style="cursor: pointer;" onclick="deleteMessages(<?=$Assignment->id?>, <?=$User->id?>)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+              </svg>
+              Удалить
+            </a>
+          </li>
+        </ul>
+      </div>
 
-        <?php if($Assignment->isCompleteable() || $Task->isConversation()) {?>
-          <form class="w-100  align-items-center" action="taskchat_action.php" method="POST" enctype="multipart/form-data">
-            <div class="message-input-wrapper h-100 align-items-center p-0 m-0">
-              <div class="file-input-wrapper">
-                <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
-                <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
-                <label for="user-files">
-                  <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
-                </label>
-              </div>
-              <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
-              <button type="submit" name="submit-message" id="submit-message">Отправить</button>
+      <?php if($Assignment->isCompleteable() || $Task->isConversation()) {?>
+        <form class="w-100 align-items-center m-0" action="taskchat_action.php" method="POST" enctype="multipart/form-data">
+          <div class="message-input-wrapper h-100 align-items-center p-0 m-0">
+            <div class="file-input-wrapper">
+              <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
+              <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
+              <label for="user-files">
+                <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
+              </label>
             </div>
-          </form>
-        <?php }?>
+            <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+            <button type="submit" name="submit-message" id="submit-message">Отправить</button>
+          </div>
+        </form>
+      <?php }?>
 
       </div>
 
@@ -492,8 +527,8 @@ $task_number = explode('.', $task_title)[0];
     function loadChatLog($first_scroll = false) {
       console.log("loadChatLog");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
-      $('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>,  
-      load_status: 'full'}, function() {
+      $('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
+      selected_messages: JSON.stringify(selectedMessages), load_status: 'full'}, function() {
         // После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
         if ($first_scroll) {
           if ($('#new-messages').length == 0) {
@@ -580,26 +615,123 @@ $task_number = explode('.', $task_title)[0];
 
 
     var selectedMessages = [];
+    var senderUserTypes = [];
 
-    function selectMessage(message_id){
+    function selectMessage(message_id, sender_user_type){
       if(selectedMessages.includes(message_id)) {
         let index = selectedMessages.indexOf(message_id);
         selectedMessages.splice(index, 1); 
+        senderUserTypes.splice(index, 1);
         $('#btn-message-' + message_id).removeClass("bg-info");
         if(selectedMessages.length == 0)
           $('#btn-group-more').addClass("d-none");
       } else {
         selectedMessages.push(message_id);
+        senderUserTypes.push(sender_user_type);
         $('#btn-message-' + message_id).addClass("bg-info");
         $('#btn-group-more').removeClass("d-none");
       }
+
+
+      let flag = true;
+      selectedMessages.forEach((message_id, index) => {
+        if(senderUserTypes[index] != user_role) {
+          flag = false;
+          return 1;
+        }
+      });
+      if(flag)
+        $('#a-messages-delete').removeClass("disabled");
+      else 
+        $('#a-messages-delete').addClass("disabled");
+      
+
     }
 
-    function moreActions(){
+    function resendMessages(assignment_id, user_id, this_chat) {
+      
+      var formData = new FormData();
+      formData.append('assignment_id', assignment_id);
+      formData.append('user_id', user_id);
+      formData.append('selected_messages', JSON.stringify(selectedMessages));
+      formData.append('resendMessages', true);
 
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          if(this_chat)
+            $("#chat-box").html(response);
+        },
+        complete: function() {
+          // Скролим чат вниз после отправки сообщения
+          if(this_chat)
+            $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+        }
+      });
+
+
+      return true;
+    } 
+
+    function deleteMessages(assignment_id, user_id) {
+      var formData = new FormData();
+      formData.append('assignment_id', assignment_id);
+      formData.append('user_id', user_id);
+      formData.append('selected_messages', JSON.stringify(selectedMessages));
+      formData.append('deleteMessages', true);
+
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          $("#chat-box").html(response);
+        },
+        complete: function() {
+          // Скролим чат вниз после отправки сообщения
+          $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+        }
+      });
+
+
+      return true;
     }
 
   </script>
+
+  <style>
+    .disabled {
+      pointer-events: none;
+      cursor: default;
+      opacity: 0.6;
+    }
+    .dropdown-menu li {
+      position: relative;
+    }
+    .dropdown-menu .dropdown-submenu {
+      display: none;
+      position: absolute;
+      left: 100%;
+      top: -7px;
+    }
+    .dropdown-menu .dropdown-submenu-left {
+      right: 100%;
+      left: auto;
+    }
+    .dropdown-menu > li:hover > .dropdown-submenu {
+      display: block;
+    }
+  </style>
 
 </body>
 

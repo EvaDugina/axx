@@ -31,7 +31,8 @@ class File {
       if ($file) {
         $this->name = $file['file_name'];
         $this->type = $file['type'];
-        $this->visibility = $file['visibility'];
+        if(isset($file['visibility']))
+          $this->visibility = $file['visibility'];
         $this->download_url = $file['download_url'];
         if ($this->download_url != null) {
           $this->name_without_prefix = deleteRandomPrefix($this->name);

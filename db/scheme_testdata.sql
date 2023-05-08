@@ -378,6 +378,7 @@ CREATE TABLE ax_message	(		-- сообщение в диалоге по зада
 	date_time timestamp with time zone,
 				-- дата и время отправки сообщения
 	reply_to_id integer,	-- --> ax_message (ссылка на исходное сообщение, если это - ответное)
+	resended_from_id integer, -- (ссылка на исходное сообщение, если это - пересланное сообщение)
 	full_text text,		-- полный текст сообщения
 	commit_id integer,	-- --> ax_solution_commit
 	status integer,		-- состояние сообщения (0 - новое, 1 - прочитанное, 2 - удаленное), флаг прочтения получателем (одним из преподов или одним из исполнителей)

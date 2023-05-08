@@ -142,7 +142,7 @@ function showFiles($Files, $taskedit_page_status = false, $task_id = null, $page
     foreach ($Files as $File) {
       if($au->isAdminOrTeacher() || $File->isVisible()) {
         $count_files++; ?>
-          <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 px-3 div-task-file" style="cursor:unset;">
+          <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 mx-1 px-3 div-task-file" style="cursor:unset;">
             <?php // Если запрос на отображение файлов приходит со страницы taskedit
             if ($taskedit_page_status) {
               visibilityFileButtons($File);

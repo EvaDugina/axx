@@ -11,6 +11,7 @@ class Message {
   public $type = null, $sender_user_id = null, $sender_user_type = null;
   public $date_time = null, $reply_to_id = null, $full_text = null;
   public $status = null, $visibility = null;
+  public $resended_from_id = null;
 
   private $Commit = null;
   private $Files = array();
@@ -38,6 +39,7 @@ class Message {
 
       $this->date_time = $message['date_time'];
       $this->reply_to_id = $message['reply_to_id'];
+      $this->resended_from_id = $message['resended_from_id'];
 
       // FIXME: Исправить на просто text
       $this->full_text = $message['full_text'];
@@ -48,6 +50,22 @@ class Message {
       $this->Commit = new Commit((int)$message['commit_id']);
       $this->Files = getFilesByMessage($this->id);
 
+    }
+
+    // Пересылание сообщения
+    else if ($count_args == 4) {
+      $assignment_id = $args[0];
+
+      $this->type = $args[1];
+      $this->sender_user_id = $args[2];
+      $this->sender_user_type = $args[3];
+
+      $this->full_text = "";
+
+      $this->status = 0;
+      $this->visibility = 0;
+
+      $this->pushNewToDB($assignment_id);
     }
 
     else if ($count_args == 8) { // всё, кроме commit_id + assignment_id
@@ -103,6 +121,15 @@ class Message {
       $this->status = $status;
 
       $query = "UPDATE ax_message SET status = $this->status WHERE ax_message.id = $this->id";
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    }
+
+    public function setResendedFromId($message_id) {
+      global $dbconnect;
+
+      $this->resended_from_id = $message_id;
+
+      $query = "UPDATE ax_message SET resended_from_id = $this->resended_from_id WHERE ax_message.id = $this->id";
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
 
@@ -171,6 +198,17 @@ class Message {
     
     $query = "DELETE FROM ax_message WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+
+  function isResended() {
+    return $this->resended_from_id != null;
+  }
+  function isReply() {
+    return $this->reply_to_id != null;
+  }
+  function isVisible($user_role) {
+    return $this->visibility == 0 || $this->visibility == $user_role;
   }
 
 // -- END WORK WITH MESSAGE
