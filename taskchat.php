@@ -234,7 +234,7 @@ $task_number = explode('.', $task_title)[0];
                               <path fill-rule="nonzero" d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                               </svg>
                           <?php }?>
-                          <a href="">
+                          <a href="profile.php?user_id=<?=$Student->id?>">
                             <div class="mask" style="background-color: rgba(var(--mdb-info-rgb), 0.2);"></div>
                           </a>
                         </button>
