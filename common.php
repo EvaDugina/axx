@@ -161,7 +161,7 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
                   <a href="taskchat.php?assignment=<?=$notify['assignment_id']?>"> 
                       <li class="dropdown-item" <?php if($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"'?>>
                         <div class="d-flex justify-content-between align-items-center">
-                          <div>
+                          <div class="me-2">
                             <span style="border-bottom: 1px solid;">
                               <?php if ($user->isTeacher()) {
                                 foreach($notify['students'] as $i => $Student) {?>

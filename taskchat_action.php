@@ -226,7 +226,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
       class="btn btn-outline-<?=($isAuthor) ? "primary" : "dark"?> shadow-none text-black <?=$background_color_class?> 
       d-flex flex-column w-100 h-auto mb-1 <?=($isSelected) ? "bg-info" : ""?> " 
       style="<?php if ($Message->type == 1) echo "border-color: green;"; 
-      else if ($Message->type == 2) echo "border-color: red;"?> text-transform: unset;"
+      else if ($Message->type == 2) echo "border-color: red;"?>"
       >
         <div class="d-flex align-self-<?=($isAuthor) ? "end" : "start"?> mb-1" style="text-transform: uppercase;">
           <strong>
@@ -234,12 +234,18 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           </strong> 
         </div>
         <div>
-        <?php 
+          <?php 
           if ($Message->full_text != '') {
-            if ($Message->type == 3){ // если ссылка
-              echo '<a href="'.$Message->full_text.'">Проверить код</a>';
-            } else
-              echo stripslashes(htmlspecialchars($Message->full_text)) . "<br>";
+            if ($Message->type == 3){ // если ссылка?>
+              <div style="text-transform: uppercase;">
+                <a href="<?=$Message->full_text?>">Проверить код</a>
+              </div>
+            <?php } else {?>
+              <div>
+                <?=stripslashes(htmlspecialchars($Message->full_text))?> 
+                <br>
+              </div>
+            <?php }
           }?>
         </div>
         <div class="align-self-<?=($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap"?>"
@@ -269,12 +275,18 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           </strong> 
         </div>
         <div>
-        <?php 
+          <?php 
           if ($Message->full_text != '') {
-            if ($Message->type == 3){ // если ссылка
-              echo '<a href="'.$Message->full_text.'">Проверить код</a>';
-            } else
-              echo stripslashes(htmlspecialchars($Message->full_text)) . "<br>";
+            if ($Message->type == 3){ // если ссылка?>
+              <div style="text-transform: uppercase;">
+                <a href="<?=$Message->full_text?>">Проверить код</a>
+              </div>
+            <?php } else {?>
+              <div>
+                <?=stripslashes(htmlspecialchars($Message->full_text))?> 
+                <br>
+              </div>
+            <?php }
           }?>
         </div>
         <div class="align-self-<?=($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap"?>"
