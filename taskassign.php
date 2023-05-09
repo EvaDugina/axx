@@ -181,15 +181,6 @@ $Page = new Page((int)getPageByTask($Task->id));
                             </svg> 
                             <?=$Group->name?>
                           </h6>
-                            <!-- <div class="form-check d-flex">
-                              <span id="group-<?=$Group->id?>-stat" class="badge badge-primary align-self-center" style="color: black;">
-                              <input id="group-<?=$Group->id?>" class="accordion-input-item form-check-input input-group" type="checkbox" 
-                              value="g<?=$Group->id?>" id="flexCheck1" onclick="markStudentElements(<?=$Group->id?>)" 
-                              name="checkboxStudents[]">
-                                <?=$count_chosen_students?> / <?=$group_students_count?>
-                              </span>
-                              <label class="ms-1 form-check-label" for="flexCheck1" style="font-weight: bold;"><?=$Group->name?></label>
-                            </div> -->
                           </button>
                         </div>
                         <div id="accordion-collapse-<?=$key?>" class="accordion-collapse collapse" aria-labelledby="accordion-gheader-<?=$key?>"
@@ -206,6 +197,9 @@ $Page = new Page((int)getPageByTask($Task->id));
                                         type="checkbox" value="<?=$Student->id?>" name="students[]" 
                                         <?php if($Assignment->getStudentById($Student->id) != null) echo 'checked';?>>
                                         <label class="form-check-label" for="flexCheck1"><?=$Student->getFI()?></label>
+                                      </div>
+                                      <div class="">
+                                        &nbsp;&nbsp;<?=$Student->subgroup?> подгруппа
                                       </div>
                                     </div>
                                   </div>

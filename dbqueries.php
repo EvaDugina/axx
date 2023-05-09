@@ -651,10 +651,11 @@ function select_page_groups($page_id) {
 }
 
 function select_page_students($page_id) {
-    return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id
+    return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id, students_to_subgroups.subgroup
             FROM ax_page_group 
-          INNER JOIN students_to_groups ON ax_page_group.group_id = students_to_groups.group_id
-          INNER JOIN students ON students_to_groups.student_id = students.id
+            INNER JOIN students_to_groups ON ax_page_group.group_id = students_to_groups.group_id
+            INNER JOIN students ON students_to_groups.student_id = students.id
+            LEFT JOIN students_to_subgroups ON students_to_subgroups.student_id = students.id
             WHERE ax_page_group.page_id = '$page_id'
             ORDER BY fio";
 }

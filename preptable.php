@@ -149,8 +149,17 @@ if ($scripts) echo $scripts;
             <table class="table table-status" id="table-status-id" style="text-align: center;">
               <thead>
                 <tr class="table-row-header" style="text-align:center;">
-                  <th scope="col" colspan="1">Студенты и группы</th>
-                  <th scope="col" colspan="<?= count($tasks) + 1 ?>">
+                  <th class="align-items-center px-0" scope="col" colspan="1">
+                    <div class="d-flex justify-content-center align-items-center">
+                      <span style="font-size: large;">Студенты и группы</span>
+                    </div>
+                  </th>
+                  <th class="px-0" scope="col" colspan="1">
+                    <div class="d-flex justify-content-center align-items-center">
+                      <span>Подгруппа</span>
+                    </div>
+                  </th>
+                  <th class="align-items-center" scope="col" colspan="<?= count($tasks) + 1 ?>">
                     <div class="d-flex justify-content-between align-items-center">
                       <span style="font-size: large;"> Задания </span>
                       <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?=$page_id?>';" style="">
@@ -160,6 +169,7 @@ if ($scripts) echo $scripts;
                   </th>
                 </tr>
                 <tr>
+                  <th scope="col" colspan="1"> </th>
                   <th scope="col" colspan="1"> </th>
                   <!-- <th scope="col" data-mdb-toggle="tooltip" data-title="Номер варианта">#</th> -->
                   <?php
@@ -177,6 +187,7 @@ if ($scripts) echo $scripts;
                 foreach ($Page->getGroups() as $Group) { ?>
                   <tr class="table-row-header">
                     <th scope="row" colspan="1"><?=$Group->name?></th>
+                    <th scope="row" colspan="1"></th>
                     <!-- <th colspan="1"> </th> -->
                     <td colspan="<?=count($Page->getActiveTasks())?>" style="background: var(--mdb-gray-200);"> </td>
                   </tr>
@@ -184,6 +195,17 @@ if ($scripts) echo $scripts;
                   foreach ($Group->getStudents() as $count => $Student) {?>
                     <tr>
                       <th scope="row" data-group="<?=$Group->id?>"><?=$count+1?>. <?=$Student->getFI()?></th>
+                      <th id="th-subgroup-student-<?=$Student->id?>" scope="row" colspan="1" 
+                      onclick="showPopoverSubgroup(<?=$Student->id?>)" style="cursor: pointer;"
+                      data-title="Изменить подгруппу">
+                        <?php 
+                        if ($Student->subgroup != null) {
+                          echo $Student->subgroup;
+                        } else {
+                          echo "?";
+                        }
+                        ?>
+                      </th>
                       <?php 
                       foreach($Page->getActiveTasks() as $Task) {
                         $Assignment = $Task->getLastAssignmentByStudent((int)$Student->id);?>
@@ -214,8 +236,8 @@ if ($scripts) echo $scripts;
                             $last_Message = $Assignment->getLastAnswerMessage();
                             $last_message_Student = new User((int)$last_Message->sender_user_id);
                             ?>
-                            <td tabindex="0" onclick="showPopover(this)" 
-                            data-title="<?=$last_message_Student->getFI()?> <?=convert_mtime($last_Message->date_time)?>" 
+                            <td tabindex="0" onclick="showPopover(this)" style="cursor: pointer;"
+                            data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/?> Оценить задание" 
                             data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assignment->id, $user_id)?>">
                               <?php if ($Assignment->mark != null) {?>
                                 <?=$Assignment->mark?>
@@ -234,7 +256,8 @@ if ($scripts) echo $scripts;
                           <?php } 
                           
                           else {?>
-                              <td onclick="answerPress(2,null,<?=$Assignment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)">
+                              <td onclick="answerPress(2,null,<?=$Assignment->id?>,<?=$user_id?>,<?=$Task->max_mark?>)"
+                              style="cursor: pointer;" data-title="Оценить задание" >
                                 <?php if ($Assignment->mark != null) {
                                   echo $Assignment->mark;
                                 } ?>
@@ -477,6 +500,37 @@ if ($scripts) echo $scripts;
   </form>
 </div>
 
+
+<div class="modal fade" id="dialogSubgroup" tabindex="-1" aria-labelledby="dialogSubgroupLabel" aria-hidden="true">
+  <form id="form-subgroup" class="needs-validation">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dialogSubgroupLabel">Изменение подгруппы</h5>
+          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-outline">
+            <input type="number" id="dialogSubgroupSubgroupInput" name="subgroup" class="form-control" required min="1" max="3"/>
+            <label class="form-label" for="typeNumber" id="dialogSubgroupSubgroupLabel">Подгруппа</label>
+            <div class="form-notch">
+              <div class="form-notch-leading" style="width: 9px;"></div>
+              <div class="form-notch-middle" style="width: 114.4px;"></div>
+              <div class="form-notch-trailing"></div>
+            </div>
+          </div>
+          <span id="error-input-subgroup" class="error-input" aria-live="polite"></span>
+          <br/>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary">Применить</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
 <?php }?>
 
 <?php
@@ -596,8 +650,6 @@ function generate_message_for_student_task_commit($task_title){
 
   function ajaxChangeStatus(assignment_id, new_status) {
 
-    console.log("CLICK!");
-
     var formData = new FormData();
 
     formData.append('assignment_id', assignment_id);
@@ -616,6 +668,56 @@ function generate_message_for_student_task_commit($task_title){
         $('#btn-assignment-status-' + assignment_id).html(response[0].svg);
         $('#btn-assignment-status-' + assignment_id).prop('title', "Изменить СТАТУС назначения на: " + response[0].status_to_text);
         $('#btn-assignment-status-' + assignment_id).attr("onclick", 'ajaxChangeStatus(' + assignment_id + ', ' + response[0].next_status + ')');
+      },
+      complete: function() {
+      }
+    });   
+  }
+
+  function showPopoverSubgroup(student_id) {
+    $('#dialogSubgroup').modal('show');
+    
+    $('#form-subgroup').on("submit", function(event) {
+      event.preventDefault();
+      let subgroup = $('#dialogSubgroupSubgroupInput').val();
+      if(checkSubgroupInputs(subgroup) == -1) {
+        let error_execution = document.getElementById('error-input-subgroup');
+        error_execution.textContent = "Некорректная подгруппа";
+        error_execution.className = 'error-input active';
+        return -1;
+      } 
+      ajaxChangeSubgroup(student_id, subgroup);
+      $('#dialogSubgroup').modal('hide');
+
+    });
+  }
+  function checkSubgroupInputs(subgroup) {
+    if (parseInt(subgroup) == NaN || parseInt(subgroup) < 1 || parseInt(subgroup) > 3) {
+      console.log("Подгруппа заполнена неверно");
+      return -1;
+    }
+
+    return parseInt(subgroup);
+  }
+  function ajaxChangeSubgroup(student_id, subgroup) {
+
+    var formData = new FormData();
+
+    formData.append('student_id', student_id);
+    formData.append('changeSubgroup', true);
+    formData.append('subgroup', subgroup);
+
+    $.ajax({
+      type: "POST",
+      url: 'profile_edit.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType : 'html',
+      success: function(response) {
+        response = JSON.parse(response);
+        $('#th-subgroup-student-' + student_id).html(response.subgroup);
       },
       complete: function() {
       }

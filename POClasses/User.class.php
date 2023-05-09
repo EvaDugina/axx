@@ -10,6 +10,7 @@ class User {
   public $github_url;
 
   public $group_id;
+  public $subgroup = null;
   
   private $Image = null;
 
@@ -44,6 +45,7 @@ class User {
       $this->github_url = $user['github_url'];
 
       $this->group_id = $user['group_id'];
+      $this->subgroup = $user['subgroup'];
 
       if ($user['image_file_id'])
         $this->Image = new File((int)$user['image_file_id']);
@@ -165,6 +167,15 @@ class User {
               WHERE user_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function setSubgroup($subgroup) {
+    global $dbconnect;
+
+    $this->subgroup = $subgroup;
+
+    $query = "INSERT INTO students_to_subgroups (student_id, subgroup) VALUES ($this->id, $this->subgroup) 
+              ON CONFLICT(student_id) DO UPDATE SET subgroup = $this->subgroup";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
 
   public function setImage($image_file_id) {
     global $dbconnect;
@@ -236,9 +247,10 @@ function getGroupByStudent($student_id) {
 
 function queryGetUserInfo($id){
   return "SELECT first_name, middle_name, last_name, login, role, students_to_groups.group_id as group_id,
-          ax_settings.*
+          students_to_subgroups.subgroup, ax_settings.*
           FROM students
           LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
+          LEFT JOIN students_to_subgroups ON students_to_subgroups.student_id = students.id
           LEFT JOIN ax_settings ON ax_settings.user_id = students.id
           WHERE students.id = $id;
   ";

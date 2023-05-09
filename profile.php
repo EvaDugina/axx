@@ -70,6 +70,10 @@ show_head('Профиль'); ?>
             <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?=$User->login?></span> </p>
             <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?=$group->name?></span> </p>
 
+            <?php if($User->isStudent()) {?>
+              <p> <span class="font-weight-bold">ПОДГРУППА: </span> <span class="font-weight-normal"><?=$User->subgroup?></span> </p>
+            <?php }?>
+
             <?php if ((int)$au->getUserId() == (int)$User->id) {?>
               <p class="d-flex align-items-center mb-0"> 
                 <span class="font-weight-bold">ПОЧТА:</span> &nbsp; &nbsp;

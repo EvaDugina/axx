@@ -61,7 +61,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
 
             <?php
             $Page = new Page((int)$page_id);
-            $Tasks = $Page->getAllTasks();
+            $Tasks = $Page->getActiveTasks();
             
             if (count($Tasks) < 1)
               echo 'Задания по этой дисциплине отсутствуют';
@@ -306,9 +306,12 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                       $result2 = pg_query($dbconnect, $query);
 
                       while($row2 = pg_fetch_assoc($result2)) {
-                        echo '<div class="form-check">';
+                        echo '<div class="form-check d-flex justify-content-between">';
                         echo '  <input class="form-check-input" type="checkbox" name="students[]" value="'.$row2['id'].'" id="flexCheck'.$row2['id'].'">';
                         echo '  <label class="form-check-label" for="flexCheck'.$row2['id'].'">'.$row2['fio'].'</label>';
+                        echo '<div style="color: var(--mdb-gray-500);">';
+                        echo '&nbsp;&nbsp;'.$row2['subgroup'] .' подгруппа';
+                        echo '</div>';
                         echo '</div>';
                       }
 

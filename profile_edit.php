@@ -4,8 +4,16 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("POClasses/User.class.php");
 
-$User = new User((int)$_SESSION['hash']);
 
+if(isset($_POST['changeSubgroup'])) {
+  $User = new User((int)$_POST['student_id']);
+  $subgroup = (int)$_POST['subgroup'];
+  $User->setSubgroup($subgroup);
+  echo json_encode(array("subgroup" => $subgroup));
+  exit;
+}
+
+$User = new User((int)$_SESSION['hash']);
 if (isset($_FILES['image-file']) && isset($_POST['set-image'])) {
   addFileToObject($User, $_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 21);
   header('Location: profile.php');
