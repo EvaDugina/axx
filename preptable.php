@@ -238,6 +238,7 @@ if ($scripts) echo $scripts;
                             ?>
                             <td tabindex="0" onclick="showPopover(this)" style="cursor: pointer;"
                             data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/?> Оценить задание" 
+                            title="<?=$last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time)?>" 
                             data-mdb-content="<?=getPopoverContent($last_Message, $Task, $Assignment->id, $user_id)?>">
                               <?php if ($Assignment->mark != null) {?>
                                 <?=$Assignment->mark?>

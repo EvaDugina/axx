@@ -1,7 +1,6 @@
 <?php
 require_once("settings.php");
 require_once("dbqueries.php");
-require_once("messageHandler.php");
 require_once("POClasses/Message.class.php");
 require_once("POClasses/Task.class.php");
 include_once('auth_ssh.class.php');

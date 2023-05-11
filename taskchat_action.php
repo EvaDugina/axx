@@ -2,7 +2,6 @@
 require_once("settings.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
-require_once("messageHandler.php");
 require_once("POClasses/Commit.class.php");
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
@@ -136,7 +135,7 @@ if (isset($_POST['flag_preptable']) && $_POST['flag_preptable']){
 // if (isset($_POST['load_status']) && $_POST['load_status'] == 'new_only')
 //   updateNewMessages($assignment_id, $sender_user_type, $user_id);
 // else
-if(isset($_POST['selected_messages']))
+if(isset($_POST['selected_messages']) && !isset($_POST['resendMessages']))
   update_chat($assignment_id, $user_id, json_decode($_POST['selected_messages']));
 else 
   update_chat($assignment_id, $user_id);
@@ -229,22 +228,22 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
       else if ($Message->type == 2) echo "border-color: red;"?>"
       >
         <div class="d-flex align-self-<?=($isAuthor) ? "end" : "start"?> mb-1" style="text-transform: uppercase;">
-          <strong>
+          <p class="m-0 p-0"><strong>
             <?=$senderUserFI?>
-          </strong> 
+          </strong> </p>
         </div>
-        <div>
+        <div class="d-flex justify-content-<?=($isAuthor) ? "end" : "start"?>">
           <?php 
           if ($Message->full_text != '') {
             if ($Message->type == 3){ // если ссылка?>
-              <div style="text-transform: uppercase;">
+              <p class="p-0 m-0 h6 text-start" style="text-transform: uppercase;">
                 <a href="<?=$Message->full_text?>">Проверить код</a>
-              </div>
+            </p>
             <?php } else {?>
-              <div>
+              <p class="p-0 m-0 h6 text-start">
                 <?=stripslashes(htmlspecialchars($Message->full_text))?> 
                 <br>
-              </div>
+              </p>
             <?php }
           }?>
         </div>
@@ -254,7 +253,9 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
         </div>
       </div>
       <div class="mb-2 align-self-<?=($isAuthor) ? "start" : "end"?>">
-        <?=$Message->getConvertedDateTime()?>
+        <p class="p-0 m-0 "><small>
+          <?=$Message->getConvertedDateTime()?>
+        </small></p>
       </div>
     </div>
   <?php } else if ($isVisible) {
@@ -270,22 +271,22 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
       else if ($Message->type == 2) echo "border-color: red;"?> text-transform: unset;" onclick="selectMessage(<?=$Message->id?>, <?=$Message->sender_user_type?>)"
       >
         <div class="d-flex align-self-<?=($isAuthor) ? "end" : "start"?> mb-1" style="text-transform: uppercase;">
-          <strong>
+          <p class="m-0 p-0"><strong>
             <?=$senderUserFI?>
-          </strong> 
+          </strong> </p>
         </div>
-        <div>
+        <div class="d-flex justify-content-<?=($isAuthor) ? "end" : "start"?>">
           <?php 
           if ($Message->full_text != '') {
             if ($Message->type == 3){ // если ссылка?>
-              <div style="text-transform: uppercase;">
+              <p class="p-0 m-0 h6 text-start" style="text-transform: uppercase;">
                 <a href="<?=$Message->full_text?>">Проверить код</a>
-              </div>
+            </p>
             <?php } else {?>
-              <div>
+              <p class="p-0 m-0 h6 text-start">
                 <?=stripslashes(htmlspecialchars($Message->full_text))?> 
                 <br>
-              </div>
+              </p>
             <?php }
           }?>
         </div>
@@ -295,7 +296,9 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
         </div>
       </button>
       <div class="mb-2 align-self-<?=($isAuthor) ? "start" : "end"?>">
-        <?=$Message->getConvertedDateTime()?>
+        <p class="p-0 m-0 "><small>
+          <?=$Message->getConvertedDateTime()?>
+        </small></p>
       </div>
     </div>
     <div class="clear"></div>

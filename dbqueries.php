@@ -70,6 +70,17 @@ function select_page_names($status) {
             WHERE p.status = " . $status . "ORDER BY p.semester";
 }
 
+function select_page_names_1($teacher_id) {
+  return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names,
+          p.year y, p.semester s,
+          FROM ax_page p 
+          INNER JOIN discipline d ON d.id = p.disc_id 
+          INNER JOIN ax_page_prep ON ax_page_prep.page_id = p.id
+          INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
+          WHERE ax_page_prep.prep_user_id = $teacher_id
+          ORDER BY y DESC, s DESC";
+}
+
 function select_page_by_task_id($task_id) {
   return "SELECT page_id FROM ax_task WHERE id = $task_id";
 }

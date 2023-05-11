@@ -1,6 +1,7 @@
 <?php 
 require_once("common.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 require_once("settings.php");
 
 function getTextSemester($year, $sem){

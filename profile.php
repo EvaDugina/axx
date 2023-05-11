@@ -3,6 +3,7 @@
 <?php
 require_once("settings.php");
 require_once("common.php");
+require_once("utilities.php");
 require_once("POClasses/User.class.php");
 require_once("POClasses/Group.class.php");
 
@@ -81,7 +82,7 @@ show_head('Профиль'); ?>
               </p>
               <p class="d-flex align-items-center mb-0"> 
                 <span class="font-weight-bold">GITHUB:</span> &nbsp; &nbsp;
-                <input type="url" name="github_url" class="form-control" id="exampleFormControlInput1" placeholder="https://github.com/ВАШ_ЛОГИН" value="<?=$User->github_url?>">        
+                <input type="url" name="github_url" class="form-control" id="exampleFormControlInput1" placeholder="https://github.com/" value="<?=$User->github_url?>">        
               </p>
               <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" 
                     <?php if($User->notify_status==1) echo "checked"; ?>> <span class="font-weight-normal">

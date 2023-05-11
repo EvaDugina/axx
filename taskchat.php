@@ -633,19 +633,17 @@ $task_number = explode('.', $task_title)[0];
       }
 
 
+      // Показывать кнопку "Удалить сособщение, если оно своё или нет, если не своё"
       let flag = true;
       selectedMessages.forEach((message_id, index) => {
         if(senderUserTypes[index] != user_role) {
           flag = false;
-          return 1;
         }
       });
       if(flag)
         $('#a-messages-delete').removeClass("disabled");
       else 
         $('#a-messages-delete').addClass("disabled");
-      
-
     }
 
     function resendMessages(assignment_id, user_id, this_chat) {
@@ -665,13 +663,19 @@ $task_number = explode('.', $task_title)[0];
         data: formData,
         dataType : 'html',
         success: function(response) {
-          if(this_chat)
+          if(this_chat) {
             $("#chat-box").html(response);
+            for (let i = 0; i < selectedMessages.length; ) {
+              selectMessage(selectedMessages[i], null);
+            }
+          }
         },
         complete: function() {
           // Скролим чат вниз после отправки сообщения
-          if(this_chat)
+          if(this_chat){
             $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+            console.log($('#chat-box').prop('scrollHeight'));
+          }
         }
       });
 
@@ -696,10 +700,14 @@ $task_number = explode('.', $task_title)[0];
         dataType : 'html',
         success: function(response) {
           $("#chat-box").html(response);
+          for (let i = 0; i < selectedMessages.length; ) {
+              selectMessage(selectedMessages[i], null);
+            }
         },
         complete: function() {
           // Скролим чат вниз после отправки сообщения
           $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+          console.log($('#chat-box').prop('scrollHeight'));
         }
       });
 

@@ -5,6 +5,7 @@
 require_once("common.php");
 require_once("dbqueries.php");
 require_once("dbqueries.php");
+require_once("utilities.php");
 require_once("POClasses/Page.class.php");
 
 $au = new auth_ssh();

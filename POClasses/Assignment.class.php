@@ -421,7 +421,7 @@ class Assignment {
   }
   public function getLastAnswerMessage() {
     for ($i=count($this->Messages)-1; $i >= 0; $i--) { 
-      if ($this->Messages[$i]->getCommit() != null && $this->Messages[$i]->type != 3)
+      if ($this->Messages[$i]->type == 1)
         return $this->Messages[$i];
     }
   }
@@ -550,6 +550,17 @@ function getTaskByAssignment($assignment_id) {
   return $task_id;
 }
 
+function getTeachersByAssignment($assignment_id) {
+  global $dbconnect;
+
+  $query = queryGetPageByAssignment($assignment_id);
+  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $page_id = pg_fetch_assoc($pg_query)['page_id'];
+
+  return getTeachersByPage($page_id);
+}
+
+
 
 
 
@@ -613,7 +624,7 @@ function queryGetStudentsByAssignment($assignment_id){
 
 function queryGetMessagesByAssignment($assignment_id){
   return "SELECT id FROM ax_message
-          WHERE assignment_id = $assignment_id
+          WHERE assignment_id = $assignment_id AND (status = 0 OR status = 1)
           ORDER BY id;";
 }
 

@@ -196,7 +196,7 @@ class Message {
         $File->deleteFromDB();
     }
     
-    $query = "DELETE FROM ax_message WHERE id = $this->id;";
+    $query = "UPDATE ax_message SET status = 2 WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
