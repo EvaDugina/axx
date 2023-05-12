@@ -542,14 +542,27 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id) {
   $data_mdb_content .= showAttachedFilesByMessageId($Message->id);
 
   $data_mdb_content .= "
-  <a href='javascript:answerPress(2,". $Message->id.", " . $assignment_id . ", " . $user_id .", ". $Task->max_mark.")'
-  type='message' class='btn btn-outline-primary'>
-    Зачесть
-  </a> 
-  <a href='javascript:answerPress(0,". $Message->id.", " . $assignment_id . ", " . $user_id.")' 
-  type='message' class='btn btn-outline-primary'>
-    Ответить
-  </a>";
+  <div class='d-flex flex-column mt-1'>
+    <div class='d-flex w-100 justify-content-between mb-1'>
+      <a href='javascript:answerPress(2,". $Message->id.", " . $assignment_id . ", " . $user_id .", ". $Task->max_mark.")'
+      type='message' class='btn btn-outline-success w-100 me-1'>
+        Зачесть
+      </a> 
+      <a href='javascript:answerPress(0,". $Message->id.", " . $assignment_id . ", " . $user_id.")' 
+      type='message' class='btn btn-outline-dark w-100'>
+        Ответить
+      </a>
+    </div>";
+
+    $data_mdb_content .= "
+    <div class='w-100'>
+      <a href='editor.php?assignment=" . $assignment_id . "&commit=" . $Message->getCommit()->id ."'
+      class='btn btn-outline-primary w-100'>
+        Проверить код
+      </a>
+    </div>
+  </div>
+  ";
 
   return $data_mdb_content;
 } 
