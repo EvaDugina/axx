@@ -103,14 +103,27 @@ if ($scripts) echo $scripts;
             </select>
           </div>
 
-          <div class="form-outline">
-            <i class="fas fa-search trailing"></i>
-            <input type="text" id="form1" class="form-control form-icon-trailing" oninput="filterTable(this.value)" />
-            <label class="form-label" for="form1">Фильтр по группам, студентам, заданиям, комментариям</label>
-            <div class="form-notch">
-              <div class="form-notch-leading" style="width: 9px;"></div>
-              <div class="form-notch-middle" style="width: 114.4px;"></div>
-              <div class="form-notch-trailing"></div>
+          <div class="d-flex">
+            <div class="form-outline me-2 w-100">
+              <i class="fas fa-search trailing"></i>
+              <input type="text" id="form1" class="form-control form-icon-trailing" oninput="filterTableByGroupsAndStudents(this.value)" />
+              <label class="form-label" for="form1">Фильтр по группам, студентам</label>
+              <div class="form-notch">
+                <div class="form-notch-leading" style="width: 9px;"></div>
+                <div class="form-notch-middle" style="width: 114.4px;"></div>
+                <div class="form-notch-trailing"></div>
+              </div>
+            </div>
+
+            <div class="form-outline w-100 d-none">
+              <i class="fas fa-search trailing"></i>
+              <input type="text" id="form1" class="form-control form-icon-trailing" oninput="filterTableByTasks(this.value)" />
+              <label class="form-label" for="form1">Фильтр по заданиям</label>
+              <div class="form-notch">
+                <div class="form-notch-leading" style="width: 9px;"></div>
+                <div class="form-notch-middle" style="width: 114.4px;"></div>
+                <div class="form-notch-trailing"></div>
+              </div>
             </div>
           </div>
 
@@ -185,7 +198,7 @@ if ($scripts) echo $scripts;
                 <?php
 
                 foreach ($Page->getGroups() as $Group) { ?>
-                  <tr class="table-row-header">
+                  <tr id="tr-group-<?=$Group->id?>" class="table-row-header" data-type="group" data-group="<?=$Group->name?>">
                     <th scope="row" colspan="1"><?=$Group->name?></th>
                     <th scope="row" colspan="1"></th>
                     <!-- <th colspan="1"> </th> -->
@@ -193,7 +206,7 @@ if ($scripts) echo $scripts;
                   </tr>
                   <?php 
                   foreach ($Group->getStudents() as $count => $Student) {?>
-                    <tr>
+                    <tr data-group="tr-group-<?=$Group->id?>" data-type="student" data-student="<?=$Student->getFI()?>">
                       <th scope="row" data-group="<?=$Group->id?>"><?=$count+1?>. <?=$Student->getFI()?></th>
                       <th id="th-subgroup-student-<?=$Student->id?>" scope="row" colspan="1" 
                       onclick="showPopoverSubgroup(<?=$Student->id?>)" style="cursor: pointer;"

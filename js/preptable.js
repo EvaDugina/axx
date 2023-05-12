@@ -38,38 +38,67 @@ function accordionClick($this){
 function accordionShow($this){
   if ($this.next().hasClass('show')) {
   } else {
-    // console.log('Закрытие всех остальных элементов');
-    // $this.parent().parent().find('div .inner-accordion').removeClass('show');
-    // $this.parent().parent().find('div .inner-accordion').slideUp();
-    
     console.log('Открытие себя');
     $this.next().toggleClass('show');
     $this.next().slideToggle();
-    
   }
 }
 
-$(function() {
-//$('[data-toggle="tooltip"]').tooltip();
-//$('[data-toggle="popover"]').popover();      
-});
+function accordionHide($this){
+  if ($this.next().hasClass('hide')) {
+  } else {
+    console.log('Закрытие себя');
+    $this.next().removeClass('show');
+    $this.next().slideUp();
+  }
+}
 
-$(document).ready(function() {
-//$("#table-status-id>a").click(function(sender){alert(sender)});
-//console.log( "ready!" );
-});
 
-function filterTable(value) {
+
+function filterTableByGroupsAndStudents(value) {
 if (value.trim() === '') {
-  console.log("пустое поле");
+  // console.log("пустое поле");
     $('#table-status-id').find('tbody>tr').show();
     $('#list-messages-id').find('.message').show();
     $('#accordion-student-list').find('.toggle-accordion').each(function (){
       $(this).parent().show();
+      accordionHide($(this));
     });
 } else {
+    let group_flag = false;
     $('#table-status-id').find('tbody>tr').each(function() {
-      $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
+      if(value == "") {
+        $(this).show();
+      } else {
+        if ($(this).data('type') == "student") {
+          // console.log("FIO", $(this).data('student'));
+          if ($(this).data('student').toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+            // console.log("SHOW!");
+            // console.log($(this).data('group'));
+            $(this).show();
+            $($(this).data('group')).show();
+          } else if(!group_flag){
+            $(this).hide();
+          }
+        } else if ($(this).data('type') == "group") {
+          // console.log("GROUP NAME", $(this).data('group'));
+          if ($(this).data('group').toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+            group_flag = true;
+            // console.log("SHOW!");
+            $(this).show();
+            // console.log($(this).data('value'));
+
+            let next = $(this).next();
+            while (next.data('type') == 'student') {
+              next.show();
+              next = next.next();
+            }
+          } else {
+            group_flag = false;
+            // $(this).hide();
+          }
+        }
+      } 
     });
     $('#list-messages-id').find('.message').each(function() {
       $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
@@ -82,6 +111,77 @@ if (value.trim() === '') {
         $(this).parent().hide();
       }
     });
+  }
+}
+
+
+function filterTableByTasks(value) {
+  if (value.trim() === '') {
+    Array.from($("#table-status-id thead>tr")[1].children).forEach(function(element) {
+      element.hidden = false;
+    });
+
+    $('#table-status-id').find('tbody>tr').each(function() {
+      if ($(this).data('type') == "group") {
+        $(this).find('td').each(function() {
+          $(this).attr('colspan', array_opened_tasks.length);
+        });
+      } else if($(this).data('type') == "student") {
+        let index3 = 0;
+        $(this).find('td').each(function() {
+          if (array_opened_tasks.includes(index3)) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+          index3++;
+        });
+      }
+    });
+    
+  } else {
+
+    // Проверяем совпадение с заданиями
+    let array_opened_tasks = [];
+    let index1 = 0;
+    Array.from($("#table-status-id thead>tr")[1].children).forEach(function(element) {
+      if(element.tagName == "TD" && element.dataset.title.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+        array_opened_tasks.push(index1);
+      }
+      index1++;
+    });
+
+    Array.from($("#table-status-id thead>tr")[0].children)[2].colSpan = array_opened_tasks.length;
+
+    let index2 = 0;
+    Array.from($("#table-status-id thead>tr")[1].children).forEach(function(element) {
+      if (element.tagName == "TD" && !array_opened_tasks.includes(index2)) {
+        element.hidden = true;
+      } else {
+        element.hidden = false;
+      }
+      index2++;
+    });
+
+    // Отображаем нужные колонки
+    $('#table-status-id').find('tbody>tr').each(function() {
+      if ($(this).data('type') == "group") {
+        $(this).find('td').each(function() {
+          $(this).attr('colspan', array_opened_tasks.length);
+        });
+      } else if($(this).data('type') == "student") {
+        let index3 = 0;
+        $(this).find('td').each(function() {
+          if (array_opened_tasks.includes(index3)) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+          index3++;
+        });
+      }
+    });
+
   }
 }
 
