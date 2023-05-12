@@ -66,7 +66,7 @@ function show_head($page_title = '', $js = array(), $css = array())
     <!-- Fonts & Icons -->
     <link rel="stylesheet" type="text/css" href="src/fonts-icons/all.css"/>
     <link rel="stylesheet" href="src/fonts-icons/font-awesome.min.css"/>
-    <!-- <script src="https://kit.fontawesome.com/b9b9878a35.js" crossorigin="anonymous"></script> -->
+    <script src="https://kit.fontawesome.com/b9b9878a35.js" crossorigin="anonymous"></script>
 
     <!-- Extra -->
     <link rel="stylesheet" href="css/accelerator.css" /> 
