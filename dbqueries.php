@@ -229,6 +229,18 @@ function select_notify_by_page_for_mainpage($teacher_id, $page_id){
     ";
 }
 
+function select_notify_by_page_for_mainpage_for_admin($teacher_id, $page_id){
+    return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
+        ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
+        INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+        INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+        INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+        INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+        INNER JOIN students ON students.id = ax_assignment_student.student_user_id
+        WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_assignment.status = 1 AND ax_page.id = $page_id;
+    ";
+}
+
 // // получение уведомлений по каждой странице предмета для преподавательского дэшборда
 // function select_unchecked_by_page($teacher_id, $page_id){
 //     return "SELECT ax_task.id, ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, 

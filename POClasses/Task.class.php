@@ -229,6 +229,22 @@ class Task {
     }
     return false;
   }
+  public function getUncheckedAssignmentsForStudent($student_id) {
+    $uncheckedAssignments = array();
+    foreach($this->Assignments as $Assignment) {
+      if (($Assignment->status == 1) && $Assignment->checkStudent($student_id))
+        array_push($uncheckedAssignments, $Assignment);
+    }
+    return $uncheckedAssignments;
+  }
+  public function getAllUncheckedAssignments() {
+    $uncheckedAssignments = array();
+    foreach($this->Assignments as $Assignment) {
+      if (($Assignment->status == 1))
+        array_push($uncheckedAssignments, $Assignment);
+    }
+    return $uncheckedAssignments;
+  }
   public function getLastAssignmentByStudent($student_id) {
     $last_Assignment = null;
     foreach($this->Assignments as $Assignment) {

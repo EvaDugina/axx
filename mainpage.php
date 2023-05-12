@@ -68,6 +68,7 @@ function full_name($discipline_id, $dbconnect) {
             $full_name = pg_fetch_all($result)[0]['name'];
 
             $page_id = $page['id'];
+            $Page = new Page((int)$page_id);
 
             if ($curr_sem != $page['sem']) { ?>
               <div class="col-2 align-self-center popover-message-message-stud" 
@@ -128,22 +129,33 @@ function full_name($discipline_id, $dbconnect) {
                   <div class="card-body">
                     <div class="d-flex justify-content-between">
                       <span>Посылки студентов </span>
-                      <button class="btn btn-link btn-sm" style="background-color: unset;" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                      <button class="btn btn-link btn-sm" style="background-color: unset;" href="#" id="navbarDropdownMenuLink<?=$Page->id?>" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell fa-lg"></i>
                         <span  class="badge rounded-pill badge-notification 
                           <?php if ($notify_count['count'] > 0) echo "bg-danger";
                           else echo "bg-success";?>"><?=$notify_count['count'];?></span>
                       </button>
-                      <ul class="dropdown-menu dropdown-menu-end dropup" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
-                        <?php if ($notify_count > 0 && $array_notify) { $i=0;
-                          foreach ($array_notify as $notify) { $i++; ?>
-                            <li class="dropdown-item bg-primary" <?php if($i != $notify_count) echo 'style="border-bottom: 1px solid;"'?>>
-                            <a href="taskchat.php?assignment=<?=$notify['assignment_id'];?>"> 
-                            <span class="text-white" style="border-bottom: 1px solid;"><?=$notify['middle_name']. " " .$notify['first_name']. " (". $notify['short_name']. ")"?></span>
-                            <br><span class="text-white"><?=$notify['title']?></span>
-                            </a>
+                      <ul class="dropdown-menu dropdown-menu-end dropup" aria-labelledby="navbarDropdownMenuLink<?=$Page->id?>" style="z-index:99999999; ">
+                        <?php foreach($Page->getActiveTasks() as $Task) {
+                          foreach($Task->getAllUncheckedAssignments() as $Assignment) {
+                            $studentF = "";
+                            foreach($Assignment->getStudents() as $Student) {
+                              $studentF .= $Student->middle_name . " ";
+                            }?>
+                            <li class="dropdown-item bg-primary">
+                              <a href="taskchat.php?assignment=<?=$Assignment->id;?>">
+                                <div class="d-flex justify-content-between align-items-center"> 
+                                  <div class="d-flex flex-column ">
+                                    <span class="text-white" style="border-bottom: 1px solid;"><?=$studentF?></span>
+                                    <span class="text-white"><?=$Task->title?></span>
+                                  </div>
+                                  <div class="text-white">
+                                    <?php getSVGByAssignmentStatus($Assignment->status)?>
+                                  </div>
+                                </div>
+                              </a>
                             </li>
-                          <?php } 
+                          <?php }
                         }?>
                       </ul>
                     </div>
