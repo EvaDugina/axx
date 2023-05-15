@@ -8,6 +8,7 @@ class User {
   public $login, $role;
   public $email, $notify_status;
   public $github_url;
+  public $password = null;
 
   public $group_id;
   public $subgroup = null;
@@ -155,19 +156,6 @@ class User {
     return isStudent($this->role);
   }
 
-  public function hasSecondRole() {
-    global $dbconnect;
-
-    $query = pg_query($dbconnect, queryCountRoles($this->id)) or die('Ошибка запроса: ' . pg_last_error());
-    $count_roles = pg_fetch_assoc($query)['count'];
-
-    if ($count_roles > 1)
-      return true;
-      
-    return false;
-
-  }
-
   
 // -- END GETTERS
 
@@ -264,6 +252,23 @@ function getUserByLoginAndRole($login, $role) {
 
   return $user_id;
 }
+
+function hasSecondRole($login) {
+  global $dbconnect;
+
+  $query = pg_query($dbconnect, queryCountRoles($login)) or die('Ошибка запроса: ' . pg_last_error());
+  $count_roles = pg_fetch_assoc($query)['count'];
+
+  if ($count_roles > 1)
+    return true;
+    
+  return false;
+}
+
+
+
+
+
 
 function queryUserByLoginAndRole($login, $role){
   return "SELECT id, login, role FROM students
