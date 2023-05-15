@@ -153,6 +153,7 @@ class Page {
 
   public function addTask($task_id) {
     $Task = new Task((int)$task_id);
+    $this->pushTaskToDB($task_id);
     array_push($this->Tasks, $Task);
   }
   public function deleteTask($task_id) {
@@ -214,6 +215,13 @@ class Page {
       }
     }
     return $count;
+  }
+
+  function pushTaskToDB($task_id) {
+    global $dbconnect;
+
+    $query = "UPDATE ax_task SET page_id = $this->id WHERE id = $task_id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
 // -- END WORK WITH TASKS

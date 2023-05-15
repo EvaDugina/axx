@@ -133,6 +133,24 @@ switch($action)
         header('Location:preptasks.php?page='.$_REQUEST['page']);
         break;
     }
+    case "copyToDiscipline" : {
+      $tasknums = explode(',', @$_REQUEST['tasknum']);
+      if (!$tasknums || count($tasknums) < 1 || @$_REQUEST['tasknum']=="") {
+          echo "Не выбраны задания";
+          http_response_code(400);
+          exit;    
+      }
+
+      $Page = new Page((int)$_REQUEST['page']);
+      foreach($tasknums as $task_id) {
+        $Task = new Task($Page->id, 0, 0);
+        $Task->copy($task_id);
+        // $Page->addTask((int)$Task->id);
+      }
+
+      header('Location:preptasks.php?page='.$_REQUEST['page']);
+      break;
+    }
     case "assign":
     {
         $students = @$_REQUEST['students'];

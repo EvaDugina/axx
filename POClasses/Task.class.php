@@ -159,6 +159,18 @@ class Task {
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function pushAllChangesToDB() {
+    global $dbconnect;
+
+    $query = "UPDATE ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
+              description = \$antihype1\$$this->description\$antihype1\$, max_mark = '$this->max_mark', 
+              status = $this->status, checks = \$antihype1\$$this->checks\$antihype1\$
+              WHERE id = $this->id;
+    ";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+
+  }
   public function deleteFromDB() {
     global $dbconnect;
 
@@ -173,6 +185,21 @@ class Task {
 
     $query .= "DELETE FROM ax_task WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function copy($task_id) {
+    $Task = new Task((int)$task_id);
+
+    $this->type = $Task->type;
+    $this->title = $Task->title;
+    $this->description = $Task->description;
+    $this->max_mark = $Task->max_mark;
+    $this->status = $Task->status;
+    $this->checks = $Task->checks;
+    $this->pushAllChangesToDB();
+
+    $this->deleteFilesFromTaskDB();
+    $this->addFiles($Task->getFiles());
   }
 
   public function isConversation(){
@@ -341,8 +368,9 @@ class Task {
 
     $query = "";
     foreach ($Files as $File)
-    $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
+    if(count($Files) > 0)
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteFileFromTaskDB($file_id) {
     global $dbconnect;

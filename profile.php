@@ -124,7 +124,7 @@ show_head('Профиль'); ?>
     
     // Получаем расширение файла и сравниваем точно ли оно png или jpeg или jpg
     // let ext = new_file.name.split('.').pop();
-    if (new_file.type == "image/png" || new_file.type == "image/jpg" || new_file.type == "image/jpeg") {
+    if (new_file.type == "image/png" || new_file.type == "image/jpg" || new_file.type == "image/jpeg" || new_file.type == "image/gif") {
       $('#form-EditImage').submit();
     } else {
       alert("Ошибка загрузки файла! Файл должен быть с расширением PNG, JPG или JPEG");
