@@ -78,6 +78,15 @@ class Task {
     return $this->Files;
   }
 
+  public function getCodeTestFiles() {
+    return $this->getFilesByType(2);
+  }
+
+  public function getCodeCheckTestFiles() {
+    return $this->getFilesByType(3);
+  }
+
+
   public function isCompleted($student_id){
     foreach($this->Assignments as $Assignment) {
       if ($Assignment->checkStudent($student_id) && $Assignment->status != 4)
@@ -364,6 +373,17 @@ class Task {
 
 // -- END WORK WITH FILE
   
+}
+
+
+function getTaskByAssignment($assignment_id) {
+  global $dbconnect;
+
+  $query = "SELECT task_id FROM ax_assignment WHERE id = $assignment_id";
+  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $task_id = pg_fetch_assoc($pg_query)['task_id'];
+
+  return $task_id;
 }
 
 

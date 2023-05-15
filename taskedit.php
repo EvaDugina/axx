@@ -252,7 +252,8 @@ show_head("Добавление\Редактирование задания", ar
 
     var original_title = $('#input-title').val();
     var original_type = $('#task-type').val();
-    var original_description = easyMDE.value().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");;
+    let easyMDE_value = easyMDE.value();
+    var original_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     var original_codeTest = $('#textArea-codeTest').val();
     var original_codeCheck = $('#textArea-codeCheck').val();
     
@@ -307,7 +308,8 @@ show_head("Добавление\Редактирование задания", ar
   function checkFields() {
     let now_title = $('#input-title').val();
     let now_type = $('#task-type').val();
-    let now_description = easyMDE.value().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");;
+    let easyMDE_value = easyMDE.value();
+    let now_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");;
     let now_codeTest = $('#textArea-codeTest').val();
     let now_codeCheck = $('#textArea-codeCheck').val();
 
@@ -465,7 +467,7 @@ show_head("Добавление\Редактирование задания", ar
     if (checkDescription()) {
       let now_description = easyMDE.value();
       formData.append('description', now_description);
-      original_description = now_description;
+      original_description = now_description.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
     
     if (checkCodeTest()) {
@@ -568,7 +570,8 @@ show_head("Добавление\Редактирование задания", ar
     return false;
   }
   function checkDescription() {
-    let now_description = easyMDE.value();
+    let easyMDE_value = easyMDE.value();
+    let now_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     if (original_description != now_description)
       return true;
 

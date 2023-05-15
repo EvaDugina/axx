@@ -84,6 +84,16 @@ public function getFileExt() {
   return strtolower(preg_replace('#.{0,}[.]#', '', $this->name_without_prefix));
 }
 
+public function getFullText() {
+    if ($this->download_url != null) {
+      return getFileContentByPath($this->download_url);
+    } 
+    
+    else { 
+      return $this->full_text;
+    }
+}
+
 function getDownloadLink() {
   if ($this->download_url == null) {
     return 'download_file.php?file_id=' . $this->id;
@@ -264,6 +274,8 @@ function getImageFileTypes() {
 }
 
 function getFileContentByPath($file_path) {
+  if (strpos($file_path, "editor.php?") !== false)
+    return "";
   $file_full_text = file_get_contents($file_path);
   $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
   return $file_full_text;

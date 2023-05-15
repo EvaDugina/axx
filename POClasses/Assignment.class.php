@@ -540,16 +540,6 @@ class Assignment {
 
 }
 
-function getTaskByAssignment($assignment_id) {
-  global $dbconnect;
-
-  $query = "SELECT task_id FROM ax_assignment WHERE id = $assignment_id";
-  $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-  $task_id = pg_fetch_assoc($pg_query)['task_id'];
-
-  return $task_id;
-}
-
 function getTeachersByAssignment($assignment_id) {
   global $dbconnect;
 
