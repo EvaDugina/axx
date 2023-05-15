@@ -175,37 +175,37 @@ function insert_page($discipline) {
 
 // получение уведомлений, отсортированных по message_id для студента по невыполненным заданиям
 //[x]: убрать функцию, как только не будет использоваться
-function select_notify_for_student_header($student_id){
-    return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, ax_assignment.status, 
-              teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.id as message_id, ax_message.full_text FROM ax_task
-            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
-            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
-            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-            INNER JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
-            INNER JOIN students teachers ON teachers.id = ax_message.sender_user_id
-            WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 AND ax_message.sender_user_type != 3 
-            AND ax_message.status = 0 AND (ax_message.visibility = 3 OR ax_message.visibility = 0);
-    ";
-}
+// function select_notify_for_student_header($student_id){
+//     return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, ax_assignment.status, 
+//               teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.id as message_id, ax_message.full_text FROM ax_task
+//             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+//             INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+//             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+//             INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+//             INNER JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+//             INNER JOIN students teachers ON teachers.id = ax_message.sender_user_id
+//             WHERE ax_assignment_student.student_user_id = $student_id AND ax_page.status = 1 AND ax_message.sender_user_type != 3 
+//             AND ax_message.status = 0 AND (ax_message.visibility = 3 OR ax_message.visibility = 0);
+//     ";
+// }
 
 // получение уведомлений для преподавателя по непроверенным заданиям
 //[x]: убрать функцию, как только не будет использоваться
-function select_notify_for_teacher_header($teacher_id){
-    return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
-                ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, ax_assignment_student.student_user_id,
-                s1.middle_name, s1.first_name FROM ax_task
-            INNER JOIN ax_page ON ax_page.id = ax_task.page_id
-            INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-            INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
-            INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
-            INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
-            LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
-            LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
-            WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 2 
-            AND ax_message.status = 0 AND (ax_message.visibility = 2 OR ax_message.visibility = 0);
-    ";
-}
+// function select_notify_for_teacher_header($teacher_id){
+//     return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
+//                 ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, ax_assignment_student.student_user_id,
+//                 s1.middle_name, s1.first_name FROM ax_task
+//             INNER JOIN ax_page ON ax_page.id = ax_task.page_id
+//             INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
+//             INNER JOIN ax_page_prep ON ax_page_prep.page_id = ax_page.id
+//             INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id 
+//             INNER JOIN students s1 ON s1.id = ax_assignment_student.student_user_id 
+//             LEFT JOIN ax_message ON ax_message.assignment_id = ax_assignment.id
+//             LEFT JOIN students s2 ON s2.id = ax_message.sender_user_id
+//             WHERE ax_page_prep.prep_user_id = $teacher_id AND ax_message.sender_user_type != 2 
+//             AND ax_message.status = 0 AND (ax_message.visibility = 2 OR ax_message.visibility = 0);
+//     ";
+// }
 
 // получение количества уведомлений по каждой странице предмета для преподавательского дэшборда
 function select_notify_count_by_page_for_mainpage($page_id){
@@ -255,27 +255,27 @@ function select_notify_by_page_for_mainpage_for_admin($teacher_id, $page_id){
 // }
 
 //[x]: убрать
-function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_id){
-    return "SELECT COUNT(*) FROM ax_message
-        INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
-        INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
-        INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $teacher_id AND ax_task.id = $task_id
-        AND ax_message.sender_user_type != 2 AND ax_message.type != 3;
-    ";
-}
+// function select_count_unreaded_messages_by_task_for_teacher($teacher_id, $task_id){
+//     return "SELECT COUNT(*) FROM ax_message
+//         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
+//         INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+//         INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
+//         WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $teacher_id AND ax_task.id = $task_id
+//         AND ax_message.sender_user_type != 2 AND ax_message.type != 3;
+//     ";
+// }
 
 
 //[x]: убрать
-function select_count_unreaded_messages_by_task_for_student($student_id, $task_id){
-    return "SELECT COUNT(*) FROM ax_message
-        INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
-        INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
-        INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
-        WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $student_id AND ax_task.id = $task_id
-        AND ax_message.sender_user_type != 3;
-    ";
-}
+// function select_count_unreaded_messages_by_task_for_student($student_id, $task_id){
+//     return "SELECT COUNT(*) FROM ax_message
+//         INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
+//         INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
+//         INNER JOIN ax_assignment_student ON ax_assignment_student.assignment_id = ax_assignment.id
+//         WHERE ax_message.status = 0 AND ax_assignment_student.student_user_id = $student_id AND ax_task.id = $task_id
+//         AND ax_message.sender_user_type != 3;
+//     ";
+// }
 
 
 
@@ -512,22 +512,22 @@ function delete_task_hash($task_id){
 
 // ДЕЙСТВИЯ С СООБЩЕНИЯМИ
 
-function select_messages_by_assignment_id($assignment_id, $sender_user_type) {
+// function select_messages_by_assignment_id($assignment_id, $sender_user_type) {
 
-  if ($sender_user_type == 3) // студент
-	  $visible_where = "AND (ax_message.visibility = 0 OR ax_message.visibility = 3)";
-  else if ($sender_user_type == 2) // преподаватель
-    $visible_where = "AND (ax_message.visibility = 0 OR ax_message.visibility = 2)";
-  else 
-    $visible_where = "";
+//   if ($sender_user_type == 3) // студент
+// 	  $visible_where = "AND (ax_message.visibility = 0 OR ax_message.visibility = 3)";
+//   else if ($sender_user_type == 2) // преподаватель
+//     $visible_where = "AND (ax_message.visibility = 0 OR ax_message.visibility = 2)";
+//   else 
+//     $visible_where = "";
 
-  return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
-            ax_message.sender_user_type, ax_message.sender_user_id, ax_message.id as message_id, ax_message.status
-          FROM ax_message
-          INNER JOIN students ON ax_message.sender_user_id = students.id
-          WHERE ax_message.assignment_id = $assignment_id ". $visible_where." 
-          ORDER BY ax_message.date_time";
-}
+//   return "SELECT ax_message.id, students.first_name, students.middle_name, ax_message.type, ax_message.full_text, ax_message.date_time, 
+//             ax_message.sender_user_type, ax_message.sender_user_id, ax_message.id as message_id, ax_message.status
+//           FROM ax_message
+//           INNER JOIN students ON ax_message.sender_user_id = students.id
+//           WHERE ax_message.assignment_id = $assignment_id ". $visible_where." 
+//           ORDER BY ax_message.date_time";
+// }
 
 // function select_message_attachment($message_id) {
 //   return "SELECT ax_message_attachment.id, ax_message_attachment.file_name, ax_message_attachment.download_url, ax_message_attachment.full_text
@@ -567,26 +567,26 @@ function insert_message_reply($message_id, $message_text, $sender_id, $mark=null
     }
 }
 
-function insert_message($assignment_id, $type, $visibility, $user_type, $user_id, $full_text, $commit_id=null, $reply_to_id=null){
+// function insert_message($assignment_id, $type, $visibility, $user_type, $user_id, $full_text, $commit_id=null, $reply_to_id=null){
 
-  $p1 = "INSERT into ax_message (assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
-  VALUES ($assignment_id, $type, $visibility, $user_type, $user_id, now(), ";
+//   $p1 = "INSERT into ax_message (assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)
+//   VALUES ($assignment_id, $type, $visibility, $user_type, $user_id, now(), ";
 
-  if ($reply_to_id) 
-    $p1 = $p1 . $reply_to_id . ", ";
-  else 
-    $p1 = $p1 . "null, ";
+//   if ($reply_to_id) 
+//     $p1 = $p1 . $reply_to_id . ", ";
+//   else 
+//     $p1 = $p1 . "null, ";
 
-  $p1 .= "'$full_text', ";
-  $p2 = ", 0); SELECT currval('ax_message_id_seq') as \"id\";";
+//   $p1 .= "'$full_text', ";
+//   $p2 = ", 0); SELECT currval('ax_message_id_seq') as \"id\";";
 
-  if ($commit_id != null) 
-    $result = $p1 . $commit_id . $p2;
-  else 
-    $result = $p1 . "null" . $p2;
+//   if ($commit_id != null) 
+//     $result = $p1 . $commit_id . $p2;
+//   else 
+//     $result = $p1 . "null" . $p2;
 
-  return $result;
-}
+//   return $result;
+// }
 
 function insert_ax_message_delivery($message_id, $user_id){
   return "INSERT INTO ax_message_delivery (message_id, recipient_user_id, read) 

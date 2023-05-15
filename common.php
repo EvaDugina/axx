@@ -98,7 +98,7 @@ function show_head($page_title = '', $js = array(), $css = array())
 <?php 
 } 
 
-function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) { 
+function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) {
 ?>
   <script type="text/javascript">
     $(document).ready(function() {
@@ -138,6 +138,16 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
                 $array_notify = $user->getNotifications();
               }?>
           </div>
+
+          <?php if ($user->hasSecondRole()) {?>
+            <form action="auth.php" method = "POST">
+              <input type="hidden" name="action" value="login">
+              <input type="hidden" name="role" value="<?=($user->isTeacher()) ? 3 : 2?>">
+              <button class="btn btn-outline-primary" type="submit">
+                Зайти как <?=($user->isTeacher()) ? "студент" : "преподаватель"?>
+              </button>
+          </form>
+          <?php }?>
 
           <div class="col-xs-12 col-sm-4 col-md-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
             <!-- Icons -->
