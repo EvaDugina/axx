@@ -240,7 +240,7 @@ switch($action)
         header('Location:preptasks.php?page='.$_REQUEST['page']);
 		break;
     }
-    case "delete":
+    case "archive":
     {
         $page_id = $_REQUEST['page'];
 
@@ -258,6 +258,26 @@ switch($action)
         header('Location:preptasks.php?page='.$_REQUEST['page']);
         break;
     }
+    case "delete":
+      {
+          $page_id = $_REQUEST['page'];
+  
+          $tasknums = explode(',', @$_REQUEST['tasknum']);
+          if (!$tasknums || count($tasknums) < 1 || @$_REQUEST['tasknum']=="")         
+          {
+              echo "Не выбраны задания";
+              http_response_code(400);
+              exit;    
+          }
+
+          foreach($tasknums as $task_id) {
+            $Task = new Task((int)$task_id);
+            $Task->deleteFromDB();
+          }
+          
+          header('Location:preptasks.php?page='.$_REQUEST['page']);
+          break;
+      }
     case "recover":
     {
         $page_id = $_REQUEST['page'];
