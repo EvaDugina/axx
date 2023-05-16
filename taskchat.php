@@ -87,7 +87,7 @@ $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result)['short_name'];
 
 
-$MAX_FILE_SIZE = 5242880;
+$MAX_FILE_SIZE = getMaxFileSize();
 
 
 $task_title = '';
@@ -400,6 +400,9 @@ $task_number = explode('.', $task_title)[0];
 	<script type="text/javascript" src="js/taskchat.js"></script>
 
   <script type="text/javascript">
+
+    // После первой загрузки скролим страницу вниз
+    $('body, html').scrollTop($('body, html').prop('scrollHeight'));
 
     $(document).ready(function() {
 

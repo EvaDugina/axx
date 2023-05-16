@@ -273,6 +273,10 @@ function getImageFileTypes() {
   return array('img', 'png', 'jpeg', 'jpg', 'gif');
 }
 
+function getMaxFileSize() {
+  return 5242880;
+}
+
 function getFileContentByPath($file_path) {
   if (strpos($file_path, "editor.php?") !== false)
     return "";

@@ -10,11 +10,15 @@ require_once("resultparse.php");
 $au = new auth_ssh();
 checkAuLoggedIN($au);
 $User = new User((int)$au->getUserId());
+echo "<script>var user_role=".$User->role.";</script>";
+$user_id = $User->id;
+
+$MAX_FILE_SIZE = getMaxFileSize();
 
 $assignment_id = 0;
 if ( array_key_exists('assignment', $_GET)) {
   $assignment_id = $_GET['assignment'];
-  // $Assignment = new Assignment((int)$assignment_id);
+  $Assignment = new Assignment((int)$assignment_id);
 } else {
   //echo "Некорректное обращение";
   //http_response_code(400);
@@ -265,12 +269,90 @@ else
 		</div>
 
 		<div id="Chat" class="tabcontent">
-		  <h3>Чат</h3>
-		  <p>чат</p>
-			</div>
+      
+      <div class="chat-wrapper mb-1">
+
+        <div id="chat-box" style="overflow-y: scroll; max-height: 75%">
+          <!-- Вывод сообщений на страницу -->
+        </div>
+      
+
+        <div class="d-flex align-items-center" >
+
+          <div class="dropdown d-none me-1" id="btn-group-more">
+            <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="ul-dropdownMenu-more"
+            data-mdb-toggle="dropdown" aria-expanded="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+              </svg>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-more">
+              <li>
+                <a class="dropdown-item align-items-center" href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right me-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"/>
+                  </svg>
+                  Переслать
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+                  </svg>
+                </a>
+                <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
+                  <?php 
+                  $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
+                  $conversationTask = $Page->getConversationTask();
+                  if($conversationTask) {?>
+                    <li>
+                      <a class="dropdown-item" onclick="resendMessages(<?=$conversationTask->getConversationAssignment()->id?>, <?=$User->id?>, false)">
+                        В общую беседу
+                      </a>
+                    </li>
+                  <?php }?>
+                  <li>
+                    <a class="dropdown-item" onclick="resendMessages(<?=$Assignment->id?>, <?=$User->id?>, true)">
+                      В текущий диалог
+                    </a>
+                  </li>
+                  
+                </ul>
+              </li>
+              <li> 
+                <a class="dropdown-item align-items-center" href="#" id="a-messages-delete" style="cursor: pointer;" onclick="deleteMessages(<?=$Assignment->id?>, <?=$User->id?>)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                  </svg>
+                  Удалить
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <?php if($Assignment->isCompleteable() || $Task->isConversation()) {?>
+            <form class="w-100 align-items-center m-0" action="taskchat_action.php" method="POST" enctype="multipart/form-data">
+              <div class="message-input-wrapper h-100 align-items-center p-0 m-0">
+                <div class="file-input-wrapper">
+                  <input type="hidden" name="MAX_FILE_SIZE" value="<?=$MAX_FILE_SIZE?>" />
+                  <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
+                  <label for="user-files">
+                    <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
+                  </label>
+                </div>
+                <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+                <button type="submit" name="submit-message" id="submit-message">Отправить</button>
+              </div>
+            </form>
+          <?php }?>
+
+        </div>
+
+      </div>
+
+		</div>
+
 			<div id="deadline-message" class="deadline-message">
 	  Время вышло!
 			</div>
+
 			<div id="countdown" class="countdown">
 			  <div class="countdown-number">
 			    <span class="days countdown-time"></span>
@@ -365,6 +447,446 @@ function showBorders()
 }
 showBorders();
 </script>
+
+<script type="text/javascript" src="js/taskchat.js"></script>
+
+  <script type="text/javascript">
+
+    // После первой загрузки скролим страницу вниз
+    // $('body, html').scrollTop($('body, html').prop('scrollHeight'));
+
+    $(document).ready(function() {
+
+      let button_check = document.getElementById('button-check');
+      let button_answer = document.getElementById('submit-answer');
+
+      // Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
+      $("#submit-message").click(function() {
+        var userMessage = $("#user-message").val();
+        var userFiles = $("#user-files");
+
+        if(!sendMessage(userMessage, userFiles, 0)) {
+          event.preventDefault();
+          // console.log("Сообщение было успешно отсправлено");
+        } else {
+          // console.log("Сообщение не было отправлено");
+        }
+
+        $("#user-message").val("");
+        $("#user-message").css('height', '37.6px');
+        $("#user-files").val("");
+        $('#files-count').html('');
+
+        loadChatLog(true);
+
+        return false;
+      });
+
+      
+      // Первое обновление лога чата
+      loadChatLog(true);
+      // Обновление лога чата раз в 1 секунд
+      setInterval(loadChatLog, 100000);
+
+      
+    });
+    
+
+
+    // Обновляет лог чата из БД
+    function loadNewMessages() {
+      // console.log("LOAD_CHAT_LOG!");
+      
+      var formData = new FormData();
+      formData.append('assignment_id', <?=$assignment_id?>);
+      formData.append('user_id', <?=$user_id?>);
+      formData.append('load_status', 'new_only');
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          // console.log(response);
+          $('#chat-box').innerHTML += response;
+        },
+        complete: function() {
+          // Скролим чат вниз при появлении новых сообщений
+          // $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+        }
+      });
+    }
+
+
+
+    function loadChatLog($first_scroll = false) {
+      console.log("loadChatLog");
+      // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
+      $('#chat-box').load('taskchat_action.php#content', {assignment_id: <?=$assignment_id?>, user_id: <?=$user_id?>, 
+      selected_messages: JSON.stringify(selectedMessages), load_status: 'full'}, function() {
+        // После первой загрузки страницы скролим чат вниз до новых сообщений или но самого низа
+        if ($first_scroll) {
+          if ($('#new-messages').length == 0) {
+            $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+          }
+          else {
+            $('#chat-box').scrollTop($('#new-messages').offset().top - $('#chat-box').offset().top - 10);
+          }
+        }	
+      })
+    }
+
+
+    function sendMessage(userMessage, userFiles, typeMessage, mark=null) {
+      if ($.trim(userMessage) == '' && userFiles.val() == '') { 
+        // console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
+        return false; 
+      }
+      
+      let flag = true;
+      
+      var formData = new FormData();
+      formData.append('assignment_id', <?=$assignment_id?>);
+      formData.append('user_id', <?=$user_id?>);
+      formData.append('message_text', userMessage);
+      formData.append('type', typeMessage);
+      if(userFiles){
+        // console.log("EEEEEEEEEE");
+        //formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
+        $.each(userFiles[0].files, function(key, input) {
+          // console.log(input.size);
+          // console.log(<?=$MAX_FILE_SIZE?>*0.8);
+          if (input.size < <?=$MAX_FILE_SIZE?>*0.8){
+            formData.append('files[]', input);
+          } else {
+            alert("Размер отправленного файла превышает допустимый размер");
+            flag = false;
+          }
+        });
+      } else if (typeMessage == 2 && mark) {
+        formData.append('mark', mark);
+      }
+
+      if (flag == false) {
+        return false;
+      } else {
+
+        // console.log('message_text =' + userMessage);
+        // console.log('type =' + typeMessage);
+
+        $.ajax({
+          type: "POST",
+          url: 'taskchat_action.php#content',
+          cache: false,
+          contentType: false,
+          processData: false,
+          data: formData,
+          dataType : 'html',
+          success: function(response) {
+            $("#chat-box").html(response);
+            if (typeMessage == 1) {
+              let now = new Date();
+              $("#label-task-status-text").text("Ожидает проверки");
+              $("#span-answer-date").text(formatDate(now));
+            } else if (typeMessage == 2) {
+              let now = new Date();
+              $("#label-task-status-text").text("Выполнено");
+              $("#flexCheckDisabled").prop("checked", true);
+              $("#span-answer-date").text(formatDate(now));
+              $("#span-text-mark").html("Оценка: "+'<b id="b-mark">'+mark+'</b>');
+              console.log("Оценка: "+'<b id="b-mark">'+mark+'</b>');
+            }
+          },
+          complete: function() {
+            // Скролим чат вниз после отправки сообщения
+            $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+          }
+        });
+      }
+
+
+      return true;
+    }
+
+
+    var selectedMessages = [];
+    var senderUserTypes = [];
+
+    function selectMessage(message_id, sender_user_type){
+      if(selectedMessages.includes(message_id)) {
+        let index = selectedMessages.indexOf(message_id);
+        selectedMessages.splice(index, 1); 
+        senderUserTypes.splice(index, 1);
+        $('#btn-message-' + message_id).removeClass("bg-info");
+        if(selectedMessages.length == 0)
+          $('#btn-group-more').addClass("d-none");
+      } else {
+        selectedMessages.push(message_id);
+        senderUserTypes.push(sender_user_type);
+        $('#btn-message-' + message_id).addClass("bg-info");
+        $('#btn-group-more').removeClass("d-none");
+      }
+
+
+      // Показывать кнопку "Удалить сособщение, если оно своё или нет, если не своё"
+      let flag = true;
+      selectedMessages.forEach((message_id, index) => {
+        if(senderUserTypes[index] != user_role) {
+          flag = false;
+        }
+      });
+      if(flag)
+        $('#a-messages-delete').removeClass("disabled");
+      else 
+        $('#a-messages-delete').addClass("disabled");
+    }
+
+    function resendMessages(assignment_id, user_id, this_chat) {
+      
+      var formData = new FormData();
+      formData.append('assignment_id', assignment_id);
+      formData.append('user_id', user_id);
+      formData.append('selected_messages', JSON.stringify(selectedMessages));
+      formData.append('resendMessages', true);
+
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          if(this_chat) {
+            $("#chat-box").html(response);
+            for (let i = 0; i < selectedMessages.length; ) {
+              selectMessage(selectedMessages[i], null);
+            }
+          }
+        },
+        complete: function() {
+          // Скролим чат вниз после отправки сообщения
+          if(this_chat){
+            $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+            console.log($('#chat-box').prop('scrollHeight'));
+          }
+        }
+      });
+
+
+      return true;
+    } 
+
+    function deleteMessages(assignment_id, user_id) {
+      var formData = new FormData();
+      formData.append('assignment_id', assignment_id);
+      formData.append('user_id', user_id);
+      formData.append('selected_messages', JSON.stringify(selectedMessages));
+      formData.append('deleteMessages', true);
+
+      $.ajax({
+        type: "POST",
+        url: 'taskchat_action.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType : 'html',
+        success: function(response) {
+          $("#chat-box").html(response);
+          for (let i = 0; i < selectedMessages.length; ) {
+              selectMessage(selectedMessages[i], null);
+            }
+        },
+        complete: function() {
+          // Скролим чат вниз после отправки сообщения
+          $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+          console.log($('#chat-box').prop('scrollHeight'));
+        }
+      });
+
+
+      return true;
+    }
+
+  </script>
+
+  <style>
+    .disabled {
+      pointer-events: none;
+      cursor: default;
+      opacity: 0.6;
+    }
+    .dropdown-menu li {
+      position: relative;
+    }
+    .dropdown-menu .dropdown-submenu {
+      display: none;
+      position: absolute;
+      left: 100%;
+      top: -7px;
+    }
+    .dropdown-menu .dropdown-submenu-left {
+      right: 100%;
+      left: auto;
+    }
+    .dropdown-menu > li:hover > .dropdown-submenu {
+      display: block;
+    }
+
+    .chat-wrapper {
+    width: 100%;
+    padding-top: 20px;
+    padding-bottom: 5px;
+}
+
+#chat-box {
+    border: 1px solid #00000020;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    height: 600px;
+    width: 100%;
+    overflow-y: auto;
+}
+
+.chat-box-message {
+    float: left;
+    min-width: 400px;
+    max-width: 600px;
+    margin: 10px 0;
+}
+
+.chat-box-message-wrapper {
+    border: 1px solid #00000020;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.chat-box-message-date {
+    margin-left: 15px;
+    font-size: 14px;
+}
+
+.message-input-wrapper {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+#user-message {
+    flex-grow: 1;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px 0 5px 3px;
+    border: 1px solid #00000020;
+    border-radius: 5px;
+    resize: none;
+    height: 37.6px;
+    
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+}
+
+
+#submit-message {
+    background: #fff;
+    border: 1px solid #00000020;
+    border-radius: 5px;
+    padding: 5px 15px;
+    transition: all 0.2s ease;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+}
+#submit-message:hover {
+    background: #fffbfb;
+}
+
+.file-input-wrapper {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+#user-files, #user-answer-files {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    position: absolute;
+    z-index: -10;
+}
+
+.file-input-wrapper label {
+    display: inline-block;
+    position: relative;
+    padding: 0 8px 0 5px;
+    transition: all 0.1s ease;
+    
+    font-weight: 300;
+    font-size: 23px;
+    color: #4f4f4fc6;
+}
+.file-input-wrapper label:hover {
+    cursor: pointer;
+    color: #4f4f4f;
+}
+
+#files-count, #files-answer-count {
+    display: inline-block;
+    position: absolute;
+    bottom: -4px;
+    right: 0px;
+
+    font-weight: 700;
+    color: #2e73e3;
+    font-size: 14px;
+}
+
+.float-right {
+    float: right;
+}
+
+.clear {
+    clear: both;
+}
+
+.background-color-blue {
+    background-color: #d9f4fa7b;
+}
+
+.pretty-text {
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+@media screen and (max-width: 900px) {
+    .task-wrapper > div {
+        flex-flow: column;
+    }
+    .task-desc-wrapper {
+        margin-right: 0;
+    }
+    .task-status-wrapper {
+        flex-direction: row;
+        padding: 10px 5px 0 15px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .task-desc-wrapper > div {
+        flex-direction: column;
+    }
+}
+  </style>
 <?php
   show_footer();
 ?>
