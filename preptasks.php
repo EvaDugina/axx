@@ -412,10 +412,8 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
-              <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-danger" disabled
-                    onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
-                              $(deleteForm).find(groupped).val(0);"
-                    onChange="$(deleteForm).trigger('submit')">
+              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-danger" disabled
+                    onclick="deleteTasks()">
                   <i class="fas fa-trash fa-lg"></i> Удалить
                 </button>
               </div>
@@ -640,6 +638,18 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
       $('#input-copyToDiscipline-page').val(page_id);
       $('#form-copyToDiscipline').submit();
     });
+
+    function deleteTasks() {
+      let answer_confirm = confirm("Все выбранные задания будут безвозвратно удалены. Продолжить?");
+      if(answer_confirm){
+        $('#deleteForm').find('#tasknum').val(
+          $('#checkActiveForm').find('#checkActive:checked:enabled').map(function(){
+            return $(this).val();
+          }).get()
+        );
+        $('#deleteForm').submit();
+      }
+    }
 
 
   </script>
