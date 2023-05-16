@@ -13,7 +13,7 @@ pull-site:
     - master
     - dev
   script:
-    - cd /c/xampp/htdocs/web
+    - cd /var/vega.fcyb.mirea.ru/accel/
     - git fetch
     - git checkout ${CI_COMMIT_REF_NAME}
     - git pull origin ${CI_COMMIT_REF_NAME}
@@ -21,5 +21,6 @@ pull-site:
     - git submodule update --recursive || true
     - git reset --hard ${CI_COMMIT_SHORT_SHA}
   tags:
-    - win-web 
+    - vega-site
+
 
