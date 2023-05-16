@@ -63,7 +63,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
 
             <?php
             $Page = new Page((int)$page_id);
-            $Tasks = $Page->getActiveTasks();
+            $Tasks = $Page->getActiveTasksWithConversation();
             
             if (count($Tasks) < 1)
               echo 'Задания по этой дисциплине отсутствуют';

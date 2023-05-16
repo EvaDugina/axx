@@ -195,6 +195,15 @@ class Page {
     }
     return $return_Tasks;
   }
+  public function getActiveTasksWithConversation() {
+    $return_Tasks = array();
+    foreach($this->Tasks as $Task) {
+      if ($Task->status == 1)
+        array_push($return_Tasks, $Task);
+    }
+    return $return_Tasks;
+  }
+
   public function getCountSuccessAssignments($student_id) {
     $count_success = 0;
     foreach($this->getTasks() as $Task) {

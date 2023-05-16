@@ -59,13 +59,13 @@ show_head("Страница предмета ". $Page->name);
 						<div class="list-group list-group-flush" id="list-tab" role="tablist">
 							<?php
 							$key = 0;
-							foreach($Page->getActiveTasks() as $Task) {
+							foreach($Page->getActiveTasksWithConversation() as $Task) {
 								foreach($Task->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
 									$unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
-									if ($Assignment->finish_limit != null){
-										$date_finish = "до " . convert_mtime($Assignment->finish_limit);
-									} else
-										$date_finish = "";
+                  if(checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") 
+                    $date_finish = "до $Assignment->finish_limit";
+                  else 
+                    $date_finish = "";
 									if ($Assignment->isCompleted()){
 										$text_status = 'Проверено (оценка: '. $Assignment->mark .')';
 									} else {
