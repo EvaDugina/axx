@@ -13,7 +13,6 @@
   $commit_id = 0;
   $file_id = 0;
 
-
   function get_prev_assignments($assignment)
   {
 	global $dbconnect;	

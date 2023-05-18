@@ -80,7 +80,7 @@ class File {
 
 // GETTERS
 
-public function getFileExt() {
+public function getExt() {
   return strtolower(preg_replace('#.{0,}[.]#', '', $this->name_without_prefix));
 }
 
@@ -314,7 +314,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type) {
   
   $File = new File($type, $file_name);
   
-  $file_ext = $File->getFileExt();
+  $file_ext = $File->getExt();
   $file_dir = getPathForUploadFiles();
   $file_path = $file_dir . $File->name;
 

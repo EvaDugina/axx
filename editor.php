@@ -160,13 +160,23 @@ else
 	</div>
 	</div>
 	<div class="col-md-6 px-0">
-		<div>
-      <select class="form-select" aria-label=".form-select" id="language">
-        <option value="cpp" selected>C++</option>
-        <option value="c">C</option>
-        <option value="python">Python</option>
-        <option value="java">Java</option>
-      </select>
+    <div class="d-flex mb-1">
+      <div class="w-100 me-1">
+        <select class="form-select" aria-label=".form-select" id="language">
+          <option value="cpp" selected>C++</option>
+          <option value="c">C</option>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+        </select>
+      </div>
+      <form id="form-commit" action="textdb.php" method="GET" class="me-1 py-0 my-0">
+        <button id="btn-commit" class="btn btn-secondary" type="button">
+          Коммит
+        </button>
+      </form>
+      <button id="btn-save" class="btn btn-primary" type="button" onclick="saveProject()">
+        Сохранить
+      </button>
     </div>
     <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
 		<div id="container" class="embed-responsive-item"></div>
@@ -183,7 +193,9 @@ else
 <?php 
 		} else { // Оценить отправленное на проверку задание 
 // TODO: Проверить!?>	
-            <button type="button" class="btn btn-primary" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($assignment_status == -1) ?"disabled" :"")?> >Отправить на проверку</button>
+            <button type="button" class="btn btn-success" id="check" style="width: 100%;" 
+            assignment="<?=$assignment_id?>" <?=(($assignment_status == -1) ?"disabled" :"")?> >
+            Отправить на проверку</button>
 <?php 
 		}
 ?>
@@ -433,7 +445,6 @@ fun();
 <script src="js/tab.js"></script>
 <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
 <script src="js/editorloader.js" type="module"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
 <script type="text/javascript">
 function showBorders()
@@ -888,5 +899,5 @@ showBorders();
 }
   </style>
 <?php
-  show_footer();
+  // show_footer();
 ?>

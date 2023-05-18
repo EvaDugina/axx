@@ -249,7 +249,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
         </div>
         <div class="align-self-<?=($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap"?>"
         style="<?=($Message->type == 3) ? "text-transform: uppercase;" : ""?>">
-          <?php showFiles($Message->getFiles()); ?>
+          <?php showMessageFiles($Message->getFiles()); ?>
         </div>
       </div>
       <div class="mb-2 align-self-<?=($isAuthor) ? "start" : "end"?>">
@@ -292,7 +292,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
         </div>
         <div class="align-self-<?=($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap"?>"
         style="<?=($Message->type == 3) ? "text-transform: uppercase;" : ""?>">
-            <?php showFiles($Message->getFiles()); ?>
+            <?php showMessageFiles($Message->getFiles()); ?>
         </div>
       </button>
       <div class="mb-2 align-self-<?=($isAuthor) ? "start" : "end"?>">
@@ -345,7 +345,7 @@ function visualNewMessages($Messages) {
 					  echo stripslashes(htmlspecialchars($message->full_text)) . "<br>";
 				}
 				foreach ($message->getFiles() as $File) {
-          $file_ext = $File->getFileExt();   
+          $file_ext = $File->getExt();   
           if (in_array($file_ext, getImageFileTypes())) { ?>
             <img src="<?=$File->download_url?>" class="rounded <?=$float_class?> w-100 mb-1" alt="...">
           <?php } else {?>

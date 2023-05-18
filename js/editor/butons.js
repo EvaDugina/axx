@@ -8,6 +8,7 @@ var listItems = list.querySelectorAll(".tasks__item");
 for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
+$("#btn-save").on('click', saveProject);
 
 var conlist = document.querySelectorAll(".switchcon");
 for (var i = 0; i < conlist.length; i++) {
@@ -15,6 +16,27 @@ for (var i = 0; i < conlist.length; i++) {
         if (e.target.className == 'switchcon')
           switchCon(e.target.id);
     });
+}
+
+
+function getActiveFileName() {
+    if (editor.id){
+        for (var i = 0; i < listItems.length; i++) {
+            listItems[i].className = listItems[i].className.replace(" active_file", "");
+        }
+        var items = list.querySelectorAll(".validationCustom");
+        for (var i = 0; i < items.length; i++) {
+            if(items[i].id == editor.id){
+                return items[i].value;
+            }
+        }
+    }
+    return null;
+}
+
+function saveProject() {
+    let activeFileName = getActiveFileName();
+    saveFile(activeFileName, editor.id);
 }
 
 function openFile(event) {
@@ -40,6 +62,7 @@ function openFile(event) {
 		var param = document.location.href.split("?")[1].split("#")[0];
 		if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
+        console.log("Открыли!");
     }
 }
 
@@ -181,7 +204,7 @@ function alertContents(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                editor.current.setValue(httpRequest.responseText);
+                editor.current.setValue(httpRequest.responseText.trim());
             } else {
                 alert('С запросом возникла проблема.');
             }
