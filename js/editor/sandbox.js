@@ -1,5 +1,5 @@
 import editor from "./editor.js";
-import {makeRequest, saveEditedFile} from "./butons.js";
+import {makeRequest, saveEditedFile, saveActiveFile} from "./butons.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
 //import alertify from "./alertifyjs/alertify.js";
@@ -24,6 +24,7 @@ function saveAll() {
 }
 
 document.querySelector("#run").addEventListener('click', async e => {
+    saveActiveFile();
     saveAll();
 	var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';

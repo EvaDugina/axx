@@ -240,6 +240,20 @@ function isVisible(){
   
   }
 
+
+  public function copy($file_id) {
+    $File = new File((int)$file_id);
+
+    $this->type = $File->type;
+    $this->name = $File->name;
+    $this->download_url = $File->download_url;
+    $this->full_text = $File->full_text;
+    $this->status = $File->status;
+    $this->name_without_prefix = $File->name_without_prefix;
+    
+    $this->pushNewToDB();
+  }
+
 // -- END WORK WITH FILE
 
 

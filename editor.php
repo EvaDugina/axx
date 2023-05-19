@@ -113,7 +113,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
 <script src="https://vega.fcyb.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 
-<body style="overflow-x: hidden;">
+<body style="overflow-x:hidden">
 
 <?php 
 if ($au->isTeacher()) 
@@ -134,30 +134,49 @@ else
 <main class="container-fluid overflow-hidden">
 	<div class="pt-2">
 	<div class="row d-flex justify-content-between">
-		<div class="col-md-2 ">
-		<div class="d-none d-sm-block d-print-block">
+		<div class="col-md-2 d-flex flex-column">
 
-		<ul class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
-      <li class="list-group-item disabled px-0">Файлы</li>
+      <div class="d-none d-sm-block d-print-block" style="border-bottom: 1px solid;">
+        <ul class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
+          <li class="list-group-item disabled px-0">Файлы</li>
 
-      <?php foreach($solution_files as $file) { 
-		$File = new File((int)$file['id']);?>
+          <?php foreach($solution_files as $file) { 
+          $File = new File((int)$file['id']);?>
+              
+            <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
+              <div class="px-1 align-items-center" style="cursor: move;"><a href="plug.php?assignment=<?=$assignment_id?>&file=<?=$File->id?>" target="_blank"><i class="fas fa-file-code fa-lg"></i></a></div>
+              <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled>
+              <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>
+              <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>
+            </li>
+          <?php } ?>
+
+          <li class="list-group-item w-100 d-flex justify-content-between px-0">
+            <div class="px-1 align-items-center"><i class="fas fa-file-code fa-lg"></i></div>
+            <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="x" value="Новый файл" required>
+            <button type="button" class="btn btn-sm px-3" id="newFile"> <i class="far fa-plus-square fa-lg"></i></button>
+          </li>  
+      </ul>
+    </div>
+
+    
+    <div class="d-flex flex-column mt-3">
+      <p><strong>История коммитов</strong></p>
+      <div id="div-history-commit-btns" class="d-flex flex-column">
+        <?php foreach($Assignment->getCommits() as $i => $Commit) {?>
+          <button class="btn btn-<?=($Commit->id == $last_commit_id) ? "" : "outline-"?><?=($Commit->type == 0) ? "primary" : "success"?> mb-1" 
           
-      <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
-        <div class="px-1 align-items-center" style="cursor: move;"><a href="plug.php?assignment=<?=$assignment_id?>&file=<?=$File->id?>" target="_blank"><i class="fas fa-file-code fa-lg"></i></a></div>
-        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled>
-        <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>
-        <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>
-      </li>
-  <?php } ?>
+          <?php if($Commit->id == $last_commit_id) echo 'data-title="ТЕКУЩИЙ"';
+          else if($Commit->type == 0) echo 'data-title="ПРОМЕЖУТОЧНЫЙ"';
+          else echo 'data-title="ОТПРАВЛЕН НА ПРОВЕРКУ"'?>  
+          onclick="window.location='editor.php?assignment=<?=$Assignment->id?>&commit=<?=$Commit->id?>'"
+          <?=($Commit->id == $last_commit_id) ? "disabled" : ""?>>
+            <?=$i+1?>
+          </button>
+        <?php }?>
+      </div>
+    </div>
 
-    	<li class="list-group-item w-100 d-flex justify-content-between px-0">
-    		<div class="px-1 align-items-center"><i class="fas fa-file-code fa-lg"></i></div>
-      	<input type="text" class="form-control-plaintext form-control-sm validationCustom" id="x" value="Новый файл" required>
-        <button type="button" class="btn btn-sm px-3" id="newFile"> <i class="far fa-plus-square fa-lg"></i></button>
-      </li>  
-	</ul>
-	</div>
 	</div>
 	<div class="col-md-6 px-0">
     <div class="d-flex mb-1">
@@ -174,7 +193,7 @@ else
           Коммит
         </button>
       </form>
-      <button id="btn-save" class="btn btn-primary" type="button" onclick="saveProject()">
+      <button id="btn-save" class="btn btn-outline-primary" type="button" onclick="saveProject()">
         Сохранить
       </button>
     </div>
@@ -193,14 +212,14 @@ else
 <?php 
 		} else { // Оценить отправленное на проверку задание 
 // TODO: Проверить!?>	
-            <button type="button" class="btn btn-success" id="check" style="width: 100%;" 
+            <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" 
             assignment="<?=$assignment_id?>" <?=(($assignment_status == -1) ?"disabled" :"")?> >
             Отправить на проверку</button>
 <?php 
 		}
 ?>
 			  <!--</form>-->
-			  <button type="button" class="btn btn-outline-primary" id="run" style="width: 50%;">Запустить в консоли</button>
+			  <button type="button" class="btn btn-primary" id="run" style="width: 50%;">Запустить в консоли</button>
 
 	    </div>
 	</div>
@@ -284,7 +303,7 @@ else
       
       <div class="chat-wrapper mb-1">
 
-        <div id="chat-box" style="overflow-y: scroll; max-height: 75%">
+        <div id="chat-box" style="overflow-y: scroll; max-height: 55%">
           <!-- Вывод сообщений на страницу -->
         </div>
       

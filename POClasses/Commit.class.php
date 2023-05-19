@@ -82,6 +82,19 @@ class Commit {
   }
 
 
+  public function setType($type) {
+    global $dbconnect;
+
+    $this->type = $type;
+
+    $query = "UPDATE ax_solution_commit SET type = $this->type
+              WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+
 
 // WORK WITH COMMIT 
 
@@ -96,6 +109,15 @@ class Commit {
     $result = pg_fetch_assoc($pg_query);
 
     $this->id = $result['id'];
+  }
+  public function pushAllChangesToDB($assignment_id) {
+    global $dbconnect;
+
+    $query = "UPDATE ax_solution_commit SET assignment_id=$assignment_id, session_id=$this->session_id, 
+              student_user_id=$this->student_user_id, type=$this->type, autotest_results=$this->autotest_results
+              WHERE id = $this->id";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function deleteFromDB() {
     global $dbconnect;
@@ -118,6 +140,29 @@ class Commit {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+
+  public function copy($commit_id) {
+    $Commit = new Commit((int)$commit_id);
+
+    if ($Commit->session_id == null)
+      $this->session_id = "null";
+    else
+      $this->session_id = $Commit->session_id;
+
+    $this->student_user_id = $Commit->student_user_id;
+    $this->type = $Commit->type;
+
+    if ($Commit->autotest_results == null)
+      $this->autotest_results = "null";
+    else
+      $this->autotest_results = $Commit->autotest_results;
+
+    $this->pushAllChangesToDB(getAssignmentByCommit($Commit->id));
+
+    $this->deleteFilesFromCommitDB();
+    $this->addFiles($Commit->getFiles());
+  }
+
 // -- END WORK WITH COMMIT 
 
 
@@ -128,6 +173,22 @@ class Commit {
     $File = new File((int)$file_id);
     $this->pushFileToCommitDB($file_id);
     array_push($this->Files, $File);
+  }
+  public function addFiles($Files) {
+    $copyFiles = array();
+    foreach ($Files as $File) {
+      $copiedFile = new File($File->type, $File->name_without_prefix);
+      $copiedFile->copy($File->id);
+      array_push($copyFiles, $copiedFile);
+    }
+    $this->pushFilesToCommitDB($copyFiles);
+
+    foreach ($copyFiles as $File) {
+      array_push($this->Files, $File);
+    }
+  }
+  public function copyFiles() {
+
   }
   public function deleteFile($file_id) {
     $index = $this->findFileById($file_id);
@@ -160,14 +221,12 @@ class Commit {
     $query = "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function synchFilesToCommitDB() {
+  private function pushFilesToCommitDB($Files) {
     global $dbconnect;
 
-    $this->deleteFilesFromCommitDB();
-
     $query = "";
-    if (!empty($this->Files)) {
-      foreach($this->Files as $File) {
+    if (!empty($Files)) {
+      foreach($Files as $File) {
         $query .= "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $File->id);";
       }
     }

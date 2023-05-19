@@ -168,8 +168,6 @@ class Task {
               WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-
   }
   public function deleteFromDB() {
     global $dbconnect;

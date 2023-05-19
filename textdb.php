@@ -13,6 +13,9 @@
   $commit_id = 0;
   $file_id = 0;
 
+
+	$au = new auth_ssh();
+
   function get_prev_assignments($assignment)
   {
 	global $dbconnect;	
@@ -100,7 +103,7 @@
 	$result = pg_fetch_assoc($result);
 	$file_name = $result['file_name'];		  
   }
-  else if ($type != 'oncheck' && $type != 'tools' && $type != 'console'){
+  else if ($type != 'oncheck' && $type != 'tools' && $type != 'console' && $type != 'commit'){
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -211,7 +214,40 @@
 	  pg_query($dbconnect, "DELETE FROM ax_file WHERE id=".$result['id']);    
 	  pg_query($dbconnect, "DELETE FROM ax_commit_file WHERE file_id=".$result['id']);    
   }
-    
+  
+  //---------------------------------------------------------------COMMIT-------------------------------------------------------
+  else if ($type == "commit") {
+	$Assignment = new Assignment((int)$_REQUEST['assignment']);
+	$lastCommit = $Assignment->getLastCommit();
+	if($lastCommit) {
+		if(array_key_exists('commit_type', $_REQUEST)) {
+			if($_REQUEST['commit_type'])
+				$lastCommit->setType(1);
+			else 
+				$lastCommit->setType(0);
+		} else {
+			echo "Отсутствует commit_type";
+			http_response_code(400);
+			exit;
+		}
+		$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+		$Commit->copy($lastCommit->id);
+		$Assignment->addCommit($Commit->id);
+	} else {
+		$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+	}
+  }
+
+  //---------------------------------------------------------------COMMIT-------------------------------------------------------
+  else if ($type == "commit") {
+	$Assignment = new Assignment((int)$_REQUEST['assignment']);
+	$lastCommit = $Assignment->getLastCommit();
+	if($lastCommit)
+		$lastCommit->setType(0);
+	$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+	$Assignment->addCommit($Commit->id);
+  }
+
   //---------------------------------------------------------------ONCHECK-------------------------------------------------------
   else if ($type == "oncheck") {
 	  

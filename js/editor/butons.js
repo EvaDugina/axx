@@ -8,7 +8,11 @@ var listItems = list.querySelectorAll(".tasks__item");
 for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
-$("#btn-save").on('click', saveProject);
+$("#btn-save").on('click', saveActiveFile);
+$("#btn-commit").on('click', addNewIntermediateCommit);
+$("#div-history-commit-btns").children().each(function () {
+    
+});
 
 var conlist = document.querySelectorAll(".switchcon");
 for (var i = 0; i < conlist.length; i++) {
@@ -34,9 +38,23 @@ function getActiveFileName() {
     return null;
 }
 
-function saveProject() {
+function saveActiveFile() {
     let activeFileName = getActiveFileName();
     saveFile(activeFileName, editor.id);
+}
+
+function addNewIntermediateCommit() {
+    saveActiveFile();
+    var param = document.location.href.split("?")[1].split("#")[0];
+	if (param == '') param = 'void';
+    makeRequest('textdb.php?' + param + "&type=commit&commit_type=0", "commit");
+}
+
+function addNewAnswerCommit() {
+    saveActiveFile();
+    var param = document.location.href.split("?")[1].split("#")[0];
+	if (param == '') param = 'void';
+    makeRequest('textdb.php?' + param + "&type=commit&commit_type=1", "commit");
 }
 
 function openFile(event) {
@@ -169,6 +187,12 @@ function makeRequest(url, type) {
         httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
+    }
+    else if (type == "commit") {
+        // httpRequest.onreadystatechange = function() { };  
+        httpRequest.open('GET', encodeURI(url), true);
+        httpRequest.send(null);
+        // location.reload();
     }
     else if (type == "get") {
         httpRequest.onreadystatechange = function() { alertContentsGet(httpRequest, url[1]); };  
@@ -718,4 +742,4 @@ function switchCon(n) {
     }
 }
 
-export {makeRequest, saveEditedFile};
+export {makeRequest, saveEditedFile, saveActiveFile};

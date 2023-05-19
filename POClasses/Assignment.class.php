@@ -599,6 +599,16 @@ function getCommitsByAssignment($assignment_id) {
   return $commits;
 }
 
+function getAssignmentByCommit($commit_id){
+  global $dbconnect;
+
+  $query = "SELECT assignment_id FROM ax_solution_commit WHERE id = $commit_id";
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $assignment_id = pg_fetch_assoc($result)['assignment_id'];
+
+  return $assignment_id;
+}
+
 
 
 function queryGetAssignmentInfo($assignment_id) {
