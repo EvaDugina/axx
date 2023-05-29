@@ -47,18 +47,18 @@ function addNewIntermediateCommit() {
     saveActiveFile();
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
-    makeRequest('textdb.php?' + param + "&type=commit&commit_type=0", "commit");
+    makeRequest('textdb.php?' + param + "&type=commit&commit_type=intermediate&status=empty", "commit");
 }
 
 function addNewAnswerCommit() {
     saveActiveFile();
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
-    makeRequest('textdb.php?' + param + "&type=commit&commit_type=1", "commit");
+    makeRequest('textdb.php?' + param + "&type=commit&commit_type=answer&status=clone", "commit");
 }
 
 function openFile(event) {
-    var id = this.parentNode.querySelector(".validationCustom").id;
+    var id = this.querySelector(".validationCustom").id;
     if (id != editor.id){
         if (editor.id){
             for (var i = 0; i < listItems.length; i++) {
@@ -85,6 +85,7 @@ function openFile(event) {
 }
 
 function delFile(event) {  
+    event.stopPropagation();
     var id = this.parentNode.querySelector(".validationCustom").id;
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
@@ -117,8 +118,11 @@ function saveEditedFile() {
 
 function setEventListener(listItem) {  
     var id = listItem.querySelector(".validationCustom").id;
-    listItem.querySelector("#openFile").addEventListener('click', openFile);
-    listItem.querySelector("#delFile").addEventListener('click', delFile);
+
+    listItem.addEventListener('click', openFile);
+
+    let btns_delFile = listItem.querySelector("#delFile");
+    if(btns_delFile) btns_delFile.addEventListener('click', delFile);
 }
 
 document.querySelector("#language").addEventListener('click', async e => {
@@ -189,10 +193,10 @@ function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "commit") {
-        // httpRequest.onreadystatechange = function() { };  
+        httpRequest.onreadystatechange = function() {  if(httpRequest.readyState == 4 && httpRequest.status == 200) location.reload();};  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
-        // location.reload();
+        
     }
     else if (type == "get") {
         httpRequest.onreadystatechange = function() { alertContentsGet(httpRequest, url[1]); };  
@@ -705,25 +709,40 @@ function alertContentsTools(httpRequest) {
     }
 }
 
-document.querySelector("#newFile").addEventListener('click', async e => {
-    var name = document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value;
-    document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value = "Новый файл";
-    var entry = document.createElement('li'); 
-    entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
+if(document.querySelector("#newFile")) {
+    document.querySelector("#newFile").addEventListener('click', async e => {
+        var name = document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value;
+        document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value = "Новый файл";
+        var entry = document.createElement('li'); 
+        entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
 
-    var param = document.location.href.split("?")[1].split("#")[0];
-	if (param == '') param = 'void';
+        var param = document.location.href.split("?")[1].split("#")[0];
+        if (param == '') param = 'void';
 
-    entry.innerHTML = '<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>\
-        <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="'+0+'" value="'+name+'" required>\
-        <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>\
-        <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>';
-    setEventListener(entry);
-    document.querySelector("#newFile").parentNode.insertAdjacentElement('beforebegin',entry);
+        entry.innerHTML = '\
+        <div class="px-1 align-items-center text-primary">\
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">\
+                <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>\
+            </svg>\
+        </div>\
+        <textarea type="text" class="form-control-plaintext form-control-sm validationCustom"\
+        id="'+0+'" value="'+name+'" style="resize: none;" disabled style="cursor: pointer;" rows="1" cols="13" autofocus autofocus>'+name+'</textarea>';
 
-    listItems = list.querySelectorAll(".tasks__item");
-    makeRequest('textdb.php?' + param + "&type=new&file_name=" + name, "new");
-});
+        //TODO: WIP добавление файла в проект!
+        //TODO: WIP переименовывание файла проекта!
+
+        // entry.innerHTML = '<div class="px-1 align-items-center" style="cursor: move;"><i class="fas fa-file-code fa-lg"></i></div>\
+        //     <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="'+0+'" value="'+name+'" required>\
+        //     <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>\
+        //     <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>';
+        setEventListener(entry);
+        document.querySelector("#newFile").parentNode.insertAdjacentElement('beforebegin',entry);
+        entry.lastChild.focus();
+
+        listItems = list.querySelectorAll(".tasks__item");
+        makeRequest('textdb.php?' + param + "&type=new&file_name=" + name, "new");
+    });
+}
 
 function switchCon(n) {
     var label = document.getElementById(n);

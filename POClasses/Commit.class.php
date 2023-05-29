@@ -93,6 +93,19 @@ class Commit {
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function setStudentUserId($student_user_id) {
+    global $dbconnect;
+
+    $this->student_user_id = $student_user_id;
+
+    $query = "UPDATE ax_solution_commit SET student_user_id = $this->student_user_id
+              WHERE id = $this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+
 
 
 
@@ -161,6 +174,29 @@ class Commit {
 
     $this->deleteFilesFromCommitDB();
     $this->addFiles($Commit->getFiles());
+  }
+
+  public function isInProcess() {
+    return $this->type == 0;
+  }
+  public function isSendedForCheck() {
+    return $this->type == 1;
+  }
+  public function isChecking() {
+    return $this->type == 2;
+  }
+  public function isMarked() {
+    return $this->type == 3;
+  }
+
+  public function isEditByTeacher() {
+    return $this->isChecking();
+  }
+  public function isEditByStudent() {
+    return $this->isInProcess();
+  }
+  public function isNotEdit() {
+    return $this->isSendedForCheck() || $this->isMarked();
   }
 
 // -- END WORK WITH COMMIT 
@@ -266,6 +302,21 @@ function getFilesByCommit($commit_id) {
   }
 
   return $files;
+}
+
+
+function getSVGByCommitType($type) {
+  if($type==0 || $type==2) {?>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+      <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+      <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+    </svg>
+  <?php } else {?>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+      <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+    </svg>
+  <?php }
 }
 
 

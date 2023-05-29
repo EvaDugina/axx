@@ -59,34 +59,34 @@ $task_files = $Task->getFiles();
 
 $last_commit_id = NULL;
 if ( array_key_exists('commit', $_GET))
-  $last_commit_id = $_GET['commit'];
+$last_commit_id = $_GET['commit'];
 else {
-  $result = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
-  $last_commit_id = pg_fetch_assoc($result)['id'];
-  //echo select_last_commit_id_by_assignment_id($assignment_id) . "<br>";
+  if($au->isStudent())
+    $last_commit_id = $Assignment->getLastCommitForStudent()->id;
+  else 
+    $last_commit_id = $Assignment->getLastCommitForTeacher()->id;
 }
 
 $solution_files = array();
 
+$nowCommit = null;
+$readOnly = "false";
 if ($last_commit_id) {
-  $result = pg_query($dbconnect, select_last_ax_solution_file_by_commit_id($last_commit_id));
-  $file_rows = pg_fetch_all_assoc($result);
-  //echo select_last_ax_solution_file_by_commit_id($last_commit_id);
-  if ($file_rows) {
-    foreach($file_rows as $file_row) {
-		$File = new File((int)$file_row['id']);
-      $file_full_text = "";
-      if (isset($file_row['download_url'])) {
-        $file_path = $file_row['download_url'];
-        $file_full_text = file_get_contents($file_path);
-        $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
-      } else if (isset($file_row['full_text']))
-          $file_full_text = $file_row['full_text'];
-      $solution_file = array('id'=>$file_row['id'], 'file_name'=>$File->name_without_prefix, 'text'=>$file_full_text);
-      array_push($solution_files, $solution_file);
-    }
+  $nowCommit = new Commit((int)$last_commit_id);
+  foreach($nowCommit->getFiles() as $File) {
+    $solution_file = array('id'=>$File->id, 'file_name'=>$File->name_without_prefix, 'text'=>$File->getFullText());
+    array_push($solution_files, $solution_file);
   }
+
+  if ($nowCommit->isNotEdit())
+    $readOnly="true";
+} else {
+  // if($au->isStudent()) {
+  //   $nowCommit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+  //   header("Location:editor.php?assignment=" . $Assignment->id . "&commit=" . $nowCommit->id);
+  // } 
 }
+echo "<script>var read_only=$readOnly;</script>";
 
 
 $query = select_page_by_task_id($task_id);
@@ -140,22 +140,64 @@ else
         <ul class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
           <li class="list-group-item disabled px-0">Файлы</li>
 
-          <?php foreach($solution_files as $file) { 
-          $File = new File((int)$file['id']);?>
-              
-            <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0">
-              <div class="px-1 align-items-center" style="cursor: move;"><a href="plug.php?assignment=<?=$assignment_id?>&file=<?=$File->id?>" target="_blank"><i class="fas fa-file-code fa-lg"></i></a></div>
-              <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled>
-              <button type="button" class="btn btn-sm mx-0 float-right" id="openFile"><i class="fas fa-edit fa-lg"></i></button>
-              <button type="button" class="btn btn-sm float-right" id="delFile"><i class="fas fa-times fa-lg"></i></button>
-            </li>
-          <?php } ?>
+          <?php 
+          if(count($solution_files) > 0) {
+            foreach($solution_files as $file) { 
+            $File = new File((int)$file['id']);?>
+              <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0" id="openFile" style="cursor: pointer;">
+                <div class="px-1 align-items-center text-primary">
+                  <?=getSVGByFileType($File->type)?>
+                </div>
+                <input type="text" class="form-control-plaintext form-control-sm validationCustom" 
+                id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled style="cursor: pointer;">
+                <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
+                  getSVGByCommitType($nowCommit->type)
+                </button> -->
+                <div class="dropdown align-items-center h-100 me-1" id="btn-group-moreActionsWithFile">
+                  <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile"
+                  data-mdb-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                      <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                    </svg>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">
+                    <li>
+                      <a class="dropdown-item align-items-center" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
+                        </svg>
+                        &nbsp;
+                        Переименовать
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item align-items-center" href="<?=$File->getDownloadLink()?>" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                        </svg>
+                        &nbsp;
+                        Скачать
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <?php if(!$nowCommit->isNotEdit()) {?>
+                  <button type="button" class="btn btn-link float-right mx-1 py-0 px-2" id="delFile"><i class="fas fa-times fa-lg"></i></button>
+                <?php }?>
+              </li>
+            <?php } 
+          } else {
+            echo "Файлы отсутсвуют";
+          }?>
 
-          <li class="list-group-item w-100 d-flex justify-content-between px-0">
-            <div class="px-1 align-items-center"><i class="fas fa-file-code fa-lg"></i></div>
-            <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="x" value="Новый файл" required>
-            <button type="button" class="btn btn-sm px-3" id="newFile"> <i class="far fa-plus-square fa-lg"></i></button>
-          </li>  
+          <?php if(!$nowCommit->isNotEdit()) {?>
+            <li class="list-group-item w-100 d-flex justify-content-between px-0">
+              <div class="px-1 align-items-center"><i class="fas fa-file-code fa-lg"></i></div>
+              <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="x" value="Новый файл" required>
+              <button type="button" class="btn btn-sm px-3" id="newFile"> <i class="far fa-plus-square fa-lg"></i></button>
+            </li>  
+          <?php }?>
       </ul>
     </div>
 
@@ -163,15 +205,19 @@ else
     <div class="d-flex flex-column mt-3">
       <p><strong>История коммитов</strong></p>
       <div id="div-history-commit-btns" class="d-flex flex-column">
-        <?php foreach($Assignment->getCommits() as $i => $Commit) {?>
-          <button class="btn btn-<?=($Commit->id == $last_commit_id) ? "" : "outline-"?><?=($Commit->type == 0) ? "primary" : "success"?> mb-1" 
-          
-          <?php if($Commit->id == $last_commit_id) echo 'data-title="ТЕКУЩИЙ"';
-          else if($Commit->type == 0) echo 'data-title="ПРОМЕЖУТОЧНЫЙ"';
-          else echo 'data-title="ОТПРАВЛЕН НА ПРОВЕРКУ"'?>  
+        <?php if($au->isStudent()) 
+          $Commits = $Assignment->getCommitsForStudent();
+        else 
+          $Commits = $Assignment->getCommitsForTeacher();?>
+        <?php foreach($Commits as $i => $Commit) {?>
+          <button class="btn btn-<?=($Commit->isNotEdit()) ? "success" : "primary"?> mb-1 d-flex align-items-center justify-content-between" 
           onclick="window.location='editor.php?assignment=<?=$Assignment->id?>&commit=<?=$Commit->id?>'"
           <?=($Commit->id == $last_commit_id) ? "disabled" : ""?>>
-            <?=$i+1?>
+            <?=$i+1?> &nbsp;&nbsp;
+            <?php 
+            if($Commit->id == $last_commit_id) 
+              echo '~ТЕКУЩИЙ~';?>  
+            <?=getSVGByCommitType($Commit->type)?>
           </button>
         <?php }?>
       </div>
@@ -188,12 +234,20 @@ else
           <option value="java">Java</option>
         </select>
       </div>
-      <form id="form-commit" action="textdb.php" method="GET" class="me-1 py-0 my-0">
-        <button id="btn-commit" class="btn btn-secondary" type="button">
-          Коммит
-        </button>
-      </form>
-      <button id="btn-save" class="btn btn-outline-primary" type="button" onclick="saveProject()">
+      <button id="btn-commit" class="btn btn-secondary w-100 align-items-center me-1" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+        </svg>
+        &nbsp;&nbsp;
+        Клонировать коммит
+      </button>
+      <button id="btn-save" class="btn btn-primary w-100" type="button" onclick="saveProject()"
+      <?=($nowCommit && $nowCommit->isNotEdit()) ? "disabled" : ""?>>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
+          <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
+          <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
+        </svg>
+        &nbsp;&nbsp;
         Сохранить
       </button>
     </div>

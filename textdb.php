@@ -74,9 +74,10 @@
     exit;
   }
 
-  if (array_key_exists('assignment', $_REQUEST))
+  if (array_key_exists('assignment', $_REQUEST)) {
     $assignment = $_REQUEST['assignment'];
-  else {
+	$Assignment = new Assignment((int)$assignment);
+  } else {
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -85,13 +86,17 @@
   if (array_key_exists('commit', $_REQUEST))
     $commit_id= urldecode($_REQUEST['commit']);
   else {
-	$result = pg_query($dbconnect, "select max(id) mid from ax_solution_commit where assignment_id = $assignment");
-	$result = pg_fetch_assoc($result);
-	if ($result === false)
-	  $commit_id = 0;
-	else
-	  $commit_id = $result['mid'];		  
+	if($au->isStudent())
+		$commit_id = $Assignment->getLastCommitForStudent()->id;
+	else 
+		$commit_id = $Assignment->getLastCommitForTeacher()->id;
   }
+	// $result = pg_query($dbconnect, "select max(id) mid from ax_solution_commit where assignment_id = $assignment");
+	// $result = pg_fetch_assoc($result);
+	// if ($result === false)
+	//   $commit_id = 0;
+	// else
+	//   $commit_id = $result['mid'];		  
 
   if (array_key_exists('id', $_REQUEST))
     $file_id = urldecode($_REQUEST['id']);
@@ -116,7 +121,7 @@
 	
 	// выбираем файл по названию и номеру коммита
   // TODO: Проверить!
-	$result = pg_query($dbconnect, "SELECT ax_file.id, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+	$result = pg_query($dbconnect, "SELECT ax_file.id, ax_file.file_name, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
 	$result = pg_fetch_all($result);
     foreach($result as $item) {
       if($item['id'] == $file_id) {
@@ -218,34 +223,45 @@
   //---------------------------------------------------------------COMMIT-------------------------------------------------------
   else if ($type == "commit") {
 	$Assignment = new Assignment((int)$_REQUEST['assignment']);
-	$lastCommit = $Assignment->getLastCommit();
-	if($lastCommit) {
-		if(array_key_exists('commit_type', $_REQUEST)) {
-			if($_REQUEST['commit_type'])
+
+	if($_REQUEST['commit']) {
+		$lastCommit = new Commit((int)$_REQUEST['commit']);
+	} else {
+		if($au->isStudent())
+			$lastCommit = $Assignment->getLastCommitForStudent();
+		else 
+			$lastCommit = $Assignment->getLastCommitForTeacher();
+	}
+	
+	if(array_key_exists('commit_type', $_REQUEST)) {
+		if($_REQUEST['commit_type']=="intermediate") {
+			if($lastCommit) {
+				$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+				$Commit->copy($lastCommit->id);
+				$Commit->setStudentUserId($au->getUserId());
+				$Assignment->addCommit($Commit->id);
+			} else {
+				$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+			}
+			if($au->isStudent())
+				$type = 0;
+			else 
+				$type = 2;
+			$Commit->setType($type);
+			header("Location:editor.php?assignment=" . $Assignment->id . "&commit=" . $Commit->id);
+		} else {
+			if($au->isStudent())
 				$lastCommit->setType(1);
 			else 
-				$lastCommit->setType(0);
-		} else {
-			echo "Отсутствует commit_type";
-			http_response_code(400);
-			exit;
+				$lastCommit->setType(3);
+			header("Location:editor.php?assignment=" . $Assignment->id . "&commit=" . $lastCommit->id);
 		}
-		$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
-		$Commit->copy($lastCommit->id);
-		$Assignment->addCommit($Commit->id);
 	} else {
-		$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+		echo "Отсутствует commit_type";
+		http_response_code(400);
+		exit;
 	}
-  }
 
-  //---------------------------------------------------------------COMMIT-------------------------------------------------------
-  else if ($type == "commit") {
-	$Assignment = new Assignment((int)$_REQUEST['assignment']);
-	$lastCommit = $Assignment->getLastCommit();
-	if($lastCommit)
-		$lastCommit->setType(0);
-	$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
-	$Assignment->addCommit($Commit->id);
   }
 
   //---------------------------------------------------------------ONCHECK-------------------------------------------------------

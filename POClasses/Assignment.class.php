@@ -534,6 +534,31 @@ class Assignment {
   public function getLastCommit() {
     return end($this->Commits);
   }
+  public function getLastCommitForStudent() {
+    return $this->getCommitsForStudent()[count($this->getCommitsForStudent())-1];
+  }
+  public function getLastCommitForTeacher() {
+    return $this->getCommitsForTeacher()[count($this->getCommitsForTeacher())-1];
+  }
+
+  public function getCommitsForStudent() {
+    $studentCommits = array();
+    foreach($this->Commits as $Commit) {
+      if(!$Commit->isEditByTeacher()) {
+        array_push($studentCommits, $Commit);
+      }
+    }
+    return $studentCommits;
+  }
+  public function getCommitsForTeacher() {
+    $teacherCommits = array();
+    foreach($this->Commits as $Commit) {
+      if(!$Commit->isEditByStudent()) {
+        array_push($teacherCommits, $Commit);
+      }
+    }
+    return $teacherCommits;
+  }
 
 // -- END WORK WITH COMMITS 
   
@@ -630,7 +655,8 @@ function queryGetMessagesByAssignment($assignment_id){
 
 function queryGetCommitsByAssignment($assignment_id){
   return "SELECT id FROM ax_solution_commit
-          WHERE assignment_id = $assignment_id;";
+          WHERE assignment_id = $assignment_id
+          ORDER BY id;";
 }
 
 
