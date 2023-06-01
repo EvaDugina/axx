@@ -10,6 +10,7 @@ for (var i = 0; i < listItems.length; i++) {
 }
 $("#btn-save").on('click', saveActiveFile);
 $("#btn-commit").on('click', addNewIntermediateCommit);
+$("#btn-newFile").on('click', newFile);
 $("#div-history-commit-btns").children().each(function () {
     
 });
@@ -94,6 +95,44 @@ function delFile(event) {
     listItems = list.querySelectorAll(".tasks__item");
 }
 
+function renameFile(listItem) {
+    // alert("ПЕРЕИМЕНОВАНИЕ ФАЙЛА!");
+
+    // listItem.querySelector(".validationCustom").className = "form-control validationCustom";
+    // listItem.querySelector(".validationCustom").disabled = false;
+    // listItem.querySelector(".validationCustom").focus();
+
+    // let nameFile = $('#input-name-newFile').val();
+    // if(!nameFile) {
+    //     $('#input-name-newFile').addClass("is-invalid");
+    //     $('#div-name-newFile-error').removeClass("d-none");
+    //     $('#div-name-newFile-error').text("Не введено имя файла!");
+    //     return null;
+    // } else {
+    //     let checkOriginal = checkOriginalFileName(nameFile);
+    //     if(!checkOriginal) {
+    //         $('#input-name-newFile').addClass("is-invalid");
+    //         $('#div-name-newFile-error').removeClass("d-none");
+    //         $('#div-name-newFile-error').text("Файл с таким именем уже существует!");
+    //         return null;
+    //     } else {
+    //         $('#input-name-newFile').removeClass("is-invalid");
+    //         $('#div-name-newFile-error').addClass("d-none");
+    //         $('#input-name-newFile').val("");
+    //         return nameFile;
+    //     }
+    // }
+
+
+    // var id = this.parentNode.querySelector(".validationCustom").id;
+    // var param = document.location.href.split("?")[1].split("#")[0];
+	// if (param == '') param = 'void';
+    // makeRequest('textdb.php?' + param + "&type=rename&id=" + id, "rename");
+
+    // listItems = list.querySelectorAll(".tasks__item");
+
+}   
+
 function saveFile(name, id) {
     var text = editor.current.getValue();
     var param = document.location.href.split("?")[1].split("#")[0];
@@ -123,6 +162,9 @@ function setEventListener(listItem) {
 
     let btns_delFile = listItem.querySelector("#delFile");
     if(btns_delFile) btns_delFile.addEventListener('click', delFile);
+
+    let btns_renamefiles = listItem.querySelector("#a-renameFile");
+    if(btns_renamefiles) btns_renamefiles.addEventListener('click', renameFile(listItem));
 }
 
 document.querySelector("#language").addEventListener('click', async e => {
@@ -293,7 +335,9 @@ function alertContentsNew(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                listItems[listItems.length-1].querySelector(".validationCustom").id = httpRequest.responseText;
+                let response = JSON.parse(httpRequest.responseText);
+                listItems[listItems.length-1].querySelector(".validationCustom").id = response.file_id;
+                listItems[listItems.length-1].querySelector(".a-save-file").href = response.download_url;
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
             }
@@ -707,6 +751,101 @@ function alertContentsTools(httpRequest) {
     catch( e ) {
         alert('Произошло исключение: ' + e.description);
     }
+}
+
+function newFile() {
+    let nameFile = checkNameField();
+    if(nameFile != null) {
+        var entry = document.createElement('li'); 
+        entry.id = "openFile";
+        entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
+        entry.style.cursor = "pointer";
+        entry.innerHTML = '\
+        <div class="px-1 align-items-center text-primary">\
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">\
+                <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>\
+            </svg>\
+        </div>';
+        // <textarea type="text" class="form-control-plaintext form-control-sm validationCustom"\
+        // id="'+0+'" value="'+nameFile+'" style="resize: none;" disabled style="cursor: pointer;" rows="1" cols="13" autofocus autofocus>'+nameFile+'</textarea>';
+
+        entry.innerHTML += '\
+        <input type="text" class="form-control-plaintext form-control-sm validationCustom" \
+        id="0" value="'+nameFile+'" disabled style="cursor: pointer;">\
+        <div class="dropdown align-items-center h-100 me-1" id="btn-group-moreActionsWithFile">\
+            <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile"\
+            data-mdb-toggle="dropdown" aria-expanded="false">\
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">\
+                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>\
+            </svg>\
+            </button>\
+            <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">\
+            <li>\
+                <a class="dropdown-item align-items-center" href="#">\
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">\
+                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>\
+                </svg>\
+                &nbsp;\
+                Переименовать\
+                </a>\
+            </li>\
+            <li>\
+                <a class="dropdown-item align-items-center a-save-file" href="" target="_blank">\
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">\
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>\
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>\
+                </svg>\
+                &nbsp;\
+                Скачать\
+                </a>\
+            </li>\
+            </ul>\
+        </div>\
+        <button type="button" class="btn btn-link float-right mx-1 py-0 px-2" id="delFile"><i class="fas fa-times fa-lg"></i></button>\
+        </li>';
+
+        setEventListener(entry);
+        document.getElementById("div-add-new-file").insertAdjacentElement('beforebegin',entry);
+        // entry.lastChild.focus();
+        listItems = list.querySelectorAll(".tasks__item");
+
+        var param = document.location.href.split("?")[1].split("#")[0];
+        if (param == '') param = 'void';
+        makeRequest('textdb.php?' + param + "&type=new&file_name=" + nameFile, "new");
+    }
+}
+
+function checkNameField() {
+    let nameFile = $('#input-name-newFile').val();
+    if(!nameFile) {
+        $('#input-name-newFile').addClass("is-invalid");
+        $('#div-name-newFile-error').removeClass("d-none");
+        $('#div-name-newFile-error').text("Не введено имя файла!");
+        return null;
+    } else {
+        let checkOriginal = checkOriginalFileName(nameFile);
+        if(!checkOriginal) {
+            $('#input-name-newFile').addClass("is-invalid");
+            $('#div-name-newFile-error').removeClass("d-none");
+            $('#div-name-newFile-error').text("Файл с таким именем уже существует!");
+            return null;
+        } else {
+            $('#input-name-newFile').removeClass("is-invalid");
+            $('#div-name-newFile-error').addClass("d-none");
+            $('#input-name-newFile').val("");
+            return nameFile;
+        }
+    }
+}
+function checkOriginalFileName(nameFile) {
+    let flag = true;
+    listItems.forEach(element => {
+        if(element.querySelector(".validationCustom").value == nameFile) {
+            flag = false;
+            return;
+        }
+    });
+    return flag;
 }
 
 if(document.querySelector("#newFile")) {

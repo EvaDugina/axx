@@ -137,18 +137,18 @@ else
 		<div class="col-md-2 d-flex flex-column">
 
       <div class="d-none d-sm-block d-print-block" style="border-bottom: 1px solid;">
-        <ul class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
+        <ul id="ul-files" class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
           <li class="list-group-item disabled px-0">Файлы</li>
 
           <?php 
           if(count($solution_files) > 0) {
             foreach($solution_files as $file) { 
-            $File = new File((int)$file['id']);?>
+              $File = new File((int)$file['id']);?>
               <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0" id="openFile" style="cursor: pointer;">
                 <div class="px-1 align-items-center text-primary">
                   <?=getSVGByFileType($File->type)?>
                 </div>
-                <input type="text" class="form-control-plaintext form-control-sm validationCustom" 
+                <input type="text" class="form-control-plaintext form-control-sm validationCustom me-1" 
                 id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled style="cursor: pointer;">
                 <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
                   getSVGByCommitType($nowCommit->type)
@@ -161,15 +161,17 @@ else
                     </svg>
                   </button>
                   <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">
-                    <li>
-                      <a class="dropdown-item align-items-center" href="#">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
-                        </svg>
-                        &nbsp;
-                        Переименовать
-                      </a>
-                    </li>
+                    <?php if(!$nowCommit->isNotEdit()) {?>
+                      <li>
+                        <a type="button" class="dropdown-item align-items-center" id="a-renameFile">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
+                          </svg>
+                          &nbsp;
+                          Переименовать
+                        </a>
+                      </li>
+                    <?php }?>
                     <li>
                       <a class="dropdown-item align-items-center" href="<?=$File->getDownloadLink()?>" target="_blank">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
@@ -192,11 +194,28 @@ else
           }?>
 
           <?php if(!$nowCommit->isNotEdit()) {?>
-            <li class="list-group-item w-100 d-flex justify-content-between px-0">
+            <div id="div-add-new-file" class="input-group mt-2 mb-0">
+              <div class="input-group-prepend">
+                <span class="input-group-text w-100 h-100" id="basic-addon1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark" viewBox="0 0 16 16">
+                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+                  </svg>
+                </span>
+              </div>
+              <input id="input-name-newFile" type="text" class="form-control validationCustom" placeholder="Новый файл" required>
+              <button type="button" class="btn btn-outline-primary ms-1 px-3" id="btn-newFile"> 
+                <i class="far fa-plus-square fa-lg"></i>
+              </button>
+            </div>
+            <div id="div-name-newFile-error" class="mb-2 d-none text-danger" style="font-size: 80%;">
+              Не введено имя файла
+            </div>
+
+            <!-- <li id="li-new-file" class="list-group-item w-100 d-flex justify-content-between px-0">
               <div class="px-1 align-items-center"><i class="fas fa-file-code fa-lg"></i></div>
               <input type="text" class="form-control-plaintext form-control-sm validationCustom" id="x" value="Новый файл" required>
               <button type="button" class="btn btn-sm px-3" id="newFile"> <i class="far fa-plus-square fa-lg"></i></button>
-            </li>  
+            </li>   -->
           <?php }?>
       </ul>
     </div>

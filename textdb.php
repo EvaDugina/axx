@@ -183,7 +183,13 @@
 	$File->setName(true, $file_name);
 	$Commit = new Commit((int)$commit_id);
     $Commit->addFile($File->id);
-    $responce = $File->id;
+
+	$return_values = array(
+		"file_id" => $File->id,
+		"download_url" => $File->getDownloadLink()
+	  );
+
+    $responce = json_encode($return_values);
   //   $result = pg_query($dbconnect, "INSERT INTO ax_solution_file (assignment_id, commit_id, file_name, type) VALUES ('$assignment', $commit_id, '$file_name', '11') returning id;");
   //   $result = pg_fetch_assoc($result);
 	// if ($result === false) {
