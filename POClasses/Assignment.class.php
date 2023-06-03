@@ -535,10 +535,18 @@ class Assignment {
     return end($this->Commits);
   }
   public function getLastCommitForStudent() {
-    return $this->getCommitsForStudent()[count($this->getCommitsForStudent())-1];
+    $count = count($this->getCommitsForStudent());
+    if ($count > 0)
+      return $this->getCommitsForStudent()[$count-1];
+    else 
+      return null;
   }
   public function getLastCommitForTeacher() {
-    return $this->getCommitsForTeacher()[count($this->getCommitsForTeacher())-1];
+    $count = count($this->getCommitsForTeacher());
+    if ($count > 0)
+      return $this->getCommitsForTeacher()[$count-1];
+    else  
+      return null;
   }
 
   public function getCommitsForStudent() {

@@ -50,7 +50,7 @@ class Commit {
 
       $this->student_user_id = $args[2];
     
-      if ($args[3] == null)
+      if ($args[3] == null && $args[3] != 0)
         $this->type = 1;
       else
         $this->type = $args[3];

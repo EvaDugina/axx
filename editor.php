@@ -59,13 +59,19 @@ $task_files = $Task->getFiles();
 
 $last_commit_id = NULL;
 if ( array_key_exists('commit', $_GET))
-$last_commit_id = $_GET['commit'];
+  $last_commit_id = $_GET['commit'];
 else {
   if($au->isStudent())
-    $last_commit_id = $Assignment->getLastCommitForStudent()->id;
+    $lastCommit = $Assignment->getLastCommitForStudent();
   else 
-    $last_commit_id = $Assignment->getLastCommitForTeacher()->id;
+    $lastCommit = $Assignment->getLastCommitForTeacher();
+  if($lastCommit == null) {
+    $lastCommit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+    $Assignment->addCommit($lastCommit->id);
+  }
+  $last_commit_id = $lastCommit->id;
 }
+
 
 $solution_files = array();
 
@@ -140,20 +146,25 @@ else
         <ul id="ul-files" class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
           <li class="list-group-item disabled px-0">Файлы</li>
 
+          <?php if ($nowCommit->isNotEdit()) {?>
+            <p id="p-no-files" class="d-none">Файлы отсутсвуют</p>
+          <?php }?>
+
           <?php 
           if(count($solution_files) > 0) {
-            foreach($solution_files as $file) { 
+            foreach($solution_files as $i => $file) { 
               $File = new File((int)$file['id']);?>
-              <li class="tasks__item list-group-item w-100 d-flex justify-content-between px-0" id="openFile" style="cursor: pointer;">
+              <li id="openFile" class="tasks__item list-group-item w-100 d-flex justify-content-between align-items-center px-0" 
+              style="cursor: pointer;" data-orderId="<?=$i?>">
                 <div class="px-1 align-items-center text-primary">
                   <?=getSVGByFileType($File->type)?>
                 </div>
-                <input type="text" class="form-control-plaintext form-control-sm validationCustom me-1" 
+                <input type="text" class="form-control-plaintext form-control-sm validationCustom" 
                 id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled style="cursor: pointer;">
                 <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
                   getSVGByCommitType($nowCommit->type)
                 </button> -->
-                <div class="dropdown align-items-center h-100 me-1" id="btn-group-moreActionsWithFile">
+                <div class="dropdown align-items-center h-100 ms-1 me-1" id="btn-group-moreActionsWithFile">
                   <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile"
                   data-mdb-toggle="dropdown" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
@@ -189,8 +200,6 @@ else
                 <?php }?>
               </li>
             <?php } 
-          } else {
-            echo "Файлы отсутсвуют";
           }?>
 
           <?php if(!$nowCommit->isNotEdit()) {?>

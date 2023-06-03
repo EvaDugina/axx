@@ -225,6 +225,29 @@
 	  pg_query($dbconnect, "DELETE FROM ax_file WHERE id=".$result['id']);    
 	  pg_query($dbconnect, "DELETE FROM ax_commit_file WHERE file_id=".$result['id']);    
   }
+  //-----------------------------------------------------------------DEL---------------------------------------------------------
+  else if ($type == "rename") {
+	
+	if ($commit_id == 0) {
+      echo "Некорректное обращение";
+      http_response_code(400);
+      exit;
+    }
+
+	$new_file_name = $_REQUEST['new_file_name'];
+	
+	// тут нужно монотонное возрастание id-шников файлов
+  	// TODO: Проверить!
+  	$result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where id = $file_id and ax_commit_file.commit_id = $commit_id");
+	$result = pg_fetch_assoc($result);
+	if ($result === false) {
+      echo "Не удалось найти переименуемый файл файл";
+      http_response_code(400);
+      exit;
+    }
+	else
+	  pg_query($dbconnect, "UPDATE ax_file SET ax_file.file_name = $new_file_name WHERE id = $file_id"); 
+  }
   
   //---------------------------------------------------------------COMMIT-------------------------------------------------------
   else if ($type == "commit") {

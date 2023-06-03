@@ -8,12 +8,19 @@ var listItems = list.querySelectorAll(".tasks__item");
 for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
+
 $("#btn-save").on('click', saveActiveFile);
 $("#btn-commit").on('click', addNewIntermediateCommit);
 $("#btn-newFile").on('click', newFile);
 $("#div-history-commit-btns").children().each(function () {
     
 });
+
+var array_files = [];
+listItems.forEach(element => {
+    array_files.push(element.querySelector(".validationCustom").value);
+});
+
 
 var conlist = document.querySelectorAll(".switchcon");
 for (var i = 0; i < conlist.length; i++) {
@@ -87,49 +94,63 @@ function openFile(event) {
 
 function delFile(event) {  
     event.stopPropagation();
-    var id = this.parentNode.querySelector(".validationCustom").id;
+    var li = this.parentNode;
+    var id = li.querySelector(".validationCustom").id;
+
+    array_files.splice(parseInt(li.dataset.orderid), 1);
+
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
     makeRequest('textdb.php?' + param + "&type=del&id=" + id, "del");
     list.removeChild(this.parentNode);
     listItems = list.querySelectorAll(".tasks__item");
+
+    checkFilesEmpty();
+
 }
 
-function renameFile(listItem) {
-    // alert("ПЕРЕИМЕНОВАНИЕ ФАЙЛА!");
-
-    // listItem.querySelector(".validationCustom").className = "form-control validationCustom";
-    // listItem.querySelector(".validationCustom").disabled = false;
-    // listItem.querySelector(".validationCustom").focus();
-
-    // let nameFile = $('#input-name-newFile').val();
-    // if(!nameFile) {
-    //     $('#input-name-newFile').addClass("is-invalid");
-    //     $('#div-name-newFile-error').removeClass("d-none");
-    //     $('#div-name-newFile-error').text("Не введено имя файла!");
-    //     return null;
+function checkFilesEmpty() {
+    // if(listItems.length > 0) {
+    //     $('#p-no-files').addClass("d-none");
     // } else {
-    //     let checkOriginal = checkOriginalFileName(nameFile);
-    //     if(!checkOriginal) {
-    //         $('#input-name-newFile').addClass("is-invalid");
-    //         $('#div-name-newFile-error').removeClass("d-none");
-    //         $('#div-name-newFile-error').text("Файл с таким именем уже существует!");
-    //         return null;
-    //     } else {
-    //         $('#input-name-newFile').removeClass("is-invalid");
-    //         $('#div-name-newFile-error').addClass("d-none");
-    //         $('#input-name-newFile').val("");
-    //         return nameFile;
-    //     }
+    //     $('#p-no-files').removeClass("d-none");
     // }
+}
+
+function renameFile(event) {
+
+    let li = this.parentNode.parentNode.parentNode.parentNode;
+    let input = li.querySelector(".validationCustom");
+    let last_name = input.value;
+
+    input.className = "form-control validationCustom";
+    input.style.cursor = "text";
+    input.setSelectionRange(last_name.length, last_name.length);
+    input.disabled = false;
+    input.focus();
+    
+    input.onblur =  function() { 
+        let new_name = input.value;
+        
+        if(last_name != new_name && !checkOriginalFileName(new_name, li.dataset.orderId)) {
+            alert("Введите оригинальное имя файла!");
+        } else {
+            input.className = "form-control-plaintext form-control-sm validationCustom";
+            input.disabled = true;
+            input.style.cursor = "pointer";
+
+            var id = input.id;
+            var param = document.location.href.split("?")[1].split("#")[0];
+            if (param == '') param = 'void';
+            makeRequest('textdb.php?' + param + "&type=rename&new_file_name="+new_name+"&id=" + id, "rename");
+        
+            listItems = list.querySelectorAll(".tasks__item");
+
+            array_files[li.dataset.orderid] = new_name;
+        }
+    };
 
 
-    // var id = this.parentNode.querySelector(".validationCustom").id;
-    // var param = document.location.href.split("?")[1].split("#")[0];
-	// if (param == '') param = 'void';
-    // makeRequest('textdb.php?' + param + "&type=rename&id=" + id, "rename");
-
-    // listItems = list.querySelectorAll(".tasks__item");
 
 }   
 
@@ -160,11 +181,11 @@ function setEventListener(listItem) {
 
     listItem.addEventListener('click', openFile);
 
-    let btns_delFile = listItem.querySelector("#delFile");
-    if(btns_delFile) btns_delFile.addEventListener('click', delFile);
+    let btn_delFile = listItem.querySelector("#delFile");
+    if(btn_delFile) btn_delFile.addEventListener('click', delFile);
 
-    let btns_renamefiles = listItem.querySelector("#a-renameFile");
-    if(btns_renamefiles) btns_renamefiles.addEventListener('click', renameFile(listItem));
+    let btns_renamefile = listItem.querySelector("#a-renameFile");
+    if(btns_renamefile) btns_renamefile.addEventListener('click', renameFile);
 }
 
 document.querySelector("#language").addEventListener('click', async e => {
@@ -231,6 +252,11 @@ function makeRequest(url, type) {
     }
     else if (type == "del") {
         httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
+        httpRequest.open('GET', encodeURI(url), true);
+        httpRequest.send(null);
+    }
+    else if (type == "rename") {
+        // httpRequest.onreadystatechange = function() { alertContentsRename(httpRequest); };  
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
     }
@@ -760,6 +786,7 @@ function newFile() {
         entry.id = "openFile";
         entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
         entry.style.cursor = "pointer";
+        entry.dataset.orderid = array_files.length;
         entry.innerHTML = '\
         <div class="px-1 align-items-center text-primary">\
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">\
@@ -806,8 +833,11 @@ function newFile() {
 
         setEventListener(entry);
         document.getElementById("div-add-new-file").insertAdjacentElement('beforebegin',entry);
-        // entry.lastChild.focus();
+        entry.focus();
         listItems = list.querySelectorAll(".tasks__item");
+        array_files.push(nameFile);
+
+        checkFilesEmpty();
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
@@ -837,13 +867,17 @@ function checkNameField() {
         }
     }
 }
-function checkOriginalFileName(nameFile) {
+function checkOriginalFileName(nameFile, skipElementInOrder = null) {
     let flag = true;
-    listItems.forEach(element => {
-        if(element.querySelector(".validationCustom").value == nameFile) {
-            flag = false;
-            return;
+    let index = 0;
+    array_files.forEach(name => {
+        if(name == nameFile) {
+            if(skipElementInOrder != null || skipElementInOrder != index) {
+                flag = false;
+                return;
+            }
         }
+        index++;
     });
     return flag;
 }
@@ -854,6 +888,7 @@ if(document.querySelector("#newFile")) {
         document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value = "Новый файл";
         var entry = document.createElement('li'); 
         entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
+        entry.dataset.orderid = array_files.length;
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
