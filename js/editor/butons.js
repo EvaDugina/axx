@@ -261,7 +261,14 @@ function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "commit") {
-        httpRequest.onreadystatechange = function() {  if(httpRequest.readyState == 4 && httpRequest.status == 200) location.reload();};  
+        httpRequest.onreadystatechange = function() {  
+            if(httpRequest.readyState == 4 && httpRequest.status == 200) {
+                // let response = JSON.parse(httpRequest.responseText);
+                // window.location = "editor.php?assignment=" + response.assignment_id + "&commit=" + response.commit_id;
+                // window.location.href = httpRequest.responceURL;
+                location.reload();
+            }  
+        }; 
         httpRequest.open('GET', encodeURI(url), true);
         httpRequest.send(null);
         

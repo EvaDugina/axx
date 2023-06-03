@@ -173,6 +173,7 @@ class Commit {
     $this->pushAllChangesToDB(getAssignmentByCommit($Commit->id));
 
     $this->deleteFilesFromCommitDB();
+    // FIXME: НЕ КОПИРУЮТСЯ ФАЙЛЫ
     $this->addFiles($Commit->getFiles());
   }
 

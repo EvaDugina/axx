@@ -234,19 +234,9 @@
       exit;
     }
 
-	$new_file_name = $_REQUEST['new_file_name'];
-	
-	// тут нужно монотонное возрастание id-шников файлов
-  	// TODO: Проверить!
-  	$result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where id = $file_id and ax_commit_file.commit_id = $commit_id");
-	$result = pg_fetch_assoc($result);
-	if ($result === false) {
-      echo "Не удалось найти переименуемый файл файл";
-      http_response_code(400);
-      exit;
-    }
-	else
-	  pg_query($dbconnect, "UPDATE ax_file SET ax_file.file_name = $new_file_name WHERE id = $file_id"); 
+	$new_file_name = urldecode($_REQUEST['new_file_name']);
+
+	pg_query($dbconnect, "UPDATE ax_file SET file_name = '$new_file_name' WHERE id = $file_id"); 
   }
   
   //---------------------------------------------------------------COMMIT-------------------------------------------------------
@@ -277,13 +267,14 @@
 			else 
 				$type = 2;
 			$Commit->setType($type);
-			header("Location:editor.php?assignment=" . $Assignment->id . "&commit=" . $Commit->id);
+			// header("Location:editor.php?assignment=" . $Assignment->id);
+			$responce = json_encode(array("assignment_id" => $Assignment->id, "commit_id" => $Commit->id));
 		} else {
 			if($au->isStudent())
 				$lastCommit->setType(1);
 			else 
 				$lastCommit->setType(3);
-			header("Location:editor.php?assignment=" . $Assignment->id . "&commit=" . $lastCommit->id);
+			// header("Location:editor.php?assignment=" . $Assignment->id);
 		}
 	} else {
 		echo "Отсутствует commit_type";

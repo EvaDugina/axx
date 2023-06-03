@@ -229,6 +229,30 @@ function isVisible(){
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function pushAllChangesToDB() {
+    global $dbconnect;
+
+    if ($this->full_text == null && $this->download_url != null) {
+      $query = "UPDATE ax_file
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                download_url='$this->download_url', full_text=null, status=$this->status
+                WHERE id = $this->id;
+      ";
+    } else if ($this->full_text != null && $this->download_url == null) {
+      $query = "UPDATE ax_file
+                VALUES type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                full_text=\$antihype1\$$this->full_text\$antihype1\$, download_url=null, status=$this->status 
+                WHERE id = $this->id;
+      ";
+    } else {
+      $query = "UPDATE ax_file
+                VALUES type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                full_text=null, download_url=null, status=$this->status 
+                WHERE id = $this->id;
+      ";
+    }
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteFromDB() {
     global $dbconnect;
 
@@ -251,7 +275,7 @@ function isVisible(){
     $this->status = $File->status;
     $this->name_without_prefix = $File->name_without_prefix;
     
-    $this->pushNewToDB();
+    $this->pushAllChangesToDB();
   }
 
 // -- END WORK WITH FILE
