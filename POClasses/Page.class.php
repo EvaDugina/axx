@@ -497,7 +497,7 @@ function getPageByTask($task_id) {
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
 
-function queryGetPageInfo($page_id) { // FIXME:
+function queryGetPageInfo($page_id) {
   return "SELECT p.*, ax_ct.bg_color, ax_ct.src_url, d.name as disc_name
           FROM ax_page as p
           INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
