@@ -41,7 +41,7 @@ class Message {
       $this->reply_to_id = $message['reply_to_id'];
       $this->resended_from_id = $message['resended_from_id'];
 
-      // FIXME: Исправить на просто text
+      // TODO: Исправить на просто text
       $this->full_text = $message['full_text'];
 
       $this->status = $message['status'];

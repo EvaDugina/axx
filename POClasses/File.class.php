@@ -80,7 +80,7 @@ class File {
 
 // GETTERS
 
-public function getFileExt() {
+public function getExt() {
   return strtolower(preg_replace('#.{0,}[.]#', '', $this->name_without_prefix));
 }
 
@@ -229,6 +229,30 @@ function isVisible(){
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function pushAllChangesToDB() {
+    global $dbconnect;
+
+    if ($this->full_text == null && $this->download_url != null) {
+      $query = "UPDATE ax_file
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                download_url='$this->download_url', full_text=null, status=$this->status
+                WHERE id = $this->id;
+      ";
+    } else if ($this->full_text != null && $this->download_url == null) {
+      $query = "UPDATE ax_file
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                full_text=\$antihype1\$$this->full_text\$antihype1\$, download_url=null, status=$this->status 
+                WHERE id = $this->id;
+      ";
+    } else {
+      $query = "UPDATE ax_file
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                full_text=null, download_url=null, status=$this->status 
+                WHERE id = $this->id;
+      ";
+    }
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
   public function deleteFromDB() {
     global $dbconnect;
 
@@ -238,6 +262,20 @@ function isVisible(){
     $query = "UPDATE ax_file SET status = 2 WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   
+  }
+
+
+  public function copy($file_id) {
+    $File = new File((int)$file_id);
+
+    $this->type = $File->type;
+    $this->name = $File->name;
+    $this->download_url = $File->download_url;
+    $this->full_text = $File->full_text;
+    $this->status = $File->status;
+    $this->name_without_prefix = $File->name_without_prefix;
+    
+    $this->pushAllChangesToDB();
   }
 
 // -- END WORK WITH FILE
@@ -271,6 +309,10 @@ function getSpecialFileTypes(){
 
 function getImageFileTypes() {
   return array('img', 'png', 'jpeg', 'jpg', 'gif');
+}
+
+function getMaxFileSize() {
+  return 5242880;
 }
 
 function getFileContentByPath($file_path) {
@@ -310,7 +352,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type) {
   
   $File = new File($type, $file_name);
   
-  $file_ext = $File->getFileExt();
+  $file_ext = $File->getExt();
   $file_dir = getPathForUploadFiles();
   $file_path = $file_dir . $File->name;
 

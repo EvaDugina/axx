@@ -6,7 +6,8 @@ require.config({ paths: { vs: '../node_modules/monaco-editor/min/vs' } });
 require(['vs/editor/editor.main'], function () {
     editor.current = monaco.editor.create(document.getElementById('container'), {
         language: 'cpp',
-		insertSpaces: false
+		insertSpaces: false,
+        readOnly: read_only
     });
     editor.current.layout();
 });

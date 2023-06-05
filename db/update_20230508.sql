@@ -12,7 +12,7 @@ ALTER TABLE students_to_subgroups ADD UNIQUE (student_id);
 -- ALTER TABLE students_to_subgroups OWNER TO postgres;
 
 INSERT INTO students_to_subgroups(student_id, subgroup) VALUES 
-(-1, 1), (-2, 1), (-3, 2), (-4, 2)
+(-1, 1), (-2, 1), (-3, 2), (-4, 2);
 
 ALTER TABLE ax_file ADD COLUMN status integer;
 UPDATE ax_file SET status = 0;

@@ -8,6 +8,7 @@ class User {
   public $login, $role;
   public $email, $notify_status;
   public $github_url;
+  public $password = null;
 
   public $group_id;
   public $subgroup = null;
@@ -97,6 +98,7 @@ class User {
 
      while ($page_id = pg_fetch_assoc($result)) {
       $Page = new Page((int)$page_id['id']);
+
       if ($this->isTeacher()) { // Уведомления для преподавателя 
         foreach($Page->getTasks() as $Task) {
           foreach($Task->getActiveAssignments() as $Assignment) {
@@ -153,6 +155,7 @@ class User {
   public function isStudent() {
     return isStudent($this->role);
   }
+
   
 // -- END GETTERS
 
@@ -240,10 +243,48 @@ function getGroupByStudent($student_id) {
   return new Group((int)$group_id);
 }
 
+function getUserByLoginAndRole($login, $role) {
+  global $dbconnect;
+
+  $query = queryUserByLoginAndRole($login, $role);
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $user_id = pg_fetch_all($result)['id'];
+
+  return $user_id;
+}
+
+function hasSecondRole($login) {
+  global $dbconnect;
+
+  $query = pg_query($dbconnect, queryCountRoles($login)) or die('Ошибка запроса: ' . pg_last_error());
+  $count_roles = pg_fetch_assoc($query)['count'];
+
+  if ($count_roles > 1)
+    return true;
+    
+  return false;
+}
+
+
+
+
+
+
+function queryUserByLoginAndRole($login, $role){
+  return "SELECT id, login, role FROM students
+          WHERE login = $login AND role = $role;
+  ";
+}
+
 
 
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
+
+function queryCountRoles($login) {
+  return "SELECT COUNT(*) FROM students
+          WHERE login = '$login'";
+}
 
 function queryGetUserInfo($id){
   return "SELECT first_name, middle_name, last_name, login, role, students_to_groups.group_id as group_id,

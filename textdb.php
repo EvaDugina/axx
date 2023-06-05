@@ -14,6 +14,8 @@
   $file_id = 0;
 
 
+	$au = new auth_ssh();
+
   function get_prev_assignments($assignment)
   {
 	global $dbconnect;	
@@ -72,9 +74,10 @@
     exit;
   }
 
-  if (array_key_exists('assignment', $_REQUEST))
+  if (array_key_exists('assignment', $_REQUEST)) {
     $assignment = $_REQUEST['assignment'];
-  else {
+	$Assignment = new Assignment((int)$assignment);
+  } else {
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -83,13 +86,17 @@
   if (array_key_exists('commit', $_REQUEST))
     $commit_id= urldecode($_REQUEST['commit']);
   else {
-	$result = pg_query($dbconnect, "select max(id) mid from ax_solution_commit where assignment_id = $assignment");
-	$result = pg_fetch_assoc($result);
-	if ($result === false)
-	  $commit_id = 0;
-	else
-	  $commit_id = $result['mid'];		  
+	if($au->isStudent())
+		$commit_id = $Assignment->getLastCommitForStudent()->id;
+	else 
+		$commit_id = $Assignment->getLastCommitForTeacher()->id;
   }
+	// $result = pg_query($dbconnect, "select max(id) mid from ax_solution_commit where assignment_id = $assignment");
+	// $result = pg_fetch_assoc($result);
+	// if ($result === false)
+	//   $commit_id = 0;
+	// else
+	//   $commit_id = $result['mid'];		  
 
   if (array_key_exists('id', $_REQUEST))
     $file_id = urldecode($_REQUEST['id']);
@@ -101,7 +108,7 @@
 	$result = pg_fetch_assoc($result);
 	$file_name = $result['file_name'];		  
   }
-  else if ($type != 'oncheck' && $type != 'tools' && $type != 'console'){
+  else if ($type != 'oncheck' && $type != 'tools' && $type != 'console' && $type != 'commit'){
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
@@ -114,7 +121,7 @@
 	
 	// выбираем файл по названию и номеру коммита
   // TODO: Проверить!
-	$result = pg_query($dbconnect, "SELECT ax_file.id, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+	$result = pg_query($dbconnect, "SELECT ax_file.id, ax_file.file_name, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
 	$result = pg_fetch_all($result);
     foreach($result as $item) {
       if($item['id'] == $file_id) {
@@ -176,7 +183,13 @@
 	$File->setName(true, $file_name);
 	$Commit = new Commit((int)$commit_id);
     $Commit->addFile($File->id);
-    $responce = $File->id;
+
+	$return_values = array(
+		"file_id" => $File->id,
+		"download_url" => $File->getDownloadLink()
+	  );
+
+    $responce = json_encode($return_values);
   //   $result = pg_query($dbconnect, "INSERT INTO ax_solution_file (assignment_id, commit_id, file_name, type) VALUES ('$assignment', $commit_id, '$file_name', '11') returning id;");
   //   $result = pg_fetch_assoc($result);
 	// if ($result === false) {
@@ -212,7 +225,65 @@
 	  pg_query($dbconnect, "DELETE FROM ax_file WHERE id=".$result['id']);    
 	  pg_query($dbconnect, "DELETE FROM ax_commit_file WHERE file_id=".$result['id']);    
   }
-    
+  //-----------------------------------------------------------------DEL---------------------------------------------------------
+  else if ($type == "rename") {
+	
+	if ($commit_id == 0) {
+      echo "Некорректное обращение";
+      http_response_code(400);
+      exit;
+    }
+
+	$new_file_name = urldecode($_REQUEST['new_file_name']);
+
+	pg_query($dbconnect, "UPDATE ax_file SET file_name = '$new_file_name' WHERE id = $file_id"); 
+  }
+  
+  //---------------------------------------------------------------COMMIT-------------------------------------------------------
+  else if ($type == "commit") {
+	$Assignment = new Assignment((int)$_REQUEST['assignment']);
+
+	if($_REQUEST['commit']) {
+		$lastCommit = new Commit((int)$_REQUEST['commit']);
+	} else {
+		if($au->isStudent())
+			$lastCommit = $Assignment->getLastCommitForStudent();
+		else 
+			$lastCommit = $Assignment->getLastCommitForTeacher();
+	}
+	
+	if(array_key_exists('commit_type', $_REQUEST)) {
+		if($_REQUEST['commit_type']=="intermediate") {
+			if($lastCommit) {
+				$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+				$Commit->copy($lastCommit->id);
+				$Commit->setStudentUserId($au->getUserId());
+				$Assignment->addCommit($Commit->id);
+			} else {
+				$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+			}
+			if($au->isStudent())
+				$type = 0;
+			else 
+				$type = 2;
+			$Commit->setType($type);
+			// header("Location:editor.php?assignment=" . $Assignment->id);
+			$responce = json_encode(array("assignment_id" => $Assignment->id, "commit_id" => $Commit->id));
+		} else {
+			if($au->isStudent())
+				$lastCommit->setType(1);
+			else 
+				$lastCommit->setType(3);
+			// header("Location:editor.php?assignment=" . $Assignment->id);
+		}
+	} else {
+		echo "Отсутствует commit_type";
+		http_response_code(400);
+		exit;
+	}
+
+  }
+
   //---------------------------------------------------------------ONCHECK-------------------------------------------------------
   else if ($type == "oncheck") {
 	  
@@ -245,7 +316,8 @@
     // TODO: Проверить!
     $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
     while ($file = pg_fetch_assoc($pg_query)) {
-      $File = new File((int)$file['type'], $file['file_name'], $file['download_url'], $file['full_text']);
+      $File = new File((int)$file['type'], $file['file_name']);
+	  $File->copy($file["id"]);
       $Commit = new Commit((int)$new_id);
       $Commit->addFile($File->id);
     }

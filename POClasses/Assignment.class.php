@@ -534,6 +534,39 @@ class Assignment {
   public function getLastCommit() {
     return end($this->Commits);
   }
+  public function getLastCommitForStudent() {
+    $count = count($this->getCommitsForStudent());
+    if ($count > 0)
+      return $this->getCommitsForStudent()[$count-1];
+    else 
+      return null;
+  }
+  public function getLastCommitForTeacher() {
+    $count = count($this->getCommitsForTeacher());
+    if ($count > 0)
+      return $this->getCommitsForTeacher()[$count-1];
+    else  
+      return null;
+  }
+
+  public function getCommitsForStudent() {
+    $studentCommits = array();
+    foreach($this->Commits as $Commit) {
+      if(!$Commit->isEditByTeacher()) {
+        array_push($studentCommits, $Commit);
+      }
+    }
+    return $studentCommits;
+  }
+  public function getCommitsForTeacher() {
+    $teacherCommits = array();
+    foreach($this->Commits as $Commit) {
+      if(!$Commit->isEditByStudent()) {
+        array_push($teacherCommits, $Commit);
+      }
+    }
+    return $teacherCommits;
+  }
 
 // -- END WORK WITH COMMITS 
   
@@ -599,6 +632,16 @@ function getCommitsByAssignment($assignment_id) {
   return $commits;
 }
 
+function getAssignmentByCommit($commit_id){
+  global $dbconnect;
+
+  $query = "SELECT assignment_id FROM ax_solution_commit WHERE id = $commit_id";
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $assignment_id = pg_fetch_assoc($result)['assignment_id'];
+
+  return $assignment_id;
+}
+
 
 
 function queryGetAssignmentInfo($assignment_id) {
@@ -620,7 +663,8 @@ function queryGetMessagesByAssignment($assignment_id){
 
 function queryGetCommitsByAssignment($assignment_id){
   return "SELECT id FROM ax_solution_commit
-          WHERE assignment_id = $assignment_id;";
+          WHERE assignment_id = $assignment_id
+          ORDER BY id;";
 }
 
 

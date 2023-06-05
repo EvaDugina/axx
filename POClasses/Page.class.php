@@ -153,6 +153,7 @@ class Page {
 
   public function addTask($task_id) {
     $Task = new Task((int)$task_id);
+    $this->pushTaskToDB($task_id);
     array_push($this->Tasks, $Task);
   }
   public function deleteTask($task_id) {
@@ -194,6 +195,15 @@ class Page {
     }
     return $return_Tasks;
   }
+  public function getActiveTasksWithConversation() {
+    $return_Tasks = array();
+    foreach($this->Tasks as $Task) {
+      if ($Task->status == 1)
+        array_push($return_Tasks, $Task);
+    }
+    return $return_Tasks;
+  }
+
   public function getCountSuccessAssignments($student_id) {
     $count_success = 0;
     foreach($this->getTasks() as $Task) {
@@ -214,6 +224,13 @@ class Page {
       }
     }
     return $count;
+  }
+
+  function pushTaskToDB($task_id) {
+    global $dbconnect;
+
+    $query = "UPDATE ax_task SET page_id = $this->id WHERE id = $task_id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
 // -- END WORK WITH TASKS
@@ -480,7 +497,7 @@ function getPageByTask($task_id) {
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
 
-function queryGetPageInfo($page_id) { // FIXME:
+function queryGetPageInfo($page_id) {
   return "SELECT p.*, ax_ct.bg_color, ax_ct.src_url, d.name as disc_name
           FROM ax_page as p
           INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id

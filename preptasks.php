@@ -27,6 +27,8 @@ $page_id = 0;
 if (isset($_GET['page']))
   $page_id = $_GET['page'];
 
+echo "<script>var page_id=".$page_id.";</script>";
+
 
 $query = select_discipline_page($page_id);
 $result = pg_query($dbconnect, $query);
@@ -61,7 +63,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
 
             <?php
             $Page = new Page((int)$page_id);
-            $Tasks = $Page->getActiveTasks();
+            $Tasks = $Page->getActiveTasksWithConversation();
             
             if (count($Tasks) < 1)
               echo 'Задания по этой дисциплине отсутствуют';
@@ -353,27 +355,56 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
             <div class="pt-1 pb-1">
               <label><i class="fas fa-copy fa-lg"></i> <small>КОПИРОВАТЬ В ДИСЦИПЛИНУ</small></label>
             </div>
+
             <div class="pt-1 pb-1 align-items-center ps-5">
-              <select class="form-select" aria-label=".form-select">
-                <option selected>Выберите дисциплину</option>
-                <option value="1">Программирование в ЗРЛ</option>
-                <option value="2">Методы и стандарты программирования</option>
-                <option value="3">Компьютерная графика</option>
+              <select id="select-copyToDiscipline" class="form-select" aria-label=".form-select">
+                <option value="null" selected>Выберите дисциплину</option>
+
+                <?php 
+                if ($au->isAdmin())
+                 $query = queryGetAllPages();
+                else if ($au->isTeacher())
+                  $query = queryGetPagesByTeacher($au->getUserId());
+                $result = pg_query($dbconnect, $query);
+
+                while ($page = pg_fetch_assoc($result)) {
+                  $Page = new Page((int)$page['id']);?>
+                  <option value="<?=$Page->id?>"><?=$Page->name?></option>
+                <?php }?>
+
               </select>
             </div>
-            <div class="pt-1 pb-1 align-items-center ps-5">
-                <button type="button" class="btn btn-outline-primary always-disabled" disabled><i class="fas fa-copy fa-lg"></i> Копировать</button> 
-            </div>
-            <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-primary always-disabled" disabled><i class="fas fa-clone fa-lg"></i> Клонировать в этой дисциплине</button></div>
-            <form method="get" action="preptasks_edit.php" name="deleteForm" id="deleteForm">
-              <input type="hidden" name="action" value="delete"/>
+
+            <form method="GET" action="preptasks_edit.php" name="copyToDiscipline" id="form-copyToDiscipline">
+              <input type="hidden" id="input-copyToDiscipline-page" name="page" value=""/>
+              <input type="hidden" name="action" value="copyToDiscipline"/>
+              <input type="hidden" name="tasknum" id="tasknum" value="" />
+
+              <div class="pt-1 pb-1 align-items-center ps-5">
+                  <button id="btn-copyToDiscipline" type="button" class="btn btn-outline-primary always-disabled" disabled>
+                    <i class="fas fa-copy fa-lg"></i> 
+                    Копировать
+                  </button> 
+              </div>
+              
+              <div class="pt-1 pb-1">
+                <button id="btn-copyToThisDiscipline" type="button" class="btn btn-outline-primary" disabled>
+                  <i class="fas fa-clone fa-lg"></i> 
+                  Клонировать в этой дисциплине
+                </button>
+              </div>
+            </form>
+            
+            
+            <form method="get" action="preptasks_edit.php" name="archiveForm" id="archiveForm">
+              <input type="hidden" name="action" value="archive"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
               <div class="pt-1 pb-1">
                 <button type="submit" class="btn btn-outline-secondary"
-                onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
-                        $(deleteForm).find(groupped).val(0);"
-                onChange="$(deleteForm).trigger('submit')">
+                onclick="$(archiveForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
+                        $(archiveForm).find(groupped).val(0);"
+                onChange="$(archiveForm).trigger('submit')">
                   <i class="fas fa-ban fa-lg"></i>&nbsp;Перенести в архив</button>
               </div>
             </form>
@@ -381,10 +412,8 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="page" value="<?=$page_id?>" />
               <input type="hidden" name="tasknum" id="tasknum" value="" />
-              <div class="pt-1 pb-1"><button type="submit" class="btn btn-outline-danger always-disabled" disabled
-                    onclick="$(deleteForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
-                              $(deleteForm).find(groupped).val(0);"
-                    onChange="$(deleteForm).trigger('submit')">
+              <div class="pt-1 pb-1"><button type="button" class="btn btn-outline-danger" disabled
+                    onclick="deleteTasks()">
                   <i class="fas fa-trash fa-lg"></i> Удалить
                 </button>
               </div>
@@ -417,6 +446,12 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
   </div>
 
   <script type="text/javascript">
+
+    function getSelectedTasks() {
+      return $(checkActiveForm).find('#checkActive:checked:enabled').map(function(){
+        return $(this).val();
+      }).get();
+    }
 
     $('#form-deleteTask').submit(function(event) {
       $('#dialogMark-text').text("Внимание! Если удалить задание все его назначения и посылки будут утеряны. Вы хотите продолжить?");
@@ -572,6 +607,48 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
           }
         }
       });   
+    }
+
+
+    // Отключение статуса disabled кнопке клонирования
+    $('#select-copyToDiscipline').on("change", function() {
+      if($(this).val() != "null") {
+        // $('#btn-copyToDiscipline').prop("disabled", false);
+        $('#btn-copyToDiscipline').removeClass('always-disabled');
+        $('#btn-copyToDiscipline').prop('disabled', false);
+        $('#btn-copyToDiscipline').removeAttr('disabled');
+      } else {
+        $('#btn-copyToDiscipline').addClass('always-disabled');
+        $('#btn-copyToDiscipline').prop('disabled', true);
+        $('#btn-copyToDiscipline').prop("disabled", true);
+      }
+    });
+
+    // Обработка нажатия кнопок клонировать
+    $('#btn-copyToDiscipline').on("click", function () {
+      $('#form-copyToDiscipline').find("#tasknum").val(getSelectedTasks());
+      // console.log($('#form-copyToDiscipline').find("#tasknum").val());
+      $('#input-copyToDiscipline-page').val($('#select-copyToDiscipline').val());
+      // console.log($('#input-copyToDiscipline-page').val());
+      // $('#form-copyToDiscipline').unbind('submit');
+      $('#form-copyToDiscipline').submit();
+    });
+    $('#btn-copyToThisDiscipline').on("click", function () {
+      $('#form-copyToDiscipline').find("#tasknum").val(getSelectedTasks());
+      $('#input-copyToDiscipline-page').val(page_id);
+      $('#form-copyToDiscipline').submit();
+    });
+
+    function deleteTasks() {
+      let answer_confirm = confirm("Все выбранные задания будут безвозвратно удалены. Продолжить?");
+      if(answer_confirm){
+        $('#deleteForm').find('#tasknum').val(
+          $('#checkActiveForm').find('#checkActive:checked:enabled').map(function(){
+            return $(this).val();
+          }).get()
+        );
+        $('#deleteForm').submit();
+      }
     }
 
 

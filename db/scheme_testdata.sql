@@ -319,7 +319,10 @@ CREATE TABLE ax_solution_commit	( 	-- посылка кода на провер�
 	assignment_id integer,	-- --> ax_assignment
 	session_id integer,	-- --> ax_assignment_session
 	student_user_id integer,-- --> students
-	type integer, 		-- тип посылки/коммита (0 - промежуточный, 1 - отправлен на проверку)
+	type integer, 		-- тип посылки/коммита (0 - промежуточный (редактирует только студент), 
+	-- 											1 - отправлен на проверку (не редактирует никто),
+	--											2 - проверяется (редактирует только препод),
+	--											3 - проверенный (не редактирует никто))
 	autotest_results text,
 	CONSTRAINT ax_solution_commit_pkey PRIMARY KEY (id)
 ); ALTER TABLE ax_solution_commit OWNER TO postgres;

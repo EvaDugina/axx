@@ -87,7 +87,7 @@ $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result)['short_name'];
 
 
-$MAX_FILE_SIZE = 5242880;
+$MAX_FILE_SIZE = getMaxFileSize();
 
 
 $task_title = '';
@@ -174,7 +174,7 @@ $task_number = explode('.', $task_title)[0];
 				<div class="task-desc-wrapper <?=$Task->isConversation() ? "me-0" : ""?>">
           <div class="d-flex justify-content-between align-self-start align-items-center">
             <b class="mb-0">Описание задания:</b>
-            <?php if(!$User->isStudent()) {?>
+            <?php if(!$User->isStudent() && !$Task->isConversation()) {?>
               <a href="taskassign.php?assignment_id=<?=$Assignment->id?>" 
               class="btn btn-outline-primary d-flex" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -400,6 +400,9 @@ $task_number = explode('.', $task_title)[0];
 	<script type="text/javascript" src="js/taskchat.js"></script>
 
   <script type="text/javascript">
+
+    // После первой загрузки скролим страницу вниз
+    $('body, html').scrollTop($('body, html').prop('scrollHeight'));
 
     $(document).ready(function() {
 

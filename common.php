@@ -98,7 +98,7 @@ function show_head($page_title = '', $js = array(), $css = array())
 <?php 
 } 
 
-function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) { 
+function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $breadcrumbs = array(), $user = null) {
 ?>
   <script type="text/javascript">
     $(document).ready(function() {
@@ -128,7 +128,8 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
 
         <!-- Collapsible wrapper -->
         <div class="collapse navbar-collapse row" id="navbarSupportedContent">
-          <div class="d-none d-sm-block col-sm-8 col-md-8 col-xl-10 ps-0">
+          <div class="d-flex justify-content-between align-items-center">
+          <div class="">
 
             <?php show_breadcrumbs($breadcrumbs);
             if (count($breadcrumbs) < 1) echo '</div>';
@@ -139,7 +140,20 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
               }?>
           </div>
 
-          <div class="col-xs-12 col-sm-4 col-md-4 col-xl-2 d-flex flex-row align-items-center justify-content-end">
+          <div class="d-flex flex-row align-items-center justify-content-end">
+
+          <?php if (hasSecondRole($user->login)) {?>
+            <form action="auth.php" method = "POST" class="me-4 mb-0">
+              <input type="hidden" name="action" value="login">
+              <input type="hidden" name="login" value="<?=$user->login?>">
+              <input type="hidden" name="password" value="<?=$user->password?>">
+              <input type="hidden" name="role" value="<?=($user->isTeacher()) ? 3 : 2?>">
+              <button class="btn btn-outline-primary bg-white" type="submit">
+                Зайти как <?=($user->isTeacher()) ? "студент" : "преподаватель"?>
+              </button>
+          </form>
+          <?php }?>
+
             <!-- Icons -->
             <ul class="navbar-nav me-1">
               <!-- Notifications -->
@@ -224,6 +238,7 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
                 <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
               </ul>
             </ul>
+          </div>
           </div>
           <?php } 
 
