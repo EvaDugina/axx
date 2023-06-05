@@ -3,16 +3,13 @@ require_once("settings.php");
 
 class auth_ssh
 {
-  function login($login, $pwd, $source, $role=null)
+  function login($login, $pwd, $source)
   {
   global $dbconnect;
     session_start();
     $lg = pg_escape_string($login);
     
-    if ($role != null)
-      $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg' AND role=$role");
-    else 
-      $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg'");
+    $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg'");
     $found = pg_fetch_assoc($result);
     if($found) {
             $_SESSION['login'] = $login;
@@ -46,23 +43,23 @@ class auth_ssh
     
 //----------------------------------------------------------------------------------------------
 
-function isTeacher($hash = '') {
-    if (array_key_exists('role', $_SESSION)) {
-        return ($_SESSION['role'] == 2);
-    }
-    else
-        return false;
-}
+// function isTeacher($hash = '') {
+//     if (array_key_exists('role', $_SESSION)) {
+//         return ($_SESSION['role'] == 2);
+//     }
+//     else
+//         return false;
+// }
 
 //----------------------------------------------------------------------------------------------
 
-function isStudent($hash = '') {
-    if (array_key_exists('role', $_SESSION)) {
-        return ($_SESSION['role'] == 3);
-    }
-    else
-        return false;
-}
+// function isStudent($hash = '') {
+//     if (array_key_exists('role', $_SESSION)) {
+//         return ($_SESSION['role'] == 3);
+//     }
+//     else
+//         return false;
+// }
 
 //----------------------------------------------------------------------------------------------
     
@@ -78,7 +75,7 @@ function isStudent($hash = '') {
     
 //----------------------------------------------------------------------------------------------
     
-    function isAdminOrTeacher($hash = '') {
+    function isAdminOrPrep($hash = '') {
         if (array_key_exists('role', $_SESSION)) {
             return (($_SESSION['role'] == 1) || ($_SESSION['role'] == 2));
         }
@@ -105,18 +102,6 @@ function isStudent($hash = '') {
         if (array_key_exists('login', $_SESSION))
         {
             return $_SESSION['login'];
-        }
-        else
-            return false;
-    }
-
-//----------------------------------------------------------------------------------------------
-    
-    function getUserRole($hash = '')
-    {
-        if (array_key_exists('role', $_SESSION))
-        {
-            return $_SESSION['role'];
         }
         else
             return false;

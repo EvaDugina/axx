@@ -6,7 +6,7 @@ require_once("utilities.php");
 
 // защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdmin() && !$au->isTeacher()){
+if (!$au->isAdminOrPrep()){
 	$au->logout();
 	header('Location:login.php');
 }

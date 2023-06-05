@@ -185,7 +185,7 @@ class Commit {
   public function isChecking() {
     return $this->type == 2;
   }
-  public function isMarked() {
+  public function isChecked() {
     return $this->type == 3;
   }
 
@@ -196,7 +196,7 @@ class Commit {
     return $this->isInProcess();
   }
   public function isNotEdit() {
-    return $this->isSendedForCheck() || $this->isMarked();
+    return $this->isSendedForCheck() || $this->isChecked();
   }
 
 // -- END WORK WITH COMMIT 

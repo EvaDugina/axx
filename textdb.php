@@ -16,6 +16,8 @@
 
 	$au = new auth_ssh();
 
+  $User = new User((int)$au->getUserId());
+
   function get_prev_assignments($assignment)
   {
 	global $dbconnect;	
@@ -86,7 +88,7 @@
   if (array_key_exists('commit', $_REQUEST))
     $commit_id= urldecode($_REQUEST['commit']);
   else {
-	if($au->isStudent())
+	if($User->isStudent())
 		$commit_id = $Assignment->getLastCommitForStudent()->id;
 	else 
 		$commit_id = $Assignment->getLastCommitForTeacher()->id;
@@ -246,7 +248,7 @@
 	if($_REQUEST['commit']) {
 		$lastCommit = new Commit((int)$_REQUEST['commit']);
 	} else {
-		if($au->isStudent())
+		if($User->isStudent())
 			$lastCommit = $Assignment->getLastCommitForStudent();
 		else 
 			$lastCommit = $Assignment->getLastCommitForTeacher();
@@ -262,7 +264,7 @@
 			} else {
 				$Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
 			}
-			if($au->isStudent())
+			if($User->isStudent())
 				$type = 0;
 			else 
 				$type = 2;
@@ -270,7 +272,7 @@
 			// header("Location:editor.php?assignment=" . $Assignment->id);
 			$responce = json_encode(array("assignment_id" => $Assignment->id, "commit_id" => $Commit->id));
 		} else {
-			if($au->isStudent())
+			if($User->isStudent())
 				$lastCommit->setType(1);
 			else 
 				$lastCommit->setType(3);
@@ -309,7 +311,7 @@
 
 	  // --- сессий пока нет
 	  $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) select assignment_id, session_id, $user_id, ".
-										(($user_role == 3) ? "1" : "0")." from ax_solution_commit where id = $commit_id RETURNING id");
+										(($user_role == 3) ? "1" : "3")." from ax_solution_commit where id = $commit_id RETURNING id");
 	  $result = pg_fetch_all($result);
 	  $new_id = $result[0]['id'];	
 			
@@ -317,7 +319,7 @@
     $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
     while ($file = pg_fetch_assoc($pg_query)) {
       $File = new File((int)$file['type'], $file['file_name']);
-	  $File->copy($file["id"]);
+	    $File->copy($file["id"]);
       $Commit = new Commit((int)$new_id);
       $Commit->addFile($File->id);
     }
@@ -329,7 +331,7 @@
     if ($user_role == 3)
       pg_query($dbconnect, "UPDATE ax_assignment SET status=1, status_code=2 where id=$assignment");
     else 
-      pg_query($dbconnect, "UPDATE ax_assignment SET status=4, status_code=2 where id=$assignment");
+      pg_query($dbconnect, "UPDATE ax_assignment SET status=2, status_code=2 where id=$assignment");
 	  
 	  if ($user_role == 3) {
   	    $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)".
@@ -457,6 +459,21 @@
       http_response_code(400);
       exit;
 	}
+
+  $files_codeCheckTest = array();
+  $Task = new Task(getTaskByAssignment((int)$assignment));
+  foreach($Task->getCodeCheckTestFiles() as $File) {
+    $myfile = fopen($folder.'/'.$File->name, "w") or die("Unable to open file!");
+   fwrite($myfile, $File->getFullText());
+   fclose($myfile);
+   array_push($files_codeCheckTest, $File->name);
+  }
+
+  if (count($files_codeCheckTest) < 1) {
+    echo "Не найдено файлов кода проверки теста " . $Task->id;
+      http_response_code(400);
+      exit;
+  }
 	
 	@unlink($folder.'/copydetect_input');
 	mkdir($folder.'/copydetect_input', 0777, true);

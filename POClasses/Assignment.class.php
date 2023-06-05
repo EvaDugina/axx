@@ -697,8 +697,6 @@ function status_to_text($status) {
       return "Ожидает проверки";
     case 2: 
       return "Проверено, не оценено";
-    case 3:
-      return "Ожидает повторного выполнения";
     case 4:
       return "Оценено";
     default:

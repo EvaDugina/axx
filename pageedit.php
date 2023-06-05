@@ -83,8 +83,8 @@ if (array_key_exists('page', $_REQUEST)) {
 }
 
 
-echo "<script>var user_id=".$au->getUserId().";</script>";
-if ($au->isAdmin())
+echo "<script>var user_id=".$User->id.";</script>";
+if ($User->isAdmin())
   echo "<script>var isAdmin=true;</script>";
 else 
   echo "<script>var isAdmin=false;</script>";

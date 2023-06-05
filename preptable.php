@@ -342,7 +342,7 @@ if ($scripts) echo $scripts;
                           <?php
                           if ($Page->hasUncheckedTasks($Student->id)) {?>
                             <span class="badge badge-primary badge-pill bg-warning text-white">
-                              Задания ожидают выполнения
+                              Задания ожидают проверки
                             </span>
                           <?php }?>
                         </div>
@@ -366,11 +366,15 @@ if ($scripts) echo $scripts;
                                     <span class="badge badge-primary badge-pill bg-warning text-white">
                                       Ожидает проверки
                                     <span>
-                                  <?php } else if ($Assignment->status == 4) {?>
+                                  <?php } else if ($Assignment->status == 2) {?>
+                                    <span class="badge badge-primary badge-pill bg-primary text-white">
+                                      Проверено
+                                    <span>
+                                  <?php }  else if ($Assignment->status == 4){?>
                                     <span class="badge badge-primary badge-pill bg-success text-white">
                                       Выполнено
                                     <span>
-                                  <?php } ?>
+                                    <?php }?>
                                 </div>
                               </div>
                             </li> 

@@ -26,11 +26,11 @@ if (isset($_REQUEST['assignment'])) {
 }
 
 $au = new auth_ssh();
-if ($au->isAdmin() && isset($_REQUEST['id_student'])){
+if ($User->isAdmin() && isset($_REQUEST['id_student'])){
 	// Если на страницу чата зашёл АДМИН
 	$student_id = $_REQUEST['id_student'];
   $sender_user_type = 1;
-} else if ($au->isTeacher() && isset($_REQUEST['id_student'])) {
+} else if ($User->isAdmin() && isset($_REQUEST['id_student'])) {
   // Если на страницу чата зашёл ПРЕПОД
 	$student_id = $_REQUEST['id_student'];
   $sender_user_type = 2;
@@ -157,7 +157,7 @@ $task_number = explode('.', $task_title)[0];
 
 <body>
 	<?php 
-	if ($au->isTeacher() || $au->isAdmin()) 
+	if ($User->isAdmin() || $User->isTeacher()) 
 		show_header($dbconnect, 'Чат c перподавателем', 
 			array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => ''),
     $User); 
@@ -262,7 +262,7 @@ $task_number = explode('.', $task_title)[0];
                   <?php //XXX: Проверить?>
                 <label id="label-task-status-text"><?=status_to_text($Assignment->status)?></label>
               </div>
-              <span id="span-answer-date"><?php if ($task_finish_date_time ) echo $task_finish_date_time;?></span><br>
+              <span id="span-answer-date"><?php if ($task_finish_date_time && $task_status_code == 4) echo $task_finish_date_time;?></span><br>
               <span id="span-text-mark"><?php if($task_status_code == 4){?> 
                 Оценка: <b id="b-mark"><?=$task_mark?></b>
               <?php }?>
@@ -276,7 +276,7 @@ $task_number = explode('.', $task_title)[0];
                 </a>
               </div>
 
-              <?php if($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание ?>
+              <?php if($User->isAdmin() || $User->isTeacher()) { // Оценить отправленное на проверку задание ?>
                 <form id="form-check-task" action="taskchat_action.php" method="POST">
                   <div class="d-flex flex-row my-1">
                     <div class="file-input-wrapper me-1">

@@ -8,7 +8,7 @@ require_once("POClasses/Page.class.php");
 
 
 $au = new auth_ssh();
-if ($au->isAdmin() && $au->isTeacher()){
+if ($au->isAdminOrPrep()){
 	header('Location:mainpage.php');
   exit;
 } else if ($au->loggedIn()) {

@@ -61,7 +61,7 @@ $last_commit_id = NULL;
 if ( array_key_exists('commit', $_GET))
   $last_commit_id = $_GET['commit'];
 else {
-  if($au->isStudent())
+  if($User->isStudent())
     $lastCommit = $Assignment->getLastCommitForStudent();
   else 
     $lastCommit = $Assignment->getLastCommitForTeacher();
@@ -122,7 +122,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <body style="overflow-x:hidden">
 
 <?php 
-if ($au->isTeacher()) 
+if ($User->isTeacher()) 
 // XXX: ПРОВЕРИТЬ
 	show_header($dbconnect, $page_title, 
 		array('Посылки по дисциплине: '.$page_name => 'preptable.php?page='.$page_id, 
@@ -233,12 +233,14 @@ else
     <div class="d-flex flex-column mt-3">
       <p><strong>История коммитов</strong></p>
       <div id="div-history-commit-btns" class="d-flex flex-column">
-        <?php if($au->isStudent()) 
+        <?php if($User->isStudent()) 
           $Commits = $Assignment->getCommitsForStudent();
         else 
           $Commits = $Assignment->getCommitsForTeacher();?>
         <?php foreach($Commits as $i => $Commit) {?>
-          <button class="btn btn-<?=($Commit->isNotEdit()) ? "success" : "primary"?> mb-1 d-flex align-items-center justify-content-between" 
+          <button class="btn 
+          btn-<?php if ($Commit->isSendedForCheck()) echo "success"; else if ($Commit->isChecked()) echo "secondary"; else echo "primary";?> 
+          mb-1 d-flex align-items-center justify-content-between" 
           onclick="window.location='editor.php?assignment=<?=$Assignment->id?>&commit=<?=$Commit->id?>'"
           <?=($Commit->id == $last_commit_id) ? "disabled" : ""?>>
             <?=$i+1?> &nbsp;&nbsp;
@@ -269,7 +271,7 @@ else
         &nbsp;&nbsp;
         Клонировать коммит
       </button>
-      <button id="btn-save" class="btn btn-primary w-100" type="button"
+      <button id="btn-save" class="btn btn-primary w-100 align-items-center" type="button"
       <?=($nowCommit && $nowCommit->isNotEdit()) ? "disabled" : ""?>>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
           <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
@@ -277,6 +279,9 @@ else
         </svg>
         &nbsp;&nbsp;
         Сохранить
+        <div id="spinner-save" class="spinner-border d-none ms-3" role="status" style="width: 1rem; height: 1rem;">
+          <span class="sr-only">Loading...</span>
+        </div>
       </button>
     </div>
     <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
@@ -288,7 +293,7 @@ else
 			  <!--<form action="taskchat.php" method="POST" style="width:50%">-->
 				<input type="hidden" name="assignment" value="<?=$assignment_id?>">
         <?php 
-		if($au->isAdminOrTeacher()) { // Отправить задание на проверку 
+		if($User->isAdmin() || $User->isTeacher()) { // Отправить задание на проверку 
 ?>
             <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?=$assignment_id?>" <?=(($task_status_code == 4) ?"disabled" :"")?> >Завершить проверку</button>
 <?php 

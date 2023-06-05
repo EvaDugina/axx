@@ -4,7 +4,10 @@
 
   include_once('auth_ssh.class.php');
   $au = new auth_ssh();
-  $au->logout();
+
+  if(isset($_GET['action']) && $_GET['action'] == "logout") {
+    $au->logout();
+  }
 
 	// получение параметров запроса
 	$page_id = 0;

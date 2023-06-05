@@ -361,9 +361,9 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                 <option value="null" selected>Выберите дисциплину</option>
 
                 <?php 
-                if ($au->isAdmin())
+                if ($User->isAdmin())
                  $query = queryGetAllPages();
-                else if ($au->isTeacher())
+                else if ($User->isTeacher())
                   $query = queryGetPagesByTeacher($au->getUserId());
                 $result = pg_query($dbconnect, $query);
 

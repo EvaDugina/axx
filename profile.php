@@ -28,7 +28,7 @@ show_head('Профиль'); ?>
 <body>
   
   <?php 
-  show_header($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Профиль' => 'profile.php') 
+  show_header($dbconnect, 'Профиль', ($realUser->isAdmin() || $realUser->isTeacher()) ? array('Профиль' => 'profile.php') 
     : array('Профиль' => 'profile.php'), $realUser); 
   ?>
 
@@ -92,7 +92,7 @@ show_head('Профиль'); ?>
 
             <?php } else {?>
 
-              <?php if($au->isAdminOrTeacher() && $User->email != null) {?>
+              <?php if(($realUser->isAdmin() || $realUser->isTeacher()) && $User->email != null) {?>
                 <p> <span class="font-weight-bold">ПОЧТА: </span> <span class="font-weight-normal"><?=$User->email?></span> </p>
               <?php }?>
 

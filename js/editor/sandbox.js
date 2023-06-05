@@ -55,8 +55,6 @@ document.querySelector("#run").addEventListener('click', async e => {
 });
 
 document.querySelector("#check").addEventListener('click', async e => {
-
-    // FIXME: Сохраняет файлы в новый коммит с рандомным префиксом
     saveEditedFile();
     var param = document.location.href.split("?")[1].split("#")[0];
 	if (param == '') param = 'void';
