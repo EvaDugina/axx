@@ -173,7 +173,7 @@ function parseClangFormat($data, $checks)
             break;		
     }
 
-    $resBody = $data['output'];
+    $resBody = $data['outcome'];
     $check = $data['check']; 
     $boxText = $check['result'];
 
@@ -328,7 +328,7 @@ function parseAutoTests($data, $checks)
             break;			
     }
 
-    $resBody .= 'Тестов провалено: '.$check['errors'].'<br>';
+    $resBody = 'Тестов провалено: '.$check['errors'].'<br>';
     $resBody .= 'Проверок провалено: '.$check['failures'].'<br>';
     $resColorBox = generateColorBox($boxColor, $boxText, 'autotests_result');
 
@@ -382,6 +382,9 @@ function parseCopyDetect($data, $checks)
             break;	
         case 'reject':
             $boxColor = 'red';
+            break;		
+        case 'skipped':
+            $boxColor = 'grey';
             break;		
     }
 
