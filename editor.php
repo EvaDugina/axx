@@ -159,8 +159,8 @@ else
                 <div class="px-1 align-items-center text-primary">
                   <?=getSVGByFileType($File->type)?>
                 </div>
-                <input type="text" class="form-control-plaintext form-control-sm validationCustom" 
-                id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" disabled style="cursor: pointer;">
+                <input type="button" class="form-control-plaintext form-control-sm validationCustom" 
+                id="<?=$File->id?>" value="<?=$File->name_without_prefix?>" style="cursor: pointer;">
                 <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
                   getSVGByCommitType($nowCommit->type)
                 </button> -->
@@ -269,7 +269,7 @@ else
         &nbsp;&nbsp;
         Клонировать коммит
       </button>
-      <button id="btn-save" class="btn btn-primary w-100" type="button" onclick="saveProject()"
+      <button id="btn-save" class="btn btn-primary w-100" type="button"
       <?=($nowCommit && $nowCommit->isNotEdit()) ? "disabled" : ""?>>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
           <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>

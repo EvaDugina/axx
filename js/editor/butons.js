@@ -66,6 +66,7 @@ function addNewAnswerCommit() {
 }
 
 function openFile(event) {
+  $('#container').removeClass("d-none");
     var id = this.querySelector(".validationCustom").id;
     if (id != editor.id){
         if (editor.id){
@@ -103,7 +104,12 @@ function delFile(event) {
 	if (param == '') param = 'void';
     makeRequest('textdb.php?' + param + "&type=del&id=" + id, "del");
     list.removeChild(this.parentNode);
+
     listItems = list.querySelectorAll(".tasks__item");
+    if(listItems.length > 0)
+      listItems[0].click();
+    else 
+      $('#container').addClass("d-none");
 
     checkFilesEmpty();
 
@@ -123,10 +129,10 @@ function renameFile(event) {
     let input = li.querySelector(".validationCustom");
     let last_name = input.value;
 
+    input.type = "text";
     input.className = "form-control validationCustom";
     input.style.cursor = "text";
     input.setSelectionRange(last_name.length, last_name.length);
-    input.disabled = false;
     input.focus();
     
     input.onblur =  function() { 
@@ -135,8 +141,8 @@ function renameFile(event) {
         if(last_name != new_name && !checkOriginalFileName(new_name, li.dataset.orderId)) {
             alert("Введите оригинальное имя файла!");
         } else {
+          input.type = "button";
             input.className = "form-control-plaintext form-control-sm validationCustom";
-            input.disabled = true;
             input.style.cursor = "pointer";
 
             var id = input.id;
@@ -370,7 +376,9 @@ function alertContentsNew(httpRequest) {
             if (httpRequest.status == 200) {
                 let response = JSON.parse(httpRequest.responseText);
                 listItems[listItems.length-1].querySelector(".validationCustom").id = response.file_id;
+                listItems[listItems.length-1].querySelector(".validationCustom").disabled = false;
                 listItems[listItems.length-1].querySelector(".a-save-file").href = response.download_url;
+                listItems[listItems.length-1].click();
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
             }
@@ -800,11 +808,9 @@ function newFile() {
                 <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>\
             </svg>\
         </div>';
-        // <textarea type="text" class="form-control-plaintext form-control-sm validationCustom"\
-        // id="'+0+'" value="'+nameFile+'" style="resize: none;" disabled style="cursor: pointer;" rows="1" cols="13" autofocus autofocus>'+nameFile+'</textarea>';
-
+        
         entry.innerHTML += '\
-        <input type="text" class="form-control-plaintext form-control-sm validationCustom" \
+        <input type="button" class="form-control-plaintext form-control-sm validationCustom" \
         id="0" value="'+nameFile+'" disabled style="cursor: pointer;">\
         <div class="dropdown align-items-center h-100 me-1" id="btn-group-moreActionsWithFile">\
             <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile"\
@@ -840,7 +846,6 @@ function newFile() {
 
         setEventListener(entry);
         document.getElementById("div-add-new-file").insertAdjacentElement('beforebegin',entry);
-        entry.focus();
         listItems = list.querySelectorAll(".tasks__item");
         array_files.push(nameFile);
 
