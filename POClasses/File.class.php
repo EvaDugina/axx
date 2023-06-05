@@ -240,13 +240,13 @@ function isVisible(){
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
       $query = "UPDATE ax_file
-                VALUES type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
                 full_text=\$antihype1\$$this->full_text\$antihype1\$, download_url=null, status=$this->status 
                 WHERE id = $this->id;
       ";
     } else {
       $query = "UPDATE ax_file
-                VALUES type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
                 full_text=null, download_url=null, status=$this->status 
                 WHERE id = $this->id;
       ";
