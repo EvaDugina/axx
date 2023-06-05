@@ -316,7 +316,8 @@
     // TODO: Проверить!
     $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
     while ($file = pg_fetch_assoc($pg_query)) {
-      $File = new File((int)$file['type'], $file['file_name'], $file['download_url'], $file['full_text']);
+      $File = new File((int)$file['type'], $file['file_name']);
+	  $File->copy($file["id"]);
       $Commit = new Commit((int)$new_id);
       $Commit->addFile($File->id);
     }
