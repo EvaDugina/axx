@@ -461,7 +461,7 @@
 	}
 
   $files_codeCheckTest = array();
-  $Task = new Task(getTaskByAssignment((int)$assignment));
+  $Task = new Task((int)getTaskByAssignment((int)$assignment));
   foreach($Task->getCodeCheckTestFiles() as $File) {
     $myfile = fopen($folder.'/'.$File->name, "w") or die("Unable to open file!");
    fwrite($myfile, $File->getFullText());
