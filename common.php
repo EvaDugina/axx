@@ -215,7 +215,7 @@ function show_header(/* [x]: Убрать */ $dbconnect, $page_title = '', $brea
                         <div class="col-12">
                             <div class="embed-responsive embed-responsive-1by1 text-center">
                                 <div class="embed-responsive-item">
-                                  <img class="w-100 h-100 p-0 m-0 rounded-circle user-icon"  src="<?=$user->getImageFile()->download_url?>"/>
+                                  <img class="w-100 h-100 p-0 m-0 rounded-circle"  src="<?=$user->getImageFile()->download_url?>"/>
                                 </div>
                             </div>
                         </div>

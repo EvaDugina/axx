@@ -224,7 +224,7 @@ $task_number = explode('.', $task_title)[0];
                           <?php if($Student->getImageFile() != null) {?>
                               <div class="embed-responsive embed-responsive-1by1" style="display: block;">
                                   <div class="embed-responsive-item">
-                                    <img class="h-100 w-100 p-0 m-0 rounded-circle user-icon" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?=$Student->getImageFile()->download_url?>"/>
+                                    <img class="h-100 w-100 p-0 m-0 rounded-circle" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?=$Student->getImageFile()->download_url?>"/>
                                   </div>
                               </div>
                           <?php } else { ?>
