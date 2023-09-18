@@ -11,7 +11,7 @@ if (array_key_exists('action', $_POST)) {
     case 'login':
       $loggedIn = $au->login($_POST['login'], $_POST['password'], $_SERVER['HTTP_REFERER']);
       if(!$loggedIn) {
-        header('Location:login.php'); 
+        header('Location:login.php?authStatus=failed'); 
         exit;
       } else if ($au->isAdminOrPrep())
         header('Location:mainpage.php');

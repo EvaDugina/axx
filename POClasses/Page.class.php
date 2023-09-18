@@ -14,6 +14,7 @@ class Page {
   public $color_theme_id;
   public $creator_id, $creation_date;
   public $status;
+  public $subgroup = null;
   
   private $Tasks = array(); // Массив Task
   private $Groups = array(); // Массив Group
@@ -45,6 +46,9 @@ class Page {
       
       $this->creator_id = $page['creator_id'];
       $this->creation_date = $page['creation_date'];
+
+      // if(array_key_exists('subgroup_id', $page))
+      //   $this->subgroup = $page['subgroup_id'];
       
       // $this->src_url = $page['src_url'];
       $this->status = $page['status'];
