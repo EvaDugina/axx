@@ -143,7 +143,7 @@ switch($action)
 
       $Page = new Page((int)$_REQUEST['page']);
       foreach($tasknums as $task_id) {
-        $Task = new Task($Page->id, 0, 0);
+        $Task = new Task($Page->id, 0, 1);
         $Task->copy($task_id);
         // $Page->addTask((int)$Task->id);
       }
