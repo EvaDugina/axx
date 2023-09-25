@@ -5,8 +5,7 @@
 
   [data-title]:hover::before {
     content: attr(data-title);
-    position: absolute;
-    left: 0;
+    position:absolute;
     padding: 5px 10px 5px 10px;
     margin-top: 25px;
     z-index: 2;

@@ -1,11 +1,12 @@
-<?php 
+<?php
 require_once("./settings.php");
 require_once("Message.class.php");
 require_once("Commit.class.php");
 require_once("User.class.php");
 require_once("Page.class.php");
 
-class Assignment {
+class Assignment
+{
 
   public $id = null;
   public $variant_number = null;
@@ -25,17 +26,18 @@ class Assignment {
   private $Messages = array();
   private $Commits = array();
 
-  function __construct() {
+  function __construct()
+  {
     global $dbconnect;
 
     $count_args = func_num_args();
     $args = func_get_args();
-    
+
     // Перегружаем конструктор по количеству подданых параметров
-    
-    if ($count_args == 1 && is_int($args[0])) { 
+
+    if ($count_args == 1 && is_int($args[0])) {
       $this->id = $args[0];
-  
+
       $query = queryGetAssignmentInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       $assignment = pg_fetch_assoc($result);
@@ -51,7 +53,7 @@ class Assignment {
       $this->visibility = $assignment['status_code'];
       $this->visibility_text = $assignment['status_text'];
       if (isset($assignment['status']))
-      $this->status = $assignment['status'];
+        $this->status = $assignment['status'];
 
       $this->delay = $assignment['delay'];
       $this->mark = $assignment['mark'];
@@ -60,18 +62,14 @@ class Assignment {
       $this->Students = getStudentsByAssignment($this->id);
       $this->Messages = getMessagesByAssignment($this->id);
       $this->Commits = getCommitsByAssignment($this->id);
-    }
-
-    else if ($count_args == 2) {
+    } else if ($count_args == 2) {
       $task_id = $args[0];
       $this->visibility = $args[1];
       $this->visibility_text = visibility_to_text($this->visibility);
       $this->status = 0;
 
       $this->pushNewEmptyToDB($task_id);
-    }
-
-    else if ($count_args == 3) {
+    } else if ($count_args == 3) {
       $task_id = $args[0];
       $this->visibility = $args[1];
       $this->visibility_text = visibility_to_text($this->visibility);
@@ -100,31 +98,34 @@ class Assignment {
     else {
       die('Неверные аргументы в конструкторе Assignment');
     }
-
   }
 
   // function __destruct() {
   //   if ($this->new) {
   //     $this->deleteFromDB();
   //   }
-    
+
   // }
 
-  public function getStudents() {
+  public function getStudents()
+  {
     return $this->Students;
   }
-  public function getMessages() {
+  public function getMessages()
+  {
     return $this->Messages;
   }
-  public function getCommits() {
+  public function getCommits()
+  {
     return $this->Commits;
   }
 
 
 
-// SETTERS
+  // SETTERS
 
-  public function setStatus($status) {
+  public function setStatus($status)
+  {
     global $dbconnect;
 
     $this->status = $status;
@@ -134,7 +135,8 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setDelay($delay) {
+  public function setDelay($delay)
+  {
     global $dbconnect;
 
     $this->delay = $delay;
@@ -143,7 +145,8 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setVisibility($visibility) {
+  public function setVisibility($visibility)
+  {
     global $dbconnect;
 
     $this->visibility = $visibility;
@@ -154,25 +157,38 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setFinishLimit($finish_limit) {
+  public function setFinishLimit($finish_limit)
+  {
     global $dbconnect;
 
     $this->finish_limit = $finish_limit;
 
-    $query = "UPDATE ax_assignment SET finish_limit = to_timestamp('$this->finish_limit 23:59:59', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    $query = "UPDATE ax_assignment SET finish_limit = to_timestamp('$this->finish_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setStartLimit($start_limit) {
+  public function setStartLimit($start_limit)
+  {
     global $dbconnect;
 
     $this->start_limit = $start_limit;
 
-    $query = "UPDATE ax_assignment SET start_limit = to_timestamp('$this->start_limit 00:00:00', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    $query = "UPDATE ax_assignment SET start_limit = to_timestamp('$this->start_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setVariantNumber($variant_number) {
+  public function getStartTime()
+  {
+    return convert_timestamp_to_date($this->start_limit, "H:i:s");
+  }
+
+  public function getEndTime()
+  {
+    return convert_timestamp_to_date($this->finish_limit, "H:i:s");
+  }
+
+  public function setVariantNumber($variant_number)
+  {
     global $dbconnect;
 
     $this->variant_number = $variant_number;
@@ -181,12 +197,13 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-// -- END SETTERS
+  // -- END SETTERS
 
 
-// WORK WITH ASSIGNMENT
+  // WORK WITH ASSIGNMENT
 
-  public function pushNewToDB($task_id) {
+  public function pushNewToDB($task_id)
+  {
     global $dbconnect;
 
     $query = "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, 
@@ -200,7 +217,8 @@ class Assignment {
 
     $this->id = $result['id'];
   }
-  public function pushNewEmptyToDB($task_id) {
+  public function pushNewEmptyToDB($task_id)
+  {
     global $dbconnect;
 
     $query = "INSERT INTO ax_assignment(task_id, status_code, status_text, status)
@@ -212,7 +230,8 @@ class Assignment {
 
     $this->id = $result['id'];
   }
-  public function pushChangesToDB(){
+  public function pushChangesToDB()
+  {
     global $dbconnect;
 
     $query = "UPDATE ax_assignment SET variant_number=$this->variant_number, start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
@@ -221,15 +240,16 @@ class Assignment {
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFromDB() {
+  public function deleteFromDB()
+  {
     global $dbconnect;
-  
+
     $this->deleteStudentsFromAssignmentDB();
 
-    foreach($this->Messages as $Message) {
+    foreach ($this->Messages as $Message) {
       $Message->deleteFromDB();
     }
-    foreach($this->Commits as $Commit) {
+    foreach ($this->Commits as $Commit) {
       $Commit->deleteFromDB();
     }
 
@@ -239,30 +259,35 @@ class Assignment {
 
 
 
-  public function isVisible() {
-    if($this->visibility == 2)
+  public function isVisible()
+  {
+    if ($this->visibility == 2)
       return true;
     return false;
   }
-  public function isCompleteable() {
-    if($this->status != -1 && $this->visibility != 4)
+  public function isCompleteable()
+  {
+    if ($this->status != -1 && $this->visibility != 4)
       return true;
     return false;
   }
-  public function isCompleted() {
-    if($this->status == 4)
+  public function isCompleted()
+  {
+    if ($this->status == 4)
       return true;
     return false;
   }
-  public function isWaitingForCheck() {
-    if($this->status == 1)
+  public function isWaitingForCheck()
+  {
+    if ($this->status == 1)
       return true;
     return false;
   }
 
 
   // TODO: на будущее - исправить
-  public function getNextAssignmentVisibility() {
+  public function getNextAssignmentVisibility()
+  {
     if ($this->visibility == 0)
       return 2;
     else if ($this->visibility == 2)
@@ -271,7 +296,8 @@ class Assignment {
       return 0;
     else $this->visibility;
   }
-  public function getNextAssignmentStatus() {
+  public function getNextAssignmentStatus()
+  {
     if ($this->status == 0) {
       return -1;
     } else if ($this->status == -1) {
@@ -280,24 +306,27 @@ class Assignment {
     return $this->status;
   }
 
-// -- END WORK WITH ASSIGNMENT
+  // -- END WORK WITH ASSIGNMENT
 
 
 
-// WORK WITH STUDENTS 
+  // WORK WITH STUDENTS 
 
-  public function addStudent($student_id) {
+  public function addStudent($student_id)
+  {
     $Student = new User((int)$student_id);
     $this->pushStudentToAssignmentDB($student_id);
     array_push($this->Students, $Student);
   }
-  public function addStudents($Students) {
+  public function addStudents($Students)
+  {
     $this->pushStudentsToAssignmentDB($Students);
     foreach ($Students as $Student) {
       array_push($this->Students, $Student);
     }
   }
-  public function deleteStudent($student_id) {
+  public function deleteStudent($student_id)
+  {
     $index = $this->findStudentById($student_id);
     if ($index != -1) {
       $this->deleteStudentFromAssignmentDB($student_id);
@@ -305,69 +334,77 @@ class Assignment {
       unset($this->Students[$index]);
     }
   }
-  private function findStudentById($student_id) {
+  private function findStudentById($student_id)
+  {
     $index = 0;
-    foreach($this->Students as $Student) {
+    foreach ($this->Students as $Student) {
       if ($Student->id == $student_id)
         return $index;
       $index++;
     }
     return -1;
   }
-  public function getStudentById($student_id) {
-    foreach($this->Students as $Student) {
+  public function getStudentById($student_id)
+  {
+    foreach ($this->Students as $Student) {
       if ($Student->id == $student_id)
         return $Student;
     }
     return null;
   }
-  public function checkStudent($student_id) {
-    foreach($this->Students as $Student) {
+  public function checkStudent($student_id)
+  {
+    foreach ($this->Students as $Student) {
       if ((int)$Student->id == (int)$student_id)
         return true;
     }
     return false;
   }
 
-  private function pushStudentToAssignmentDB($student_id){
+  private function pushStudentToAssignmentDB($student_id)
+  {
     global $dbconnect;
 
     $query = "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function pushStudentsToAssignmentDB($Students) {
+  private function pushStudentsToAssignmentDB($Students)
+  {
     global $dbconnect;
 
     $query = "";
     if (!empty($Students)) {
-      foreach($Students as $Student) {
+      foreach ($Students as $Student) {
         $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
     }
-    
+
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function deleteStudentFromAssignmentDB($student_id) {
+  private function deleteStudentFromAssignmentDB($student_id)
+  {
     global $dbconnect;
 
     $query = "DELETE FROM ax_assignment_student WHERE student_user_id = $student_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function synchStudentsToAssignmentDB() {
+  private function synchStudentsToAssignmentDB()
+  {
     global $dbconnect;
 
     $this->deleteStudentsFromAssignmentDB();
 
     $query = "";
     if (!empty($this->Students)) {
-      foreach($this->Students as $Student) {
+      foreach ($this->Students as $Student) {
         $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
     }
-    
+
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function deleteStudentsFromAssignmentDB() {
+  private function deleteStudentsFromAssignmentDB()
+  {
     global $dbconnect;
 
     // Удаляем предыдущие прикрепления студентов
@@ -375,42 +412,47 @@ class Assignment {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-// -- END WORK WITH STUDENTS 
+  // -- END WORK WITH STUDENTS 
 
 
 
-// WORK WITH MESSAGES
+  // WORK WITH MESSAGES
 
-  public function addMessage($message_id) {
+  public function addMessage($message_id)
+  {
     $Message = new Message((int)$message_id);
     // $this->pushNewToDeliveryDB($Message);
     array_push($this->Messages, $Message);
   }
-  public function deleteMessage($message_id) {
+  public function deleteMessage($message_id)
+  {
     $index = $this->findMessageById($message_id);
     if ($index != -1) {
       $this->Messages[$index]->deleteFromDB();
       unset($this->Messages[$index]);
     }
   }
-  private function findMessageById($message_id) {
+  private function findMessageById($message_id)
+  {
     $index = 0;
-    foreach($this->Messages as $Message) {
+    foreach ($this->Messages as $Message) {
       if ($Message->id == $message_id)
         return $index;
       $index++;
     }
     return -1;
   }
-  public function getMessageById($message_id) {
-    foreach($this->Messages as $Message) {
+  public function getMessageById($message_id)
+  {
+    foreach ($this->Messages as $Message) {
       if ($Message->id == $message_id)
         return $Message;
     }
     return null;
   }
-  public function getFirstUnreadedMessage($user_id) {
-    global $dbconnect; 
+  public function getFirstUnreadedMessage($user_id)
+  {
+    global $dbconnect;
 
     $User = new User((int)$user_id);
 
@@ -419,36 +461,40 @@ class Assignment {
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     return pg_fetch_assoc($pg_query)['min_message_id'];
   }
-  public function getLastAnswerMessage() {
-    for ($i=count($this->Messages)-1; $i >= 0; $i--) { 
+  public function getLastAnswerMessage()
+  {
+    for ($i = count($this->Messages) - 1; $i >= 0; $i--) {
       if ($this->Messages[$i]->type == 1)
         return $this->Messages[$i];
     }
   }
-  public function getUnreadedMessagesForTeacher() {
+  public function getUnreadedMessagesForTeacher()
+  {
     $unreadedMessages = array();
-    foreach($this->Messages as $Message) {
+    foreach ($this->Messages as $Message) {
       if (!$Message->isReadedByTeacher())
         array_push($unreadedMessages, $Message);
     }
     return $unreadedMessages;
   }
-  public function getUnreadedMessagesForStudent() {
+  public function getUnreadedMessagesForStudent()
+  {
     $unreadedMessages = array();
-    foreach($this->Messages as $Message) {
+    foreach ($this->Messages as $Message) {
       if (!$Message->isReadedByStudent())
         array_push($unreadedMessages, $Message);
     }
     return $unreadedMessages;
   }
-  
 
 
-  function pushNewToDeliveryDB($Message) {
+
+  function pushNewToDeliveryDB($Message)
+  {
     global $dbconnect;
 
     $query = "";
-    foreach($this->Students as $Student) {
+    foreach ($this->Students as $Student) {
       if ($Student->id != $Message->sender_user_id) {
         $query .= "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
                   VALUES ($Message->id, $Student->id, 0)";
@@ -456,7 +502,7 @@ class Assignment {
     }
 
     $Teachers = getTeachersByAssignment($this->id);
-    foreach($Teachers as $Teacher) {
+    foreach ($Teachers as $Teacher) {
       if ($Teacher->id != $Message->sender_user_id) {
         $query .= "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
                   VALUES ($Message->id, $Teacher->id, 0)";
@@ -478,7 +524,8 @@ class Assignment {
   //   return $new_messages;
   // }
 
-  function getNewMessagesByUser($user_id) {
+  function getNewMessagesByUser($user_id)
+  {
     $new_messages = array();
     $User = new User($user_id);
     foreach ($this->Messages as $Message) {
@@ -489,7 +536,8 @@ class Assignment {
   }
 
   // TODO: Исправить на работу с таблицей ax_message_delivery
-  public function getCountUnreadedMessages($user_id) {
+  public function getCountUnreadedMessages($user_id)
+  {
     $count_unreaded = 0;
     foreach ($this->Messages as $Message) {
       if ($Message->status == 0)
@@ -498,82 +546,92 @@ class Assignment {
     return $count_unreaded;
   }
 
-// -- END WORK WITH MESSAGES 
+  // -- END WORK WITH MESSAGES 
 
 
 
-// WORK WITH COMMITS
+  // WORK WITH COMMITS
 
-  public function addCommit($commit_id) {
+  public function addCommit($commit_id)
+  {
     $Commit = new Commit((int)$commit_id);
     array_push($this->Commits, $Commit);
   }
-  public function deleteCommit($commit_id) {
+  public function deleteCommit($commit_id)
+  {
     $index = $this->findCommitById($commit_id);
     if ($index != -1) {
       $this->Commits[$index]->deleteFromDB();
       unset($this->Commits[$index]);
     }
   }
-  private function findCommitById($commit_id) {
+  private function findCommitById($commit_id)
+  {
     $index = 0;
-    foreach($this->Commits as $Commit) {
+    foreach ($this->Commits as $Commit) {
       if ($Commit->id == $commit_id)
         return $index;
       $index++;
     }
     return -1;
   }
-  public function getCommitById($commit_id) {
-    foreach($this->Commits as $Commit) {
+  public function getCommitById($commit_id)
+  {
+    foreach ($this->Commits as $Commit) {
       if ($Commit->id == $commit_id)
         return $Commit;
     }
     return null;
   }
-  public function getLastCommit() {
+  public function getLastCommit()
+  {
     return end($this->Commits);
   }
-  public function getLastCommitForStudent() {
+  public function getLastCommitForStudent()
+  {
     $count = count($this->getCommitsForStudent());
     if ($count > 0)
-      return $this->getCommitsForStudent()[$count-1];
-    else 
+      return $this->getCommitsForStudent()[$count - 1];
+    else
       return null;
   }
-  public function getLastCommitForTeacher() {
+  public function getLastCommitForTeacher()
+  {
     $count = count($this->getCommitsForTeacher());
     if ($count > 0)
-      return $this->getCommitsForTeacher()[$count-1];
-    else  
+      return $this->getCommitsForTeacher()[$count - 1];
+    else
       return null;
   }
 
-  public function getCommitsForStudent() {
+  public function getCommitsForStudent()
+  {
     $studentCommits = array();
-    foreach($this->Commits as $Commit) {
-      if(!$Commit->isEditByTeacher()) {
+    foreach ($this->Commits as $Commit) {
+      if (!$Commit->isEditByTeacher()) {
         array_push($studentCommits, $Commit);
       }
     }
     return $studentCommits;
   }
-  public function getCommitsForTeacher() {
+  public function getCommitsForTeacher()
+  {
     $teacherCommits = array();
-    foreach($this->Commits as $Commit) {
-      if(!$Commit->isEditByStudent()) {
+    foreach ($this->Commits as $Commit) {
+      if (!$Commit->isEditByStudent()) {
         array_push($teacherCommits, $Commit);
       }
     }
     return $teacherCommits;
   }
 
-// -- END WORK WITH COMMITS 
-  
+  // -- END WORK WITH COMMITS 
+
 
 }
 
-function getTeachersByAssignment($assignment_id) {
+function getTeachersByAssignment($assignment_id)
+{
   global $dbconnect;
 
   $query = queryGetPageByAssignment($assignment_id);
@@ -587,7 +645,8 @@ function getTeachersByAssignment($assignment_id) {
 
 
 
-function getStudentsByAssignment($assignment_id) {
+function getStudentsByAssignment($assignment_id)
+{
   global $dbconnect;
 
   $students = array();
@@ -595,14 +654,15 @@ function getStudentsByAssignment($assignment_id) {
   $query = queryGetStudentsByAssignment($assignment_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-  while($student_row = pg_fetch_assoc($result)){
+  while ($student_row = pg_fetch_assoc($result)) {
     array_push($students, new User((int)$student_row['id']));
   }
 
   return $students;
 }
 
-function getMessagesByAssignment($assignment_id) {
+function getMessagesByAssignment($assignment_id)
+{
   global $dbconnect;
 
   $messages = array();
@@ -610,14 +670,15 @@ function getMessagesByAssignment($assignment_id) {
   $query = queryGetMessagesByAssignment($assignment_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-  while($message_row = pg_fetch_assoc($result)){
+  while ($message_row = pg_fetch_assoc($result)) {
     array_push($messages, new Message((int)$message_row['id']));
   }
 
   return $messages;
 }
 
-function getCommitsByAssignment($assignment_id) {
+function getCommitsByAssignment($assignment_id)
+{
   global $dbconnect;
 
   $commits = array();
@@ -625,14 +686,15 @@ function getCommitsByAssignment($assignment_id) {
   $query = queryGetCommitsByAssignment($assignment_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-  while($commit_row = pg_fetch_assoc($result)){
+  while ($commit_row = pg_fetch_assoc($result)) {
     array_push($commits, new Commit((int)$commit_row['id']));
   }
 
   return $commits;
 }
 
-function getAssignmentByCommit($commit_id){
+function getAssignmentByCommit($commit_id)
+{
   global $dbconnect;
 
   $query = "SELECT assignment_id FROM ax_solution_commit WHERE id = $commit_id";
@@ -644,24 +706,28 @@ function getAssignmentByCommit($commit_id){
 
 
 
-function queryGetAssignmentInfo($assignment_id) {
+function queryGetAssignmentInfo($assignment_id)
+{
   return "SELECT *, to_char(ax_assignment.start_limit, 'YYYY-MM-DD') as converted_start_limit,
           to_char(ax_assignment.finish_limit, 'YYYY-MM-DD') as converted_finish_limit
           FROM ax_assignment WHERE id = $assignment_id";
 }
 
-function queryGetStudentsByAssignment($assignment_id){
+function queryGetStudentsByAssignment($assignment_id)
+{
   return "SELECT student_user_id as id FROM ax_assignment_student
           WHERE ax_assignment_student.assignment_id = $assignment_id;";
 }
 
-function queryGetMessagesByAssignment($assignment_id){
+function queryGetMessagesByAssignment($assignment_id)
+{
   return "SELECT id FROM ax_message
           WHERE assignment_id = $assignment_id AND (status = 0 OR status = 1)
           ORDER BY id;";
 }
 
-function queryGetCommitsByAssignment($assignment_id){
+function queryGetCommitsByAssignment($assignment_id)
+{
   return "SELECT id FROM ax_solution_commit
           WHERE assignment_id = $assignment_id
           ORDER BY id;";
@@ -674,11 +740,12 @@ function queryGetCommitsByAssignment($assignment_id){
 
 
 
-function visibility_to_text($visibility) {
+function visibility_to_text($visibility)
+{
   switch ($visibility) {
     case 0:
       return "Недоступно для просмотра";
-    case 2: 
+    case 2:
       return "Доступно для просмотра";
     case 4:
       return "Отменено";
@@ -687,15 +754,16 @@ function visibility_to_text($visibility) {
   }
 }
 
-function status_to_text($status) {
+function status_to_text($status)
+{
   switch ($status) {
     case -1:
       return "Недоступно для выполнения";
     case 0:
-      return "Ожидает выполнения"; 
+      return "Ожидает выполнения";
     case 1:
       return "Ожидает проверки";
-    case 2: 
+    case 2:
       return "Проверено, не оценено";
     case 3:
       return "Ожидает повторного выполнения";
@@ -705,4 +773,3 @@ function status_to_text($status) {
       return "";
   }
 }
-?>

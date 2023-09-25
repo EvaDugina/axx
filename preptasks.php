@@ -93,26 +93,22 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                               &nbsp;&nbsp;<?= $Task->title ?>
                             </h6>
 
-
-                            <?php
-                            $query = select_assigned_students($Task->id);
-                            $result2 = pg_query($dbconnect, $query);
-                            if ($result2 && pg_num_rows($result2) > 0) {
-                              $i = 0; ?>
-
+                            <?php if (count($Task->getAssignments()) > 0) { ?>
                               <div class="small">Назначения:</div>
                               <div id="student_container">
                                 <?php
 
                                 foreach ($Task->getAssignments() as $Assignment) {
                                   $stud_list = "";
+                                  $countStudents = 0;
                                   foreach ($Assignment->getStudents() as $i => $Student) {
                                     if ($i != 0)
                                       $stud_list .= ", ";
                                     $stud_list .= $Student->getFI();
+                                    $countStudents++;
                                   }
                                   $icon_multiusers = false;
-                                  if ($i > 0)
+                                  if ($countStudents > 0)
                                     $icon_multiusers = true;
                                 ?>
                                   <form id="form-rejectAssignment-<?= $Assignment->id ?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
@@ -134,7 +130,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                                           </span>
                                           <i class="fas fa-user<?= (($icon_multiusers) ? "s" : "") ?>"></i> <?= $stud_list ?>
                                         <?php }
-                                        if (checkPHPDateForDateFields(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
+                                        if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
                                           echo " (до $Assignment->finish_limit)";
                                         else
                                           echo " (бессрочно)"; ?>
@@ -154,6 +150,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                                 <?php //$i++;
                                 } ?>
                               </div>
+
                             <?php } ?>
 
 
