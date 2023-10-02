@@ -1,9 +1,5 @@
-
-
-
-
-$('#user-message').on('input', function() {
-    if ($(this).val() != '') {
+$('#user-message').on('input', function () {
+  if ($(this).val() != '') {
     $(this).css('height', '88.8px');
     $('body, html').scrollTop($('body, html').prop('scrollHeight'));
   }
@@ -14,19 +10,11 @@ $('#user-message').on('input', function() {
 
 
 // Показывает количество прикрепленных для отправки файлов
-$('#user-files').on('change', function() {
-  // TODO: Сделать удаление числа, если оно 0
-  if (this.files.length != 0)
-    $('#files-count').html(this.files.length);
-  else
-    $('#files-count').html(this.files.length);
-});
-
-// Показывает количество прикрепленных для отправки файлов
-$('#user-answer-files').on('change', function() {
+$('#user-answer-files').on('change', function () {
   // TODO: Сделать удаление числа, если оно 0
   $('#files-answer-count').html(this.files.length);
 });
+
 
 function formatDate(date) {
   let dayOfMonth = date.getDate();
