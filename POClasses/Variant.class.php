@@ -1,15 +1,17 @@
 
-<?php 
+<?php
 require_once("./settings.php");
 
-class Variant {
+class Variant
+{
 
   public $id;
   public $total_count, $passed_count;
   public $comment, $number;
 
 
-  function __construct() {
+  function __construct()
+  {
     global $dbconnect;
 
     $count_args = func_num_args();
@@ -17,8 +19,8 @@ class Variant {
 
     // Перегружаем конструктор по количеству подданых параметров
 
-    if ($count_args == 1 && is_int($args[0])) {
-      $this->id = $args[0];
+    if ($count_args == 1) {
+      $this->id = (int)$args[0];
 
       $query = queryGetVariantInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -28,14 +30,10 @@ class Variant {
       $this->passed_count = $variant['passed_count'];
       $this->comment = $variant['variant_comment'];
       $this->number = $variant['variant_num'];
-    }
-
-    else {
+    } else {
       die('Неверные аргументы в конструкторе Variant');
     }
-
   }
-
 }
 
 
@@ -44,7 +42,8 @@ class Variant {
 
 
 
-function queryGetVariantInfo($variant_id){
+function queryGetVariantInfo($variant_id)
+{
   return "SELECT * FROM ax_student_page_info WHERE id = $variant_id;";
 }
 

@@ -21,8 +21,8 @@ class Commit
 
     // Перегружаем конструктор по количеству подданых параметров
 
-    if ($count_args == 1 && is_int($args[0])) {
-      $this->id = $args[0];
+    if ($count_args == 1) {
+      $this->id = (int)$args[0];
 
       $query = queryGetCommitInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());

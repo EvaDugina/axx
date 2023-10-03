@@ -135,26 +135,32 @@ function renameFile(event) {
     input.setSelectionRange(last_name.length, last_name.length);
     input.focus();
     
-    input.onblur =  function() { 
+    input.addEventListener("keydown", function(e) { 
+      if(e.key == "Enter") {
         let new_name = input.value;
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log(e.target)
         
         if(last_name != new_name && !checkOriginalFileName(new_name, li.dataset.orderId)) {
             alert("Введите оригинальное имя файла!");
         } else {
           input.type = "button";
-            input.className = "form-control-plaintext form-control-sm validationCustom";
-            input.style.cursor = "pointer";
+          input.className = "form-control-plaintext form-control-sm validationCustom";
+          input.style.cursor = "pointer";
 
-            var id = input.id;
-            var param = document.location.href.split("?")[1].split("#")[0];
-            if (param == '') param = 'void';
-            makeRequest('textdb.php?' + param + "&type=rename&new_file_name="+new_name+"&id=" + id, "rename");
-        
-            listItems = list.querySelectorAll(".tasks__item");
+          var id = input.id;
+          var param = document.location.href.split("?")[1].split("#")[0];
+          if (param == '') param = 'void';
+          makeRequest('textdb.php?' + param + "&type=rename&new_file_name="+new_name+"&id=" + id, "rename");
+      
+          listItems = list.querySelectorAll(".tasks__item");
 
-            array_files[li.dataset.orderid] = new_name;
+          array_files[li.dataset.orderid] = new_name;
         }
-    };
+      }
+    });
 
 
 
@@ -272,7 +278,7 @@ function makeRequest(url, type) {
                 // let response = JSON.parse(httpRequest.responseText);
                 // window.location = "editor.php?assignment=" + response.assignment_id + "&commit=" + response.commit_id;
                 // window.location.href = httpRequest.responceURL;
-                location.reload();
+                document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
             }  
         }; 
         httpRequest.open('GET', encodeURI(url), true);
@@ -344,7 +350,8 @@ function alertContentsCheck(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
 				alert('Новая копия проекта отправлена. Вы продолжаете работу со своей копией');
-				document.location.href = "taskchat.php?assignment=" + document.getElementById('check').getAttribute('assignment');
+				document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
+				// document.location.reload();
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
             }
