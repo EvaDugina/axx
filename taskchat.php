@@ -251,7 +251,11 @@ $task_number = explode('.', $task_title)[0];
                 </div>
               </div>
               <?php if (!$Task->isConversation()) { ?>
-                <a href="download_file.php?download_task_files=&task_id=<?= $task_id ?>" style="height:fit-content;" class="btn btn-primary" target="_blank"><i class="fa-solid fa-file-arrow-down"></i>
+                <a href="download_file.php?download_task_files=&task_id=<?= $task_id ?>" style="height:fit-content;" class="btn btn-primary" target="_blank">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                  </svg>
                   <span>&nbsp;&nbsp;Скачать задание</span>
                 </a>
               <?php } ?>
@@ -278,7 +282,9 @@ $task_number = explode('.', $task_title)[0];
             <div class="w-100">
               <div>
                 <a href="editor.php?assignment=<?= $assignment_id ?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
-                  <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash" viewBox="0 0 16 16">
+                    <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" />
+                  </svg>&nbsp;&nbsp;
                   Онлайн редактор кода
                 </a>
               </div>
@@ -296,23 +302,31 @@ $task_number = explode('.', $task_title)[0];
                       </select>
                     </div>
                     <button id="button-check" class="btn btn-success" target="_blank" type="submit" name="submit-check" style="width: 100%;">
-                      <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;Оценить ответ</button>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                        <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                      </svg>&nbsp;&nbsp;Оценить ответ</button>
                   </div>
                 </form>
               <?php } else if ($Assignment->isCompleteable()) { // Отправить задание на проверку 
               ?>
                 <form id="form-send-answer" action="taskchat_action.php" method="POST">
-                  <div class="d-flex flex-row my-2 justify-content-end">
-                    <div class=" file-input-wrapper me-1">
+                  <div class="d-flex flex-row my-2 justify-content-end align-items-center">
+                    <div class=" file-input-wrapper me-2">
                       <input type="hidden" name="MAX_FILE_SIZE" value="<?= $MAX_FILE_SIZE ?>" />
                       <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
-                      <label for="user-answer-files" <?php if ($task_status_code == 4) echo 'style="cursor: default;"'; ?>>
-                        <i class="fa-solid fa-paperclip"></i>
+                      <label for="user-answer-files" class="p-1" <?php if ($task_status_code == 4) echo 'style="cursor: pointer;"'; ?>>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip h-100 w-100" height="25" width="25" viewBox="0 0 16 16">
+                          <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"></path>
+                        </svg>
                         <span id="files-answer-count" class="text-success"></span>
                       </label>
                     </div>
                     <button id="submit-answer" class="btn btn-success submit-files w-75" target="_blank" type="submit" name="submit-answer">
-                      <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
+                      </svg>&nbsp;&nbsp;Загрузить ответ</button>
                   </div>
                   <div id="div-attachedAnswerFiles" class="d-flex mt-2 justify-content-end flex-wrap">
 
@@ -389,9 +403,15 @@ $task_number = explode('.', $task_title)[0];
               <div class="file-input-wrapper">
                 <input type="hidden" name="MAX_FILE_SIZE" value="<?= $MAX_FILE_SIZE ?>" />
                 <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
-                <label for="user-files">
-                  <i class="fa-solid fa-paperclip"></i>
-                  <span id="files-count" class="label-files-count"></span>
+                <!-- <label for="user-files"> -->
+                <!-- <i class="fa-solid fa-paperclip"></i> -->
+                <!-- <span id="files-count" class="label-files-count"></span> -->
+                <!-- </label> -->
+                <label for="user-files" class="p-1" style="cursor: pointer;">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip h-100 w-100" height="25" width="25" viewBox="0 0 16 16">
+                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"></path>
+                  </svg>
+                  <span id="files-count" class="text-success"></span>
                 </label>
               </div>
               <textarea name="user-message" id="textarea-user-message" class="border rounded w-100 p-1 mx-2" style="resize:none; overflow:hidden;" placeholder="Напишите сообщение..." rows="1"></textarea>
@@ -436,6 +456,7 @@ $task_number = explode('.', $task_title)[0];
           // console.log(userFiles);
           if (answerFiles.length < 1) {
             event.preventDefault();
+            alert("Для отправки ответа задание необходимо прикрепить файлы!");
             return false;
           } else {
             // var userMessage = 'Ответ на <<?= $task_number ?>>:';
@@ -464,6 +485,7 @@ $task_number = explode('.', $task_title)[0];
           // console.log(selector_mark);
           if (mark == -1) {
             // console.log("ОЦЕНКА НЕ ВЫБРАНА");
+            alert("Для проверки задания необходимо выбрать оценку!");
             return false;
           } else {
             var userMessage = "Задание проверено.\nОценка: " + mark;
@@ -497,7 +519,6 @@ $task_number = explode('.', $task_title)[0];
       // Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
       $("#submit-message").click(function() {
         var userMessage = $("#textarea-user-message").val();
-
 
         if (sendMessage(userMessage, messageFiles, 0, null, true)) {
           event.preventDefault();
