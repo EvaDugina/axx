@@ -217,7 +217,7 @@ show_head("Добавление\Редактирование задания", ar
                 <input type="hidden" name="flag-addFiles" value="true"></input>
                 <label id="button-addFiles" class="btn btn-outline-default py-2 px-4">
                   <input id="task-files" type="file" name="add-files[]" style="display: none;" multiple>
-                  <i class="fa-solid fa-paperclip"></i>
+                  <i class="fas fa-paperclip fa-lg"></i>
                   <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
                 </label>
               </form>

@@ -328,7 +328,7 @@ $task_number = explode('.', $task_title)[0];
                         <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
                       </svg>&nbsp;&nbsp;Загрузить ответ</button>
                   </div>
-                  <div id="div-attachedAnswerFiles" class="d-flex mt-2 justify-content-end flex-wrap">
+                  <div id="div-attachedAnswerFiles" class="d-flex flex-wrap justify-content-end mt-2">
 
                   </div>
                 </form>
@@ -417,7 +417,7 @@ $task_number = explode('.', $task_title)[0];
               <textarea name="user-message" id="textarea-user-message" class="border rounded w-100 p-1 mx-2" style="resize:none; overflow:hidden;" placeholder="Напишите сообщение..." rows="1"></textarea>
               <button type="submit" name="submit-message" id="submit-message">Отправить</button>
             </div>
-            <div id="div-attachedFiles" class="d-flex mt-2">
+            <div id="div-attachedFiles" class="d-flex flex-wrap mt-2">
 
             </div>
             <!-- <p id="p-errorFileName" class="error" style="display: none;">Ошибка! Файл с таким названием уже существует!</p> -->

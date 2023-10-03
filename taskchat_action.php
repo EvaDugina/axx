@@ -261,7 +261,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
     if ($isNewMessage) { ?>
       <div id="new-messages" style="width: 100%; text-align: center">Новые сообщения</div>
     <?php } ?>
-    <div id="message-<?= $Message->id ?>" class="<?= $float_class ?> d-flex flex-column p-2" style="height: fit-content; max-width: 60%; min-width: 30%;">
+    <div id="message-<?= $Message->id ?>" class="<?= $float_class ?> d-flex flex-column p-2" style="height: fit-content; max-width: 75%; min-width: 30%;">
       <button id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
       d-flex flex-column w-100 h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> " style="<?php if ($Message->type == 1) echo "border-color: green;";
                                                                                           else if ($Message->type == 2) echo "border-color: red;" ?> text-transform: unset;" onclick="selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_type ?>)">

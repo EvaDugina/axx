@@ -760,7 +760,7 @@ function status_to_text($status)
     case -1:
       return "Недоступно для выполнения";
     case 0:
-      return "Ожидает выполнения";
+      return "Доступно для выполнения";
     case 1:
       return "Ожидает проверки";
     case 2:

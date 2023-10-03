@@ -234,14 +234,15 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </ul>
           </div>
 
+          <?php if ($au->isStudent())
+            $Commits = $Assignment->getCommitsForStudent();
+          else
+            $Commits = $Assignment->getCommitsForTeacher(); ?>
 
           <div class="flex-column mt-3">
             <p><strong>История коммитов</strong></p>
-            <div id="div-history-commit-btns" class="flex-column mb-5 pe-3" style="overflow-y: scroll; height: 700px;">
-              <?php if ($au->isStudent())
-                $Commits = $Assignment->getCommitsForStudent();
-              else
-                $Commits = $Assignment->getCommitsForTeacher(); ?>
+            <div id="div-history-commit-btns" class="flex-column mb-5 pe-3" style="<?= (count($Commits) > 10) ? "overflow-y: scroll;" : "overflow-y: hidden;" ?> max-height: 700px; min-height: 0px;">
+
               <?php foreach ($Commits as $i => $Commit) { ?>
                 <button class="btn btn-<?= ($Commit->isNotEdit()) ? "success" : "primary" ?> mb-1 d-flex align-items-center justify-content-between w-100" onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'" <?= ($Commit->id == $last_commit_id) ? "disabled" : "" ?>>
                   <?= $i + 1 ?> &nbsp;&nbsp;
@@ -609,13 +610,24 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                         <div class="file-input-wrapper">
                           <input type="hidden" name="MAX_FILE_SIZE" value="<?= $MAX_FILE_SIZE ?>" />
                           <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
-                          <label for="user-files">
-                            <i class="fa-solid fa-paperclip"></i><span id="files-count" class="label-files-count"></span>
+                          <!-- <label for="user-files"> -->
+                          <!-- <i class="fa-solid fa-paperclip"></i> -->
+                          <!-- <span id="files-count" class="label-files-count"></span> -->
+                          <!-- </label> -->
+                          <label for="user-files" class="p-1" style="cursor: pointer;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip h-100 w-100" height="30" width="30" viewBox="0 0 16 16">
+                              <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"></path>
+                            </svg>
+                            <span id="files-count" class="text-success"></span>
                           </label>
                         </div>
-                        <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+                        <textarea name="user-message" id="textarea-user-message" class="border rounded w-100 p-1 mx-2" style="resize:none; overflow:hidden;" placeholder="Напишите сообщение..." rows="1"></textarea>
                         <button type="submit" name="submit-message" id="submit-message">Отправить</button>
                       </div>
+                      <div id="div-attachedFiles" class="d-flex flex-wrap mt-2">
+
+                      </div>
+                      <!-- <p id="p-errorFileName" class="error" style="display: none;">Ошибка! Файл с таким названием уже существует!</p> -->
                     </form>
                   <?php } ?>
 
@@ -748,6 +760,8 @@ fun();
     // После первой загрузки скролим страницу вниз
     // $('body, html').scrollTop($('body, html').prop('scrollHeight'));
 
+    var messageFiles = [];
+
     $(document).ready(function() {
 
       let button_check = document.getElementById('button-check');
@@ -757,20 +771,21 @@ fun();
 
       // Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
       $("#submit-message").click(function() {
-        var userMessage = $("#user-message").val();
-        var userFiles = $("#user-files");
+        var userMessage = $("#textarea-user-message").val();
 
-        if (!sendMessage(userMessage, userFiles, 0)) {
+        if (sendMessage(userMessage, messageFiles, 0, null, true)) {
           event.preventDefault();
           // console.log("Сообщение было успешно отсправлено");
         } else {
           // console.log("Сообщение не было отправлено");
         }
 
-        $("#user-message").val("");
-        $("#user-message").css('height', '37.6px');
+        $("#textarea-user-message").val("");
+        // $("#user-message").css('height', '37.6px');
         $("#user-files").val("");
         $('#files-count').html('');
+        $('#div-attachedFiles').empty();
+        messageFiles = [];
 
         loadChatLog(true);
 
@@ -783,8 +798,105 @@ fun();
       // Обновление лога чата раз в 1 секунд
       setInterval(loadChatLog, 100000);
 
-
     });
+
+
+    // Показывает количество прикрепленных для отправки файлов
+    $('#user-files').on('change', function() {
+      // TODO: Сделать удаление числа, если оно 0
+      if (this.files.length != 0) {
+        let div = document.getElementById("div-attachedFiles");
+        Object.entries(this.files).forEach(file => {
+          if (checkIfFileIsExist(messageFiles, file[1].name)) {
+            alert("Внимание! Файл с таким названием уже прикреплён!")
+          } else {
+            add_element(div, file[1].name, "messageFiles[]", messageFiles.length);
+            messageFiles.push(file[1]);
+          }
+        });
+        $('#files-count').html(messageFiles.length);
+      }
+    });
+
+
+    function checkIfFileIsExist(arrayFiles, file_name) {
+      flag = false;
+      arrayFiles.forEach(file => {
+        if (file.name == file_name) {
+          flag = true;
+          return;
+        }
+      });
+      return flag;
+    }
+
+    function add_element(parent, name, tag, id) {
+      let element = document.createElement("div");
+
+      //element.classList.add("col-lg-2");
+      element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-2 mt-1 badge badge-light text-wrap teacher-element");
+      element.id = "messageFile-" + id;
+
+      //  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
+      //   <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z"/>
+      // </svg>
+
+      let svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
+      svg.classList.add("bi", "bi-file-earmark-fill");
+      svg.setAttribute("width", "16");
+      svg.setAttribute("height", "16");
+      svg.setAttribute("fill", "currentColor");
+      svg.setAttribute("viewBox", "0 0 16 16");
+      svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      let path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+      path.setAttribute("d", "M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z");
+      svg.appendChild(path);
+
+      element.appendChild(svg);
+
+      let text = document.createElement("span");
+      text.classList.add("p-1", "me-1");
+      text.setAttribute("style", "font-size: 13px; /*border-right: 1px solid; border-color: grey;*/");
+      text.innerText = name;
+
+      let button = document.createElement("button");
+      button.classList.add("btn-close");
+
+      button.setAttribute("aria-label", "Close");
+      button.setAttribute("type", "button");
+      button.setAttribute("style", "font-size: 10px;");
+
+      element.append(text);
+      element.append(button);
+      parent.append(element);
+
+      button.addEventListener('click', function(event) {
+        if (tag == "answerFiles[]") {
+          let index_file = answerFiles.findIndex((file) => file.name == name);
+          if (index_file != -1) {
+            answerFiles.splice(index_file, 1);
+          }
+          if (answerFiles.length > 0)
+            $('#files-answer-count').html(answerFiles.length);
+          else
+            $('#files-answer-count').html("");
+        } else if (tag == "messageFiles[]") {
+          let index_file = messageFiles.findIndex((file) => file.name == name);
+          if (index_file != -1) {
+            messageFiles.splice(index_file, 1);
+          }
+          if (messageFiles.length > 0)
+            $('#files-count').html(messageFiles.length);
+          else
+            $('#files-count').html("");
+        }
+
+        parent.removeChild(event.target.parentNode);
+
+
+      });
+
+    }
 
 
 
@@ -838,9 +950,14 @@ fun();
     }
 
 
-    function sendMessage(userMessage, userFiles, typeMessage, mark = null) {
-      if ($.trim(userMessage) == '' && userFiles.val() == '') {
+    function sendMessage(userMessage, userFiles, typeMessage, mark = null, defaultMessage = false) {
+
+      if ($.trim(userMessage) == '' && userFiles.length < 1) {
         // console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
+        if (defaultMessage)
+          alert("Нельзя отправить пустое сообщение!");
+        else
+          alert("Для отправки ответа задание необходимо прикрепить файлы!");
         return false;
       }
 
@@ -851,10 +968,10 @@ fun();
       formData.append('user_id', <?= $user_id ?>);
       formData.append('message_text', userMessage);
       formData.append('type', typeMessage);
-      if (userFiles) {
+      if (userFiles != null && userFiles.length > 0) {
         // console.log("EEEEEEEEEE");
         //formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
-        $.each(userFiles[0].files, function(key, input) {
+        $.each(userFiles, function(key, input) {
           // console.log(input.size);
           // console.log(<?= $MAX_FILE_SIZE ?>*0.8);
           if (input.size < <?= $MAX_FILE_SIZE ?> * 0.8) {
