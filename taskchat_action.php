@@ -46,7 +46,7 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
     // ПРИКРЕПЛЕНИЕ ОТВЕТА К ЗАДАНИЮ
 
 
-    $Commit = new Commit((int)$assignment_id, null, (int)$user_id, null, null);
+    $Commit = new Commit((int)$assignment_id, null, (int)$user_id, 1, null);
 
     $Message_answer = new Message((int)$assignment_id, 1, $User->id, $User->role, null, $full_text, 0, 0);
     $Assignment->addMessage($Message_answer->id);
@@ -225,7 +225,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
     <div id="message-<?= $Message->id ?>" class="d-flex flex-column p-2">
       <div id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
       d-flex flex-column w-100 h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> " style="<?php if ($Message->type == 1) echo "border-color: green;";
-                                                                                        else if ($Message->type == 2) echo "border-color: red;" ?>">
+                                                                                          else if ($Message->type == 2) echo "border-color: red;" ?>">
         <div class="d-flex align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1" style="text-transform: uppercase;">
           <p class="m-0 p-0"><strong>
               <?= $senderUserFI ?>
@@ -237,7 +237,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
             if ($Message->type == 3) { // если ссылка
           ?>
               <p class="p-0 m-0 h6 text-start" style="text-transform: uppercase;">
-                <a href="<?= $Message->full_text ?>">Проверить код</a>
+                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
               <p class="p-0 m-0 h6 text-start">
@@ -248,7 +248,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           } ?>
         </div>
         <div class="align-self-<?= ($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap" ?>" style="<?= ($Message->type == 3) ? "text-transform: uppercase;" : "" ?>">
-          <?php showMessageFiles($Message->getFiles()); ?>
+          <?php showMessageFiles($Message->getFiles(), $isAuthor); ?>
         </div>
       </div>
       <div class="mb-2 align-self-<?= ($isAuthor) ? "start" : "end" ?>">
@@ -264,7 +264,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
     <div id="message-<?= $Message->id ?>" class="<?= $float_class ?> d-flex flex-column p-2" style="height: fit-content; max-width: 60%; min-width: 30%;">
       <button id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
       d-flex flex-column w-100 h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> " style="<?php if ($Message->type == 1) echo "border-color: green;";
-                                                                                        else if ($Message->type == 2) echo "border-color: red;" ?> text-transform: unset;" onclick="selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_type ?>)">
+                                                                                          else if ($Message->type == 2) echo "border-color: red;" ?> text-transform: unset;" onclick="selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_type ?>)">
         <div class="d-flex align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1" style="text-transform: uppercase;">
           <p class="m-0 p-0"><strong>
               <?= $senderUserFI ?>
@@ -276,7 +276,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
             if ($Message->type == 3) { // если ссылка
           ?>
               <p class="p-0 m-0 h6 text-start" style="text-transform: uppercase;">
-                <a href="<?= $Message->full_text ?>">Проверить код</a>
+                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
               <p class="p-0 m-0 h6 text-start">
@@ -287,7 +287,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           } ?>
         </div>
         <div class="align-self-<?= ($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap" ?>" style="<?= ($Message->type == 3) ? "text-transform: uppercase;" : "" ?>">
-          <?php showMessageFiles($Message->getFiles()); ?>
+          <?php showMessageFiles($Message->getFiles(), $isAuthor); ?>
         </div>
       </button>
       <div class="mb-2 align-self-<?= ($isAuthor) ? "start" : "end" ?>">
@@ -336,9 +336,10 @@ function visualNewMessages($Messages)
         <strong><?= $User->getFI() ?></strong> </br>
         <?php
         if ($message->full_text != '') {
-          if ($message->type == 3) { // если ссылка
-            echo '<a href="' . $message->full_text . '">Проверить код</a>';
-          } else
+          if ($message->type == 3) { // если ссылка 
+        ?>
+            <a href="<?= $message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
+          <?php } else
             echo stripslashes(htmlspecialchars($message->full_text)) . "<br>";
         }
         foreach ($message->getFiles() as $File) {
@@ -346,7 +347,7 @@ function visualNewMessages($Messages)
           if (in_array($file_ext, getImageFileTypes())) { ?>
             <img src="<?= $File->download_url ?>" class="rounded <?= $float_class ?> w-100 mb-1" alt="...">
           <?php } else { ?>
-            <a href="<?= $File->download_url ?>" class="task-desc-wrapper-a" target="_blank">
+            <a href="<?= $File->download_url ?>" class="task-desc-wrapper-a ms-0" target="_blank" onclick="event.stopPropagation()">
               <i class="fa-solid fa-file"></i><?= $File->name ?>
             </a>
         <?php }

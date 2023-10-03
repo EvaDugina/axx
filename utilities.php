@@ -172,26 +172,23 @@ function showTaskchatFiles($Files)
   $count_files = 0;
   $au = new auth_ssh();
   foreach ($Files as $File) {
-    if ($au->isAdminOrTeacher()) {
-      $count_files++; ?>
-      <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 ms-0 me-1 px-3 div-task-file" style="cursor:unset;">
-        <a id="a-file-<?= $File->id ?>" href="<?= $File->getDownloadLink() ?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
-          <?php if ($File->type == 0) { ?>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
-              <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z" />
-            </svg>
-          <?php } ?>
-          &nbsp;<?= $File->name_without_prefix ?>&nbsp;&nbsp;
-        </a>
-      </div>
-
+    $count_files++; ?>
+    <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 ms-0 me-1 px-3 div-task-file" style="cursor:unset;">
+      <a id="a-file-<?= $File->id ?>" href="<?= $File->getDownloadLink() ?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
+        <?php if ($File->type == 0) { ?>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
+            <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z" />
+          </svg>
+        <?php } ?>
+        &nbsp;<?= $File->name_without_prefix ?>&nbsp;&nbsp;
+      </a>
+    </div>
     <?php }
-  }
 }
 
 
 
-function showMessageFiles($Files)
+function showMessageFiles($Files, $isAuthor = false)
 {
   $count_files = 0;
   $au = new auth_ssh();
@@ -201,8 +198,8 @@ function showMessageFiles($Files)
       <?php if (in_array($File->getExt(), getImageFileTypes())) { ?>
         <img src="<?= $File->download_url ?>" class="rounded w-100 mb-1" alt="...">
       <?php } else { ?>
-        <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 mx-1 px-3 div-task-file" style="cursor:unset;">
-          <a id="a-file-<?= $File->id ?>" href="<?= $File->getDownloadLink() ?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
+        <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 <?= ($isAuthor) ? "me-0 ms-1" : "me-1 ms-0" ?> px-3 div-task-file" style="cursor:unset;">
+          <a id="a-file-<?= $File->id ?>" href="<?= $File->getDownloadLink() ?>" target="_blank" class="d-inline-flex justify-content-between align-items-center" onclick="event.stopPropagation()">
             <?= getSVGByFileType($File->type) ?>
             &nbsp;<?= $File->name_without_prefix ?>&nbsp;&nbsp;
           </a>

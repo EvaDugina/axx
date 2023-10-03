@@ -171,12 +171,12 @@ $task_number = explode('.', $task_title)[0];
     );
   ?>
 
-  <main>
-    <div class="task-wrapper">
+  <main class="container pt-3 mt-5">
+    <div class="row mb-3">
       <h2><?= $task_title ?></h2>
-      <div>
-        <div class="task-desc-wrapper <?= $Task->isConversation() ? "me-0" : "" ?>">
-          <div class="d-flex justify-content-between align-self-start align-items-center">
+      <div class="row">
+        <div class="border rounded <?= $Task->isConversation() ? "col-12 me-0" : "col-9" ?>">
+          <div class="d-flex justify-content-between align-self-start align-items-center mt-2">
             <b class="mb-0">Описание задания:</b>
             <?php if (!$User->isStudent() && !$Task->isConversation()) { ?>
               <a href="taskassign.php?assignment_id=<?= $Assignment->id ?>" class="btn btn-outline-primary d-flex" target="_blank">
@@ -208,7 +208,7 @@ $task_number = explode('.', $task_title)[0];
           else
             $task_files = $Task->getVisibleFilesToTaskchat();
 
-          if ($task_files) { ?>
+          if (count($task_files) > 0) { ?>
             <p class="mx-0 mt-2 mb-0">
               <b>Файлы, приложенные к заданию:</b>
             </p>
@@ -217,7 +217,7 @@ $task_number = explode('.', $task_title)[0];
           <?php }
           ?>
 
-          <div class="d-flex justify-content-between align-self-end align-items-center">
+          <div class="d-flex justify-content-between align-self-end align-items-center mb-2">
             <?php if (!$Task->isConversation()) { ?>
               <div>
                 <b>Срок выполнения: </b>
@@ -261,8 +261,8 @@ $task_number = explode('.', $task_title)[0];
 
         <?php // FIXME: Посмотреть, доделать
         if (!$Task->isConversation()) { ?>
-          <div class="task-status-wrapper me-0">
-            <div>
+          <div class="task-status-wrapper me-0 ps-3 col-3 align-items-end">
+            <div class="align-items-end w-100">
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="flexCheckDisabled" <?php if ($Assignment->isCompleted()) echo 'checked'; ?> disabled>
                 <?php //XXX: Проверить
@@ -275,7 +275,7 @@ $task_number = explode('.', $task_title)[0];
                 <?php } ?>
               </span>
             </div>
-            <div>
+            <div class="w-100">
               <div>
                 <a href="editor.php?assignment=<?= $assignment_id ?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
                   <i class="fa-solid fa-file-pen"></i>&nbsp;&nbsp;
@@ -286,7 +286,7 @@ $task_number = explode('.', $task_title)[0];
               <?php if ($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание 
               ?>
                 <form id="form-check-task" action="taskchat_action.php" method="POST">
-                  <div class="d-flex flex-row my-1">
+                  <div class="d-flex flex-row justify-content-end my-1">
                     <div class="file-input-wrapper me-1">
                       <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
                         <option hidden value="-1"></option>
@@ -302,8 +302,8 @@ $task_number = explode('.', $task_title)[0];
               <?php } else if ($Assignment->isCompleteable()) { // Отправить задание на проверку 
               ?>
                 <form id="form-send-answer" action="taskchat_action.php" method="POST">
-                  <div class="d-flex flex-row my-2">
-                    <div class="file-input-wrapper me-1">
+                  <div class="d-flex flex-row my-2 justify-content-end">
+                    <div class=" file-input-wrapper me-1">
                       <input type="hidden" name="MAX_FILE_SIZE" value="<?= $MAX_FILE_SIZE ?>" />
                       <input id="user-answer-files" type="file" name="answer_files[]" class="input-files" multiple>
                       <label for="user-answer-files" <?php if ($task_status_code == 4) echo 'style="cursor: default;"'; ?>>
@@ -311,8 +311,11 @@ $task_number = explode('.', $task_title)[0];
                         <span id="files-answer-count" class="text-success"></span>
                       </label>
                     </div>
-                    <button id="submit-answer" class="btn btn-success submit-files" target="_blank" type="submit" name="submit-answer">
+                    <button id="submit-answer" class="btn btn-success submit-files w-75" target="_blank" type="submit" name="submit-answer">
                       <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;&nbsp;Загрузить ответ</button>
+                  </div>
+                  <div id="div-attachedAnswerFiles" class="d-flex mt-2 justify-content-end flex-wrap">
+
                   </div>
                 </form>
               <?php } ?>
@@ -325,13 +328,13 @@ $task_number = explode('.', $task_title)[0];
       </div>
     </div>
 
-    <div class="chat-wrapper mb-5">
+    <div class=" row w-100 mb-5">
 
       <div id="chat-box">
         <!-- Вывод сообщений на страницу -->
       </div>
 
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center px-0">
 
         <div class="dropdown d-none me-1" id="btn-group-more">
           <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="ul-dropdownMenu-more" data-mdb-toggle="dropdown" aria-expanded="false">
@@ -354,7 +357,7 @@ $task_number = explode('.', $task_title)[0];
                 <?php
                 $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
                 $conversationTask = $Page->getConversationTask();
-                if ($conversationTask) { ?>
+                if ($conversationTask && !$Task->isConversation()) { ?>
                   <li>
                     <a class="dropdown-item" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
                       В общую беседу
@@ -391,7 +394,7 @@ $task_number = explode('.', $task_title)[0];
                   <span id="files-count" class="label-files-count"></span>
                 </label>
               </div>
-              <textarea name="user-message" id="user-message" placeholder="Напишите сообщение..."></textarea>
+              <textarea name="user-message" id="textarea-user-message" class="border rounded w-100 p-1 mx-2" style="resize:none; overflow:hidden;" placeholder="Напишите сообщение..." rows="1"></textarea>
               <button type="submit" name="submit-message" id="submit-message">Отправить</button>
             </div>
             <div id="div-attachedFiles" class="d-flex mt-2">
@@ -414,7 +417,8 @@ $task_number = explode('.', $task_title)[0];
     // После первой загрузки скролим страницу вниз
     $('body, html').scrollTop($('body, html').prop('scrollHeight'));
 
-    var attached_files = [];
+    var messageFiles = [];
+    var answerFiles = [];
 
     $(document).ready(function() {
 
@@ -429,20 +433,21 @@ $task_number = explode('.', $task_title)[0];
         form_sendAnswer.addEventListener('submit', function(event) {
           event.preventDefault();
           // console.log("СРАБОТАЛА ФОРМА ЗАГРУЗКИ ОТВЕТА НА ЗАДАНИЕ");
-          var userFiles = $("#user-answer-files");
           // console.log(userFiles);
-          if (userFiles.val() == '' || userFiles.length <= 0) {
+          if (answerFiles.length < 1) {
             event.preventDefault();
             return false;
           } else {
             // var userMessage = 'Ответ на <<?= $task_number ?>>:';
             var userMessage = '';
-            if (sendMessage(userMessage, userFiles, 1)) {
+            if (sendMessage(userMessage, answerFiles, 1)) {
               // console.log("Сообщение было успешно отправлено");
             }
 
-            userFiles.val("");
             $('#files-answer-count').html('');
+            $('#div-attachedAnswerFiles').empty();
+            answerFiles = [];
+
             button_answer.blur();
 
             loadChatLog(true);
@@ -476,26 +481,37 @@ $task_number = explode('.', $task_title)[0];
         });
       }
 
+      var textarea = document.getElementById('textarea-user-message');
+
+      textarea.addEventListener('keydown', resize);
+
+      function resize() {
+        var el = this;
+        setTimeout(function() {
+          el.style.height = 'auto ';
+          el.style.height = el.scrollHeight + 'px';
+        }, 1);
+      }
+
 
       // Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
       $("#submit-message").click(function() {
-        var userMessage = $("#user-message").val();
-        // var userFiles = $("#user-files");
+        var userMessage = $("#textarea-user-message").val();
 
 
-        if (!sendMessage(userMessage, attached_files, 0)) {
+        if (sendMessage(userMessage, messageFiles, 0, null, true)) {
           event.preventDefault();
-          console.log("Сообщение было успешно отсправлено");
+          // console.log("Сообщение было успешно отсправлено");
         } else {
-          console.log("Сообщение не было отправлено");
+          // console.log("Сообщение не было отправлено");
         }
 
-        $("#user-message").val("");
-        $("#user-message").css('height', '37.6px');
+        $("#textarea-user-message").val("");
+        // $("#user-message").css('height', '37.6px');
         $("#user-files").val("");
         $('#files-count').html('');
         $('#div-attachedFiles').empty();
-        attached_files = [];
+        messageFiles = [];
 
         loadChatLog(true);
 
@@ -515,23 +531,42 @@ $task_number = explode('.', $task_title)[0];
         if (this.files.length != 0) {
           let div = document.getElementById("div-attachedFiles");
           Object.entries(this.files).forEach(file => {
-            if (checkIfFileIsExist(file[1].name)) {
+            if (checkIfFileIsExist(messageFiles, file[1].name)) {
               alert("Внимание! Файл с таким названием уже прикреплён!")
             } else {
-              add_element(div, file[1].name, "files[]", attached_files.length);
-              attached_files.push(file[1]);
+              add_element(div, file[1].name, "messageFiles[]", messageFiles.length);
+              messageFiles.push(file[1]);
             }
           });
-          $('#files-count').html(attached_files.length);
+          $('#files-count').html(messageFiles.length);
+        }
+      });
+
+      // Показывает количество прикрепленных для отправки файлов
+      $('#user-answer-files').on('change', function() {
+        // TODO: Сделать удаление числа, если оно 0
+
+
+        if (this.files.length != 0) {
+          let div = document.getElementById("div-attachedAnswerFiles");
+          Object.entries(this.files).forEach(file => {
+            if (checkIfFileIsExist(answerFiles, file[1].name)) {
+              alert("Внимание! Файл с таким названием уже прикреплён!")
+            } else {
+              add_element(div, file[1].name, "answerFiles[]", answerFiles.length);
+              answerFiles.push(file[1]);
+            }
+          });
+          $('#files-answer-count').html(this.files.length);
         }
       });
 
     });
 
 
-    function checkIfFileIsExist(file_name) {
+    function checkIfFileIsExist(arrayFiles, file_name) {
       flag = false;
-      attached_files.forEach(file => {
+      arrayFiles.forEach(file => {
         if (file.name == file_name) {
           flag = true;
           return;
@@ -591,9 +626,14 @@ $task_number = explode('.', $task_title)[0];
     }
 
 
-    function sendMessage(userMessage, userFiles, typeMessage, mark = null) {
-      if ($.trim(userMessage) == '') {
+    function sendMessage(userMessage, userFiles, typeMessage, mark = null, defaultMessage = false) {
+
+      if ($.trim(userMessage) == '' && userFiles.length < 1) {
         // console.log("ФАЙЛЫ НЕ ПРИКРЕПЛЕНЫ");
+        if (defaultMessage)
+          alert("Нельзя отправить пустое сообщение!");
+        else
+          alert("Для отправки ответа задание необходимо прикрепить файлы!");
         return false;
       }
 
@@ -604,7 +644,7 @@ $task_number = explode('.', $task_title)[0];
       formData.append('user_id', <?= $user_id ?>);
       formData.append('message_text', userMessage);
       formData.append('type', typeMessage);
-      if (userFiles.length > 0) {
+      if (userFiles != null && userFiles.length > 0) {
         // console.log("EEEEEEEEEE");
         //formData.append('MAX_FILE_SIZE', 5242880); // TODO Максимальный размер загружаемых файлов менять тут. Сейчас 5мб
         $.each(userFiles, function(key, input) {
@@ -667,7 +707,7 @@ $task_number = explode('.', $task_title)[0];
       let element = document.createElement("div");
 
       //element.classList.add("col-lg-2");
-      element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-2 badge badge-light text-wrap teacher-element");
+      element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-2 mt-1 badge badge-light text-wrap teacher-element");
       element.id = "messageFile-" + id;
 
       //  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
@@ -704,13 +744,29 @@ $task_number = explode('.', $task_title)[0];
       parent.append(element);
 
       button.addEventListener('click', function(event) {
-        // let name = event.target.parentNode.value;
-        attached_files.splice(id, 1);
+        if (tag == "answerFiles[]") {
+          let index_file = answerFiles.findIndex((file) => file.name == name);
+          if (index_file != -1) {
+            answerFiles.splice(index_file, 1);
+          }
+          if (answerFiles.length > 0)
+            $('#files-answer-count').html(answerFiles.length);
+          else
+            $('#files-answer-count').html("");
+        } else if (tag == "messageFiles[]") {
+          let index_file = messageFiles.findIndex((file) => file.name == name);
+          if (index_file != -1) {
+            messageFiles.splice(index_file, 1);
+          }
+          if (messageFiles.length > 0)
+            $('#files-count').html(messageFiles.length);
+          else
+            $('#files-count').html("");
+        }
+
         parent.removeChild(event.target.parentNode);
-        if (attached_files.length > 0)
-          $('#files-count').html(attached_files.length);
-        else
-          $('#files-count').html("");
+
+
       });
 
     }
