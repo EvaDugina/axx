@@ -124,7 +124,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <body style="overflow-x:hidden">
 
   <?php
-  if ($au->isTeacher())
+  if ($User->isTeacher())
     // XXX: ПРОВЕРИТЬ
     show_header(
       $dbconnect,
@@ -295,7 +295,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <!--<form action="taskchat.php" method="POST" style="width:50%">-->
             <input type="hidden" name="assignment" value="<?= $assignment_id ?>">
             <?php
-            if ($au->isAdminOrTeacher()) { // Отправить задание на проверку 
+            if ($au->isAdminOrPrep()) { // Отправить задание на проверку 
             ?>
               <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($task_status_code == 4) ? "disabled" : "") ?>>Завершить проверку</button>
             <?php

@@ -228,10 +228,10 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                 </ul>
               </ul>
             </div>
-          </div>
-        <?php }
+          <?php }
 
               if (count($breadcrumbs) >= 1) echo '</div>'; ?>
+          </div>
         </div>
 
     </nav>

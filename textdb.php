@@ -212,6 +212,7 @@ else if ($type == "del") {
 
   // тут нужно монотонное возрастание id-шников файлов
   // TODO: Проверить!
+
   $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
   $result = pg_fetch_assoc($result);
   if ($result === false) {
@@ -305,7 +306,7 @@ else if ($type == "oncheck") {
 
     // --- сессий пока нет
     $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) select assignment_id, session_id, $user_id, " .
-      (($user_role == 3) ? "1" : "0") . " from ax_solution_commit where id = $commit_id RETURNING id");
+      (($user_role == 3) ? "1" : "3") . " from ax_solution_commit where id = $commit_id RETURNING id");
     $result = pg_fetch_all($result);
     $new_id = $result[0]['id'];
 
@@ -458,6 +459,21 @@ else if ($type == "tools") {
     exit;
   }
 
+  $files_codeCheckTest = array();
+  $Task = new Task((int)getTaskByAssignment((int)$assignment));
+  foreach ($Task->getCodeCheckTestFiles() as $File) {
+    $myfile = fopen($folder . '/' . $File->name, "w") or die("Unable to open file!");
+    fwrite($myfile, $File->getFullText());
+    fclose($myfile);
+    array_push($files_codeCheckTest, $File->name);
+  }
+
+  if (count($files_codeCheckTest) < 1) {
+    echo "Не найдено файлов кода проверки теста " . $Task->id;
+    http_response_code(400);
+    exit;
+  }
+
   @unlink($folder . '/copydetect_input');
   mkdir($folder . '/copydetect_input', 0777, true);
   $prev_files = get_prev_files($assignment);
@@ -486,7 +502,7 @@ else if ($type == "tools") {
   $retval = null;
   //$responce = 'docker run -it --net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
   //exec('docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
-  exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
+  exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . implode(' ', $files_codeCheckTest) . ' 2>&1', $output, $retval);
   //echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
 
   /* Получение результатов проверки из БД

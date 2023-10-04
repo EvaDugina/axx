@@ -77,7 +77,8 @@ class Task
   }
 
 
-  public function getInitialCodeFiles() {
+  public function getInitialCodeFiles()
+  {
     return $this->getFilesByType(1);
   }
 
@@ -170,7 +171,7 @@ class Task
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushAllChangesToDB()
+  public function deleteFromDB()
   {
     global $dbconnect;
 

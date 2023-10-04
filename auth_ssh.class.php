@@ -46,13 +46,23 @@ class auth_ssh
     
 //----------------------------------------------------------------------------------------------
 
-function isTeacher($hash = '') {
-    if (array_key_exists('role', $_SESSION)) {
-        return ($_SESSION['role'] == 2);
-    }
-    else
-        return false;
-}
+// function isTeacher($hash = '') {
+//     if (array_key_exists('role', $_SESSION)) {
+//         return ($_SESSION['role'] == 2);
+//     }
+//     else
+//         return false;
+// }
+
+//----------------------------------------------------------------------------------------------
+
+// function isStudent($hash = '') {
+//     if (array_key_exists('role', $_SESSION)) {
+//         return ($_SESSION['role'] == 3);
+//     }
+//     else
+//         return false;
+// }
 
 //----------------------------------------------------------------------------------------------
 
@@ -78,7 +88,7 @@ function isStudent($hash = '') {
     
 //----------------------------------------------------------------------------------------------
     
-    function isAdminOrTeacher($hash = '') {
+    function isAdminOrPrep($hash = '') {
         if (array_key_exists('role', $_SESSION)) {
             return (($_SESSION['role'] == 1) || ($_SESSION['role'] == 2));
         }

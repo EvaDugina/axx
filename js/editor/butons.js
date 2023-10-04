@@ -187,7 +187,7 @@ function handleInputFileName(event) {
 function saveFile(name, id) {
     var text = editor.current.getValue();
     var param = document.location.href.split("?")[1].split("#")[0];
-	if (param == '') param = 'void';
+	  if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
 }
 
@@ -270,8 +270,10 @@ function makeRequest(url, type) {
     else if (type == "save") {
         //httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
         const body = new FormData();
-        body.append('file', url[1]);
-        fetch(url[0], {method: "POST", body});
+        body.append('file', url[1])
+        fetch(url[0], {method: "POST", body}).then(function(response) {
+          // $('#spinner-save').addClass("d-none");
+      })
         //httpRequest.open('GET', encodeURI(url), true);
         //httpRequest.send(null);
     }

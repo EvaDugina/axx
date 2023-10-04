@@ -28,7 +28,7 @@ show_head('Профиль'); ?>
 <body>
   
   <?php 
-  show_header($dbconnect, 'Профиль', ($au->isAdminOrTeacher()) ? array('Профиль' => 'profile.php') 
+  show_header($dbconnect, 'Профиль', ($realUser->isAdmin() || $realUser->isTeacher()) ? array('Профиль' => 'profile.php') 
     : array('Профиль' => 'profile.php'), $realUser); 
   ?>
 
@@ -42,7 +42,7 @@ show_head('Профиль'); ?>
                   <div class="col-12">
                       <div class="embed-responsive embed-responsive-1by1 text-center">
                           <div class="embed-responsive-item">
-                            <img class="w-100 h-100 p-0 m-0 rounded-circle user-icon"  src="<?=$User->getImageFile()->download_url?>"/>
+                            <img class="w-100 h-100 p-0 m-0 rounded-circle"  src="<?=$User->getImageFile()->download_url?>"/>
                           </div>
                       </div>
                   </div>
@@ -92,7 +92,7 @@ show_head('Профиль'); ?>
 
             <?php } else {?>
 
-              <?php if($au->isAdminOrTeacher() && $User->email != null) {?>
+              <?php if(($realUser->isAdmin() || $realUser->isTeacher()) && $User->email != null) {?>
                 <p> <span class="font-weight-bold">ПОЧТА: </span> <span class="font-weight-normal"><?=$User->email?></span> </p>
               <?php }?>
 

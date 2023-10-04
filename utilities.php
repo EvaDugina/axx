@@ -18,7 +18,7 @@ function checkAuLoggedIN($au)
 // защита от случайного перехода студента
 function checkAuIsNotStudent($au)
 {
-  if (!$au->isAdmin() && !$au->isTeacher()) {
+  if (!$au->isAdminOrPrep()) {
     $au->logout();
     header('Location:login.php');
   }
@@ -112,13 +112,12 @@ function showAttachedFilesByMessageId($message_id)
   return $message_text;
 }
 
-
 function showFiles($Files, $taskedit_page_status = false, $task_id = null, $page_id = null)
 {
   $count_files = 0;
   $au = new auth_ssh();
   foreach ($Files as $File) {
-    if ($au->isAdminOrTeacher() || $File->isVisible()) {
+    if ($au->isAdminOrPrep() || $File->isVisible()) {
       $count_files++; ?>
       <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 mx-1 px-3 div-task-file" style="cursor:unset;">
         <?php // Если запрос на отображение файлов приходит со страницы taskedit
@@ -194,7 +193,7 @@ function showMessageFiles($Files, $isAuthor = false)
   $count_files = 0;
   $au = new auth_ssh();
   foreach ($Files as $File) {
-    if ($au->isAdminOrTeacher() || $File->isVisible()) {
+    if ($au->isAdminOrPrep() || $File->isVisible()) {
       $count_files++; ?>
       <?php if (in_array($File->getExt(), getImageFileTypes())) { ?>
         <img src="<?= $File->download_url ?>" class="rounded w-100 mb-1" alt="...">

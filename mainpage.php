@@ -22,7 +22,7 @@ $User = new User((int)$au->getUserId());
 
 // $result = pg_query($dbconnect, 'select id, short_name, disc_id, get_semester(year, semester) sem, year y, semester s from ax_page order by y desc, s desc');
 
-if ($au->isTeacher())
+if ($User->isTeacher())
   $result = pg_query($dbconnect, select_pages_for_teacher($_SESSION['hash']));
 else
   $result = pg_query($dbconnect, select_pages_for_admin());

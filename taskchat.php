@@ -30,7 +30,7 @@ if ($au->isAdmin() && isset($_REQUEST['id_student'])) {
   // Если на страницу чата зашёл АДМИН
   $student_id = $_REQUEST['id_student'];
   $sender_user_type = 1;
-} else if ($au->isTeacher() && isset($_REQUEST['id_student'])) {
+} else if ($User->isAdmin() && isset($_REQUEST['id_student'])) {
   // Если на страницу чата зашёл ПРЕПОД
   $student_id = $_REQUEST['id_student'];
   $sender_user_type = 2;
@@ -155,7 +155,7 @@ $task_number = explode('.', $task_title)[0];
 
 <body>
   <?php
-  if ($au->isTeacher() || $au->isAdmin())
+  if ($au->isAdminOrPrep())
     show_header(
       $dbconnect,
       'Чат c перподавателем',
@@ -289,7 +289,7 @@ $task_number = explode('.', $task_title)[0];
                 </a>
               </div>
 
-              <?php if ($au->isAdminOrTeacher()) { // Оценить отправленное на проверку задание 
+              <?php if ($au->isAdminOrPrep()) { // Оценить отправленное на проверку задание 
               ?>
                 <form id="form-check-task" action="taskchat_action.php" method="POST">
                   <div class="d-flex flex-row justify-content-end my-1">

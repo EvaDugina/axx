@@ -5,8 +5,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 $au = new auth_ssh();
-if ($au->isAdmin());
-else if ($au->isTeacher());
+if ($au->isAdminOrPrep());
 else {
 	$au->logout();
 	header('Location:login.php');
