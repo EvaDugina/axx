@@ -3,13 +3,16 @@ require_once("settings.php");
 
 class auth_ssh
 {
-  function login($login, $pwd, $source)
+  function login($login, $pwd, $source, $role=null)
   {
   global $dbconnect;
     session_start();
     $lg = pg_escape_string($login);
     
-    $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg'");
+    if ($role != null)
+      $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg' AND role=$role");
+    else 
+      $result = pg_query($dbconnect, "SELECT * FROM students WHERE login='$lg'");
     $found = pg_fetch_assoc($result);
     if($found) {
             $_SESSION['login'] = $login;
@@ -62,6 +65,16 @@ class auth_ssh
 // }
 
 //----------------------------------------------------------------------------------------------
+
+function isStudent($hash = '') {
+    if (array_key_exists('role', $_SESSION)) {
+        return ($_SESSION['role'] == 3);
+    }
+    else
+        return false;
+}
+
+//----------------------------------------------------------------------------------------------
     
     function isAdmin($hash = '')
     {
@@ -102,6 +115,18 @@ class auth_ssh
         if (array_key_exists('login', $_SESSION))
         {
             return $_SESSION['login'];
+        }
+        else
+            return false;
+    }
+
+//----------------------------------------------------------------------------------------------
+    
+    function getUserRole($hash = '')
+    {
+        if (array_key_exists('role', $_SESSION))
+        {
+            return $_SESSION['role'];
         }
         else
             return false;

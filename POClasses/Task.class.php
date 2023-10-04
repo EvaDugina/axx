@@ -1,18 +1,20 @@
-<?php 
+<?php
 require_once("./settings.php");
 require_once("Assignment.class.php");
 require_once("File.class.php");
 
-class Task {
+class Task
+{
 
   public $id;
   public $type, $title, $description;
   public $max_mark, $status, $checks;
 
-  private $Assignments = array(); 
+  private $Assignments = array();
   private $Files = array();
 
-  public function __construct() {
+  public function __construct()
+  {
     global $dbconnect;
 
     $count_args = func_num_args();
@@ -20,8 +22,8 @@ class Task {
 
     // Перегружаем конструктор по количеству подданых параметров
 
-    if ($count_args == 1 && is_int($args[0])) {
-      $this->id = $args[0];
+    if ($count_args == 1) {
+      $this->id = (int)$args[0];
 
       $query = queryGetTaskInfo($this->id);
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -38,18 +40,14 @@ class Task {
       $this->Assignments = getAssignmentsByTask($this->id);
       $this->Files = getFilesByTask($this->id);
       // $this->AutoTests = getAutoTestsByTask($this->id);
-    }
-
-    else if ($count_args == 3) {
+    } else if ($count_args == 3) {
       $page_id = $args[0];
       $this->type = $args[1];
       $this->status = $args[2];
       $this->max_mark = 5;
 
       $this->pushEmptyNewToDB($page_id);
-    }
-
-    else if ($count_args == 7) {
+    } else if ($count_args == 7) {
       $page_id = $args[0];
 
       $this->type = $args[1];
@@ -61,47 +59,57 @@ class Task {
       $this->checks = $args[6];
 
       $this->pushNewToDB($page_id);
-    }
-
-    else {
+    } else {
       die('Неверные аргументы в конструкторе Task');
     }
   }
 
 
-// GETTERS:
+  // GETTERS:
 
-  public function getAssignments() {
+  public function getAssignments()
+  {
     return $this->Assignments;
   }
-  public function getFiles() {
+  public function getFiles()
+  {
     return $this->Files;
   }
 
-  public function getCodeTestFiles() {
+
+  public function getInitialCodeFiles()
+  {
+    return $this->getFilesByType(1);
+  }
+
+  public function getCodeTestFiles()
+  {
     return $this->getFilesByType(2);
   }
 
-  public function getCodeCheckTestFiles() {
+  public function getCodeCheckTestFiles()
+  {
     return $this->getFilesByType(3);
   }
 
 
-  public function isCompleted($student_id){
-    foreach($this->Assignments as $Assignment) {
+  public function isCompleted($student_id)
+  {
+    foreach ($this->Assignments as $Assignment) {
       if ($Assignment->checkStudent($student_id) && $Assignment->status != 4)
         return false;
     }
     return true;
   }
 
-// -- END GETTERS
+  // -- END GETTERS
 
 
 
-// SETTERS:
+  // SETTERS:
 
-  public function setStatus($status) {
+  public function setStatus($status)
+  {
     global $dbconnect;
 
     $this->status = $status;
@@ -110,7 +118,8 @@ class Task {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setTitle($title) {
+  public function setTitle($title)
+  {
     global $dbconnect;
 
     $this->title = $title;
@@ -119,13 +128,14 @@ class Task {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-// -- END SETTERS
+  // -- END SETTERS
 
 
 
-// WORK WITH TASK
+  // WORK WITH TASK
 
-  public function pushNewToDB($page_id) {
+  public function pushNewToDB($page_id)
+  {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
@@ -137,7 +147,8 @@ class Task {
 
     $this->id = $result['id'];
   }
-  public function pushEmptyNewToDB($page_id) {
+  public function pushEmptyNewToDB($page_id)
+  {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task (page_id, type, status, max_mark) 
@@ -149,7 +160,8 @@ class Task {
 
     $this->id = (int)$result['id'];
   }
-  public function pushChangesToDB() {
+  public function pushChangesToDB()
+  {
     global $dbconnect;
 
     $query = "UPDATE ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
@@ -159,7 +171,8 @@ class Task {
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushAllChangesToDB() {
+  public function pushAllChangesToDB()
+  {
     global $dbconnect;
 
     $query = "UPDATE ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
@@ -169,14 +182,15 @@ class Task {
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFromDB() {
+  public function deleteFromDB()
+  {
     global $dbconnect;
 
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       $Assignment->deleteFromDB();
     }
 
-    foreach($this->Files as $File) {
+    foreach ($this->Files as $File) {
       $File->deleteFromDB();
     }
     $query = "DELETE FROM ax_task_file WHERE task_id = $this->id;";
@@ -185,7 +199,8 @@ class Task {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function copy($task_id) {
+  public function copy($task_id)
+  {
     $Task = new Task((int)$task_id);
 
     $this->type = $Task->type;
@@ -200,121 +215,137 @@ class Task {
     $this->addFiles($Task->getFiles());
   }
 
-  public function isConversation(){
+  public function isConversation()
+  {
     if ($this->type == 2)
       return true;
     return false;
   }
 
-// -- END WORK WITH TASK
+  // -- END WORK WITH TASK
 
 
 
-// WORK WITH ASSIGNMENT
+  // WORK WITH ASSIGNMENT
 
-  public function addAssignment($assignment_id) {
+  public function addAssignment($assignment_id)
+  {
     $Assignment = new Assignment((int)$assignment_id);
     array_push($this->Assignments, $Assignment);
   }
-  public function deleteAssignment($assignment_id) {
+  public function deleteAssignment($assignment_id)
+  {
     $index = $this->findAssignmentById($assignment_id);
     if ($index != -1) {
       $this->Assignments[$index]->deleteFromDB();
       unset($this->Assignments[$index]);
     }
   }
-  private function findAssignmentById($assignment_id) {
+  private function findAssignmentById($assignment_id)
+  {
     $index = 0;
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       if ($Assignment->id == $assignment_id)
         return $index;
       $index++;
     }
     return -1;
   }
-  public function getAssignmentById($assignment_id) {
-    foreach($this->Assignments as $Assignment) {
+  public function getAssignmentById($assignment_id)
+  {
+    foreach ($this->Assignments as $Assignment) {
       if ($Assignment->id == $assignment_id)
         return $Assignment;
     }
     return null;
   }
 
-  public function getActiveAssignments() {
+  public function getActiveAssignments()
+  {
     $active_Assignments = array();
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       if ($Assignment->isVisible())
         array_push($active_Assignments, $Assignment);
     }
     return $active_Assignments;
   }
-  public function getVisibleAssignmemntsByStudent($student_id) {
+  public function getVisibleAssignmemntsByStudent($student_id)
+  {
     $student_Assignments = array();
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       if (($Assignment->isVisible()) && $Assignment->checkStudent($student_id))
         array_push($student_Assignments, $Assignment);
     }
     return $student_Assignments;
   }
-  public function hasUncheckedAssignments($student_id) {
-    foreach($this->Assignments as $Assignment) {
+  public function hasUncheckedAssignments($student_id)
+  {
+    foreach ($this->Assignments as $Assignment) {
       if (($Assignment->status == 1) && $Assignment->checkStudent($student_id))
         return true;
     }
     return false;
   }
-  public function getUncheckedAssignmentsForStudent($student_id) {
+  public function getUncheckedAssignmentsForStudent($student_id)
+  {
     $uncheckedAssignments = array();
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       if (($Assignment->status == 1) && $Assignment->checkStudent($student_id))
         array_push($uncheckedAssignments, $Assignment);
     }
     return $uncheckedAssignments;
   }
-  public function getAllUncheckedAssignments() {
+  public function getAllUncheckedAssignments()
+  {
     $uncheckedAssignments = array();
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       if (($Assignment->status == 1))
         array_push($uncheckedAssignments, $Assignment);
     }
     return $uncheckedAssignments;
   }
-  public function getLastAssignmentByStudent($student_id) {
+  public function getLastAssignmentByStudent($student_id)
+  {
     $last_Assignment = null;
-    foreach($this->Assignments as $Assignment) {
+    foreach ($this->Assignments as $Assignment) {
       if ($Assignment->checkStudent($student_id))
         $last_Assignment = $Assignment;
     }
     return $last_Assignment;
   }
 
-  public function createConversationAssignment($Students) {
+  public function createConversationAssignment($Students)
+  {
     $conversationAssignment = new Assignment($this->id, 2, -1);
     $conversationAssignment->addStudents($Students);
     return $conversationAssignment;
   }
-  public function getConversationAssignment() {
+  public function getConversationAssignment()
+  {
     return $this->getAssignments()[0];
   }
 
-// -- END WORK WITH ASSIGNMENT
+  // -- END WORK WITH ASSIGNMENT
 
 
 
-// WORK WITH FILE
+  // WORK WITH FILE
 
-  public function addFile($file_id) {
+  public function addFile($file_id)
+  {
     $File = new File((int)$file_id);
     $this->pushFileToTaskDB($file_id);
     array_push($this->Files, $File);
   }
-  public function addFiles($Files) {
+  public function addFiles($Files)
+  {
     $this->pushFilesToTaskDB($Files);
     foreach ($Files as $File) {
       array_push($this->Files, $File);
     }
   }
-  public function deleteFile($file_id) {
+  public function deleteFile($file_id)
+  {
     $index = $this->findFileById($file_id);
     if ($index != -1) {
       $this->deleteFileFromTaskDB($file_id);
@@ -322,87 +353,117 @@ class Task {
       unset($this->Files[$index]);
     }
   }
-  private function findFileById($file_id) {
+  private function findFileById($file_id)
+  {
     $index = 0;
-    foreach($this->Files as $File) {
+    foreach ($this->Files as $File) {
       if ($File->id == $file_id)
         return $index;
       $index++;
     }
     return -1;
   }
-  public function getFileById($file_id) {
-    foreach($this->Files as $File) {
+  public function getFileById($file_id)
+  {
+    foreach ($this->Files as $File) {
       if ($File->id == $file_id)
         return $File;
     }
     return null;
   }
-  public function getFilesByType($type) {
+  public function getFilesByType($type)
+  {
     $Files = array();
-    foreach($this->Files as $File) {
+    foreach ($this->Files as $File) {
       if ($File->type == $type)
         array_push($Files, $File);
     }
     return $Files;
   }
-  public function getVisibleFiles(){
+  public function getVisibleFiles()
+  {
     $Files = array();
-    foreach($this->Files as $File) {
+    foreach ($this->Files as $File) {
       if ($File->isVisible())
         array_push($Files, $File);
     }
     return $Files;
   }
 
-  private function pushFileToTaskDB($file_id) {
+  public function getVisibleFilesToTaskchat()
+  {
+    $Files = array();
+    foreach ($this->Files as $File) {
+      if ($File->isVisible() && $File->isAttached())
+        array_push($Files, $File);
+    }
+    return $Files;
+  }
+
+  public function getFilesToTaskchat()
+  {
+    $Files = array();
+    foreach ($this->Files as $File) {
+      if ($File->isAttached())
+        array_push($Files, $File);
+    }
+    return $Files;
+  }
+
+  private function pushFileToTaskDB($file_id)
+  {
     global $dbconnect;
 
     $query = "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function pushFilesToTaskDB($Files) {
+  private function pushFilesToTaskDB($Files)
+  {
     global $dbconnect;
 
     $query = "";
     foreach ($Files as $File)
       $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
-    if(count($Files) > 0)
+    if (count($Files) > 0)
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function deleteFileFromTaskDB($file_id) {
+  private function deleteFileFromTaskDB($file_id)
+  {
     global $dbconnect;
 
     $query = "DELETE FROM ax_task_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function synchFilesToTaskDB() {
+  private function synchFilesToTaskDB()
+  {
     global $dbconnect;
 
     $this->deleteFilesFromTaskDB();
-  
+
     $query = "";
-      if (!empty($this->Files)) {
-        foreach($this->Files as $File) {
-          $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
-        }
+    if (!empty($this->Files)) {
+      foreach ($this->Files as $File) {
+        $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
       }
-      
-      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    }
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  private function deleteFilesFromTaskDB() {
+  private function deleteFilesFromTaskDB()
+  {
     global $dbconnect;
-  
+
     $query = "DELETE FROM ax_task_file WHERE task_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-// -- END WORK WITH FILE
-  
+  // -- END WORK WITH FILE
+
 }
 
 
-function getTaskByAssignment($assignment_id) {
+function getTaskByAssignment($assignment_id)
+{
   global $dbconnect;
 
   $query = "SELECT task_id FROM ax_assignment WHERE id = $assignment_id";
@@ -413,7 +474,8 @@ function getTaskByAssignment($assignment_id) {
 }
 
 
-function getAssignmentsByTask($task_id) {
+function getAssignmentsByTask($task_id)
+{
   global $dbconnect;
 
   $assignments = array();
@@ -421,14 +483,15 @@ function getAssignmentsByTask($task_id) {
   $query = queryGetAssignmentsByTask($task_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-  while($row_assignment = pg_fetch_assoc($result)) {
+  while ($row_assignment = pg_fetch_assoc($result)) {
     array_push($assignments, new Assignment((int)$row_assignment['id']));
   }
 
   return $assignments;
 }
 
-function getFilesByTask($task_id) {
+function getFilesByTask($task_id)
+{
   global $dbconnect;
 
   $files = array();
@@ -436,7 +499,7 @@ function getFilesByTask($task_id) {
   $query = queryGetFilesByTask($task_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-  while($file = pg_fetch_assoc($result)) {
+  while ($file = pg_fetch_assoc($result)) {
     array_push($files, new File((int)$file['file_id']));
   }
 
@@ -446,24 +509,25 @@ function getFilesByTask($task_id) {
 
 
 
-function getSVGByTaskType($type) {
-  switch($type) {
-    case 0:?>
+function getSVGByTaskType($type)
+{
+  switch ($type) {
+    case 0: ?>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
-        <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
-        <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8zm0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z"/>
+        <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z" />
+        <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8zm0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z" />
       </svg>
-      <?php break;
-    case 1:?>
+    <?php break;
+    case 1: ?>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash" viewBox="0 0 16 16">
-        <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/>
+        <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" />
       </svg>
-      <?php break;
-    case 2:?>
+    <?php break;
+    case 2: ?>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-square-text-fill" viewBox="0 0 16 16">
-        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z" />
       </svg>
-      <?php break;
+<?php break;
   }
 }
 
@@ -472,18 +536,21 @@ function getSVGByTaskType($type) {
 
 // ФУНКЦИИ ЗАПРОСОВ К БД
 
-function queryGetTaskInfo($task_id) {
+function queryGetTaskInfo($task_id)
+{
   return "SELECT * FROM ax_task WHERE ax_task.id = $task_id 
           ORDER BY ax_task.id;
   ";
 }
 
-function queryGetAssignmentsByTask($task_id) {
+function queryGetAssignmentsByTask($task_id)
+{
   return "SELECT id FROM ax_assignment WHERE task_id = $task_id ORDER BY id;
   ";
 }
 
-function queryGetFilesByTask($task_id) {
+function queryGetFilesByTask($task_id)
+{
   return "SELECT * FROM ax_task_file WHERE task_id = $task_id;
   ";
 }

@@ -8,12 +8,12 @@ require_once("POClasses/Task.class.php");
 require_once("POClasses/File.class.php");
 
 
-if(isset($_POST['editFileVisibility']) && isset($_POST['file_id'])) {
+if (isset($_POST['editFileVisibility']) && isset($_POST['file_id'])) {
   $File = new File((int)$_POST['file_id']);
-  if(isset($_POST['new_visibility']))
+  if (isset($_POST['new_visibility']))
     $File->setVisibility((int)$_POST['new_visibility']);
 
-  header('Location:'.$_SERVER['HTTP_REFERER']);
+  header('Location:' . $_SERVER['HTTP_REFERER']);
   exit();
 }
 
@@ -21,12 +21,12 @@ if(isset($_POST['editFileVisibility']) && isset($_POST['file_id'])) {
 if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
   header('Location: index.php');
   exit;
-} 
+}
 
 if (isset($_POST['page_id'])) {
   $page_id = $_POST['page_id'];
   $Page = new Page((int)$_POST['page_id']);
-} 
+}
 
 if (isset($_POST['task_id']) && $_POST['task_id'] != -1) {
   $Task = new Task((int)$_POST['task_id']);
@@ -43,20 +43,20 @@ if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'
     $new_status = 1;
   }
   $Task->setStatus($new_status);
-  header('Location:'.$_SERVER['HTTP_REFERER']);
+  header('Location:' . $_SERVER['HTTP_REFERER']);
   exit();
 }
 
 
-if(isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
+if (isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
   $file_id = $_POST['file_id'];
   $Task->deleteFile($file_id);
   // $query = pg_query($dbconnect, delete_ax_task_file($task_file_id));
-  header('Location: taskedit.php?task='.$_POST['task_id']);
+  header('Location: taskedit.php?task=' . $_POST['task_id']);
   exit();
 }
 
-if(isset($_POST['flag-statusFile']) && $_POST['task_id']) {
+if (isset($_POST['flag-statusFile']) && $_POST['task_id']) {
   $file_type = $_POST['task-file-status'];
 
   $file_id = $_POST['file_id'];
@@ -64,7 +64,7 @@ if(isset($_POST['flag-statusFile']) && $_POST['task_id']) {
   $File = $Task->getFileById((int)$file_id);
   $File->setType($file_type);
 
-  header('Location: taskedit.php?task='.$_POST['task_id']);
+  header('Location: taskedit.php?task=' . $_POST['task_id']);
   exit();
 }
 
@@ -76,7 +76,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
 
   // TODO: Придумать, как удалять auto_test_result!
   $Task->deleteFromDB();
-  
+
   header('Location: preptasks.php?page=' . $page_id);
   exit();
 }
@@ -97,24 +97,24 @@ if (isset($_POST['task_id']) && isset($_POST['action']) && $_POST['action'] == "
 
   if (isset($_POST['codeTest'])) {
     $Files = $Task->getFilesByType(2);
-    if(empty($Files)) {
+    if (empty($Files)) {
       $File = new File(2, "test.cpp", null, $_POST['codeTest']);
       $Task->addFile($File->id);
     } else {
-      foreach($Files as $File) {
+      foreach ($Files as $File) {
         $File->full_text = $_POST['codeTest'];
         $File->pushChangesToDB();
       }
     }
   }
-	
-  if(isset($_POST['codeCheck'])) {
+
+  if (isset($_POST['codeCheck'])) {
     $Files = $Task->getFilesByType(3);
-    if(empty($Files)) {
+    if (empty($Files)) {
       $File = new File(3, "checktest.cpp", null, $_POST['codeCheck']);
       $Task->addFile($File->id);
     } else {
-      foreach($Files as $File) {
+      foreach ($Files as $File) {
         $File->full_text = $_POST['codeCheck'];
         $File->pushChangesToDB();
       }
@@ -132,14 +132,14 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
   $Task->title = $_POST['task-title'];
   $Task->description = $_POST['task-description'];
   $Task->pushChangesToDB();
-  header('Location:'.$_SERVER['HTTP_REFERER']);
+  header('Location:' . $_SERVER['HTTP_REFERER']);
   exit();
-} 
+}
 if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action'] == 'reject') && ($_POST['assignment_id'] != 0)) {
   $Asssignment = new Assignment((int)$_POST['assignment_id']);
   // $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
   $Asssignment->deleteFromDB();
-  header('Location:'.$_SERVER['HTTP_REFERER']);
+  header('Location:' . $_SERVER['HTTP_REFERER']);
   exit();
 }
 
@@ -150,7 +150,7 @@ if ($_POST['task_id'] != -1) {
     $query = update_ax_task($_POST['task_id'], $_POST['task-type'], $_POST['task-title'], $_POST['task-description']);
     $result = pg_query($dbconnect, $query);
     save_test_files($dbconnect, $task_id);
-    header('Location:'.$_SERVER['HTTP_REFERER']);
+    header('Location:' . $_SERVER['HTTP_REFERER']);
     exit();
   }
 } else {
@@ -163,7 +163,7 @@ if ($_POST['task_id'] != -1) {
   $result = pg_query($dbconnect, $query);
   $task_id = pg_fetch_assoc($result)['id'];
   save_test_files($dbconnect, $task_id);
-  header('Location: taskedit.php?task='.$task_id);
+  header('Location: taskedit.php?task=' . $task_id);
   exit();
 }
 
@@ -175,13 +175,13 @@ if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
     addFileToObject($Task, $files[$i]['name'], $files[$i]['tmp_name'], 0);
   }
 
-  header('Location: taskedit.php?task='.$Task->id);
+  header('Location: taskedit.php?task=' . $Task->id);
   exit;
 }
 
 // Изменение finish_limit всех Assignments прикреплённых к Task
 if (isset($_POST['action']) && $_POST['action'] == "editFinishLimit") {
-  if(isset($_POST['task_id'])) {
+  if (isset($_POST['task_id'])) {
     $Task = new Task((int)$_POST['task_id']);
   } else {
     header('Location: index.php');
@@ -196,8 +196,8 @@ if (isset($_POST['action']) && $_POST['action'] == "editFinishLimit") {
 }
 
 // Изменение status всех Assignments прикреплённых к Task
-if(isset($_POST['action']) && $_POST['action'] == "editVisibility") {
-  if(isset($_POST['task_id'])) {
+if (isset($_POST['action']) && $_POST['action'] == "editVisibility") {
+  if (isset($_POST['task_id'])) {
     $Task = new Task((int)$_POST['task_id']);
   } else {
     header('Location: index.php');
@@ -210,7 +210,7 @@ if(isset($_POST['action']) && $_POST['action'] == "editVisibility") {
     $Assignment->setVisibility((int)$_POST['visibility']);
     $return_value = array(
       "assignment_id" => $Assignment->id,
-      "svg" => getSVGByAssignmentVisibilityAsText($Assignment->visibility), 
+      "svg" => getSVGByAssignmentVisibilityAsText($Assignment->visibility),
       "next_visibility" => $Assignment->getNextAssignmentVisibility(),
       "visibility_to_text" => visibility_to_text($Assignment->getNextAssignmentVisibility())
     );
@@ -225,8 +225,8 @@ if(isset($_POST['action']) && $_POST['action'] == "editVisibility") {
   exit();
 }
 
-if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
-  if(isset($_POST['task_id'])) {
+if (isset($_POST['action']) && $_POST['action'] == "editStatus") {
+  if (isset($_POST['task_id'])) {
     $Task = new Task((int)$_POST['task_id']);
   } else {
     header('Location: index.php');
@@ -234,9 +234,9 @@ if(isset($_POST['action']) && $_POST['action'] == "editStatus") {
   }
 
   foreach ($Task->getAssignments() as $Assignment) {
-    if($Assignment->mark != null)
+    if ($Assignment->mark != null)
       $Assignment->setStatus(4);
-    else 
+    else
       $Assignment->setStatus($_POST['status']);
   }
 
@@ -302,9 +302,9 @@ function save_test_files($dbconnect, $task_id)
       $query = insert_file(2, $task_id, "accel_autotest.cpp", $_POST['full_text_test']);
     else
       $query = update_file(2, $task_id, $_POST['full_text_test']);
-  
+
     $result = pg_query($dbconnect, $query);
-  
+
     $query = select_task_file(3, $task_id);
     $result = pg_query($dbconnect, $query);
     $file = pg_fetch_all($result);
@@ -312,7 +312,7 @@ function save_test_files($dbconnect, $task_id)
       $query = insert_file(3, $task_id, "accel_checktest.cpp", $_POST['full_text_test_of_test']);
     else
       $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
-  
+
     $result = pg_query($dbconnect, $query);
   }
 }

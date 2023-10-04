@@ -19,7 +19,7 @@
 
 
 
-[data-title] {
+/* [data-title] {
   position: relative;
 }
 [data-title]:hover::before {
@@ -34,7 +34,7 @@
   font-size: 12px;
   font-family: sans-serif;
   white-space: nowrap;
-}
+} */
 
 
 
