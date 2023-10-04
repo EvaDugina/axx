@@ -54,7 +54,7 @@ if ($row) {
 
 $Task = new Task((int)$task_id);
 
-$task_files = $Task->getFiles();
+
 // getTaskFiles($dbconnect, $task_id);
 
 $last_commit_id = -1;
@@ -330,6 +330,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 </script>
                 <p>
                   <?php
+                  if ($User->isTeacher() || $User->isAdmin())
+                    $task_files = $Task->getTeacherFilesToTaskchat();
+                  else
+                    $task_files = $Task->getStudentFilesToTaskchat();
+
                   if ($task_files) {
                     echo '<b>Файлы, приложенные к заданию:</b>';
                     showFiles($task_files);

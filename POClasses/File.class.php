@@ -113,6 +113,18 @@ class File
   {
     return $this->type == 0;
   }
+
+  function isCodeTest()
+  {
+    return $this->type == 2;
+  }
+
+  function isCodeCheckTest()
+  {
+    return $this->type == 3;
+  }
+
+
   // -- END GETTERS
 
   // SETTERS

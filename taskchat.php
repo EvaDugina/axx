@@ -204,9 +204,9 @@ $task_number = explode('.', $task_title)[0];
 
           <?php
           if ($User->isTeacher() || $User->isAdmin())
-            $task_files = $Task->getFilesToTaskchat();
+            $task_files = $Task->getTeacherFilesToTaskchat();
           else
-            $task_files = $Task->getVisibleFilesToTaskchat();
+            $task_files = $Task->getStudentFilesToTaskchat();
 
           if (count($task_files) > 0) { ?>
             <p class="mx-0 mt-2 mb-0">

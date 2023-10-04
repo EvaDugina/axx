@@ -390,7 +390,7 @@ class Task
     return $Files;
   }
 
-  public function getVisibleFilesToTaskchat()
+  public function getStudentFilesToTaskchat()
   {
     $Files = array();
     foreach ($this->Files as $File) {
@@ -400,11 +400,11 @@ class Task
     return $Files;
   }
 
-  public function getFilesToTaskchat()
+  public function getTeacherFilesToTaskchat()
   {
     $Files = array();
     foreach ($this->Files as $File) {
-      if ($File->isAttached())
+      if ($File->isAttached() || $File->isCodeTest() || $File->isCodeCheckTest())
         array_push($Files, $File);
     }
     return $Files;
