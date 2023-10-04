@@ -33,13 +33,14 @@ for (var i = 0; i < conlist.length; i++) {
 
 function getActiveFileName() {
     if (editor.id){
-        for (var i = 0; i < listItems.length; i++) {
-            listItems[i].className = listItems[i].className.replace(" active_file", "");
-        }
+        // for (var i = 0; i < listItems.length; i++) {
+        //     listItems[i].className = listItems[i].className.replace(" active_file", "");
+        // }
         var items = list.querySelectorAll(".validationCustom");
         for (var i = 0; i < items.length; i++) {
             if(items[i].id == editor.id){
-                return items[i].value;
+              // listItems[i].className = listItems[i].classList.add("active_file");
+              return items[i].value;
             }
         }
     }
@@ -134,37 +135,54 @@ function renameFile(event) {
     input.style.cursor = "text";
     input.setSelectionRange(last_name.length, last_name.length);
     input.focus();
+
+    input.removeEventListener("keydown", handleInputFileName);
     
-    input.addEventListener("keydown", function(e) { 
-      if(e.key == "Enter") {
-        let new_name = input.value;
-        e.preventDefault();
-        e.stopPropagation();
-
-        console.log(e.target)
-        
-        if(last_name != new_name && !checkOriginalFileName(new_name, li.dataset.orderId)) {
-            alert("Введите оригинальное имя файла!");
-        } else {
-          input.type = "button";
-          input.className = "form-control-plaintext form-control-sm validationCustom";
-          input.style.cursor = "pointer";
-
-          var id = input.id;
-          var param = document.location.href.split("?")[1].split("#")[0];
-          if (param == '') param = 'void';
-          makeRequest('textdb.php?' + param + "&type=rename&new_file_name="+new_name+"&id=" + id, "rename");
-      
-          listItems = list.querySelectorAll(".tasks__item");
-
-          array_files[li.dataset.orderid] = new_name;
-        }
-      }
-    });
-
-
-
+    input.addEventListener("keydown", {handleEvent: handleInputFileName, li_id: li.dataset.orderid, input: input, last_name: last_name}, true);
 }   
+
+var eventListenerLastName = "";
+
+function handleInputFileName(event) {
+
+  if(event.key == "Enter") {
+
+    let li_id = parseInt(this.li_id);
+    let input = this.input;
+    let last_name = this.last_name;
+
+    let new_name = input.value;
+    event.preventDefault();
+    event.stopPropagation();
+
+    // console.log(event.target)
+
+    if(eventListenerLastName != new_name) {
+      eventListenerLastName = new_name;
+    } else {
+      return;
+    }
+    
+    if(last_name != new_name && !checkOriginalFileName(new_name, li_id)) {
+        alert("Введите оригинальное имя файла!");
+    } else {
+      input.type = "button";
+      input.className = "form-control-plaintext form-control-sm validationCustom";
+      input.style.cursor = "pointer";
+
+      var id = input.id;
+      var param = document.location.href.split("?")[1].split("#")[0];
+      if (param == '') param = 'void';
+      makeRequest('textdb.php?' + param + "&type=rename&new_file_name="+new_name+"&id=" + id, "rename");
+  
+      listItems = list.querySelectorAll(".tasks__item");
+
+      array_files[li_id] = new_name;
+    }
+  }
+}
+
+
 
 function saveFile(name, id) {
     var text = editor.current.getValue();
@@ -349,7 +367,7 @@ function alertContentsCheck(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-				alert('Новая копия проекта отправлена. Вы продолжаете работу со своей копией');
+				alert('Код отправлен на проверку!');
 				document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
 				// document.location.reload();
             } else {

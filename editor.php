@@ -57,19 +57,21 @@ $Task = new Task((int)$task_id);
 $task_files = $Task->getFiles();
 // getTaskFiles($dbconnect, $task_id);
 
-$last_commit_id = NULL;
-if (array_key_exists('commit', $_GET))
+$last_commit_id = -1;
+if (array_key_exists('commit', $_GET)) {
   $last_commit_id = $_GET['commit'];
-else {
+  $lastCommit = new Commit($last_commit_id);
+} else {
   if ($au->isStudent())
     $lastCommit = $Assignment->getLastCommitForStudent();
   else
     $lastCommit = $Assignment->getLastCommitForTeacher();
-  if ($lastCommit == null) {
-    $lastCommit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
-    $Assignment->addCommit($lastCommit->id);
+
+  if ($lastCommit != null) {
+    $last_commit_id = $lastCommit->id;
+  } else {
+    $last_commit_id = -1;
   }
-  $last_commit_id = $lastCommit->id;
 }
 
 
@@ -77,21 +79,21 @@ $solution_files = array();
 
 $nowCommit = null;
 $readOnly = "false";
-if ($last_commit_id) {
-  $nowCommit = new Commit((int)$last_commit_id);
-  foreach ($nowCommit->getFiles() as $File) {
-    $solution_file = array('id' => $File->id, 'file_name' => $File->name_without_prefix, 'text' => $File->getFullText());
-    array_push($solution_files, $solution_file);
-  }
-
-  if ($nowCommit->isNotEdit())
-    $readOnly = "true";
+if ($last_commit_id != -1) {
+  $nowCommit = $lastCommit;
 } else {
-  // if($au->isStudent()) {
-  //   $nowCommit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
-  //   header("Location:editor.php?assignment=" . $Assignment->id . "&commit=" . $nowCommit->id);
-  // } 
+  $nowCommit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
+  $Assignment->addCommit($nowCommit->id);
+  $nowCommit->addFiles($Task->getInitialCodeFiles());
 }
+
+foreach ($nowCommit->getFiles() as $File) {
+  $solution_file = array('id' => $File->id, 'file_name' => $File->name_without_prefix, 'text' => $File->getFullText());
+  array_push($solution_files, $solution_file);
+}
+
+if ($nowCommit->isNotEdit())
+  $readOnly = "true";
 echo "<script>var read_only=$readOnly;</script>";
 
 
@@ -243,12 +245,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <p><strong>История коммитов</strong></p>
             <div id="div-history-commit-btns" class="flex-column mb-5 pe-3" style="<?= (count($Commits) > 10) ? "overflow-y: scroll;" : "overflow-y: hidden;" ?> max-height: 700px; min-height: 0px;">
 
-              <?php foreach ($Commits as $i => $Commit) { ?>
+              <?php foreach ($Commits as $i => $Commit) {
+                $commitUser = new User($Commit->student_user_id) ?>
                 <button class="btn btn-<?= ($Commit->isNotEdit()) ? "success" : "primary" ?> mb-1 d-flex align-items-center justify-content-between w-100" onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'" <?= ($Commit->id == $last_commit_id) ? "disabled" : "" ?>>
-                  <?= $i + 1 ?> &nbsp;&nbsp;
-                  <?php
-                  if ($Commit->id == $last_commit_id)
-                    echo '~ТЕКУЩИЙ~'; ?>
+                  <span><?= $i + 1 ?> &nbsp; (<span style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></span>) &nbsp;&nbsp;
+                    <?php
+                    if ($Commit->id == $last_commit_id)
+                      echo '~ТЕКУЩИЙ~'; ?>
+                  </span>
                   <?= getSVGByCommitType($Commit->type) ?>
                 </button>
               <?php } ?>
@@ -740,12 +744,14 @@ fun();
 
     document.onkeydown = function(e) {
       if (e.ctrlKey || e.metaKey) isCtrl = true;
-      if ((e.key.toUpperCase() == "S" || e.key.toUpperCase() == "Ы") && isCtrl == true) {
+      if ((e.key.toUpperCase() == "S") && isCtrl == true) {
         e.preventDefault();
-        $('#btn-save').addClass("active");
         $('#btn-save').click();
-        setTimeout(endAnimationSave(), 1000);
-
+        $('#btn-save').addClass("active");
+        setTimeout(function() {
+          endAnimationSave();
+        }, 1000);
+        isCtrl = false;
       }
     }
 

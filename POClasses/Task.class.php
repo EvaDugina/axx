@@ -76,6 +76,11 @@ class Task
     return $this->Files;
   }
 
+
+  public function getInitialCodeFiles() {
+    return $this->getFilesByType(1);
+  }
+
   public function getCodeTestFiles()
   {
     return $this->getFilesByType(2);
