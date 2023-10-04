@@ -171,7 +171,7 @@ class Task
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function deleteFromDB()
+  public function pushAllChangesToDB()
   {
     global $dbconnect;
 
