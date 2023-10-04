@@ -199,11 +199,13 @@ class Commit
 
   public function isEditByTeacher()
   {
-    return $this->isChecking();
+    $commitUser = new User($this->student_user_id);
+    return $this->isChecking() || ($commitUser->isTeacher() && $this->isInProcess());
   }
   public function isEditByStudent()
   {
-    return $this->isInProcess();
+    $commitUser = new User($this->student_user_id);
+    return $this->isInProcess() && $commitUser->isStudent();
   }
   public function isNotEdit()
   {
