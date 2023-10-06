@@ -6,7 +6,10 @@ class Commit
 {
 
   public $id = null;
-  public $session_id = null, $student_user_id = null, $type = null, $autotest_results = null;
+  public $session_id = null, $student_user_id = null;
+  public $type = null;  // 0 - промежуточный (редактирует только отправляющий), 1 - отправлен на проверку (не редактирует никто), 2 - проверяется (редактирует только препод), 3 - проверенный (не редактирует никто)
+  public $autotest_results = null;
+  public $date_time;
   //private $comment; можно реализовать
 
   private $Files = array();
@@ -36,6 +39,8 @@ class Commit
         $this->type = $commit['type'];
       if (isset($commit['autotest_results']))
         $this->autotest_results = $commit['autotest_results'];
+      if (isset($commit['date_time']))
+        $this->date_time = $commit['date_time'];
       //$this->comment = $file[''];
 
       $this->Files = getFilesByCommit($this->id);
@@ -104,6 +109,13 @@ class Commit
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function getConvertedDateTime()
+  {
+    if ($this->date_time != null)
+      return getConvertedDateTime($this->date_time);
+    return "";
+  }
+
 
 
 
@@ -114,14 +126,15 @@ class Commit
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_solution_commit (assignment_id, session_id, student_user_id, type, autotest_results)
-              VALUES ($assignment_id, $this->session_id, $this->student_user_id, $this->type, $this->autotest_results)
-              RETURNING id";
+    $query = "INSERT INTO ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type, autotest_results)
+              VALUES ($assignment_id, $this->session_id, $this->student_user_id, now(), $this->type, $this->autotest_results)
+              RETURNING id, date_time";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
 
     $this->id = $result['id'];
+    $this->date_time = $result['date_time'];
   }
   public function pushAllChangesToDB($assignment_id)
   {
@@ -129,9 +142,10 @@ class Commit
 
     $query = "UPDATE ax_solution_commit SET assignment_id=$assignment_id, session_id=$this->session_id, 
               student_user_id=$this->student_user_id, type=$this->type, autotest_results=$this->autotest_results
-              WHERE id = $this->id";
+              WHERE id = $this->id 
+              RETURNING date_time;";
 
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function deleteFromDB()
   {
@@ -151,33 +165,32 @@ class Commit
     global $dbconnect;
 
     $query = "UPDATE ax_solution_commit SET session_id = $this->session_id, student_user_id = $this->student_user_id, 
-      type = $this->type, autotest_results = '$this->autotest_results' WHERE id = $this->id;
+      date_time=$this->date_time, type = $this->type, autotest_results = '$this->autotest_results' WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
 
-  public function copy($commit_id)
+  public function copy($targetCommit)
   {
-    $Commit = new Commit((int)$commit_id);
 
-    if ($Commit->session_id == null)
+    if ($targetCommit->session_id == null)
       $this->session_id = "null";
     else
-      $this->session_id = $Commit->session_id;
+      $this->session_id = $targetCommit->session_id;
 
-    $this->student_user_id = $Commit->student_user_id;
-    $this->type = $Commit->type;
+    $this->student_user_id = $targetCommit->student_user_id;
+    $this->type = $targetCommit->type;
 
-    if ($Commit->autotest_results == null)
+    if ($targetCommit->autotest_results == null)
       $this->autotest_results = "null";
     else
-      $this->autotest_results = $Commit->autotest_results;
+      $this->autotest_results = $targetCommit->autotest_results;
 
-    $this->pushAllChangesToDB(getAssignmentByCommit($Commit->id));
+    $this->pushAllChangesToDB(getAssignmentByCommit($targetCommit->id));
 
     $this->deleteFilesFromCommitDB();
-    $this->addFiles($Commit->getFiles());
+    $this->addFiles($targetCommit->getFiles());
   }
 
   public function isInProcess()
@@ -306,8 +319,16 @@ class Commit
 
   // -- END WORK WITH FILE 
 
+}
 
-
+function getCommitCopy($assignment_id, $user_id, $targetCommit)
+{
+  $Assignment = new Assignment($assignment_id);
+  $copyCommit = new Commit($assignment_id, null, $user_id, 0, null);
+  $copyCommit->copy($targetCommit);
+  $copyCommit->setStudentUserId($user_id);
+  $Assignment->addCommit($copyCommit->id);
+  return $copyCommit;
 }
 
 

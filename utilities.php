@@ -92,6 +92,15 @@ function convert_mtime($mtime)
   return $time_date_output;
 }
 
+function getConvertedDateTime($db_date)
+{
+  $date_time = explode(" ", $db_date);
+  $date = explode("-", $date_time[0]);
+  $time = explode(":", $date_time[1]);
+  $date_time = $date[2] . "." . $date[1] . "." . $date[0] . " " . $time[0] . ":" . $time[1];
+  return $date_time;
+}
+
 
 
 

@@ -96,6 +96,8 @@ class File
     else if (!preg_match('#^http[s]{0,1}://#', $this->download_url)) {
       if (strpos($this->download_url, 'editor.php') === false)
         return 'download_file.php?file_path=' . $this->download_url;
+      else
+        return $this->download_url;
     }
 
     // Такого не может быть

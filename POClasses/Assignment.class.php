@@ -14,7 +14,7 @@ class Assignment
   public $visibility = null, $visibility_text = null;
   public $delay = null; // не понятно, зачем нужно
   public $mark = null;
-  public $status = null;
+  public $status = null; // -1 - недоступно для выполнения, 0 - ожидает выполнения, 1 - ожидает проверки, 2 - проверено, не оценено, 3 - ожидает повторной проверки, 4 - оценено
   public $checks = null;
   // public $new = false;
 

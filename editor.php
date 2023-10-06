@@ -168,7 +168,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                     <div class="px-1 align-items-center text-primary">
                       <?= getSVGByFileType($File->type) ?>
                     </div>
-                    <input type="button" class="form-control-plaintext form-control-sm validationCustom" id="<?= $File->id ?>" value="<?= $File->name_without_prefix ?>" style="cursor: pointer;">
+                    <input type="button" class="form-control-plaintext form-control-sm validationCustom" id="<?= $File->id ?>" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
                     <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
                   getSVGByCommitType($nowCommit->type)
                 </button> -->
@@ -247,12 +247,15 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
               <?php foreach ($Commits as $i => $Commit) {
                 $commitUser = new User($Commit->student_user_id) ?>
-                <button class="btn btn-<?= ($Commit->isNotEdit()) ? "success" : "primary" ?> mb-1 d-flex align-items-center justify-content-between w-100" onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'" <?= ($Commit->id == $last_commit_id) ? "disabled" : "" ?>>
-                  <span><?= $i + 1 ?> &nbsp; (<span style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></span>) &nbsp;&nbsp;
-                    <?php
-                    if ($Commit->id == $last_commit_id)
-                      echo '~ТЕКУЩИЙ~'; ?>
-                  </span>
+                <button class="btn btn-<?= ($Commit->isNotEdit()) ? "success" : "primary" ?> mb-1 d-flex align-items-center justify-content-between w-100 px-3" onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'" <?= ($Commit->id == $last_commit_id) ? "disabled" : "" ?>>
+                  <div class="flex-column">
+                    <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
+                    <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
+                  </div>
+                  <?php
+                  // if ($Commit->id == $last_commit_id)
+                  //   echo '~ТЕКУЩИЙ~'; 
+                  ?>
                   <?= getSVGByCommitType($Commit->type) ?>
                 </button>
               <?php } ?>
@@ -725,6 +728,32 @@ fun();
     </div>
   </main>
 
+  <div class="modal fade" id="dialogSuccess" tabindex="-1" aria-labelledby="dialogSuccessLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <?php if ($au->isAdminOrPrep()) { ?>
+              Задание проверено!
+            <?php } else { ?>
+              Задание решено!
+            <?php } ?>
+          </h5>
+          <button type="button" class="btn-close me-2" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>
+            <?php if ($au->isAdminOrPrep()) { ?>
+              Коммит с замечаниями отправлен студенту.
+            <?php } else { ?>
+              Код отправлен преподавателю на проверку.
+            <?php } ?>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="./src/js/sandbox.js"></script>
   <script src="js/drag.js"></script>
   <script src="js/tab.js"></script>
@@ -779,6 +808,11 @@ fun();
       let button_answer = document.getElementById('submit-answer');
 
       $('#div-history-commit-btns').scrollTop($('#div-history-commit-btns').prop('scrollHeight'));
+      // $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+
+      $('#dialogSuccess').on('hidden.bs.modal', function() {
+        document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
+      })
 
       // Отправка формы сообщения через FormData (с моментальным обновлением лога чата)
       $("#submit-message").click(function() {

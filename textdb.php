@@ -85,13 +85,17 @@ if (array_key_exists('assignment', $_REQUEST)) {
   exit;
 }
 
-if (array_key_exists('commit', $_REQUEST))
+$Commit = null;
+if (array_key_exists('commit', $_REQUEST)) {
   $commit_id = urldecode($_REQUEST['commit']);
-else {
+  $Commit = new Commit($commit_id);
+} else {
   if ($au->isStudent())
-    $commit_id = $Assignment->getLastCommitForStudent()->id;
+    $Commit = $Assignment->getLastCommitForStudent();
   else
-    $commit_id = $Assignment->getLastCommitForTeacher()->id;
+    $Commit = $Assignment->getLastCommitForTeacher();
+  if ($Commit != null)
+    $commit_id = $Commit->id;
 }
 // $result = pg_query($dbconnect, "select max(id) mid from ax_solution_commit where assignment_id = $assignment");
 // $result = pg_fetch_assoc($result);
@@ -121,7 +125,6 @@ if ($type == "open") {
   $responce = "Коммит $commit_id файла $file_name не найден";
 
   // выбираем файл по названию и номеру коммита
-  // TODO: Проверить!
   $result = pg_query($dbconnect, "SELECT ax_file.id, ax_file.file_name, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
   $result = pg_fetch_all($result);
   foreach ($result as $item) {
@@ -136,7 +139,6 @@ if ($type == "open") {
 else if ($type == "save") {
 
   $id = 0;
-  // TODO: Проверить!
   $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
   $result = pg_fetch_assoc($result);
   if (count($result) > 0)
@@ -153,10 +155,8 @@ else if ($type == "save") {
 
   if (array_key_exists('file', $_REQUEST)) {
     $file = $_REQUEST['file'];
-    // TODO: Проверить!
     pg_query($dbconnect, 'UPDATE ax_file SET full_text=$accelquotes$' . $file . '$accelquotes$, file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
   } else {
-    // TODO: Проверить!
     pg_query($dbconnect, 'UPDATE ax_file SET file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
   }
 
@@ -166,22 +166,29 @@ else if ($type == "save") {
 //-----------------------------------------------------------------NEW--------------------------------------------------------
 else if ($type == "new") {
 
-  if ($commit_id == 0) {
-    // создать первый коммит, если его нет
-    $result = pg_query($dbconnect, "select id from students where login='" . $_SESSION['login'] . "'");
-    $result = pg_fetch_all($result);
-    $user_id = $result[0]['id'];
+  // $result = pg_query($dbconnect, "select id from students where login='" . $_SESSION['login'] . "'");
+  // $result = pg_fetch_all($result);
+  // $user_id = $result[0]['id'];
 
-    // --- сессий пока нет
-    $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) values ($assignment, null, $user_id, 0) returning id;");
-    $result = pg_fetch_all($result);
-    $commit_id = $result[0]['id'];
+  if ($Commit == null) {
+    $Commit = new Commit($assignment, null, $User->id, 0, null);
   }
 
-  // TODO: Проверить!
+  // if ($commit_id == 0) {
+  //   // создать первый коммит, если его нет
+  //   $result = pg_query($dbconnect, "select id from students where login='" . $_SESSION['login'] . "'");
+  //   $result = pg_fetch_all($result);
+  //   $user_id = $result[0]['id'];
+
+  //   // --- сессий пока нет
+  //   $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) values ($assignment, null, $user_id, 0) returning id;");
+  //   $result = pg_fetch_all($result);
+  //   $commit_id = $result[0]['id'];
+  // }
+
   $File = new File(11, $file_name, null, null);
   $File->setName(true, $file_name);
-  $Commit = new Commit((int)$commit_id);
+  // $Commit = new Commit((int)$commit_id);
   $Commit->addFile($File->id);
 
   $return_values = array(
@@ -211,7 +218,6 @@ else if ($type == "del") {
   }
 
   // тут нужно монотонное возрастание id-шников файлов
-  // TODO: Проверить!
 
   $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
   $result = pg_fetch_assoc($result);
@@ -220,7 +226,6 @@ else if ($type == "del") {
     http_response_code(400);
     exit;
   } else
-    // TODO: ПРОВЕРИТЬ!
     pg_query($dbconnect, "DELETE FROM ax_file WHERE id=" . $result['id']);
   pg_query($dbconnect, "DELETE FROM ax_commit_file WHERE file_id=" . $result['id']);
 }
@@ -240,39 +245,28 @@ else if ($type == "rename") {
 
 //---------------------------------------------------------------COMMIT-------------------------------------------------------
 else if ($type == "commit") {
-  $Assignment = new Assignment((int)$_REQUEST['assignment']);
 
-  if ($_REQUEST['commit']) {
-    $lastCommit = new Commit((int)$_REQUEST['commit']);
-  } else {
-    if ($au->isStudent())
-      $lastCommit = $Assignment->getLastCommitForStudent();
-    else
-      $lastCommit = $Assignment->getLastCommitForTeacher();
+  if ($Commit == null) {
+    echo "Некорректное обращение";
+    http_response_code(400);
+    exit;
   }
 
   if (array_key_exists('commit_type', $_REQUEST)) {
     if ($_REQUEST['commit_type'] == "intermediate") {
-      if ($lastCommit) {
-        $Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
-        $Commit->copy($lastCommit->id);
-        $Commit->setStudentUserId($au->getUserId());
-        $Assignment->addCommit($Commit->id);
-      } else {
-        $Commit = new Commit($Assignment->id, null, $au->getUserId(), 0, null);
-      }
+      $cloneCommit = getCommitCopy($Assignment->id, $User->id, $Commit);
       if ($au->isStudent())
         $type = 0;
       else
         $type = 2;
-      $Commit->setType($type);
+      $cloneCommit->setType($type);
       // header("Location:editor.php?assignment=" . $Assignment->id);
-      $responce = json_encode(array("assignment_id" => $Assignment->id, "commit_id" => $Commit->id));
+      $responce = json_encode(array("assignment_id" => $Assignment->id, "commit_id" => $cloneCommit->id));
     } else {
       if ($au->isStudent())
-        $lastCommit->setType(1);
+        $Commit->setType(1);
       else
-        $lastCommit->setType(3);
+        $Commit->setType(3);
       // header("Location:editor.php?assignment=" . $Assignment->id);
     }
   } else {
@@ -285,80 +279,111 @@ else if ($type == "commit") {
 //---------------------------------------------------------------ONCHECK-------------------------------------------------------
 else if ($type == "oncheck") {
 
-  if ($commit_id == 0) {
+  if ($Commit == null) {
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
   }
 
-  $filecount = 0;
-  // TODO: ПРОВЕРИТЬ!
-  $result = pg_query($dbconnect, "SELECT count(*) cnt from ax_commit_file where commit_id = $commit_id");
-  $result = pg_fetch_all($result);
-  $filecount = $result[0]['cnt'];
-  $new_id = 0;
+  // $filecount = 0;
+  // $result = pg_query($dbconnect, "SELECT count(*) cnt from ax_commit_file where commit_id = $commit_id");
+  // $result = pg_fetch_all($result);
+  // $filecount = $result[0]['cnt'];
+  // $new_id = 0;
 
-  if ($filecount > 0) {
-    $result = pg_query($dbconnect, "select id, role from students where login='" . $_SESSION['login'] . "'");
-    $result = pg_fetch_all($result);
-    $user_id = $result[0]['id'];
-    $user_role = $result[0]['role'];
+  if (count($Commit->getFiles()) > 0) {
+    // $result = pg_query($dbconnect, "select id, role from students where login='" . $_SESSION['login'] . "'");
+    // $result = pg_fetch_all($result);
+    // $user_id = $result[0]['id'];
+    // // $user_role = $result[0]['role'];
+    // $User = new User($user_id);
 
     // --- сессий пока нет
-    $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) select assignment_id, session_id, $user_id, " .
-      (($user_role == 3) ? "1" : "3") . " from ax_solution_commit where id = $commit_id RETURNING id");
-    $result = pg_fetch_all($result);
-    $new_id = $result[0]['id'];
+    // if ($User->isStudent()) {
+    //   $lastCommit = $Assignment->getLastCommitForStudent();
+    // } else {
+    //   $lastCommit = $Assignment->getLastCommitForTeacher();
+    // }
 
-    // TODO: Проверить!
-    $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
-    $Commit = new Commit((int)$new_id);
-    while ($file = pg_fetch_assoc($pg_query)) {
-      $File = new File((int)$file['type'], $file['file_name']);
-      $File->copy($file["id"]);
-      $Commit->addFile($File->id);
+    $answerCommit = getCommitCopy($Assignment->id, $au->getUserId(), $Commit);
+    if ($User->isStudent()) {
+      $answerCommit->setType(1);
+    } else {
+      $answerCommit->setType(3);
     }
+
+    // $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type) select assignment_id, session_id, $user_id, now()," .
+    //   (($user_role == 3) ? "1" : "3") . " from ax_solution_commit where id = $commit_id RETURNING id");
+    // $result = pg_fetch_all($result);
+    // $new_id = $result[0]['id'];
+
+    // $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
+    // $Commit = new Commit((int)$new_id);
+    // while ($file = pg_fetch_assoc($pg_query)) {
+    //   $File = new File((int)$file['type'], $file['file_name']);
+    //   $File->copy($file["id"]);
+    //   $Commit->addFile($File->id);
+    // }
 
     // $result = pg_query($dbconnect, "insert into ax_solution_file (assignment_id, commit_id, type, file_name, download_url, full_text) select assignment_id, $new_id, type, file_name, download_url, full_text from ax_solution_file where commit_id = $commit_id");
 
     // $result = pg_query($dbconnect, "update ax_solution_commit set type = 1 where id = $commit_id");
 
-    if ($user_role == 3)
-      pg_query($dbconnect, "UPDATE ax_assignment SET status=1, status_code=2 where id=$assignment");
-    else
-      pg_query($dbconnect, "UPDATE ax_assignment SET status=4, status_code=2 where id=$assignment");
+    // if ($User->isStudent())
+    //   pg_query($dbconnect, "UPDATE ax_assignment SET status=1, status_code=2 where id=$assignment");
+    // else
+    //   pg_query($dbconnect, "UPDATE ax_assignment SET status=4, status_code=2 where id=$assignment");
 
-    if ($user_role == 3) {
-      $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
-        "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Отправлено на проверку', $new_id, 0) returning id");
-      $result = pg_fetch_assoc($result2);
-      $msg_id = $result['id'];
-
-      // TODO: Проверить!
-      $Message = new Message((int)$msg_id);
-      $File = new File(null, 'проверить', "editor.php?assignment=$assignment&commit=$new_id", null);
+    if ($User->isStudent()) {
+      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, null, "Отправлено на проверку", 0, 0);
+      $Message->setCommit($answerCommit->id);
+      $File = new File(10, 'проверить', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
       $Message->addFile($File->id);
-      // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
-      // 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-      pg_query($dbconnect, "update ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
 
       // Отправка сообщения-ссылки для преподавателя
-      $Assignment = new Assignment((int)$assignment);
-      $Message_link = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$Commit->id", 0, 2);
-      $Assignment->addMessage($Message_link->id);
-    } else {
-      $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
-        "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
-      $result = pg_fetch_assoc($result2);
-      $msg_id = $result['id'];
+      $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 0, 2);
+      $Assignment->addMessage($linkMessage->id);
 
-      // TODO: Проверить!
-      $Message = new Message((int)$msg_id);
-      $File = new File(null, 'проверенная версия', "editor.php?assignment=$assignment&commit=$new_id", null);
+      // $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
+      //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Отправлено на проверку', $new_id, 0) returning id");
+      // $result = pg_fetch_assoc($result2);
+      // $msg_id = $result['id'];
+
+      // $Message = new Message((int)$msg_id);
+      // $File = new File(null, 'проверить', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
+      // $Message->addFile($File->id);
+      // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
+      // 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
+      // pg_query($dbconnect, "update ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
+
+    } else {
+      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, null, "Проверено", 0, 0);
+      $Message->setCommit($answerCommit->id);
+      $File = new File(10, 'проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
       $Message->addFile($File->id);
+      $Assignment->addMessage($Message);
+
+      // Отправка сообщения-ссылки для преподавателя
+      $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 0, 2);
+      $Assignment->addMessage($linkMessage->id);
+
+      // $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
+      //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
+      // $result = pg_fetch_assoc($result2);
+      // $msg_id = $result['id'];
+
+      // $Message = new Message((int)$msg_id);
+      // $File = new File(null, 'проверенная версия', "editor.php?assignment=$assignment&commit=$new_id", null);
+      // $Message->addFile($File->id);
       // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
       // 				 "     values ($msg_id, 'проверенная версия', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-      pg_query($dbconnect, "update ax_assignment set status_code = 2, status = 4, where id = $assignment");
+      // pg_query($dbconnect, "update ax_assignment set status_code = 2, status = 4, where id = $assignment");
+    }
+
+    if ($User->isStudent()) {
+      $Assignment->setStatus(1);
+    } else {
+      $Assignment->setStatus(2);
     }
   }
 }
