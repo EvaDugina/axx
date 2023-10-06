@@ -236,7 +236,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           if ($Message->full_text != '') {
             if ($Message->type == 3) { // если ссылка
           ?>
-              <p class="p-0 m-0 h6 text-start" style="text-transform: uppercase;">
+              <p class="p-0 m-0 р6 text-start">
                 <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
@@ -275,7 +275,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           if ($Message->full_text != '') {
             if ($Message->type == 3) { // если ссылка
           ?>
-              <p class="p-0 m-0 h6 text-start" style="text-transform: uppercase;">
+              <p class="p-0 m-0 h6 text-start">
                 <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>

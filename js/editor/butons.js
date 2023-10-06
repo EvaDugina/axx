@@ -9,7 +9,7 @@ for (var i = 0; i < listItems.length; i++) {
     setEventListener(listItems[i]);
 }
 
-$("#btn-save").on('click', saveActiveFile);
+$("#btn-save").on('click', handleButtonSave);
 $("#btn-commit").on('click', addNewIntermediateCommit);
 $("#btn-newFile").on('click', newFile);
 $("#div-history-commit-btns").children().each(function () {
@@ -45,6 +45,13 @@ function getActiveFileName() {
         }
     }
     return null;
+}
+
+function handleButtonSave() {
+    $('#btn-save').addClass("active");
+    $('#btn-save').prop("disabled", true);
+    $('#spinner-save').removeClass("d-none");
+    saveActiveFile();
 }
 
 function saveActiveFile() {
@@ -276,7 +283,9 @@ function makeRequest(url, type) {
         const body = new FormData();
         body.append('file', url[1])
         fetch(url[0], { method: "POST", body }).then(function (response) {
-            // $('#spinner-save').addClass("d-none");
+            $('#spinner-save').addClass("d-none");
+            $('#btn-save').removeClass("active");
+            $('#btn-save').prop("disabled", false);
         })
         //httpRequest.open('GET', encodeURI(url), true);
         //httpRequest.send(null);
@@ -374,6 +383,7 @@ function alertContentsCheck(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
                 // alert('Код отправлен на проверку!');
+                $('#check').prop("disabled", false);
                 $('#dialogSuccess').modal('show');
                 // document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
                 // document.location.reload();

@@ -287,6 +287,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               </svg>
               &nbsp;&nbsp;
               Сохранить
+              <div id="spinner-save" class="spinner-border d-none ms-3" role="status" style="width: 1rem; height: 1rem;">
+                <span class="sr-only">Loading...</span>
+              </div>
+
             </button>
           </div>
           <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
@@ -778,19 +782,15 @@ fun();
 
     document.onkeydown = function(e) {
       if (e.ctrlKey || e.metaKey) isCtrl = true;
-      if ((e.key.toUpperCase() == "S") && isCtrl == true) {
+      if ((e.key.toUpperCase() == "S" || e.key.toUpperCase() == "Ы") && isCtrl == true) {
         e.preventDefault();
         $('#btn-save').click();
-        $('#btn-save').addClass("active");
-        setTimeout(function() {
-          endAnimationSave();
-        }, 1000);
+        // $('#btn-save').addClass("active");
+        // setTimeout(function() {
+        //   endAnimationSave();
+        // }, 1000);
         isCtrl = false;
       }
-    }
-
-    function endAnimationSave() {
-      $('#btn-save').removeClass("active");
     }
   </script>
 

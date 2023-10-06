@@ -363,10 +363,6 @@ else if ($type == "oncheck") {
       $Message->addFile($File->id);
       $Assignment->addMessage($Message);
 
-      // Отправка сообщения-ссылки для преподавателя
-      $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 0, 2);
-      $Assignment->addMessage($linkMessage->id);
-
       // $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
       //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
       // $result = pg_fetch_assoc($result2);

@@ -61,7 +61,7 @@ show_head("Добавление\Редактирование задания", ar
   );
   ?>
 
-  <div class="container-fluid overflow-hidden">
+  <div class="container-fluid overflow-hidden mb-5">
     <div class="pt-3">
       <div class="row gy-5">
         <div class="col-8">
@@ -115,7 +115,7 @@ show_head("Добавление\Редактирование задания", ar
               ?>
 
               <div class="form-outline col-5">
-                <textarea id="textArea-codeTest" class="form-control" rows="5" name="full_text_test" style="resize: none;" onkeyup="codeTestChange()"><?= $textArea_codeTest ?></textarea>
+                <textarea id="textArea-codeTest" class="form-control <?= ($textArea_codeTest != "") ? "active" : "" ?>" rows="5" name="full_text_test" style="resize: none;" onkeyup="codeTestChange()"><?= $textArea_codeTest ?></textarea>
                 <label id="label-codeTest" class="form-label" for="textArea-codeTest">Код теста</label>
                 <div id="div-border-codeTest" class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -132,7 +132,7 @@ show_head("Добавление\Редактирование задания", ar
               ?>
 
               <div class="form-outline col-6">
-                <textarea id="textArea-codeCheck" class="form-control" rows="5" name="full_text_test_of_test" style="resize: none;" onkeyup="codeCheckTestChange()"><?= $textArea_codeCheck ?></textarea>
+                <textarea id="textArea-codeCheck" class="form-control <?= ($textArea_codeCheck != "") ? "active" : "" ?>" rows="5" name="full_text_test_of_test" style="resize: none;" onkeyup="codeCheckTestChange()"><?= $textArea_codeCheck ?></textarea>
                 <label id="label-codeCheck" class="form-label" for="textArea-codeCheck">Код проверки</label>
                 <div id="div-border-codeCheck" class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
