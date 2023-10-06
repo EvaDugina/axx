@@ -4,38 +4,43 @@ TEXT_WITH_MARK = "Задание проверено. \nОценка: ";
 
 
 const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
-const value = document.getElementById("selectCourse").value;
-document.location.href = 'preptable.php?page=' + value;
-//log(`option desc`, desc);
+  const value = document.getElementById("selectCourse").value;
+  document.location.href = 'preptable.php?page=' + value;
+  //log(`option desc`, desc);
 });
 
-$('.toggle-accordion').click(function(e) {
-e.preventDefault();
+$('.toggle-accordion').click(function (e) {
+  e.preventDefault();
 
-console.log('Нажатие на элемент: ' + $(this).attr("class"));
+  // console.log('Нажатие на элемент: ' + $(this).attr("class"));
 
-accordionClick($(this));
+  accordionClick($(this));
 });
 
-function accordionClick($this){
-  if ($this.next().hasClass('show')) {
+function accordionClick(li) {
+  if (li.next().hasClass('show')) {
     console.log('Закрытие себя');
-    $this.next().removeClass('show');
-    $this.next().slideUp();
+    li.next().removeClass('show');
+    li.next().slideUp();
+    // if (li.hasClass("accordion-button"))
+    $('#div-accordion-collapse-' + li[0].id).addClass("collapsed");
 
   } else {
     console.log('Закрытие всех остальных элементов');
-    $this.parent().parent().find('div .inner-accordion').removeClass('show');
-    $this.parent().parent().find('div .inner-accordion').slideUp();
-    
+    li.parent().parent().find('div .inner-accordion').removeClass('show');
+    li.parent().parent().find('div .inner-accordion').slideUp();
+    li.parent().parent().find('div .accordion-button').addClass("collapsed");
+
     console.log('Открытие себя');
-    $this.next().toggleClass('show');
-    $this.next().slideToggle();
-    
+    li.next().toggleClass('show');
+    li.next().slideToggle();
+    // if (li.hasClass("accordion-button"))
+    $('#div-accordion-collapse-' + li[0].id).removeClass("collapsed");
+
   }
 }
 
-function accordionShow($this){
+function accordionShow($this) {
   if ($this.next().hasClass('show')) {
   } else {
     console.log('Открытие себя');
@@ -44,7 +49,7 @@ function accordionShow($this){
   }
 }
 
-function accordionHide($this){
+function accordionHide($this) {
   if ($this.next().hasClass('hide')) {
   } else {
     console.log('Закрытие себя');
@@ -56,18 +61,18 @@ function accordionHide($this){
 
 
 function filterTableByGroupsAndStudents(value) {
-if (value.trim() === '') {
-  // console.log("пустое поле");
+  if (value.trim() === '') {
+    // console.log("пустое поле");
     $('#table-status-id').find('tbody>tr').show();
     $('#list-messages-id').find('.message').show();
-    $('#accordion-student-list').find('.toggle-accordion').each(function (){
+    $('#accordion-student-list').find('.toggle-accordion').each(function () {
       $(this).parent().show();
       accordionHide($(this));
     });
-} else {
+  } else {
     let group_flag = false;
-    $('#table-status-id').find('tbody>tr').each(function() {
-      if(value == "") {
+    $('#table-status-id').find('tbody>tr').each(function () {
+      if (value == "") {
         $(this).show();
       } else {
         if ($(this).data('type') == "student") {
@@ -77,7 +82,7 @@ if (value.trim() === '') {
             // console.log($(this).data('group'));
             $(this).show();
             $($(this).data('group')).show();
-          } else if(!group_flag){
+          } else if (!group_flag) {
             $(this).hide();
           }
         } else if ($(this).data('type') == "group") {
@@ -98,9 +103,9 @@ if (value.trim() === '') {
             // $(this).hide();
           }
         }
-      } 
+      }
     });
-    $('#list-messages-id').find('.message').each(function() {
+    $('#list-messages-id').find('.message').each(function () {
       $(this).toggle($(this).html().toLowerCase().indexOf(value.toLowerCase()) >= 0);
     });
     $('#accordion-student-list').find('.toggle-accordion').each(function () {
@@ -117,18 +122,18 @@ if (value.trim() === '') {
 
 function filterTableByTasks(value) {
   if (value.trim() === '') {
-    Array.from($("#table-status-id thead>tr")[1].children).forEach(function(element) {
+    Array.from($("#table-status-id thead>tr")[1].children).forEach(function (element) {
       element.hidden = false;
     });
 
-    $('#table-status-id').find('tbody>tr').each(function() {
+    $('#table-status-id').find('tbody>tr').each(function () {
       if ($(this).data('type') == "group") {
-        $(this).find('td').each(function() {
+        $(this).find('td').each(function () {
           $(this).attr('colspan', array_opened_tasks.length);
         });
-      } else if($(this).data('type') == "student") {
+      } else if ($(this).data('type') == "student") {
         let index3 = 0;
-        $(this).find('td').each(function() {
+        $(this).find('td').each(function () {
           if (array_opened_tasks.includes(index3)) {
             $(this).show();
           } else {
@@ -138,14 +143,14 @@ function filterTableByTasks(value) {
         });
       }
     });
-    
+
   } else {
 
     // Проверяем совпадение с заданиями
     let array_opened_tasks = [];
     let index1 = 0;
-    Array.from($("#table-status-id thead>tr")[1].children).forEach(function(element) {
-      if(element.tagName == "TD" && element.dataset.title.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+    Array.from($("#table-status-id thead>tr")[1].children).forEach(function (element) {
+      if (element.tagName == "TD" && element.dataset.title.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
         array_opened_tasks.push(index1);
       }
       index1++;
@@ -154,7 +159,7 @@ function filterTableByTasks(value) {
     Array.from($("#table-status-id thead>tr")[0].children)[2].colSpan = array_opened_tasks.length;
 
     let index2 = 0;
-    Array.from($("#table-status-id thead>tr")[1].children).forEach(function(element) {
+    Array.from($("#table-status-id thead>tr")[1].children).forEach(function (element) {
       if (element.tagName == "TD" && !array_opened_tasks.includes(index2)) {
         element.hidden = true;
       } else {
@@ -164,14 +169,14 @@ function filterTableByTasks(value) {
     });
 
     // Отображаем нужные колонки
-    $('#table-status-id').find('tbody>tr').each(function() {
+    $('#table-status-id').find('tbody>tr').each(function () {
       if ($(this).data('type') == "group") {
-        $(this).find('td').each(function() {
+        $(this).find('td').each(function () {
           $(this).attr('colspan', array_opened_tasks.length);
         });
-      } else if($(this).data('type') == "student") {
+      } else if ($(this).data('type') == "student") {
         let index3 = 0;
-        $(this).find('td').each(function() {
+        $(this).find('td').each(function () {
           if (array_opened_tasks.includes(index3)) {
             $(this).show();
           } else {
@@ -186,9 +191,9 @@ function filterTableByTasks(value) {
 }
 
 function showPopover(element) {
-//console.log(element);
+  //console.log(element);
 
-$(element).popover({
+  $(element).popover({
     html: true,
     delay: 250,
     trigger: 'focus',
@@ -196,11 +201,11 @@ $(element).popover({
     sanitize: false,
     title: element.getAttribute('title'),
     content: element.getAttribute('data-mdb-content')
-}).popover('show');
+  }).popover('show');
 
-$('.popover-dismiss').popover({
+  $('.popover-dismiss').popover({
     trigger: 'focus'
-});
+  });
 }
 
 var assignment_id = null;
@@ -209,103 +214,103 @@ var sender_user_type = null;
 var reply_id = null;
 
 function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_mark = null) {
-    assignment_id = f_assignment_id;
-    user_id = f_user_id;
-    reply_id = message_id;
-    // TODO: implement answer
-    // console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
-    if (answer_type == 2) { // mark
-        //const dialog = document.getElementById('dialogMark');
-        document.getElementById('dialogMarkMessageId').value = message_id;
-        if (max_mark == null)
-          max_mark = 5;  
-        document.getElementById('dialogMarkMarkInput').max = max_mark;
-        document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
-        $('#dialogMark').modal('show');
-    } else {
-        //const dialog = document.getElementById('dialogAnswer');
-        document.getElementById('dialogAnswerMessageId').value = message_id;
-        document.getElementById('dialogAnswerText').value = '';
-        $('#dialogAnswer').modal('show');
-    }
+  assignment_id = f_assignment_id;
+  user_id = f_user_id;
+  reply_id = message_id;
+  // TODO: implement answer
+  // console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
+  if (answer_type == 2) { // mark
+    //const dialog = document.getElementById('dialogMark');
+    document.getElementById('dialogMarkMessageId').value = message_id;
+    if (max_mark == null)
+      max_mark = 5;
+    document.getElementById('dialogMarkMarkInput').max = max_mark;
+    document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
+    $('#dialogMark').modal('show');
+  } else {
+    //const dialog = document.getElementById('dialogAnswer');
+    document.getElementById('dialogAnswerMessageId').value = message_id;
+    document.getElementById('dialogAnswerText').value = '';
+    $('#dialogAnswer').modal('show');
+  }
 }
 
-function unblockAssignment($assignment_id){
-  
+function unblockAssignment($assignment_id) {
+
 }
 
 
 
 
 let form_taskCheck = document.getElementById('form-mark');
-if(form_taskCheck){
-form_taskCheck.addEventListener('submit', function (event) {
-  event.preventDefault();
-  console.log("ОБРАБОТКА НАЖАТИЯ КНОПКИ SUBMIT");
-  // Проверка прикреплённых студентов
-  // Если задан finish_limit - должны быть и заданы студенты
-  let mark = checkMarkInputs('dialogMarkMarkInput');
-  if(mark == -1) {
-    let error_execution = document.getElementById('error-input-mark');
-    error_execution.textContent = "Некорректная оценка";
-    error_execution.className = 'error-input active';
-    return -1;
-  } 
+if (form_taskCheck) {
+  form_taskCheck.addEventListener('submit', function (event) {
+    event.preventDefault();
+    console.log("ОБРАБОТКА НАЖАТИЯ КНОПКИ SUBMIT");
+    // Проверка прикреплённых студентов
+    // Если задан finish_limit - должны быть и заданы студенты
+    let mark = checkMarkInputs('dialogMarkMarkInput');
+    if (mark == -1) {
+      let error_execution = document.getElementById('error-input-mark');
+      error_execution.textContent = "Некорректная оценка";
+      error_execution.className = 'error-input active';
+      return -1;
+    }
 
-  let message = checkMessageInput('dialogMarkText');
-  if (message == -1) {
-    document.getElementById('label-dialogMarkText').innerHTML = "";
-    document.getElementById('dialogMarkText').value = TEXT_WITH_MARK + mark;
-    message = TEXT_WITH_MARK + mark;
-  } 
+    let message = checkMessageInput('dialogMarkText');
+    if (message == -1) {
+      document.getElementById('label-dialogMarkText').innerHTML = "";
+      document.getElementById('dialogMarkText').value = TEXT_WITH_MARK + mark;
+      message = TEXT_WITH_MARK + mark;
+    }
 
-  sendMessage(form_taskCheck, message, 2, mark);
-  //answerSend(form_taskCheck);
-  return 1;
-});
+    sendMessage(form_taskCheck, message, 2, mark);
+    //answerSend(form_taskCheck);
+    return 1;
+  });
 }
 
 let form_taskAnswer = document.getElementById('form-answer');
-if(form_taskAnswer){
+if (form_taskAnswer) {
   form_taskAnswer.addEventListener('submit', function (event) {
     event.preventDefault();
 
     let message = checkMessageInput('dialogAnswerText');
-    if(message == -1) {
-        let error_execution = document.getElementById('error-input-mark');
-        error_execution.textContent = "Пустое сообщение";
-        error_execution.className = 'error-input active';
-      return -1;
-  }
-
-  sendMessage(form_taskAnswer, message, 0, null);
-  //answerSend(form_taskCheck);
-  return 1;
-});
-}
-
-function checkMarkInputs(id){
-    let input_mark = document.getElementById(id);
-    
-    let mark = input_mark.value;
-    let max_mark = input_mark.max;
-    
-    if (parseInt(mark) == NaN || mark <= 0 || mark > max_mark) {
-      console.log("Оценка заполнена неверно");
+    if (message == -1) {
+      let error_execution = document.getElementById('error-input-mark');
+      error_execution.textContent = "Пустое сообщение";
+      error_execution.className = 'error-input active';
       return -1;
     }
 
-    return mark;
+    sendMessage(form_taskAnswer, message, 0, null);
+    //answerSend(form_taskCheck);
+    return 1;
+  });
 }
 
-function checkMessageInput(id){
+function checkMarkInputs(id) {
+  let input_mark = document.getElementById(id);
+
+  let mark = input_mark.value;
+  let max_mark = input_mark.max;
+
+  if (parseInt(mark) == NaN || mark <= 0 || mark > max_mark) {
+    console.log("Оценка заполнена неверно");
+    return -1;
+  }
+
+  return mark;
+}
+
+function checkMessageInput(id) {
   let input_text = document.getElementById(id);
 
   let message_text = input_text.value;
 
-  if (!message_text ||  message_text == ""){
-      console.log("Текст сообщения пустой");
-      return -1;
+  if (!message_text || message_text == "") {
+    console.log("Текст сообщения пустой");
+    return -1;
   }
 
   return message_text;
@@ -320,45 +325,45 @@ function checkMessageInput(id){
 // }
 
 function answerText(answer_text, message_id) {
-    console.log('answer: ', answer_text, message_id);
+  console.log('answer: ', answer_text, message_id);
 }
 
 function answerMark(answer_text, mark, message_id) {
-    console.log('mark: ', answer_text, mark, message_id);
+  console.log('mark: ', answer_text, mark, message_id);
 }
 
-function sendMessage(form, userMessage, typeMessage, mark=null, func_success=console.log, func_complete=console.log) {
-      
-      var formData = new FormData();
-      formData.append('assignment_id', assignment_id);
-      formData.append('user_id', user_id);
-      formData.append('message_text', userMessage);
-      formData.append('type', typeMessage);
-      formData.append('flag_preptable', true);
-      if (reply_id != null) {
-        formData.append('reply_id', reply_id);
-      }
-      if (typeMessage == 2 && mark) {
-        formData.append('mark', mark);
-      }
-  
-      console.log('message_text =' + userMessage);
-      console.log('type =' + typeMessage);
-      console.log(Array.from(formData));
-  
-      $.ajax({
-        type: "POST",
-        url: 'taskchat_action.php #content',
-        cache: false,
-        contentType: false,
-        processData: false,
-        data: formData,
-        dataType : 'html',
-        success: console.log("SUCCESS!"),
-        complete: function() {
-          form.submit();
-        }
-      });
-  
-      return true;
+function sendMessage(form, userMessage, typeMessage, mark = null, func_success = console.log, func_complete = console.log) {
+
+  var formData = new FormData();
+  formData.append('assignment_id', assignment_id);
+  formData.append('user_id', user_id);
+  formData.append('message_text', userMessage);
+  formData.append('type', typeMessage);
+  formData.append('flag_preptable', true);
+  if (reply_id != null) {
+    formData.append('reply_id', reply_id);
   }
+  if (typeMessage == 2 && mark) {
+    formData.append('mark', mark);
+  }
+
+  console.log('message_text =' + userMessage);
+  console.log('type =' + typeMessage);
+  console.log(Array.from(formData));
+
+  $.ajax({
+    type: "POST",
+    url: 'taskchat_action.php #content',
+    cache: false,
+    contentType: false,
+    processData: false,
+    data: formData,
+    dataType: 'html',
+    success: console.log("SUCCESS!"),
+    complete: function () {
+      form.submit();
+    }
+  });
+
+  return true;
+}

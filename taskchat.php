@@ -358,7 +358,7 @@ $task_number = explode('.', $task_title)[0];
           </button>
           <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-more">
             <li>
-              <a class="dropdown-item align-items-center" href="#">
+              <!-- <a class="dropdown-item align-items-center" href="#">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right me-1" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z" />
                 </svg>
@@ -366,8 +366,23 @@ $task_number = explode('.', $task_title)[0];
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
                 </svg>
+              </a> -->
+              <?php
+              $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
+              $conversationTask = $Page->getConversationTask();
+              if ($conversationTask && !$Task->isConversation()) { ?>
+            <li>
+              <a class="dropdown-item" role="button" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
+                В общую беседу
               </a>
-              <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
+            </li>
+          <?php } ?>
+          <li>
+            <a class="dropdown-item" role="button" onclick="resendMessages(<?= $Assignment->id ?>, <?= $User->id ?>, true)">
+              В текущий диалог
+            </a>
+          </li>
+          <!-- <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
                 <?php
                 $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
                 $conversationTask = $Page->getConversationTask();
@@ -383,17 +398,17 @@ $task_number = explode('.', $task_title)[0];
                     В текущий диалог
                   </a>
                 </li>
+              </ul> -->
 
-              </ul>
-            </li>
-            <li>
-              <a class="dropdown-item align-items-center" href="#" id="a-messages-delete" style="cursor: pointer;" onclick="deleteMessages(<?= $Assignment->id ?>, <?= $User->id ?>)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
-                  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
-                </svg>
-                Удалить
-              </a>
-            </li>
+          </li>
+          <li>
+            <a class="dropdown-item align-items-center" href="#" id="a-messages-delete" style="cursor: pointer;" onclick="deleteMessages(<?= $Assignment->id ?>, <?= $User->id ?>)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+              </svg>
+              Удалить
+            </a>
+          </li>
           </ul>
         </div>
 

@@ -90,6 +90,35 @@ class Page
     }
     return $Tasks;
   }
+  public function getAllAssignmentsByStudent($student_id)
+  {
+    $studentAssignments = [];
+    foreach ($this->Tasks as $Task) {
+      $Assignment = $Task->getLastAssignmentByStudent($student_id);
+      if ($Assignment != null)
+        array_push($studentAssignments, $Assignment);
+    }
+    return $studentAssignments;
+  }
+  public function getCompletedAssignmentsByStudent($student_id)
+  {
+    $studentAssignments = [];
+    foreach ($this->Tasks as $Task) {
+      $Assignment = $Task->getLastAssignmentByStudent($student_id);
+      if ($Assignment != null && $Assignment->isCompleted())
+        array_push($studentAssignments, $Assignment);
+    }
+    return $studentAssignments;
+  }
+  public function hasAssignmentsByStudent($student_id)
+  {
+    foreach ($this->Tasks as $Task) {
+      $Assignment = $Task->getLastAssignmentByStudent($student_id);
+      if ($Assignment != null)
+        return true;
+    }
+    return false;
+  }
   public function getGroups()
   {
     return $this->Groups;

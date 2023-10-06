@@ -315,20 +315,38 @@ if ($scripts) echo $scripts;
 
                   $key = 0;
                   foreach ($Page->getGroups() as $Group) {
-                    foreach ($Group->getStudents() as $Student) { ?>
+                    foreach ($Group->getStudents() as $Student) {
+                      $studentAssignments = $Page->getAllAssignmentsByStudent($Student->id);
+                      $studentCompletedAssignments = $Page->getCompletedAssignmentsByStudent($Student->id);
+                  ?>
                       <div class="student-item">
-                        <li id="<?= $key++ ?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
+                        <li id="<?= ++$key ?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
                           <div class="row">
                             <div class="d-flex justify-content-between align-items-center">
-                              <div class="div-accordion-student-fio">
-                                <!--<i id="icon-down-right-<?= $key ?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
-                                <strong class="strong-accordion-student-fio"><?= $Student->getFI(); ?></strong>
+                              <div id="div-accordion-collapse-<?= $key ?>" class="<?= (count($studentAssignments) > 0) ? "accordion-button" : "accordion-button-empty" ?> shadow-none collapsed p-2">
+                                <div class="div-accordion-student-fio w-100">
+                                  <!--<i id="icon-down-right-<?= $key ?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
+                                  <strong class="strong-accordion-student-fio"><?= $Student->getFI() ?></strong>
+                                </div>
+                                <?php
+                                if ($Page->hasUncheckedTasks($Student->id)) { ?>
+                                  <span class="badge badge-primary badge-pill bg-warning text-white me-3">
+                                    Ожидает проверки
+                                  </span>
+                                <?php } ?>
+                                <?php if (count($studentAssignments) > 0) { ?>
+                                  <span class="badge badge-light me-3">
+                                    <span class="small font-weight-light"> (<?= count($studentCompletedAssignments) ?> / <?= count($studentAssignments) ?>)</span>
+                                  </span>
+                                <?php } ?>
                               </div>
-                              <?php
-                              if ($Page->hasUncheckedTasks($Student->id)) { ?>
-                                <span class="badge badge-primary badge-pill bg-warning text-white">
-                                  Задания ожидают выполнения
-                                </span>
+
+                              <?php if (count($studentAssignments) < 1) { ?>
+                                <div class="me-2">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+                                    <path d="M15 8a6.973 6.973 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8ZM2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Z" />
+                                  </svg>
+                                </div>
                               <?php } ?>
                             </div>
                           </div>
@@ -338,9 +356,6 @@ if ($scripts) echo $scripts;
                           foreach ($Page->getTasks() as $Task) {
                             $Assignment = $Task->getLastAssignmentByStudent($Student->id);
                             if ($Assignment != null) { ?>
-                              <?php
-                              //XXX: Проверить
-                              ?>
                               <a href="taskchat.php?assignment=<?= $Assignment->id ?>">
                                 <li class="list-group-item">
                                   <div class="row">

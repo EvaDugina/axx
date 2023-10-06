@@ -301,15 +301,17 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                       $query = select_page_students($page_id);
                       $result2 = pg_query($dbconnect, $query);
 
-                      while ($row2 = pg_fetch_assoc($result2)) {
-                        echo '<div class="form-check d-flex justify-content-between">';
-                        echo '  <input class="form-check-input" type="checkbox" name="students[]" value="' . $row2['id'] . '" id="flexCheck' . $row2['id'] . '">';
-                        echo '  <label class="form-check-label" for="flexCheck' . $row2['id'] . '">' . $row2['fio'] . '</label>';
-                        echo '<div style="color: var(--mdb-gray-500);">';
-                        echo '&nbsp;&nbsp;' . $row2['subgroup'] . ' подгруппа';
-                        echo '</div>';
-                        echo '</div>';
-                      }
+                      while ($row2 = pg_fetch_assoc($result2)) { ?>
+                        <div class="form-check d-flex justify-content-between">
+                          <div>
+                            <input class="form-check-input" type="checkbox" name="students[]" value="<?= $row2['id'] ?>" id="flexCheck<?= $row2['id'] ?>">
+                            <label class="form-check-label" for="flexCheck<?= $row2['id'] ?>"><?= $row2['fio'] ?> </label>
+                          </div>
+                          <div style="color: var(--mdb-gray-500);">
+                            &nbsp;&nbsp;<?= ($row2['subgroup'] == "") ? "(подгруппа не задана)" : $row2['subgroup'] . " подгруппа" ?>
+                          </div>
+                        </div>
+                      <?php }
 
                       $query = select_timestamp('3 months');
                       $result2 = pg_query($dbconnect, $query);
