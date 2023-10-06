@@ -74,7 +74,7 @@ if(task_select){
 
 function showError() {
   if(!input_Title.value) {
-    error_Title.textContent = "Не заполненное поле <Названия задания>";
+    // error_Title.textContent = "Не заполненное поле <Названия задания>";
     error_Title.className = 'error-input active';
   }
   /*if(!textArea_Description.value) {

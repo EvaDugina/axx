@@ -22,6 +22,8 @@ if ((!isset($_GET['task']) || !is_numeric($_GET['task']))
   exit;
 }
 
+$MAX_FILE_SIZE = getMaxFileSize();
+
 // получение параметров запроса
 if (isset($_GET['task'])) {
   // Изменение текущего задания
@@ -33,12 +35,18 @@ if (isset($_GET['task'])) {
 
   $TestFiles = $Task->getFilesByType(2);
   $TestOfTestFiles = $Task->getFilesByType(3);
+
+  echo "<script>var task_id=" . $Task->id . ";</script>";
+  echo "<script>var page_id=null;</script>";
 } else if (isset($_GET['page'])) {
   // Добавление новго задания
 
   $Page = new Page((int)$_REQUEST['page']);
-  $Task = new Task($Page->id, 0, 1);
-  $Task->setTitle("Задание " . (count($Page->getTasks()) + 1) . ".");
+  // $Task = new Task($Page->id, 0, 1);
+  $Task = new Task();
+  $Task->title = "Задание " . (count($Page->getTasks()) + 1) . ".";
+  echo "<script>var task_id=null;</script>";
+  echo "<script>var page_id=" . $Page->id . ";</script>";
 } else {
   header('Location:mainpage.php');
   exit;
@@ -69,7 +77,7 @@ show_head("Добавление\Редактирование задания", ar
 
             <div class="pt-3">
               <div class="form-outline">
-                <input id="input-title" class="form-control <?php echo 'active'; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()"></input>
+                <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()"></input>
                 <label id="label-input-title" class="form-label" for="input-title">Название задания</label>
                 <div id="div-border-title" class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
@@ -83,7 +91,7 @@ show_head("Добавление\Редактирование задания", ar
             <div class="pt-3">
               <label>Тип задания:</label>
               <select id="task-type" class="form-select" aria-label=".form-select" name="task-type" <?= $Task->isConversation() ? "disabled" : "" ?>>
-                <option value="0" <?= (($Task->type == 0) ? "selected" : "") ?>>Обычное</option>
+                <option value="0" <?= (($Task->type == 0 || $Task->type == -1) ? "selected" : "") ?>>Обычное</option>
                 <option value="1" <?= (($Task->type == 1) ? "selected" : "") ?>>Программирование</option>
                 <option value="2" <?= (($Task->type == 2) ? "selected" : "") ?>>Беседа</option>
               </select>
@@ -91,7 +99,7 @@ show_head("Добавление\Редактирование задания", ar
 
             <div class="pt-3">
               <div id="form-description" class="form-outline" onkeyup="descriptionChange()">
-                <textarea id="textArea-description" class="form-control <?php echo 'active'; ?>" rows="5" name="task-description" style="resize: none;"><?= $Task->description ?></textarea>
+                <textarea id="textArea-description" class="form-control <?= 'active' ?>" rows="5" name="task-description" style="resize: none;"><?= $Task->description ?></textarea>
                 <label id="label-textArea-description" class="form-label" for="textArea-description">Описание задания</label>
                 <script>
                   const easyMDE = new EasyMDE({
@@ -152,13 +160,13 @@ show_head("Добавление\Редактирование задания", ar
               </div>
             </button>
 
-            <button id="submit-archive" class="btn btn-outline-secondary <?= ($Task->id != -1 && $Task->status == 0) ? 'd-none' : '' ?>" onclick="archiveTask()">
+            <button id="submit-archive" class="btn btn-outline-secondary <?= ($Task->id != null && $Task->status == 0) ? 'd-none' : '' ?>" onclick="archiveTask()">
               Архивировать задание &nbsp;
               <div id="spinner-archive" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
               </div>
             </button>
-            <button id="submit-rearchive" class="btn btn-outline-primary <?= ($Task->id != -1 && $Task->status == 1) ? 'd-none' : '' ?>" onclick="reArchiveTask()">
+            <button id="submit-rearchive" class="btn btn-outline-primary <?= ($Task->id != null && $Task->status == 1) ? 'd-none' : '' ?>" onclick="reArchiveTask()">
               Разархивировать задание &nbsp;
               <div id="spinner-rearchive" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
@@ -171,6 +179,7 @@ show_head("Добавление\Редактирование задания", ar
 
         </div>
 
+
         <div class="col-4">
           <div class="p-3 border bg-light" style="max-height: calc(100vh - 80px);">
 
@@ -178,49 +187,50 @@ show_head("Добавление\Редактирование задания", ar
               <label><i class="fas fa-users fa-lg"></i><small>&nbsp;&nbsp;РЕДАКТОР ВСЕХ НАЗНАЧЕНИЙ</small></label>
             </div>
 
-            <section class="w-100 py-2 d-flex">
-              <div class="form-outline datetimepicker me-3" style="width: 65%;">
-                <input id="input-finishLimit" type="date" class="form-control active" name="finish-limit" onchange="finishLimitChange()">
-                <label id="label-finishLimit" for="input-finishLimit" class="form-label" style="margin-left: 0px;">Срок выполения всех назначений</label>
-                <div id="div-border-finishLimit" class="form-notch">
-                  <div class="form-notch-leading" style="width: 9px;"></div>
-                  <div class="form-notch-middle" style="width: 114.4px;"></div>
-                  <div class="form-notch-trailing"></div>
+            <!-- <section class="w-100 py-2 d-flex">
+                <div class="form-outline datetimepicker me-3" style="width: 65%;">
+                  <input id="input-finishLimit" type="date" class="form-control active" name="finish-limit" onchange="finishLimitChange()">
+                  <label id="label-finishLimit" for="input-finishLimit" class="form-label" style="margin-left: 0px;">Срок выполения всех назначений</label>
+                  <div id="div-border-finishLimit" class="form-notch">
+                    <div class="form-notch-leading" style="width: 9px;"></div>
+                    <div class="form-notch-middle" style="width: 114.4px;"></div>
+                    <div class="form-notch-trailing"></div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="d-flex align-items-center">
-                <button onclick="setFinishLimit()" type="submit" class="btn btn-outline-primary me-1">Применить</button>
-                <div id="spinner-finishLimit" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
-                  <span class="sr-only">Loading...</span>
+                <div class="d-flex align-items-center">
+                  <button onclick="setFinishLimit()" type="submit" class="btn btn-outline-primary me-1">Применить</button>
+                  <div id="spinner-finishLimit" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
+                    <span class="sr-only">Loading...</span>
+                  </div>
                 </div>
-              </div>
 
-            </section>
+              </section> -->
+
           </div>
 
           <div class="p-3 border bg-light">
             <div class="pt-1 pb-1">
-              <label><i class="fa fa-files-o fa-lg"></i><small>&nbsp;&nbsp;ПРИЛОЖЕННЫЕ ФАЙЛЫ</small></label>
+              <label><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-fill" viewBox="0 0 16 16">
+                  <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
+                </svg>
+                <small>&nbsp;&nbsp;ПРИЛОЖЕННЫЕ ФАЙЛЫ</small></label>
             </div>
             <div class="pt-1 pb-1">
               <!-- <input type="hidden" name="MAX_FILE_SIZE" value="3000000" /> -->
-              <?php if ($Task->id != -1) { ?>
-                <div id="div-task-files" class="mb-3">
-                  <?php showFiles($Task->getFiles(), true, $Task->id, $Page->id); ?>
-                </div>
-              <?php } ?>
+              <div id="div-task-files" class="mb-3">
+                <?php showFiles($Task->getFiles(), true, $Task->id, $Page->id); ?>
+              </div>
 
-              <form id="form-addTaskFiles" name="taskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="task_id" value="<?= $Task->id ?>"></input>
-                <input type="hidden" name="page_id" value="<?= $Page->id ?>"></input>
-                <input type="hidden" name="flag-addFiles" value="true"></input>
+              <!-- <form id="form-addTaskFiles" name="taskFiles"> -->
+              <div id="div-addTaskFiles">
                 <label id="button-addFiles" class="btn btn-outline-default py-2 px-4">
                   <input id="task-files" type="file" name="add-files[]" style="display: none;" multiple>
                   <i class="fas fa-paperclip fa-lg"></i>
                   <span id="files-count" class="text-info"></span>&nbsp; Приложить файлы
                 </label>
-              </form>
+              </div>
+              <!-- </form> -->
             </div>
 
           </div>
@@ -235,15 +245,15 @@ show_head("Добавление\Редактирование задания", ar
 <script type="text/javascript" src="js/taskedit.js"></script>
 
 <script type="text/javascript">
-  window.onbeforeunload = function() {
-    let unsaved_fields = checkFields();
-    if (unsaved_fields != "") {
-      return "Сохранить изменения?";
-    }
-  };
+  // window.onbeforeunload = function() {
+  //   let unsaved_fields = checkFields();
+  //   if (unsaved_fields != "") {
+  //     return "Сохранить изменения?";
+  //   }
+  // };
 
-  var form_addFiles = document.getElementById('form-addTaskFiles');
-  var added_files = <?= json_encode($Task->getFiles()) ?>;
+  var task_files = <?= json_encode($Task->getFiles()) ?>;
+  var task_files_name = [];
 
   var original_title = $('#input-title').val();
   var original_type = $('#task-type').val();
@@ -343,27 +353,51 @@ show_head("Добавление\Редактирование задания", ar
     }
   }
 
+  $(document).ready(function() {
+    task_files.forEach((file) => {
+      task_files_name.push(file['name_without_prefix']);
+    });
+  });
+
 
   // Показывает количество прикрепленных для отправки файлов
   $('#task-files').on('change', function() {
     //$('#files-count').html(this.files.length);
 
-    let new_file = document.getElementById("task-files").files[0];
+    let div_addFiles = document.getElementById('form-addTaskFiles');
 
-    if (added_files.find(file_name_check, new_file)) {
-      alert("Файл с таким именем уже существует!");
-      return;
+    let new_files = document.getElementById("task-files").files;
+
+    let add_files = [];
+    let permitted_file_names = [];
+    Object.entries(new_files).forEach((file) => {
+      if (!task_files_name.find((file_name) => file_name == file[1].name)) {
+        add_files.push(file[1]);
+      } else {
+        permitted_file_names.push(file[1]['name']);
+      }
+    });
+
+    if (permitted_file_names.length > 0) {
+      let string_permitted_files = "";
+      permitted_file_names.forEach((file_name) => {
+        string_permitted_files += file_name + " ";
+      });
+      alert("Файлы: " + string_permitted_files + "не были добавлены, так как файлы с такими названиями уже присутствуют в списке приложенных к заданию файлов.");
     }
 
-    let unsaved_fields = checkFields();
-    if (unsaved_fields != "") {
-      var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-      if (!confirm_answer)
-        return;
-    }
 
-    window.onbeforeunload = null;
-    form_addFiles.submit();
+    // let unsaved_fields = checkFields();
+    // if (unsaved_fields != "") {
+    //   var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+    //   if (!confirm_answer)
+    //     return;
+    // }
+
+    // window.onbeforeunload = null;
+    if (add_files.length > 0) {
+      ajaxAddFiles(add_files);
+    }
 
   });
 
@@ -522,7 +556,13 @@ show_head("Добавление\Редактирование задания", ar
   function saveFields() {
     var formData = new FormData();
 
-    formData.append('task_id', <?= $Task->id ?>);
+    if (page_id != null)
+      formData.append('page_id', page_id);
+    else if (task_id != null)
+      formData.append('task_id', task_id);
+    else
+      return;
+
     formData.append('action', 'save');
 
     if (checkTitle()) {
@@ -623,6 +663,52 @@ show_head("Добавление\Редактирование задания", ar
         $('#spinner-rearchive').addClass("d-none");
         $('#submit-rearchive').addClass("d-none");
         $('#submit-archive').removeClass("d-none");
+      }
+    });
+  }
+
+
+  function ajaxAddFiles(files) {
+    var formData = new FormData();
+
+    if (page_id != null)
+      formData.append('page_id', page_id);
+    else if (task_id != null)
+      formData.append('task_id', task_id);
+    else
+      return;
+
+    formData.append('flag-addFiles', true);
+
+    let string_permitted_file_names = "";
+    files.forEach((file) => {
+      if (file['size'] < <?= $MAX_FILE_SIZE ?> * 0.8) {
+        formData.append('add-files[]', file);
+        task_files_name.push(file['name']);
+      } else {
+        string_permitted_file_names += file['name'] + " ";
+      }
+    });
+
+    // console.log(files);
+
+    if (string_permitted_file_names != "") {
+      alert("Файлы: " + string_permitted_file_names + "превышают допустимый размер");
+    }
+
+    $.ajax({
+      type: "POST",
+      url: 'taskedit_action.php#content',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data: formData,
+      dataType: 'html',
+      success: function(response) {
+        $('#div-task-files').html(response);
+      },
+      complete: function() {
+        console.log("COMPLETED!");
       }
     });
   }

@@ -9,8 +9,8 @@ class File
   // 10 - просто файл с результатами, 11 - файл проекта)
   // 21 - иконка пользователя
   public $name = null, $download_url = null, $full_text = null;
-  public $visibility = null;
-  public $status = null;
+  public $visibility = null; // 0 - не видно студенту, 1 - видно всем 
+  public $status = null; // 0 - не удалённый файл, 2 - удалённый файл
 
   public $name_without_prefix = null;
 
@@ -47,7 +47,10 @@ class File
       }
     } else if ($count_args == 2) {
       $this->type = $args[0];
-      $this->visibility = 1;
+      if ($this->type == 2 || $this->type == 3)
+        $this->visibility = 0;
+      else
+        $this->visibility = 1;
       $this->name_without_prefix = $args[1];
       $this->name = addRandomPrefix($this->name_without_prefix);
       $this->status = 0;
@@ -55,7 +58,10 @@ class File
       $this->pushNewToDB();
     } else if ($count_args == 4) {
       $this->type = $args[0];
-      $this->visibility = 1;
+      if ($this->type == 2 || $this->type == 3)
+        $this->visibility = 0;
+      else
+        $this->visibility = 1;
       $this->name_without_prefix = $args[1];
       $this->name = addRandomPrefix($this->name_without_prefix);
 
@@ -181,6 +187,13 @@ class File
     ";
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+    if ($this->type == 2 || $this->type == 3)
+      $this->visibility = 0;
+    else
+      $this->visibility = 1;
+
+    $this->setVisibility($this->visibility);
   }
   public function setVisibility($visibility)
   {
@@ -208,18 +221,18 @@ class File
 
     if ($this->full_text == null && $this->download_url != null) {
       $query = "INSERT INTO ax_file (type, visibility, file_name, download_url, status) 
-                VALUES ($this->type, 1, \$antihype1\$$this->name\$antihype1\$, '$this->download_url', $this->status) 
+                VALUES ($this->type, $this->visibility, \$antihype1\$$this->name\$antihype1\$, '$this->download_url', $this->status) 
                 RETURNING id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
       $query = "INSERT INTO ax_file (type, visibility, file_name, full_text, status) 
-                VALUES ($this->type, 1, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$,
+                VALUES ($this->type, $this->visibility, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$,
                 $this->status) 
                 RETURNING id;
       ";
     } else {
       $query = "INSERT INTO ax_file (type, visibility, file_name, status) 
-                VALUES ($this->type, 1, '$this->name', $this->status) 
+                VALUES ($this->type, $this->visibility, '$this->name', $this->status) 
                 RETURNING id;
       ";
     }

@@ -18,23 +18,19 @@ if (isset($_POST['editFileVisibility']) && isset($_POST['file_id'])) {
 }
 
 // Проверка на корректный запрос
-if ((!isset($_POST['page_id'])) && !isset($_POST['task_id'])) {
+if ((isset($_POST['page_id']))) {
+  $page_id = $_POST['page_id'];
+  $Task = new Task($page_id, 0, 1);
+} else if (isset($_POST['task_id']) && $_POST['task_id'] != -1) {
+  $Task = new Task((int)$_POST['task_id']);
+} else {
   header('Location: index.php');
   exit;
 }
 
-if (isset($_POST['page_id'])) {
-  $page_id = $_POST['page_id'];
-  $Page = new Page((int)$_POST['page_id']);
-}
-
-if (isset($_POST['task_id']) && $_POST['task_id'] != -1) {
-  $Task = new Task((int)$_POST['task_id']);
-}
-
 
 // Архивирование и разархивирование задания
-if (isset($_POST['action']) && ($_POST['action'] == 'archive' || $_POST['action'] == 'rearchive') && $_POST['task_id'] != -1) {
+if (isset($_POST['action']) && isset($_POST['task_id']) && ($_POST['action'] == 'archive' || $_POST['action'] == 'rearchive')) {
   if ($_POST['action'] == 'archive') {
     //echo "АРХИВИРОВАНИЕ ЗАДАНИЯ";
     $new_status = 0;
@@ -56,7 +52,7 @@ if (isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
   exit();
 }
 
-if (isset($_POST['flag-statusFile']) && $_POST['task_id']) {
+if (isset($_POST['flag-statusFile']) && isset($_POST['task_id'])) {
   $file_type = $_POST['task-file-status'];
 
   $file_id = $_POST['file_id'];
@@ -69,7 +65,7 @@ if (isset($_POST['flag-statusFile']) && $_POST['task_id']) {
 }
 
 // Удаление задания
-if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id'] != -1) {
+if (isset($_POST['action']) && $_POST['action'] == 'delete' && isset($_POST['task_id'])) {
   //echo "УДАЛЕНИЕ ЗАДАНИЯ";
   $query = pg_query($dbconnect, select_page_by_task_id($_POST['task_id']));
   $page_id = pg_fetch_assoc($query)['page_id'];
@@ -81,7 +77,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && $_POST['task_id']
   exit();
 }
 
-if (isset($_POST['task_id']) && isset($_POST['action']) && $_POST['action'] == "save") {
+if (isset($_POST['action']) && $_POST['action'] == "save") {
   if (isset($_POST['title'])) {
     $Task->title = $_POST['title'];
   }
@@ -97,13 +93,19 @@ if (isset($_POST['task_id']) && isset($_POST['action']) && $_POST['action'] == "
 
   if (isset($_POST['codeTest'])) {
     $Files = $Task->getFilesByType(2);
-    if (empty($Files)) {
-      $File = new File(2, "test.cpp", null, $_POST['codeTest']);
-      $Task->addFile($File->id);
+    if ($_POST['codeTest'] != "") {
+      if (empty($Files)) {
+        $File = new File(2, "test.cpp", null, $_POST['codeTest']);
+        $Task->addFile($File->id);
+      } else {
+        foreach ($Files as $File) {
+          $File->full_text = $_POST['codeTest'];
+          $File->pushChangesToDB();
+        }
+      }
     } else {
       foreach ($Files as $File) {
-        $File->full_text = $_POST['codeTest'];
-        $File->pushChangesToDB();
+        $Task->deleteFile($File->id);
       }
     }
   }
@@ -127,14 +129,14 @@ if (isset($_POST['task_id']) && isset($_POST['action']) && $_POST['action'] == "
 }
 
 // Сохранение изменений
-if (isset($_POST['action']) && $_POST['action'] == "save") {
-  $Task->type = $_POST['task-type'];
-  $Task->title = $_POST['task-title'];
-  $Task->description = $_POST['task-description'];
-  $Task->pushChangesToDB();
-  header('Location:' . $_SERVER['HTTP_REFERER']);
-  exit();
-}
+// if (isset($_POST['action']) && $_POST['action'] == "save") {
+//   $Task->type = $_POST['task-type'];
+//   $Task->title = $_POST['task-title'];
+//   $Task->description = $_POST['task-description'];
+//   $Task->pushChangesToDB();
+//   header('Location:' . $_SERVER['HTTP_REFERER']);
+//   exit();
+// }
 if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action'] == 'reject') && ($_POST['assignment_id'] != 0)) {
   $Asssignment = new Assignment((int)$_POST['assignment_id']);
   // $query = pg_query($dbconnect, delete_assignment($_POST['assignment_id']));
@@ -143,7 +145,7 @@ if (isset($_POST['action']) && isset($_POST['assignment_id']) && ($_POST['action
   exit();
 }
 
-if ($_POST['task_id'] != -1) {
+if (isset($_POST['task_id'])) {
   //echo "РЕДАКТИРОВАНИЕ СУЩЕСТВУЮЩЕГО ЗАДАНИЯ";
   $task_id = $_POST['task_id'];
   if (isset($_POST['flag-editTaskInfo'])) {
@@ -175,7 +177,8 @@ if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
     addFileToObject($Task, $files[$i]['name'], $files[$i]['tmp_name'], 0);
   }
 
-  header('Location: taskedit.php?task=' . $Task->id);
+  // header('Location: taskedit.php?task=' . $Task->id);
+  echo showFiles($Task->getFiles(), true, $Task->id);
   exit;
 }
 

@@ -259,11 +259,13 @@ function getSVGByFileType($type)
 function visibilityFileButtons($File)
 { ?>
   <form id="form-changeVisibilityTaskFile" name="changeVisibilityTaskFile" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="me-2">
-    <input type="hidden" name="file_id" value="<?= $File->id ?>"></input>
-    <input type="hidden" name="editFileVisibility" value="true"></input>
-    <input type="hidden" name="new_visibility" value="<?= ($File->visibility + 1) % 2 ?>"></input>
+    <?php if (!$File->isCodeTest() && !$File->isCodeCheckTest()) { ?>
+      <input type="hidden" name="file_id" value="<?= $File->id ?>"></input>
+      <input type="hidden" name="editFileVisibility" value="true"></input>
+      <input type="hidden" name="new_visibility" value="<?= ($File->visibility + 1) % 2 ?>"></input>
+    <?php } ?>
 
-    <button class="btn btn-primary me-0 p-1" type="submit" data-toggle="tooltip" data-placement="down" data-title="Изменение ВИДИМОСТИ файла">
+    <button class="btn btn-primary me-0 p-1" type="submit" data-toggle="tooltip" data-placement="down" data-title="Изменение ВИДИМОСТИ файла" <?= ($File->isCodeTest() || $File->isCodeCheckTest()) ? 'disabled' : "" ?>>
       <?php getSVGByAssignmentVisibility($File->visibility * 2); ?>
     </button>
   </form>

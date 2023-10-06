@@ -7,8 +7,11 @@ class Task
 {
 
   public $id;
-  public $type, $title, $description;
-  public $max_mark, $status, $checks;
+  public $type; // 0 - обычное, 1 - программирование, 2 - общая беседа потока
+  public $title, $description;
+  public $max_mark;
+  public $status; // 1 - активно, 0 - архив
+  public $checks;
 
   private $Assignments = array();
   private $Files = array();
@@ -22,7 +25,20 @@ class Task
 
     // Перегружаем конструктор по количеству подданых параметров
 
-    if ($count_args == 1) {
+    if ($count_args == 0) {
+      $this->id = null;
+
+      $this->type = -1;
+      $this->title = "";
+      $this->description = "";
+
+      $this->max_mark = "";
+      $this->status = -1;
+      $this->checks = "";
+
+      $this->Assignments = [];
+      $this->Files = [];
+    } else if ($count_args == 1) {
       $this->id = (int)$args[0];
 
       $query = queryGetTaskInfo($this->id);
