@@ -8,12 +8,12 @@ require_once("POClasses/Task.class.php");
 require_once("POClasses/File.class.php");
 
 
-if (isset($_POST['editFileVisibility']) && isset($_POST['file_id'])) {
+if (isset($_POST['flag-editFileVisibility']) && isset($_POST['file_id'])) {
   $File = new File((int)$_POST['file_id']);
   if (isset($_POST['new_visibility']))
     $File->setVisibility((int)$_POST['new_visibility']);
 
-  header('Location:' . $_SERVER['HTTP_REFERER']);
+  echo getSVGByAssignmentVisibility($File->visibility * 2);
   exit();
 }
 
@@ -25,6 +25,13 @@ if ((isset($_POST['page_id']))) {
   $Task = new Task((int)$_POST['task_id']);
 } else {
   header('Location: index.php');
+  exit;
+}
+
+// Создание Task
+if (isset($_POST['flag-createTask']) && $_POST['flag-createTask']) {
+  $return_json = array("task_id" => $Task->id);
+  echo json_encode($return_json);
   exit;
 }
 
@@ -48,19 +55,26 @@ if (isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
   $file_id = $_POST['file_id'];
   $Task->deleteFile($file_id);
   // $query = pg_query($dbconnect, delete_ax_task_file($task_file_id));
-  header('Location: taskedit.php?task=' . $_POST['task_id']);
+  echo "";
   exit();
 }
 
-if (isset($_POST['flag-statusFile']) && isset($_POST['task_id'])) {
-  $file_type = $_POST['task-file-status'];
+if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
+  $file_type = $_POST['new_type'];
+
+  // В задании не может быть несколько файлов автоматической проверки
+  if (($file_type == 2 || $file_type == 3)  && count($Task->getFilesByType($file_type)) > 0) {
+    echo "";
+    exit();
+  }
 
   $file_id = $_POST['file_id'];
   // $Task = new Task((int)$_POST['task_id']);
   $File = $Task->getFileById((int)$file_id);
   $File->setType($file_type);
 
-  header('Location: taskedit.php?task=' . $_POST['task_id']);
+  // header('Location: taskedit.php?task=' . $_POST['task_id']);
+  echo getSVGByFileType($File->type);
   exit();
 }
 
@@ -99,7 +113,7 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
         $Task->addFile($File->id);
       } else {
         foreach ($Files as $File) {
-          $File->full_text = $_POST['codeTest'];
+          $File->editFullText($_POST['codeTest']);
           $File->pushChangesToDB();
         }
       }
@@ -170,7 +184,11 @@ if (isset($_POST['task_id'])) {
 }
 
 // Прикрепление файлов к заданию
-if (isset($_FILES['add-files']) && isset($_POST['flag-addFiles'])) {
+if (isset($_POST['flag-addFiles'])) {
+  if (!isset($_FILES['add-files'])) {
+    echo showFiles($Task->getFiles(), true, $Task->id);
+    exit;
+  }
   $files = convertWebFilesToFiles('add-files');
 
   for ($i = 0; $i < count($files); $i++) {

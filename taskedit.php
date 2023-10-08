@@ -36,8 +36,8 @@ if (isset($_GET['task'])) {
   $TestFiles = $Task->getFilesByType(2);
   $TestOfTestFiles = $Task->getFilesByType(3);
 
-  echo "<script>var task_id=" . $Task->id . ";</script>";
-  echo "<script>var page_id=null;</script>";
+  echo "<script>var TASK_ID=" . $Task->id . ";</script>";
+  echo "<script>var PAGE_ID=null;</script>";
 } else if (isset($_GET['page'])) {
   // Добавление новго задания
 
@@ -45,8 +45,8 @@ if (isset($_GET['task'])) {
   // $Task = new Task($Page->id, 0, 1);
   $Task = new Task();
   $Task->title = "Задание " . (count($Page->getTasks()) + 1) . ".";
-  echo "<script>var task_id=null;</script>";
-  echo "<script>var page_id=" . $Page->id . ";</script>";
+  echo "<script>var TASK_ID=null;</script>";
+  echo "<script>var PAGE_ID=" . $Page->id . ";</script>";
 } else {
   header('Location:mainpage.php');
   exit;
@@ -119,7 +119,7 @@ show_head("Добавление\Редактирование задания", ar
 
               <?php $textArea_codeTest = "";
               if ($Task->type == 1 && isset($TestFiles[0]))
-                $textArea_codeTest = $TestFiles[0]->full_text;
+                $textArea_codeTest = $TestFiles[0]->getFullText();
               ?>
 
               <div class="form-outline col-5">
@@ -136,7 +136,7 @@ show_head("Добавление\Редактирование задания", ar
 
               <?php $textArea_codeCheck = "";
               if ($Task->type == 1 && isset($TestOfTestFiles[0]))
-                $textArea_codeCheck = $TestOfTestFiles[0]->full_text;
+                $textArea_codeCheck = $TestOfTestFiles[0]->getFullText();
               ?>
 
               <div class="form-outline col-6">
@@ -153,7 +153,7 @@ show_head("Добавление\Редактирование задания", ar
           </table>
 
           <div class="d-flex">
-            <button id="submit-save" class="btn btn-outline-success me-2 d-flex align-items-center" onclick="saveFields()">
+            <button id="submit-save" class="btn btn-outline-success me-2 d-flex align-items-center" onclick="saveTask()">
               Сохранить &nbsp;
               <div id="spinner-save" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
@@ -199,7 +199,7 @@ show_head("Добавление\Редактирование задания", ar
                 </div>
 
                 <div class="d-flex align-items-center">
-                  <button onclick="setFinishLimit()" type="submit" class="btn btn-outline-primary me-1">Применить</button>
+                  <button onclick="ajaxSetFinishLimit()" type="submit" class="btn btn-outline-primary me-1">Применить</button>
                   <div id="spinner-finishLimit" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                     <span class="sr-only">Loading...</span>
                   </div>
@@ -239,10 +239,47 @@ show_head("Добавление\Редактирование задания", ar
 
     </div>
 </main>
+
+
+<div class="modal fade" id="dialogErrorFileName" tabindex="-1" aria-labelledby="dialogErrorFileNameLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="modalErrorFileName-h5-title" class="modal-title">
+
+        </h5>
+        <button type="button" class="btn-close me-2" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="modalErrorFileName-p-text">
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="dialogErrorFileSize" tabindex="-1" aria-labelledby="dialogErrorFileSizeLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="modalErrorFileSize-h5-title" class="modal-title">
+
+        </h5>
+        <button type="button" class="btn-close me-2" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="modalErrorFileSize-p-text">
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- End your project here-->
 
 <!-- СКРИПТ "СОЗДАНИЯ ЗАДАНИЯ" -->
 <script type="text/javascript" src="js/taskedit.js"></script>
+<script type="text/javascript" src="js/TaskHandler.js"></script>
 
 <script type="text/javascript">
   // window.onbeforeunload = function() {
@@ -253,7 +290,9 @@ show_head("Добавление\Редактирование задания", ar
   // };
 
   var task_files = <?= json_encode($Task->getFiles()) ?>;
-  var task_files_name = [];
+  // var task_files_name = [];
+  // var previous_file_types = [];
+  var array_files = [];
 
   var original_title = $('#input-title').val();
   var original_type = $('#task-type').val();
@@ -262,6 +301,19 @@ show_head("Добавление\Редактирование задания", ar
   var original_codeTest = $('#textArea-codeTest').val();
   var original_codeCheck = $('#textArea-codeCheck').val();
   var original_finishLimit = $('#input-finishLimit').val();
+
+
+  $(document).ready(function() {
+    task_files.forEach((file) => {
+      array_files.push({
+        "name": file['name_without_prefix'],
+        "type": file['type']
+      });
+      // task_files_name.push(file['name_without_prefix']);
+      // previous_file_types[file['id']] = file['type'];
+    });
+    delete task_files;
+  });
 
 
   function titleChange() {
@@ -295,7 +347,6 @@ show_head("Добавление\Редактирование задания", ar
   }
 
   function descriptionChange() {
-    console.log("EHFFFF!");
     if (checkDescription()) {
       $('.editor-statusbar').addClass("rounded-bottom bg-primary text-white");
       $('.editor-statusbar > .autosave').text("(имеются несохранённые изменения)");
@@ -353,65 +404,23 @@ show_head("Добавление\Редактирование задания", ar
     }
   }
 
-  $(document).ready(function() {
-    task_files.forEach((file) => {
-      task_files_name.push(file['name_without_prefix']);
-    });
-  });
-
 
   // Показывает количество прикрепленных для отправки файлов
-  $('#task-files').on('change', function() {
+  $('#task-files').on('input', function() {
     //$('#files-count').html(this.files.length);
 
-    let div_addFiles = document.getElementById('form-addTaskFiles');
-
     let new_files = document.getElementById("task-files").files;
-
-    let add_files = [];
-    let permitted_file_names = [];
-    Object.entries(new_files).forEach((file) => {
-      if (!task_files_name.find((file_name) => file_name == file[1].name)) {
-        add_files.push(file[1]);
-      } else {
-        permitted_file_names.push(file[1]['name']);
-      }
-    });
-
-    if (permitted_file_names.length > 0) {
-      let string_permitted_files = "";
-      permitted_file_names.forEach((file_name) => {
-        string_permitted_files += file_name + " ";
-      });
-      alert("Файлы: " + string_permitted_files + "не были добавлены, так как файлы с такими названиями уже присутствуют в списке приложенных к заданию файлов.");
-    }
-
-
-    // let unsaved_fields = checkFields();
-    // if (unsaved_fields != "") {
-    //   var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-    //   if (!confirm_answer)
-    //     return;
-    // }
-
-    // window.onbeforeunload = null;
-    if (add_files.length > 0) {
-      ajaxAddFiles(add_files);
-    }
+    addFiles(new_files);
+    $('#task-files').val("");
 
   });
 
-  // $('#button-addFiles').on("click", function() {
-  //   let unsaved_fields = checkFields();
-  //   if (unsaved_fields != "") {
-  //     var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-  //     if (!confirm_answer) {
-  //       return;
-  //     }
-  //   }
-  //   window.onbeforeunload = null;
-  //   form_addFiles.submit();
-  // });
+
+  $(document).on('show.bs.modal', '.modal', function() {
+    const zIndex = 1040 + 10 * $('.modal:visible').length;
+    $(this).css('z-index', zIndex);
+    setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
+  });
 
 
   function checkFields() {
@@ -463,257 +472,331 @@ show_head("Добавление\Редактирование задания", ar
 </script>
 
 <script type="text/javascript">
-  document.querySelectorAll("#div-task-files div").forEach(function(div) {
-    let form = div.getElementsByClassName("form-statusTaskFiles")[0];
-    let select = form.getElementsByClassName("select-statusTaskFile")[0];
-    var previous = 0;
-    select.addEventListener('focus', function() {
-      previous = this.value;
-    });
-    select.addEventListener('change', function(e) {
-      let unsaved_fields = checkFields();
-      if (unsaved_fields != "") {
-        e.preventDefault();
-        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-        if (!confirm_answer) {
-          select.value = previous;
-          return;
-        }
-      }
-      console.log("SELECT CHANGED!");
-      var value = e.target.value;
-      console.log("OPTION: " + value);;
-      console.log("FORM-StatusTaskFiles: " + form);
+  // document.querySelectorAll("#div-task-files div").forEach(function(div) {
+  //   let form = div.getElementsByClassName("form-statusTaskFiles")[0];
+  //   let select = form.getElementsByClassName("select-taskFileType")[0];
+  //   var previous = 0;
+  //   select.addEventListener('focus', function() {
+  //     previous = this.value;
+  //   });
+  //   select.addEventListener('change', function(e) {
+  //     let unsaved_fields = checkFields();
+  //     if (unsaved_fields != "") {
+  //       e.preventDefault();
+  //       var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+  //       if (!confirm_answer) {
+  //         select.value = previous;
+  //         return;
+  //       }
+  //     }
+  //     console.log("SELECT CHANGED!");
+  //     var value = e.target.value;
+  //     console.log("OPTION: " + value);;
+  //     console.log("FORM-StatusTaskFiles: " + form);
 
-      let input = document.createElement("input");
-      input.setAttribute("type", "hidden");
-      input.setAttribute("value", value);
-      input.setAttribute("name", 'task-file-status');
-      console.log(input);
+  //     let input = document.createElement("input");
+  //     input.setAttribute("type", "hidden");
+  //     input.setAttribute("value", value);
+  //     input.setAttribute("name", 'task-file-status');
+  //     console.log(input);
 
-      form.append(input);
-      form.submit();
-    });
-  });
+  //     form.append(input);
+  //     form.submit();
+  //   });
+  // });
 
-  document.querySelectorAll("#form-deleteTaskFile").forEach(function(form) {
-    form.addEventListener("submit", function(e) {
-      let unsaved_fields = checkFields();
-      if (unsaved_fields != "") {
-        e.preventDefault();
-        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-        if (!confirm_answer)
-          return;
-      }
-      form.submit();
-    })
-  });
+  // document.querySelectorAll("#form-deleteTaskFile").forEach(function(form) {
+  //   form.addEventListener("submit", function(e) {
+  //     let unsaved_fields = checkFields();
+  //     if (unsaved_fields != "") {
+  //       e.preventDefault();
+  //       var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+  //       if (!confirm_answer)
+  //         return;
+  //     }
+  //     form.submit();
+  //   })
+  // });
 
-  document.querySelectorAll("#form-changeVisibilityTaskFile").forEach(function(form) {
-    form.addEventListener("submit", function(e) {
-      let unsaved_fields = checkFields();
-      if (unsaved_fields != "") {
-        e.preventDefault();
-        var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-        if (!confirm_answer)
-          return;
-      }
-      form.submit();
-    })
-  });
+  // document.querySelectorAll("#form-changeVisibilityTaskFile").forEach(function(form) {
+  //   form.addEventListener("submit", function(e) {
+  //     let unsaved_fields = checkFields();
+  //     if (unsaved_fields != "") {
+  //       e.preventDefault();
+  //       var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
+  //       if (!confirm_answer)
+  //         return;
+  //     }
+  //     form.submit();
+  //   })
+  // });
 
 
 
-  function setFinishLimit() {
-    var formData = new FormData();
+  // function ajaxSetFinishLimit() {
+  //   var formData = new FormData();
 
-    let finish_limit = $('#input-finishLimit').val();
+  //   let finish_limit = $('#input-finishLimit').val();
 
-    if (finish_limit == "")
-      return;
+  //   if (finish_limit == "")
+  //     return;
 
-    formData.append('task_id', <?= $Task->id ?>);
-    formData.append('finish_limit', finish_limit);
-    formData.append('action', 'editFinishLimit');
+  //   formData.append('task_id', <?= $Task->id ?>);
+  //   formData.append('finish_limit', finish_limit);
+  //   formData.append('action', 'editFinishLimit');
 
-    $('#spinner-finishLimit').removeClass("d-none");
+  //   $('#spinner-finishLimit').removeClass("d-none");
 
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType: 'html',
-      success: function(response) {},
-      complete: function() {
-        $('#spinner-finishLimit').addClass("d-none");
-      }
-    });
+  //   $.ajax({
+  //     type: "POST",
+  //     url: 'taskedit_action.php#content',
+  //     cache: false,
+  //     contentType: false,
+  //     processData: false,
+  //     data: formData,
+  //     dataType: 'html',
+  //     success: function(response) {},
+  //     complete: function() {
+  //       $('#spinner-finishLimit').addClass("d-none");
+  //     }
+  //   });
+  // }
+
+  function getTaskId() {
+    if (TASK_ID != null)
+      return TASK_ID;
+    else if (PAGE_ID != null) {
+      TASK_ID = ajaxTaskCreate(PAGE_ID);
+      if (TASK_ID == null)
+        alert("Не удалось сохранить задание!");
+      return TASK_ID;
+    } else
+      return -1;
   }
 
-  function saveFields() {
-    var formData = new FormData();
+  function checkTaskExist() {
+    return TASK_ID != null && TASK_ID != -1;
+  }
 
-    if (page_id != null)
-      formData.append('page_id', page_id);
-    else if (task_id != null)
-      formData.append('task_id', task_id);
-    else
+  function saveTask() {
+
+    let task_id = getTaskId();
+    if (task_id == -1)
       return;
 
-    formData.append('action', 'save');
+    let new_title = new_type = new_description = new_codeTest = new_codeCheck = null;
 
     if (checkTitle()) {
-      let now_title = $('#input-title').val();
-      formData.append('title', now_title);
-      original_title = now_title;
+      new_title = $('#input-title').val();
+      original_title = new_title;
     }
     if (checkType()) {
-      let now_type = $('#task-type').val();
-      formData.append('type', now_type);
-      original_type = now_type;
+      new_type = $('#task-type').val();
+      original_type = new_type;
     }
     if (checkDescription()) {
-      let now_description = easyMDE.value();
-      formData.append('description', now_description);
-      original_description = now_description.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+      new_description = easyMDE.value();
+      original_description = new_description.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
 
     if (checkCodeTest()) {
-      let now_codeTest = $('#textArea-codeTest').val();
-      formData.append('codeTest', now_codeTest);
-      original_codeTest = now_codeTest;
+      new_codeTest = $('#textArea-codeTest').val();
+      original_codeTest = new_codeTest;
     }
     if (checkCodeCheck()) {
-      let now_codeCheck = $('#textArea-codeCheck').val();
-      formData.append('codeCheck', now_codeCheck);
-      original_codeCheck = now_codeCheck;
+      new_codeCheck = $('#textArea-codeCheck').val();
+      original_codeCheck = new_codeCheck;
     }
 
     $('#spinner-save').removeClass("d-none");
 
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType: 'html',
-      success: function(response) {
-        $('#div-task-files').html(response);
-      },
-      complete: function() {
-        console.log("COMPLETED!");
-        titleChange();
-        typeChange();
-        descriptionChange();
-        codeTestChange();
-        codeCheckTestChange();
-        $('#spinner-save').addClass("d-none");
-      }
-    });
+    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_description, new_codeTest, new_codeCheck);
+    if (ajaxResponse == null) {
+      alert("Не удалось сохранить изменения. Попробуйте ещё раз.")
+      return;
+    } else {
+      document.location.href = "taskedit.php?task=" + task_id;
+      return;
+    }
+
+    if (ajaxResponse != "EMPTY") {
+      titleChange();
+      typeChange();
+      descriptionChange();
+      codeTestChange();
+      codeCheckTestChange();
+
+      // $('#div-task-files').html(ajaxResponse);
+
+    }
+
+    $('#spinner-save').addClass("d-none");
+
   }
 
   function archiveTask() {
-    var formData = new FormData();
 
-    formData.append('task_id', <?= $Task->id ?>);
-    formData.append('action', 'archive');
+    let task_id = getTaskId();
+    if (task_id == -1)
+      return;
 
     $('#spinner-archive').removeClass("d-none");
 
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType: 'html',
-      success: function(response) {},
-      complete: function() {
-        $('#spinner-archive').addClass("d-none");
-        $('#submit-archive').addClass("d-none");
-        $('#submit-rearchive').removeClass("d-none");
-      }
-    });
+    let ajaxResponse = ajaxTaskArchive(task_id);
+
+    $('#spinner-archive').addClass("d-none");
+
+    if (ajaxResponse == null) {
+      alert("Не удалость заархивировать задание.");
+      return;
+    }
+
+    $('#submit-archive').addClass("d-none");
+    $('#submit-rearchive').removeClass("d-none");
   }
 
   function reArchiveTask() {
-    var formData = new FormData();
 
-    formData.append('task_id', <?= $Task->id ?>);
-    formData.append('action', 'rearchive');
+    let task_id = getTaskId();
+    if (task_id == -1)
+      return;
 
     $('#spinner-rearchive').removeClass("d-none");
 
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType: 'html',
-      success: function(response) {},
-      complete: function() {
-        $('#spinner-rearchive').addClass("d-none");
-        $('#submit-rearchive').addClass("d-none");
-        $('#submit-archive').removeClass("d-none");
-      }
-    });
-  }
+    let ajaxResponse = ajaxTaskReArchive(task_id);
 
+    $('#spinner-rearchive').addClass("d-none");
 
-  function ajaxAddFiles(files) {
-    var formData = new FormData();
-
-    if (page_id != null)
-      formData.append('page_id', page_id);
-    else if (task_id != null)
-      formData.append('task_id', task_id);
-    else
+    if (ajaxResponse == null) {
+      alert("Не удалость разархивировать задание.");
       return;
-
-    formData.append('flag-addFiles', true);
-
-    let string_permitted_file_names = "";
-    files.forEach((file) => {
-      if (file['size'] < <?= $MAX_FILE_SIZE ?> * 0.8) {
-        formData.append('add-files[]', file);
-        task_files_name.push(file['name']);
-      } else {
-        string_permitted_file_names += file['name'] + " ";
-      }
-    });
-
-    // console.log(files);
-
-    if (string_permitted_file_names != "") {
-      alert("Файлы: " + string_permitted_file_names + "превышают допустимый размер");
     }
 
-    $.ajax({
-      type: "POST",
-      url: 'taskedit_action.php#content',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType: 'html',
-      success: function(response) {
-        $('#div-task-files').html(response);
-      },
-      complete: function() {
-        console.log("COMPLETED!");
-      }
-    });
+    $('#submit-rearchive').addClass("d-none");
+    $('#submit-archive').removeClass("d-none");
+
   }
 
 
+  function addFiles(new_files) {
+
+    let task_id = getTaskId();
+    if (task_id == -1)
+      return;
+
+    let files = [];
+    let permitted_file_names = [];
+    Object.entries(new_files).forEach((file) => {
+      if (!array_files.find((task_file) => task_file.name == file[1].name)) {
+        files.push(file[1]);
+      } else {
+        permitted_file_names.push(file[1]['name']);
+      }
+    });
+
+    if (permitted_file_names.length > 0) {
+      $('#modalErrorFileName-h5-title').text("Внимание!");
+      if (permitted_file_names.length == 1)
+        $('#modalErrorFileName-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не был добавлен. </br>Файл с таким названием уже присутствует.");
+      else
+        $('#modalErrorFileName-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не были добавлены. </br>Файлы с такими названиями уже присутствуют.");
+
+      $('#dialogErrorFileName').modal("show");
+    }
+
+    if (files.length < 1) {
+      return;
+    }
+
+    let ajaxResponse = ajaxTaskAddFiles(task_id, files);
+    if ("response" in ajaxResponse && ajaxResponse['response'] != null) {
+      $('#div-task-files').html(ajaxResponse['response']);
+    }
+    if ("permitted_file_names" in ajaxResponse && ajaxResponse['permitted_file_names'].length > 0) {
+      ajaxResponse['permitted_file_names'].forEach((file_name) => {
+        let index = files.findIndex((file) => file.name == file_name);
+        files.splice(index, 1);
+      });
+
+      $('#modalErrorFileSize-h5-title').text("Внимание!");
+      if (ajaxResponse['permitted_file_names'].length == 1)
+        $('#modalErrorFileSize-p-text').html("<strong>" + ajaxResponse['permitted_file_names'].join(", ") + "</strong> не был добавлен. </br>Файл превышает допустимый размер.");
+      else
+        $('#modalErrorFileSize-p-text').html("<strong>" + ajaxResponse['permitted_file_names'].join(", ") + "</strong> не были добавлены. </br>Файлы превышают допустимый размер.");
+
+      $('#dialogErrorFileSize').modal("show");
+    }
+
+    if (files.length > 0) {
+      files.forEach((file) => {
+        array_files.push({
+          "name": file.name,
+          "type": 0
+        });
+      });
+    }
+  }
+
+  function deleteFile(task_id, file_id, file_name) {
+
+    let response = ajaxTaskDeleteFile(task_id, file_id);
+    if (response != null) {
+      let index = array_files.findIndex((file) => file.name == file_name);
+      if (array_files[index].type == "2" || array_files[index].type == "3") {
+        document.location.href = "taskedit.php?task=" + task_id;
+        return;
+      }
+
+      $('#div-taskFile-' + file_id).remove();
+      array_files.splice(index, 1);
+      // previous_file_types.splice(file_id, 1);
+    } else {
+      alert("Не удалость удалить файл.");
+    }
+  }
+
+  function changeFileVisibility(task_id, file_id) {
+    let visibility = parseInt($('#btn-chnageFileVisibility-' + file_id).attr("visibility"));
+    let new_visibility = (visibility + 1) % 2;
+    var response = ajaxTaskChangeFileVisibility(task_id, file_id, new_visibility);
+    if (response != null) {
+      if ("svg" in response) {
+        $('#btn-chnageFileVisibility-' + file_id).html(response['svg']);
+        $('#btn-chnageFileVisibility-' + file_id).attr("visibility", (visibility + 1) % 2);
+      }
+    } else {
+      alert("Не удалость сменить видимость файла.");
+    }
+  }
+
+  function changeFileType(event, task_id, file_id, file_name) {
+    let new_type = $('#select-taskFileType-' + file_id).val();
+    let index = array_files.findIndex((file) => file.name == file_name);
+    var response = ajaxTaskChangeFileType(task_id, file_id, new_type);
+    $('#select-taskFileType-' + file_id).blur();
+    if (response != null) {
+      if ("svg" in response) {
+        if (new_type == 2 || new_type == 3) {
+          document.location.href = "taskedit.php?task=" + task_id;
+        }
+
+        $('#span-fileType-' + file_id).html(response['svg']);
+
+        array_files[index].type = new_type;
+      } else {
+        $('#select-taskFileType-' + file_id).val(array_files[index].type);
+
+        if (new_type == 2)
+          alert("В задании не может быть двух файлов Кода теста.");
+        else
+          alert("В задании не может быть двух файлов Кода проверки.");
+
+      }
+    } else {
+      alert("Не удалость сменить тип файла.");
+      $('#select-taskFileType-' + file_id).val(array_files[index].type);
+    }
+  }
 
 
 

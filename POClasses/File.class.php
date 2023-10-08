@@ -176,6 +176,14 @@ class File
 
     pg_query($dbconnect, $query) or pg_query($dbconnect, mb_convert_encoding($query, 'UTF-8', 'CP1251')) or die('Ошибка запроса: ' . pg_last_error());
   }
+  public function editFullText($full_text)
+  {
+    if ($this->download_url != null) {
+      return setFileFullTextByPath($this->download_url, $full_text);
+    } else {
+      $this->setFullText($full_text);
+    }
+  }
   public function setType($type)
   {
     global $dbconnect;
@@ -357,12 +365,20 @@ function getMaxFileSize()
   return 5242880;
 }
 
+function setFileFullTextByPath($file_path, $full_text)
+{
+  if (strpos($file_path, "editor.php?") !== false)
+    return "";
+  file_put_contents($file_path, $full_text);
+}
+
 function getFileContentByPath($file_path)
 {
   if (strpos($file_path, "editor.php?") !== false)
     return "";
   $file_full_text = file_get_contents($file_path);
-  $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
+  // $file_full_text = stripcslashes($file_full_text);
+  // $file_full_text = preg_replace('#\'#', '\'\'', $file_full_text);
   return $file_full_text;
 }
 

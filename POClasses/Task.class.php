@@ -567,7 +567,8 @@ function queryGetAssignmentsByTask($task_id)
 
 function queryGetFilesByTask($task_id)
 {
-  return "SELECT * FROM ax_task_file WHERE task_id = $task_id;
+  return "SELECT * FROM ax_task_file WHERE task_id = $task_id
+          ORDER BY id;
   ";
 }
 
