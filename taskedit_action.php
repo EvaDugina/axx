@@ -92,6 +92,10 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && isset($_POST['tas
 }
 
 if (isset($_POST['action']) && $_POST['action'] == "save") {
+  if (isset($_POST['status'])) {
+    $Task->setStatus($_POST['status']);
+  }
+
   if (isset($_POST['title'])) {
     $Task->title = $_POST['title'];
   }

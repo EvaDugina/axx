@@ -14,7 +14,7 @@ function ajaxTaskCreate(page_id) {
 
     formData.append('flag-createTask', true);
 
-    let TASK_ID = null;
+    let task_id = null;
 
     $.ajax({
         type: "POST",
@@ -28,22 +28,24 @@ function ajaxTaskCreate(page_id) {
         success: function (response) {
             response = response.replace(/(\r\n|\n|\r)/gm, "").trim();
             response = JSON.parse(response);
-            TASK_ID = response.task_id;
+            task_id = response.task_id;
         },
         complete: function () {
         }
     });
 
-    return TASK_ID;
+    return task_id;
 }
 
 
 
-function ajaxTaskSave(task_id, new_title = null, new_type = null, new_description = null, new_codeTest = null, new_codeCheck = null) {
+function ajaxTaskSave(task_id, status = null, new_title = null, new_type = null, new_description = null, new_codeTest = null, new_codeCheck = null) {
     var formData = new FormData();
 
 
     formData.append('task_id', task_id);
+    if (status != null)
+        formData.append('status', status);
     formData.append('action', 'save');
 
     if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null)

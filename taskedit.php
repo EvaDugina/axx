@@ -44,7 +44,7 @@ if (isset($_GET['task'])) {
   $Page = new Page((int)$_REQUEST['page']);
   // $Task = new Task($Page->id, 0, 1);
   $Task = new Task();
-  $Task->title = "Задание " . (count($Page->getTasks()) + 1) . ".";
+  // $Task->title = "Задание " . (count($Page->getTasks()) + 1) . ".";
   echo "<script>var TASK_ID=null;</script>";
   echo "<script>var PAGE_ID=" . $Page->id . ";</script>";
 } else {
@@ -153,20 +153,20 @@ show_head("Добавление\Редактирование задания", ar
           </table>
 
           <div class="d-flex">
-            <button id="submit-save" class="btn btn-outline-success me-2 d-flex align-items-center" onclick="saveTask()">
+            <button id="submit-save" class="btn btn-outline-success d-flex align-items-center" onclick="saveTask()">
               Сохранить &nbsp;
               <div id="spinner-save" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
               </div>
             </button>
 
-            <button id="submit-archive" class="btn btn-outline-secondary <?= ($Task->id != null && $Task->status == 0) ? 'd-none' : '' ?>" onclick="archiveTask()">
+            <button id="submit-archive" class="btn btn-outline-secondary ms-2 <?= ($Task->id == null || $Task->status == 1) ? "" : "d-none" ?>" onclick="archiveTask()">
               Архивировать задание &nbsp;
               <div id="spinner-archive" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
               </div>
             </button>
-            <button id="submit-rearchive" class="btn btn-outline-primary <?= ($Task->id != null && $Task->status == 1) ? 'd-none' : '' ?>" onclick="reArchiveTask()">
+            <button id="submit-rearchive" class="btn btn-outline-primary ms-2 <?= ($Task->status == 0) ? "" : "d-none" ?>" onclick="reArchiveTask()">
               Разархивировать задание &nbsp;
               <div id="spinner-rearchive" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
@@ -562,13 +562,15 @@ show_head("Добавление\Редактирование задания", ar
   //   });
   // }
 
-  function getTaskId() {
+  function getTaskId(initiator = "") {
     if (TASK_ID != null)
       return TASK_ID;
     else if (PAGE_ID != null) {
       TASK_ID = ajaxTaskCreate(PAGE_ID);
       if (TASK_ID == null)
         alert("Не удалось сохранить задание!");
+      if (initiator != "saveTask()" && initiator != "archiveTask()" && initiator != "reArchiveTask()")
+        saveTask();
       return TASK_ID;
     } else
       return -1;
@@ -578,9 +580,9 @@ show_head("Добавление\Редактирование задания", ar
     return TASK_ID != null && TASK_ID != -1;
   }
 
-  function saveTask() {
+  function saveTask(status = null) {
 
-    let task_id = getTaskId();
+    let task_id = getTaskId("saveTask()");
     if (task_id == -1)
       return;
 
@@ -610,12 +612,14 @@ show_head("Добавление\Редактирование задания", ar
 
     $('#spinner-save').removeClass("d-none");
 
-    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_description, new_codeTest, new_codeCheck);
-    if (ajaxResponse == null) {
-      alert("Не удалось сохранить изменения. Попробуйте ещё раз.")
+    let ajaxResponse = ajaxTaskSave(task_id, status, new_title, new_type, new_description, new_codeTest, new_codeCheck);
+    $('#spinner-save').addClass("d-none");
+
+    if (ajaxResponse != null) {
+      document.location.href = "taskedit.php?task=" + task_id;
       return;
     } else {
-      document.location.href = "taskedit.php?task=" + task_id;
+      alert("Не удалось сохранить изменения. Попробуйте ещё раз.")
       return;
     }
 
@@ -630,23 +634,21 @@ show_head("Добавление\Редактирование задания", ar
 
     }
 
-    $('#spinner-save').addClass("d-none");
-
   }
 
   function archiveTask() {
 
-    let task_id = getTaskId();
+    let task_id = getTaskId("archiveTask()");
     if (task_id == -1)
       return;
 
     $('#spinner-archive').removeClass("d-none");
-
     let ajaxResponse = ajaxTaskArchive(task_id);
-
     $('#spinner-archive').addClass("d-none");
 
-    if (ajaxResponse == null) {
+    saveTask();
+
+    if (ajaxResponse != null) {} else {
       alert("Не удалость заархивировать задание.");
       return;
     }
@@ -657,23 +659,25 @@ show_head("Добавление\Редактирование задания", ar
 
   function reArchiveTask() {
 
-    let task_id = getTaskId();
+    let task_id = getTaskId("reArchiveTask()");
     if (task_id == -1)
       return;
 
     $('#spinner-rearchive').removeClass("d-none");
-
     let ajaxResponse = ajaxTaskReArchive(task_id);
-
     $('#spinner-rearchive').addClass("d-none");
 
-    if (ajaxResponse == null) {
+    if (ajaxResponse != null) {} else {
       alert("Не удалость разархивировать задание.");
       return;
     }
 
+    saveTask();
+
     $('#submit-rearchive').addClass("d-none");
     $('#submit-archive').removeClass("d-none");
+
+
 
   }
 
