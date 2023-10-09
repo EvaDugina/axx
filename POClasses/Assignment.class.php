@@ -17,7 +17,7 @@ class Assignment
 
   public $delay = null; // не понятно, зачем нужно
   public $mark = null;
-  public $status = null; // -1 - недоступно для выполнения, 0 - ожидает выполнения, 1 - ожидает проверки, 2 - проверено, не оценено, 3 - ожидает повторной проверки, 4 - оценено
+  public $status = null; // -1 - недоступно для выполнения, 0 - ожидает выполнения, 1 - ожидает проверки, 2 - проверено
   public $checks = null;
   // public $new = false;
 
@@ -303,13 +303,19 @@ class Assignment
   }
   public function isCompleted()
   {
-    if ($this->status == 4)
+    if ($this->status == 2 || $this->status == 4)
       return true;
     return false;
   }
-  public function isWaitingForCheck()
+  public function isWaitingCheck()
   {
     if ($this->status == 1)
+      return true;
+    return false;
+  }
+  public function isMarked()
+  {
+    if ($this->mark != "" && $this->mark != null)
       return true;
     return false;
   }

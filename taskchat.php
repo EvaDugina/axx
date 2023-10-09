@@ -268,13 +268,13 @@ $task_number = explode('.', $task_title)[0];
           <div class="task-status-wrapper me-0 ps-3 col-3 align-items-end">
             <div class="align-items-end w-100">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="flexCheckDisabled" <?php if ($Assignment->isCompleted()) echo 'checked'; ?> disabled>
+                <input class="form-check-input" type="checkbox" id="flexCheckDisabled" <?php if ($Assignment->isMarked() || $Assignment->isCompleted()) echo 'checked'; ?> disabled>
                 <?php //XXX: Проверить
                 ?>
                 <label id="label-task-status-text"><?= status_to_text($Assignment->status) ?></label>
               </div>
               <span id="span-answer-date"><?php if ($task_finish_date_time) echo $task_finish_date_time; ?></span><br>
-              <span id="span-text-mark"><?php if ($task_status_code == 4) { ?>
+              <span id="span-text-mark"><?php if ($Assignment->isMarked()) { ?>
                   Оценка: <b id="b-mark"><?= $task_mark ?></b>
                 <?php } ?>
               </span>

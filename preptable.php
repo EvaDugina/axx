@@ -226,6 +226,8 @@ if ($scripts) echo $scripts;
                                 // TODO: Изменить логику отрисовки таблицы в зависимости от того, стоит ли оценка или нет
                                 if ($Assignment->visibility == 0 || $Assignment->visibility == 1) { ?>
                                   <td onclick="unblockAssignment(<?= $Assignment->id ?>)" style="background: var(--mdb-gray-100);">
+                                    <span id="span-assignmentMark-<?= $Assignment->id ?>"><?= $Assignment->mark ?></span>
+
                                     <!-- <button id="btn-assignment-visibility-<?= $Assignment->id ?>" class="btn px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>" 
                               onclick="ajaxChangeVisibility(<?= $Assignment->id ?>, <?= $Assignment->getNextAssignmentVisibility() ?>)"
                               style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
@@ -239,14 +241,16 @@ if ($scripts) echo $scripts;
                               <?= ($Assignment->status == -1 || $Assignment->status == 0) ? "" : "disabled" ?>>
                                   <?php getSVGByAssignmentStatus($Assignment->status); ?>
                               </button> -->
+
+
                                   </td>
-                                <?php } else if ($Assignment->status == 1) {
+                                <?php } else if ($Assignment->isWaitingCheck()) {
                                   $last_Message = $Assignment->getLastAnswerMessage();
                                   $last_message_Student = new User((int)$last_Message->sender_user_id);
                                 ?>
-                                  <td tabindex="0" onclick="showPopover(this)" style="cursor: pointer;" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id) ?>">
-                                    <?php if ($Assignment->mark != null) { ?>
-                                      <?= $Assignment->mark ?>
+                                  <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showPopover(this);" style="cursor: pointer;" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id) ?>">
+                                    <?php if ($Assignment->isMarked()) { ?>
+                                      <span id="span-assignmentMark-<?= $Assignment->id ?>"><?= $Assignment->mark ?></span>
                                       <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                           <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
@@ -260,10 +264,10 @@ if ($scripts) echo $scripts;
                                     <?php } ?>
                                   </td>
                                 <?php } else { ?>
-                                  <td onclick="answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,<?= $Task->max_mark ?>); chooseAssignment(<?= $Assignment->id ?>);" style="cursor: pointer;" data-title="Оценить задание">
-                                    <?php if ($Assignment->mark != null) {
-                                      echo $Assignment->mark;
-                                    } ?>
+                                  <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,<?= $Task->max_mark ?>);" style="cursor: pointer;" data-title="Оценить задание">
+                                    <?php if ($Assignment->isMarked()) { ?>
+                                      <span id="span-assignmentMark-<?= $Assignment->id ?>"><?= $Assignment->mark ?></span>
+                                    <?php } ?>
                                   </td>
                                 <?php }
                               } else { ?>
@@ -316,8 +320,8 @@ if ($scripts) echo $scripts;
                   $key = 0;
                   foreach ($Page->getGroups() as $Group) {
                     foreach ($Group->getStudents() as $Student) {
-                      $studentAssignments = $Page->getAllAssignmentsByStudent($Student->id);
-                      $studentCompletedAssignments = $Page->getCompletedAssignmentsByStudent($Student->id);
+                      $studentAssignments = $Page->getAllCompilingAssignmentsByStudent($Student->id);
+                      $studentCompletedAssignments = $Page->getCountCompletedAssignmentsByStudent($Student->id);
                   ?>
                       <div class="student-item">
                         <li id="<?= ++$key ?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
@@ -336,7 +340,7 @@ if ($scripts) echo $scripts;
                                 <?php } ?>
                                 <?php if (count($studentAssignments) > 0) { ?>
                                   <span class="badge badge-light me-3">
-                                    <span class="small font-weight-light"> (<?= count($studentCompletedAssignments) ?> / <?= count($studentAssignments) ?>)</span>
+                                    <span class="small font-weight-light"> (<?= $studentCompletedAssignments ?> / <?= count($studentAssignments) ?>)</span>
                                   </span>
                                 <?php } ?>
                               </div>
@@ -361,17 +365,22 @@ if ($scripts) echo $scripts;
                                   <div class="row">
                                     <div class="d-flex justify-content-between align-items-center">
                                       &nbsp;&nbsp;&nbsp;<?= $Task->title ?>
-                                      <?php
-                                      $count_unreaded = $Assignment->getCountUnreadedMessages($Student->id);
-                                      if ($Assignment->status == 1) { ?>
-                                        <span class="badge badge-primary badge-pill bg-warning text-white">
-                                          Ожидает проверки
-                                          <span>
-                                          <?php } else if ($Assignment->status == 4) { ?>
-                                            <span class="badge badge-primary badge-pill bg-success text-white">
-                                              Выполнено
-                                              <span>
-                                              <?php } ?>
+                                      <div>
+                                        <?php
+
+                                        if ($Assignment->isWaitingCheck()) { ?>
+                                          <span class="badge badge-primary badge-pill bg-warning text-white">
+                                            <?= ($Assignment->isMarked()) ? "Ожидает пвторной проверки" : "Ожидает проверки"; ?>
+                                          </span>
+                                        <?php }
+
+                                        if ($Assignment->isCompleted() || $Assignment->isMarked()) { ?>
+                                          <span class="badge badge-primary badge-pill bg-success text-white">
+                                            Выполнено
+                                          </span>
+                                        <?php } ?>
+
+                                      </div>
                                     </div>
                                   </div>
                                 </li>
@@ -511,11 +520,18 @@ if ($scripts) echo $scripts;
               <select id="dialogCheckTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
               </select>
             </div>
-            <button id="button-check" class="btn btn-success" target="_blank" type="submit" name="submit-check" style="width: 100%;">
+            <button id="button-check" class="btn btn-success d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%;">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
                 <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
                 <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-              </svg>&nbsp;&nbsp;Оценить</button>
+              </svg>
+              <div class="d-flex align-items-center">
+                &nbsp;&nbsp;Оценить&nbsp;
+                <div id="spinner-mark" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -689,16 +705,21 @@ function generate_message_for_student_task_commit($task_title)
 
   $('#button-check').on('click', function() {
     let selected_mark = $('#dialogCheckTask-select-mark').val();
-    if (selected_mark != -1)
+    if (selected_mark != -1) {
       markAssignment(selected_mark);
-    else
+    } else
       alert("Не выбрана оценка!");
   });
 
   function markAssignment(mark) {
     if (CHOOSED_ASSIGNMENT_ID != null) {
+      $('#spinner-mark').removeClass("d-none");
       let ajaxResponse = ajaxAssignmentMark(CHOOSED_ASSIGNMENT_ID, mark, USER_ID);
-      if (ajaxResponse != null) {} else {
+      $('#spinner-mark').addClass("d-none");
+      if (ajaxResponse != null) {
+        $('#span-assignmentMark-' + CHOOSED_ASSIGNMENT_ID).text(mark);
+        $('#dialogCheckTask').modal("hide");
+      } else {
         alert("Неудалось оценить задание.");
       }
     } else {

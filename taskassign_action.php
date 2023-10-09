@@ -62,7 +62,7 @@ if (isset($_POST['changeStatus'])) {
       $Assignment->deleteFromDB();
     else {
       if ($Assignment->mark != null)
-        $Assignment->setStatus(4);
+        $Assignment->setStatus(2);
       else
         $Assignment->setStatus((int)$_POST['changeStatus']);
     }

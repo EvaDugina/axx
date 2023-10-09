@@ -631,8 +631,6 @@ show_head("Добавление\Редактирование задания", ar
       codeTestChange();
       codeCheckTestChange();
 
-      // $('#div-task-files').html(ajaxResponse);
-
     }
 
   }
@@ -743,7 +741,10 @@ show_head("Добавление\Редактирование задания", ar
       return;
     }
 
-    saveTask();
+    $(document).on('hidden.bs.modal', '.modal', function() {
+      if ($('.modal:visible').length < 1)
+        saveTask();
+    });
 
   }
 
@@ -764,8 +765,6 @@ show_head("Добавление\Редактирование задания", ar
       alert("Не удалость удалить файл.");
       return;
     }
-
-    saveTask();
   }
 
   function changeFileVisibility(task_id, file_id) {
@@ -781,8 +780,6 @@ show_head("Добавление\Редактирование задания", ar
       alert("Не удалость сменить видимость файла.");
       return;
     }
-
-    saveTask();
   }
 
   function changeFileType(event, task_id, file_id, file_name) {
@@ -813,8 +810,6 @@ show_head("Добавление\Редактирование задания", ar
       $('#select-taskFileType-' + file_id).val(array_files[index].type);
       return;
     }
-
-    saveTask();
   }
 
 

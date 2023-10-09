@@ -1,9 +1,10 @@
-<?php 
+<?php
 require_once("./settings.php");
 
-class User {
+class User
+{
 
-  public $id; 
+  public $id;
   public $first_name, $middle_name, $last_name;
   public $login, $role;
   public $email, $notify_status;
@@ -12,13 +13,14 @@ class User {
 
   public $group_id;
   public $subgroup = null;
-  
+
   private $Image = null;
 
   // private $Group = null;
 
-  
-  function __construct() {
+
+  function __construct()
+  {
     global $dbconnect;
 
     $count_args = func_num_args();
@@ -52,56 +54,57 @@ class User {
         $this->Image = new File((int)$user['image_file_id']);
 
       // $this->Group = new Group((int)$user['group_id']);
-    }
-
-    else {
+    } else {
       die('Неверные аргументы в конструкторе User');
     }
-
   }
 
 
-// GETTERS
+  // GETTERS
 
-  public function getFI() {
+  public function getFI()
+  {
     if (empty($this->first_name))
       return $this->middle_name;
     else
       return $this->first_name . " " . $this->middle_name;
   }
-  public function getFIO() {
+  public function getFIO()
+  {
     if (empty($this->first_name) && empty($this->middle_name))
       return $this->last_name;
     if (empty($this->first_name))
-        return $this->middle_name . " " . $this->last_name;
+      return $this->middle_name . " " . $this->last_name;
     if (empty($this->middle_name))
       return $this->first_name . " " . $this->last_name;
-    return $this->middle_name . " " . $this->first_name . " " . $this->last_name; 
+    return $this->middle_name . " " . $this->first_name . " " . $this->last_name;
   }
-  public function getFIOspecial() {
+  public function getFIOspecial()
+  {
     return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
   }
 
-  public function getNotifications() {
+  public function getNotifications()
+  {
     global $dbconnect;
-    
-     if ($this->isAdmin()) {
+
+    if ($this->isAdmin()) {
       $query = queryGetAllPages();
       return null;
-     } else if ($this->isTeacher()) // Уведомления для преподавателя
-       $query = queryGetPagesByTeacher($this->id);
-     else if ($this->isStudent()) // Уведомления для студента
-       $query = queryGetAllPagesByGroup($this->group_id);
-     
-     $result = pg_query($dbconnect, $query);
-     $notifies = array();
+    } else if ($this->isTeacher()) // Уведомления для преподавателя
+      $query = queryGetPagesByTeacher($this->id);
+    else if ($this->isStudent()) // Уведомления для студента
+      $query = queryGetAllPagesByGroup($this->group_id);
 
-     while ($page_id = pg_fetch_assoc($result)) {
+    $result = pg_query($dbconnect, $query);
+    $notifies = array();
+
+    while ($page_id = pg_fetch_assoc($result)) {
       $Page = new Page((int)$page_id['id']);
 
       if ($this->isTeacher()) { // Уведомления для преподавателя 
-        foreach($Page->getTasks() as $Task) {
-          foreach($Task->getActiveAssignments() as $Assignment) {
+        foreach ($Page->getTasks() as $Task) {
+          foreach ($Task->getActiveAssignments() as $Assignment) {
             $unreadedMessages = $Assignment->getUnreadedMessagesForTeacher();
             if (count($unreadedMessages) > 0) {
               $notify = array(
@@ -111,15 +114,15 @@ class User {
                 "assignment_id" => $Assignment->id,
                 "students" => $Assignment->getStudents(),
                 "page_name" => $Page->name,
-                "needToCheck" => ($Assignment->isWaitingForCheck()) ? true : false
-              ); 
+                "needToCheck" => ($Assignment->isWaitingCheck()) ? true : false
+              );
               array_push($notifies, $notify);
             }
           }
         }
       } else if ($this->isStudent()) { // Уведомления для студента
-        foreach($Page->getTasks() as $Task) {
-          foreach($Task->getVisibleAssignmemntsByStudent($this->id) as $Assignment) {
+        foreach ($Page->getTasks() as $Task) {
+          foreach ($Task->getVisibleAssignmemntsByStudent($this->id) as $Assignment) {
             $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
             if (count($unreadedMessages) > 0) {
               $notify = array(
@@ -130,38 +133,43 @@ class User {
                 "teachers" => $Page->getTeachers(),
                 "page_name" => $Page->name,
                 "completed" => ($Assignment->isCompleted()) ? true : false
-              ); 
+              );
               array_push($notifies, $notify);
             }
           }
         }
       }
-     }
- 
-     return $notifies;
+    }
+
+    return $notifies;
   }
 
-  public function getImageFile() {
+  public function getImageFile()
+  {
     return $this->Image;
   }
 
- 
-  public function isAdmin() {
+
+  public function isAdmin()
+  {
     return isAdmin($this->role);
   }
-  public function isTeacher() {
+  public function isTeacher()
+  {
     return isTeacher($this->role);
   }
-  public function isStudent() {
+  public function isStudent()
+  {
     return isStudent($this->role);
   }
 
-  
-// -- END GETTERS
+
+  // -- END GETTERS
 
 
-// SETTERS
-  public function setGithub($github_url) {
+  // SETTERS
+  public function setGithub($github_url)
+  {
     global $dbconnect;
 
     $this->github_url = $github_url;
@@ -170,7 +178,8 @@ class User {
               WHERE user_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function setSubgroup($subgroup) {
+  public function setSubgroup($subgroup)
+  {
     global $dbconnect;
 
     $this->subgroup = $subgroup;
@@ -180,7 +189,8 @@ class User {
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function setImage($image_file_id) {
+  public function setImage($image_file_id)
+  {
     global $dbconnect;
 
     $this->Image = new File((int)$image_file_id);
@@ -189,14 +199,16 @@ class User {
               WHERE user_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function addFile($file_id) {
+  public function addFile($file_id)
+  {
     $this->setImage($file_id);
   }
 
-// -- END SETTERS
+  // -- END SETTERS
 
 
-  public function pushStudentChangesToDB() {
+  public function pushStudentChangesToDB()
+  {
     global $dbconnect;
 
     $query = "UPDATE students SET first_name = '$this->first_name', middle_name = '$this->middle_name', last_name = '$this->last_name', 
@@ -205,7 +217,8 @@ class User {
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
-  public function pushSettingChangesToDB() {
+  public function pushSettingChangesToDB()
+  {
     global $dbconnect;
 
     $query = "UPDATE ax_settings SET email = '$this->email', notification_type = '$this->notify_status', github_url = '$this->github_url'
@@ -213,27 +226,30 @@ class User {
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
- 
 }
 
-function isAdmin($role) {
+function isAdmin($role)
+{
   if ($role == 1)
     return true;
   return false;
-} 
-function isTeacher($role) {
+}
+function isTeacher($role)
+{
   if ($role == 2)
     return true;
   return false;
 }
-function isStudent($role) {
+function isStudent($role)
+{
   if ($role == 3)
     return true;
   return false;
 }
 
 
-function getGroupByStudent($student_id) {
+function getGroupByStudent($student_id)
+{
   global $dbconnect;
 
   $query = queryGetGroupByStudent($student_id);
@@ -243,7 +259,8 @@ function getGroupByStudent($student_id) {
   return new Group((int)$group_id);
 }
 
-function getUserByLoginAndRole($login, $role) {
+function getUserByLoginAndRole($login, $role)
+{
   global $dbconnect;
 
   $query = queryUserByLoginAndRole($login, $role);
@@ -253,7 +270,8 @@ function getUserByLoginAndRole($login, $role) {
   return $user_id;
 }
 
-function hasSecondRole($login) {
+function hasSecondRole($login)
+{
   global $dbconnect;
 
   $query = pg_query($dbconnect, queryCountRoles($login)) or die('Ошибка запроса: ' . pg_last_error());
@@ -261,7 +279,7 @@ function hasSecondRole($login) {
 
   if ($count_roles > 1)
     return true;
-    
+
   return false;
 }
 
@@ -270,7 +288,8 @@ function hasSecondRole($login) {
 
 
 
-function queryUserByLoginAndRole($login, $role){
+function queryUserByLoginAndRole($login, $role)
+{
   return "SELECT id, login, role FROM students
           WHERE login = $login AND role = $role;
   ";
@@ -281,12 +300,14 @@ function queryUserByLoginAndRole($login, $role){
 
 // ФУНКЦИИ ЗАПРОСОВ К БД 
 
-function queryCountRoles($login) {
+function queryCountRoles($login)
+{
   return "SELECT COUNT(*) FROM students
           WHERE login = '$login'";
 }
 
-function queryGetUserInfo($id){
+function queryGetUserInfo($id)
+{
   return "SELECT first_name, middle_name, last_name, login, role, students_to_groups.group_id as group_id,
           students_to_subgroups.subgroup, ax_settings.*
           FROM students
@@ -297,20 +318,23 @@ function queryGetUserInfo($id){
   ";
 }
 
-function queryGetGroupByStudent($student_id) {
+function queryGetGroupByStudent($student_id)
+{
   return "SELECT group_id FROM students_to_groups WHERE student_id = $student_id;";
 }
 
 
 
 
-function querySetGroupId($user_id, $group_id) {
+function querySetGroupId($user_id, $group_id)
+{
   return "UPDATE students_to_groups SET group_id = $group_id 
           WHERE student_id = $user_id; 
           SELECT name FROM groups WHERE id = $group_id;";
 }
 
-function querySetNotifyStatus($id, $notify_type) {
+function querySetNotifyStatus($id, $notify_type)
+{
   return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
           VALUES ($id, null, $notify_type, 'TRUE')
           ON CONFLICT (user_id) DO UPDATE 
@@ -318,7 +342,8 @@ function querySetNotifyStatus($id, $notify_type) {
   ";
 }
 
-function querySetEmail($id, $email) {
+function querySetEmail($id, $email)
+{
   return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
       VALUES ('$id', '$email', null, 'TRUE')
       ON CONFLICT (user_id) DO UPDATE
@@ -330,7 +355,8 @@ function querySetEmail($id, $email) {
 
 
 // получение уведомлений, отсортированных по message_id для студента по невыполненным заданиям
-function queryGetNotifiesForStudentHeader($student_id){
+function queryGetNotifiesForStudentHeader($student_id)
+{
   return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_page.id as page_id, ax_page.short_name, ax_task.title, ax_assignment.status_code, ax_assignment.status, 
             teachers.first_name || ' ' || teachers.last_name as teacher_io, ax_message.id as message_id, ax_message.full_text FROM ax_task
           INNER JOIN ax_page ON ax_page.id = ax_task.page_id
@@ -345,7 +371,8 @@ function queryGetNotifiesForStudentHeader($student_id){
 }
 
 // получение уведомлений для преподавателя по непроверенным заданиям
-function queryGetNotifiesForTeacherHeader($teacher_id){
+function queryGetNotifiesForTeacherHeader($teacher_id)
+{
   return "SELECT DISTINCT ON (ax_assignment.id) ax_assignment.id as aid, ax_task.id as task_id, ax_task.page_id, ax_page.short_name, ax_task.title, 
                 ax_assignment.id as assignment_id, ax_assignment.status_code, ax_assignment.status, ax_assignment_student.student_user_id,
                 s1.middle_name, s1.first_name FROM ax_task
@@ -361,7 +388,8 @@ function queryGetNotifiesForTeacherHeader($teacher_id){
   ";
 }
 
-function queryGetCountUnreadedMessagesByTaskForTeacher($teacher_id, $task_id){
+function queryGetCountUnreadedMessagesByTaskForTeacher($teacher_id, $task_id)
+{
   return "SELECT COUNT(*) FROM ax_message
           INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
           INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
@@ -371,7 +399,8 @@ function queryGetCountUnreadedMessagesByTaskForTeacher($teacher_id, $task_id){
   ";
 }
 
-function queryGetCountUnreadedMessagesByTaskForStudent($student_id, $task_id){
+function queryGetCountUnreadedMessagesByTaskForStudent($student_id, $task_id)
+{
   return "SELECT COUNT(*) FROM ax_message
           INNER JOIN ax_assignment ON ax_assignment.id = ax_message.assignment_id
           INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id

@@ -118,6 +118,18 @@ class Task
     return true;
   }
 
+  public function getCountCompletedAssignments($student_id)
+  {
+    $count_success = 0;
+    if ($this->status == 1) {
+      foreach ($this->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
+        if ($Assignment->isMarked() || $Assignment->isCompleted())
+          $count_success++;
+      }
+    }
+    return $count_success;
+  }
+
   // -- END GETTERS
 
 

@@ -57,7 +57,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
   );
   ?>
 
-  <main class="pt-2">
+  <main class="pt-2 mb-5">
     <div class="container-fluid overflow-hidden">
       <div class="row gy-5">
         <div class="col-8">

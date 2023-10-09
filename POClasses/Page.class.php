@@ -90,25 +90,25 @@ class Page
     }
     return $Tasks;
   }
-  public function getAllAssignmentsByStudent($student_id)
+  public function getAllCompilingAssignmentsByStudent($student_id)
   {
     $studentAssignments = [];
     foreach ($this->Tasks as $Task) {
-      $Assignment = $Task->getLastAssignmentByStudent($student_id);
-      if ($Assignment != null)
-        array_push($studentAssignments, $Assignment);
+      if (!$Task->isConversation()) {
+        $Assignment = $Task->getLastAssignmentByStudent($student_id);
+        if ($Assignment != null)
+          array_push($studentAssignments, $Assignment);
+      }
     }
     return $studentAssignments;
   }
-  public function getCompletedAssignmentsByStudent($student_id)
+  public function getCountCompletedAssignmentsByStudent($student_id)
   {
-    $studentAssignments = [];
+    $count_success = 0;
     foreach ($this->Tasks as $Task) {
-      $Assignment = $Task->getLastAssignmentByStudent($student_id);
-      if ($Assignment != null && $Assignment->isCompleted())
-        array_push($studentAssignments, $Assignment);
+      $count_success += $Task->getCountCompletedAssignments($student_id);
     }
-    return $studentAssignments;
+    return $count_success;
   }
   public function hasAssignmentsByStudent($student_id)
   {
@@ -248,16 +248,11 @@ class Page
     return $return_Tasks;
   }
 
-  public function getCountSuccessAssignments($student_id)
+  public function getCountCompletedAssignments($student_id)
   {
     $count_success = 0;
     foreach ($this->getTasks() as $Task) {
-      if ($Task->status == 1) {
-        foreach ($Task->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
-          if ($Assignment->isCompleted())
-            $count_success++;
-        }
-      }
+      $count_success += $Task->getCountCompletedAssignments($student_id);
     }
     return $count_success;
   }

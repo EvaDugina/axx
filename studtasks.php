@@ -19,7 +19,7 @@ if (isset($_GET['page']) && is_numeric($_GET['page'])) {
   exit;
 }
 
-$count_succes_tasks = $Page->getCountSuccessAssignments($student_id);
+$count_succes_tasks = $Page->getCountCompletedAssignments($student_id);
 $count_tasks = $Page->getCountActiveAssignments($student_id);
 
 
@@ -66,8 +66,10 @@ show_head("Страница предмета " . $Page->name);
                     $date_finish = "до $Assignment->finish_limit";
                   else
                     $date_finish = "";
-                  if ($Assignment->isCompleted()) {
-                    $text_status = 'Проверено (оценка: ' . $Assignment->mark . ')';
+                  if ($Assignment->isCompleted() && $Assignment->isMarked()) {
+                    $text_status = 'Проверено (оценка: <strong>' . $Assignment->mark . '</strong>)';
+                  } else if ($Assignment->isWaitingCheck() && $Assignment->isMarked()) {
+                    $text_status = 'Ожидает проверки (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
                   } else {
                     $text_status = status_to_text($Assignment->status);
                   }
@@ -77,7 +79,7 @@ show_head("Страница предмета " . $Page->name);
                     <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $date_finish; ?></p>
                     <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $text_status; ?></p>
                     <div class="form-check" style="margin: 10px;">
-                      <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?= ($Assignment->isCompleted()) ? 'checked' : 'unchecked' ?> disabled>
+                      <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?= ($Assignment->isMarked() || $Assignment->isCompleted()) ? 'checked' : 'unchecked' ?> disabled>
                       <label class="form-check-label" for="flexCheckChecked"></label>
                     </div>
                     <!-- ВОЗМОЖНЫЕ ДОРАБОТКИ ПО МАКЕТУ

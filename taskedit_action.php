@@ -260,7 +260,7 @@ if (isset($_POST['action']) && $_POST['action'] == "editStatus") {
 
   foreach ($Task->getAssignments() as $Assignment) {
     if ($Assignment->mark != null)
-      $Assignment->setStatus(4);
+      $Assignment->setStatus(2);
     else
       $Assignment->setStatus($_POST['status']);
   }
