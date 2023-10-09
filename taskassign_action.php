@@ -295,5 +295,21 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   exit();
 }
 
+if (isset($_POST['flag-markAssignment']) && isset($_POST['assignment_id']) && isset($_POST['mark']) && isset($_POST['user_id'])) {
+  $User = new User($_POST['user_id']);
+  $Assignment = new Assignment($_POST['assignment_id']);
+
+  $mark = $_POST['mark'];
+  $Assignment->setMark($mark);
+
+  $message_text = "Задание оценено! Оценка: " + $mark + "\n";
+  if (isset($_POST['message_text'])) {
+    $message_text = "Комментарий проеподавателя: \n" + $_POST['message_text'];
+  }
+
+  $Message = new Message((int)$Assignment->id, 2, $User->id, $User->role);
+  $Assignment->addMessage($Message->id);
+}
+
 header('Location:' . $_SERVER['HTTP_REFERER']);
 exit();

@@ -221,12 +221,34 @@ function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_ma
   // console.log('pressed: ', answer_type == 2 ? 'mark' : 'answer', max_mark, message_id);
   if (answer_type == 2) { // mark
     //const dialog = document.getElementById('dialogMark');
-    document.getElementById('dialogMarkMessageId').value = message_id;
+
+    // document.getElementById('dialogMarkMessageId').value = message_id;
+    // if (max_mark == null)
+    //   max_mark = 5;
+    // document.getElementById('dialogMarkMarkInput').max = max_mark;
+    // document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
+    // $('#dialogMark').modal('show');
+
     if (max_mark == null)
       max_mark = 5;
-    document.getElementById('dialogMarkMarkInput').max = max_mark;
-    document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
-    $('#dialogMark').modal('show');
+    $('#dialogCheckTask-select-mark').empty();
+
+    let option = document.createElement("option");
+    option.value = -1;
+    option.hidden = true;
+    $('#dialogCheckTask-select-mark').append(option);
+
+    for (let i = 1; i <= max_mark; i++) {
+      let option = document.createElement("option");
+      option.value = i;
+      option.innerHTML = i;
+      $('#dialogCheckTask-select-mark').append(option);
+    }
+    // document.getElementById('dialogMarkMarkInput').max = max_mark;
+    // document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
+    $('#dialogCheckTask').modal('show');
+
+
   } else {
     //const dialog = document.getElementById('dialogAnswer');
     document.getElementById('dialogAnswerMessageId').value = message_id;

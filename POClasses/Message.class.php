@@ -53,10 +53,7 @@ class Message
 
       $this->Commit = new Commit((int)$message['commit_id']);
       $this->Files = getFilesByMessage($this->id);
-    }
-
-    // Пересылание сообщения
-    else if ($count_args == 4) {
+    } else if ($count_args == 4) {
       $assignment_id = $args[0];
 
       $this->type = $args[1];

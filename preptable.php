@@ -260,7 +260,7 @@ if ($scripts) echo $scripts;
                                     <?php } ?>
                                   </td>
                                 <?php } else { ?>
-                                  <td onclick="answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,<?= $Task->max_mark ?>)" style="cursor: pointer;" data-title="Оценить задание">
+                                  <td onclick="answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,<?= $Task->max_mark ?>); chooseAssignment(<?= $Assignment->id ?>);" style="cursor: pointer;" data-title="Оценить задание">
                                     <?php if ($Assignment->mark != null) {
                                       echo $Assignment->mark;
                                     } ?>
@@ -452,7 +452,6 @@ if ($scripts) echo $scripts;
   </div>
 
 
-
   <!-- Modal dialog mark -->
   <div class="modal fade" id="dialogMark" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
     <form id="form-mark" class="needs-validation">
@@ -497,6 +496,33 @@ if ($scripts) echo $scripts;
   </div>
 
 
+  <div class="modal fade" id="dialogCheckTask" tabindex="-1" aria-labelledby="dialogCheckTask" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="dialogCheckTask-h5-title" class="modal-title">
+            Оценить задание
+          </h5>
+          <button type="button" class="btn-close me-2" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex flex-row justify-content-end my-1">
+            <div class="file-input-wrapper me-1">
+              <select id="dialogCheckTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+              </select>
+            </div>
+            <button id="button-check" class="btn btn-success" target="_blank" type="submit" name="submit-check" style="width: 100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+              </svg>&nbsp;&nbsp;Оценить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="modal fade" id="dialogAssignment" tabindex="-1" aria-labelledby="dialogMarkLabel" aria-hidden="true">
     <form id="form-mark" class="needs-validation">
 
@@ -507,7 +533,7 @@ if ($scripts) echo $scripts;
             <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Закрыть</button>
+            <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">Закрыть</button>
             <button type="submit" class="btn btn-primary">Назначить</button>
           </div>
         </div>
@@ -651,8 +677,35 @@ function generate_message_for_student_task_commit($task_title)
 
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/preptable.js"></script>
+<script type="text/javascript" src="js/AssignmentHandler.js"></script>
 
 <script type="text/javascript">
+  var CHOOSED_ASSIGNMENT_ID = null;
+  var USER_ID = <?= $User->id ?>;
+
+  function chooseAssignment(assignment_id) {
+    CHOOSED_ASSIGNMENT_ID = assignment_id;
+  }
+
+  $('#button-check').on('click', function() {
+    let selected_mark = $('#dialogCheckTask-select-mark').val();
+    if (selected_mark != -1)
+      markAssignment(selected_mark);
+    else
+      alert("Не выбрана оценка!");
+  });
+
+  function markAssignment(mark) {
+    if (CHOOSED_ASSIGNMENT_ID != null) {
+      let ajaxResponse = ajaxAssignmentMark(CHOOSED_ASSIGNMENT_ID, mark, USER_ID);
+      if (ajaxResponse != null) {} else {
+        alert("Неудалось оценить задание.");
+      }
+    } else {
+      alert("Произошла ошибка!");
+    }
+  }
+
   function ajaxChangeVisibility(assignment_id, new_visibility) {
 
     var formData = new FormData();

@@ -568,11 +568,6 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
     });
 
 
-    async function deleteAssignment() {
-      const res = await ajaxChangeVisibility('delete');
-    }
-
-
     function confirmRejectAssignment(form_id) {
       $('#dialogMark').modal('show');
 

@@ -211,8 +211,20 @@ class Assignment
 
     $this->variant_number = $variant_number;
 
-    $query = "UPDATE ax_assignment SET variant_number = $variant_number WHERE id = $this->id";
+    $query = "UPDATE ax_assignment SET variant_number = $variant_number WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  public function setMark($mark)
+  {
+    global $dbconnect;
+
+    $this->mark = $mark;
+
+    $query = "UPDATE ax_assignment SET mark = '$mark', status = 4, status_text = 'выполнено' 
+              WHERE id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
+    $this->setStatus(4);
   }
 
   // -- END SETTERS
