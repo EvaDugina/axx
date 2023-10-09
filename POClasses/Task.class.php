@@ -350,7 +350,9 @@ class Task
   }
   public function getConversationAssignment()
   {
-    return $this->getAssignments()[0];
+    if (count($this->getAssignments()) > 0)
+      return $this->getAssignments()[0];
+    return null;
   }
 
   // -- END WORK WITH ASSIGNMENT

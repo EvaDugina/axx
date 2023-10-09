@@ -306,7 +306,7 @@ if ($scripts) echo $scripts;
                         &nbsp; СОЗДАТЬ ОБЩУЮ БЕСЕДУ
                       </button>
                     </form>
-                  <?php } else { ?>
+                  <?php } else if ($Page->getConversationTask()->getConversationAssignment() != null) { ?>
                     <button class="btn btn-outline-primary px-3 d-flex" onclick="window.location='taskchat.php?assignment=<?= $Page->getConversationTask()->getConversationAssignment()->id ?>'">
                       <?php getSVGByTaskType(2); ?>
                       &nbsp; БЕСЕДА ПРЕДМЕТА
@@ -706,18 +706,18 @@ function generate_message_for_student_task_commit($task_title)
   $('#button-check').on('click', function() {
     let selected_mark = $('#dialogCheckTask-select-mark').val();
     if (selected_mark != -1) {
-      markAssignment(selected_mark);
+      markAssignment(CHOOSED_ASSIGNMENT_ID, selected_mark);
     } else
       alert("Не выбрана оценка!");
   });
 
-  function markAssignment(mark) {
-    if (CHOOSED_ASSIGNMENT_ID != null) {
+  function markAssignment(assignment_id, mark) {
+    if (assignment_id != null) {
       $('#spinner-mark').removeClass("d-none");
-      let ajaxResponse = ajaxAssignmentMark(CHOOSED_ASSIGNMENT_ID, mark, USER_ID);
+      let ajaxResponse = ajaxAssignmentMark(assignment_id, mark, USER_ID);
       $('#spinner-mark').addClass("d-none");
       if (ajaxResponse != null) {
-        $('#span-assignmentMark-' + CHOOSED_ASSIGNMENT_ID).text(mark);
+        $('#span-assignmentMark-' + assignment_id).text(mark);
         $('#dialogCheckTask').modal("hide");
       } else {
         alert("Неудалось оценить задание.");

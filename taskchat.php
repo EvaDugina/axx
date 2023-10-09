@@ -370,7 +370,7 @@ $task_number = explode('.', $task_title)[0];
               <?php
               $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
               $conversationTask = $Page->getConversationTask();
-              if ($conversationTask && !$Task->isConversation()) { ?>
+              if ($conversationTask && !$Task->isConversation() && $conversationTask->getConversationAssignment() != null) { ?>
             <li>
               <a class="dropdown-item" role="button" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
                 В общую беседу
@@ -386,7 +386,7 @@ $task_number = explode('.', $task_title)[0];
                 <?php
                 $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
                 $conversationTask = $Page->getConversationTask();
-                if ($conversationTask && !$Task->isConversation()) { ?>
+                if ($conversationTask && !$Task->isConversation() && $conversationTask->getConversationAssignment() != null) { ?>
                   <li>
                     <a class="dropdown-item" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
                       В общую беседу

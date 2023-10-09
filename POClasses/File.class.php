@@ -323,7 +323,14 @@ class File
 
   // -- END WORK WITH FILE
 
+}
 
+function getCompressedFileName($file_name, $num_symbols = 20)
+{
+  $len = mb_strlen($file_name, 'UTF-8');
+  if (mb_strlen($file_name, 'UTF-8') > $num_symbols)
+    return mb_substr($file_name, 0, $num_symbols, 'UTF-8') . "...";
+  return $file_name;
 }
 
 
