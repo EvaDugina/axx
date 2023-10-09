@@ -275,7 +275,7 @@ $task_number = explode('.', $task_title)[0];
               </div>
               <span id="span-answer-date"><?php if ($task_finish_date_time) echo $task_finish_date_time; ?></span><br>
               <span id="span-text-mark"><?php if ($Assignment->isMarked()) { ?>
-                  Оценка: <b id="b-mark"><?= $task_mark ?></b>
+                  Оценка: <b id="b-mark"><?= $Assignment->mark ?></b>
                 <?php } ?>
               </span>
             </div>
@@ -503,7 +503,7 @@ $task_number = explode('.', $task_title)[0];
             alert("Для проверки задания необходимо выбрать оценку!");
             return false;
           } else {
-            var userMessage = "Задание проверено.\nОценка: " + mark;
+            var userMessage = "Задание оценено! Оценка: " + mark;
             if (sendMessage(userMessage, null, 2, parseInt(mark))) {
               // console.log("Сообщение было успешно отправлено");
             }

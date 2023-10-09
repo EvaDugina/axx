@@ -4,6 +4,7 @@
 
 require_once("common.php");
 require_once("utilities.php");
+require_once("strings.php");
 
 if (isset($_POST['changeVisibility'])) {
 
@@ -302,12 +303,13 @@ if (isset($_POST['flag-markAssignment']) && isset($_POST['assignment_id']) && is
   $mark = $_POST['mark'];
   $Assignment->setMark($mark);
 
-  $message_text = "Задание оценено! Оценка: " + $mark + "\n";
-  if (isset($_POST['message_text'])) {
+  $message_text = getMessageAssignmentCompleted($mark);
+  if (isset($_POST['message_text']) && $_POST['message_text'] != "") {
     $message_text = "Комментарий проеподавателя: \n" + $_POST['message_text'];
   }
 
   $Message = new Message((int)$Assignment->id, 2, $User->id, $User->role);
+  $Message->setFullText($message_text);
   $Assignment->addMessage($Message->id);
 }
 

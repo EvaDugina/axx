@@ -131,6 +131,16 @@ class Message
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function setFullText($full_text)
+  {
+    global $dbconnect;
+
+    $this->full_text = $full_text;
+
+    $query = "UPDATE ax_message SET full_text = \$accel\$$this->full_text\$accel\$ WHERE ax_message.id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
   // -- END SETTERS
 
 
