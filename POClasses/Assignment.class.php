@@ -11,7 +11,10 @@ class Assignment
   public $id = null;
   public $variant_number = null;
   public $start_limit = null, $finish_limit = null;
-  public $visibility = null, $visibility_text = null;
+
+  public $visibility = null, $visibility_text = null; // то же самое, что и "status_code" и "status_text" в БД
+  // 0 - недоступно для просмотра, 2 - доступно для просмотра, 4 - отменено
+
   public $delay = null; // не понятно, зачем нужно
   public $mark = null;
   public $status = null; // -1 - недоступно для выполнения, 0 - ожидает выполнения, 1 - ожидает проверки, 2 - проверено, не оценено, 3 - ожидает повторной проверки, 4 - оценено
@@ -35,7 +38,22 @@ class Assignment
 
     // Перегружаем конструктор по количеству подданых параметров
 
-    if ($count_args == 1) {
+    if ($count_args == 0) {
+      $this->id = null;
+
+      $this->variant_number = null;
+
+      $this->start_limit = null;
+      $this->finish_limit = null;
+
+      $this->visibility = 2;
+      $this->visibility_text = visibility_to_text($this->visibility);
+      $this->status = 0;
+
+      $this->delay = null;
+      $this->mark = null;
+      $this->checks = null;
+    } else if ($count_args == 1) {
       $this->id = (int)$args[0];
 
       $query = queryGetAssignmentInfo($this->id);
@@ -63,14 +81,14 @@ class Assignment
       $this->Messages = getMessagesByAssignment($this->id);
       $this->Commits = getCommitsByAssignment($this->id);
     } else if ($count_args == 2) {
-      $task_id = $args[0];
+      $task_id = (int)$args[0];
       $this->visibility = $args[1];
       $this->visibility_text = visibility_to_text($this->visibility);
       $this->status = 0;
 
       $this->pushNewEmptyToDB($task_id);
     } else if ($count_args == 3) {
-      $task_id = $args[0];
+      $task_id = (int)$args[0];
       $this->visibility = $args[1];
       $this->visibility_text = visibility_to_text($this->visibility);
       $this->status = $args[2];

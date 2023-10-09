@@ -25,14 +25,12 @@ if ((!isset($_GET['assignment_id']) || !is_numeric($_GET['assignment_id']))
 $isNewAssignment = false;
 if (isset($_GET['assignment_id'])) {
   $isNewAssignment = false;
-  echo ("<script>var isNewAssignment=false</script>");
   $Assignment = new Assignment((int)$_GET['assignment_id']);
   $Task = new Task((int)getTaskByAssignment($Assignment->id));
 } else {
   $isNewAssignment = true;
-  echo ("<script>var isNewAssignment=true;</script>");
   $Task = new Task((int)$_GET['task_id']);
-  $Assignment = new Assignment($Task->id, 0);
+  $Assignment = new Assignment();
 }
 
 
@@ -87,8 +85,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
               <?php } ?>
 
 
-
-              <div class="d-flex">
+              <!-- <div class="d-flex">
                 <div class="me-2 pe-2" style="border-right: 1px solid; border-color:var(--mdb-gray-400); cursor: help;">
                   <button class="btn btn-outline-<?= !$Assignment->isCompleteable() ? 'primary' : 'light' ?> px-3 me-1 btn-assignment-status" id="btn-assignment-status--1" onclick="ajaxChangeStatus(-1)" <?= $Assignment->isCompleteable() ? 'style="color: var(--mdb-gray-400);"' : '' ?> data-title="<?= !$Assignment->isCompleteable() ? '' : 'Изменить статус назначения на:' ?> <?= status_to_text(-1) ?>">
                     <?php getSVGByAssignmentStatus(-1); ?>
@@ -114,13 +111,14 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     <?php getSVGByAssignmentVisibility(4); ?>
                   </button>
                 </div>
-              </div>
+              </div> -->
+
             </div>
 
             <?php foreach ($Assignment->getStudents() as $Student) { ?>
               <div class="d-flex align-items-center">
                 <span><?= $Student->getFI() ?>
-                  <?php if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
+                  <?php if ($Assignment->finish_limit != null && checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
                     echo " (до $Assignment->finish_limit)";
                   else
                     echo " (бессрочно)"; ?>
@@ -132,8 +130,16 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
 
 
             <form id="checkparam" name="checkparam" class="" action="taskassign_action.php" method="POST" enctype="multipart/form-data">
-              <input type="hidden" name="assignment_id" value="<?= $Assignment->id ?>">
-              <input type="hidden" name="from" value="<?= $_SERVER['HTTP_REFERER'] ?>">
+              <?php if ($Assignment->id != null) { ?>
+                <input type="hidden" name="assignment_id" value="<?= $Assignment->id ?>">
+              <?php } else { ?>
+                <input type="hidden" name="flag-createAssignment" value="true">
+              <?php } ?>
+
+              <input type="hidden" name="task_id" value="<?= $Task->id ?>">
+
+              <input type="hidden" name="action" value="save">
+              <!-- <input type="hidden" name="from" value="<?= $_SERVER['HTTP_REFERER'] ?>"> -->
 
               <h5><i class="fas fa-users fa-lg" aria-hidden="true"></i> Исполнители</h5>
 
@@ -246,7 +252,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                 <section class="w-100 py-2 d-flex justify-content-center">
                   <div class="w-100">
                     <div class="form-outline datetimepicker me-3">
-                      <input type="date" class="form-control active" name="fromtime" id="fromtime" style="margin-bottom: 0px;" value="<?= checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) ?>">
+                      <input type="date" class="form-control active" name="fromtime" id="fromtime" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) : "" ?>">
                       <label for="fromtime" class="form-label" style="margin-left: 0px;">Дата начала</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -256,7 +262,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     </div>
 
                     <div class="form-outline datetimepicker mt-3 me-3">
-                      <input id="input-startTime" type="time" name="start_time" class="form-control active" style="margin-bottom: 0px;" value="<?= (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) == "") ? "00:00" : convert_timestamp_to_date($Assignment->getStartTime(), "H:i") ?>">
+                      <input id="input-startTime" type="time" name="start_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit == null || (checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) == "")) ? "00:00" : convert_timestamp_to_date($Assignment->getStartTime(), "H:i") ?>">
                       <label for="input-startTime" class="form-label" style="margin-left: 0px;">Время начала</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -269,7 +275,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
 
                   <div class="w-100">
                     <div class="form-outline datetimepicker">
-                      <input type="date" class="form-control active" name="tilltime" id="tilltime" style="margin-bottom: 0px;" value="<?= checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) ?>">
+                      <input type="date" class="form-control active" name="tilltime" id="tilltime" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) : "" ?>">
                       <label for="tilltime" class="form-label" style="margin-left: 0px;">Дата окончания</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -279,7 +285,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     </div>
 
                     <div class="form-outline datetimepicker mt-3">
-                      <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="<?= (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) == "") ? "23:59" : convert_timestamp_to_date($Assignment->getEndTime(), "H:i") ?>">
+                      <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit == null || (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) == "")) ? "23:59" : convert_timestamp_to_date($Assignment->getEndTime(), "H:i") ?>">
                       <label for="input-endTime" class="form-label" style="margin-left: 0px;">Время окончания</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -298,7 +304,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                   <path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.32a.33.33 0 0 0-.342.338v.041zM2.564 5h-.635V2.924h-.031l-.598.42v-.567l.629-.443h.635V5z" />
                 </svg> Вариант</h5>
               <div class="ps-5 mb-4">
-                <input id="variant" name="variant" class="w-100" value="<?= $Assignment->variant_number ?>" wrap="off" rows="1">
+                <input id="variant" name="variant" class="w-100" value="<?= ($Assignment->variant_number != null) ? $Assignment->variant_number : "" ?>" wrap="off" rows="1">
               </div>
 
               <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sliders2" viewBox="0 0 16 16">
@@ -554,19 +560,6 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
   </div>
 
   <script type="text/javascript">
-    // BUG: Не срабатывает, если не сделать на странице никакого действия, даже прокрутки
-    // if (isNewAssignment) {
-    //   // Автоматически удаляем Assignment
-    //   window.onbeforeunload = function(event) {
-    //     deleteAssignment();
-    //     return "";
-    //   };
-    // }
-
-    // $('#checks-save').click(function() {
-    //   window.onbeforeunload = null;
-    // });
-
     $('#input-endTime').on("blur", function() {
       $(this).addClass("active");
     });
