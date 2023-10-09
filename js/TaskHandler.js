@@ -39,13 +39,11 @@ function ajaxTaskCreate(page_id) {
 
 
 
-function ajaxTaskSave(task_id, status = null, new_title = null, new_type = null, new_description = null, new_codeTest = null, new_codeCheck = null) {
+function ajaxTaskSave(task_id, new_title = null, new_type = null, new_description = null, new_codeTest = null, new_codeCheck = null) {
     var formData = new FormData();
 
 
     formData.append('task_id', task_id);
-    if (status != null)
-        formData.append('status', status);
     formData.append('action', 'save');
 
     if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null)

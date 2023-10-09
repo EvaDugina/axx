@@ -77,8 +77,8 @@ show_head("Добавление\Редактирование задания", ar
 
             <div class="pt-3">
               <div class="form-outline">
-                <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()"></input>
-                <label id="label-input-title" class="form-label" for="input-title">Название задания</label>
+                <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()" placeholder="Задание <?= (count($Page->getTasks()) + 1) ?>."></input>
+                <label id=" label-input-title" class="form-label" for="input-title">Название задания</label>
                 <div id="div-border-title" class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>
                   <div class="form-notch-middle" style="width: 114.4px;"></div>
@@ -569,8 +569,6 @@ show_head("Добавление\Редактирование задания", ar
       TASK_ID = ajaxTaskCreate(PAGE_ID);
       if (TASK_ID == null)
         alert("Не удалось сохранить задание!");
-      if (initiator != "saveTask()" && initiator != "archiveTask()" && initiator != "reArchiveTask()")
-        saveTask();
       return TASK_ID;
     } else
       return -1;
@@ -580,7 +578,7 @@ show_head("Добавление\Редактирование задания", ar
     return TASK_ID != null && TASK_ID != -1;
   }
 
-  function saveTask(status = null) {
+  function saveTask() {
 
     let task_id = getTaskId("saveTask()");
     if (task_id == -1)
@@ -610,9 +608,12 @@ show_head("Добавление\Редактирование задания", ar
       original_codeCheck = new_codeCheck;
     }
 
+    if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null)
+      return;
+
     $('#spinner-save').removeClass("d-none");
 
-    let ajaxResponse = ajaxTaskSave(task_id, status, new_title, new_type, new_description, new_codeTest, new_codeCheck);
+    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_description, new_codeTest, new_codeCheck);
     $('#spinner-save').addClass("d-none");
 
     if (ajaxResponse != null) {
@@ -738,7 +739,12 @@ show_head("Добавление\Редактирование задания", ar
           "type": 0
         });
       });
+    } else {
+      return;
     }
+
+    saveTask();
+
   }
 
   function deleteFile(task_id, file_id, file_name) {
@@ -756,7 +762,10 @@ show_head("Добавление\Редактирование задания", ar
       // previous_file_types.splice(file_id, 1);
     } else {
       alert("Не удалость удалить файл.");
+      return;
     }
+
+    saveTask();
   }
 
   function changeFileVisibility(task_id, file_id) {
@@ -770,7 +779,10 @@ show_head("Добавление\Редактирование задания", ar
       }
     } else {
       alert("Не удалость сменить видимость файла.");
+      return;
     }
+
+    saveTask();
   }
 
   function changeFileType(event, task_id, file_id, file_name) {
@@ -799,7 +811,10 @@ show_head("Добавление\Редактирование задания", ar
     } else {
       alert("Не удалость сменить тип файла.");
       $('#select-taskFileType-' + file_id).val(array_files[index].type);
+      return;
     }
+
+    saveTask();
   }
 
 
