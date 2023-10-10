@@ -137,6 +137,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
               <?php } ?>
 
               <input type="hidden" name="task_id" value="<?= $Task->id ?>">
+              <input type="hidden" name="page_id" value="<?= $Page->id ?>">
 
               <input type="hidden" name="action" value="save">
               <!-- <input type="hidden" name="from" value="<?= $_SERVER['HTTP_REFERER'] ?>"> -->

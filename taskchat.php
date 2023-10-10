@@ -854,6 +854,7 @@ $task_number = explode('.', $task_title)[0];
         cache: false,
         contentType: false,
         processData: false,
+        async: false,
         data: formData,
         dataType: 'html',
         success: function(response) {
@@ -874,7 +875,7 @@ $task_number = explode('.', $task_title)[0];
       });
 
 
-      return true;
+      document.location.href = "taskchat.php?assignment=" + assignment_id;
     }
 
     function deleteMessages(assignment_id, user_id) {

@@ -170,7 +170,7 @@ class File
   }
   private function setNameInUpload($new_file_name_with_prefix)
   {
-    $new_download_url = getPathForUploadFiles() . $new_file_name_with_prefix;
+    $new_download_url = getUploadFileDir() . $new_file_name_with_prefix;
     setFileNameByPath($this->download_url, $new_download_url);
     $this->setDownloadUrl($new_download_url);
   }
@@ -343,7 +343,7 @@ class File
     if (isInUploadDir($File->download_url)) {
       // $this->name_without_prefix = $File->name_without_prefix;
       // $this->name = addRandomPrefix($File->name_without_prefix);
-      // $this->download_url = getPathForUploadFiles() . $this->name;
+      // $this->download_url = getUploadFileDir() . $this->name;
       $this->name = $File->name_without_prefix;
       $this->name_without_prefix = $File->name_without_prefix;
       $this->download_url = "";
@@ -366,7 +366,7 @@ class File
 
   function createFileInUpload($full_text)
   {
-    $file_dir = getPathForUploadFiles();
+    $file_dir = getUploadFileDir();
     $file_path = $file_dir . $this->name;
 
     $myfile = fopen($file_path, "w") or die("Unable to open file!");
@@ -407,7 +407,7 @@ function randPrefix()
   return time() . mt_rand(0, 9999) . mt_rand(0, 9999) . '_';
 }
 
-function getPathForUploadFiles()
+function getUploadFileDir()
 {
   return 'upload_files/';
 }
@@ -475,7 +475,7 @@ function convertWebFilesToFiles($name_files)
 
 function isInUploadDir($download_url)
 {
-  return strpos($download_url, getPathForUploadFiles()) !== false;
+  return strpos($download_url, getUploadFileDir()) !== false;
 }
 
 
@@ -495,7 +495,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
   $File = new File($type, $file_name);
 
   $file_ext = $File->getExt();
-  $file_dir = getPathForUploadFiles();
+  $file_dir = getUploadFileDir();
   $file_path = $file_dir . $File->name;
 
   // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir

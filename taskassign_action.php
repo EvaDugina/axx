@@ -291,6 +291,8 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
 
   if (isset($_POST['from']))
     header('Location:' . $_POST['from']);
+  else if (isset($_POST['page_id']))
+    header('Location: preptasks.php?page=' . $_POST['page_id']);
   else
     header('Location: taskassign.php?assignment_id=' . $Assignment->id);
   exit();

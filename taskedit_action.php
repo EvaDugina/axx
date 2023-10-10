@@ -64,7 +64,7 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
 
   // В задании не может быть несколько файлов автоматической проверки
   if (($file_type == 2 || $file_type == 3)  && count($Task->getFilesByType($file_type)) > 0) {
-    echo "ERROR TYPE: CODE_TEST";
+    echo "ERROR: NO_MORE_FILES_CODE";
     exit();
   }
 
@@ -72,7 +72,10 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
   // $Task = new Task((int)$_POST['task_id']);
   $File = $Task->getFileById((int)$file_id);
   if ($File->isInUploadDir() && $file_type == 1) {
-    echo "ERROR TYPE: CODE_PROJECT";
+    echo "ERROR: EXT_FOR_CODE_PROJECT";
+    exit();
+  } else if ($File->isInUploadDir() && ($file_type == 2 || $file_type == 3)) {
+    echo "ERROR: EXT_FOR_CODE_TEST";
     exit();
   }
 

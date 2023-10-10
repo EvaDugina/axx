@@ -153,7 +153,7 @@ show_head("Добавление\Редактирование задания", ar
           </table>
 
           <div class="d-flex">
-            <button id="submit-save" class="btn btn-outline-success d-flex align-items-center" onclick="saveTask()">
+            <button id="submit-save" class="btn btn-outline-success d-flex align-items-center" onclick="saveTask(); document.location.href='preptasks.php?page=<?= $Page->id ?>';">
               Сохранить &nbsp;
               <div id="spinner-save" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
@@ -790,7 +790,8 @@ show_head("Добавление\Редактирование задания", ar
     if (response != null) {
       if ("svg" in response) {
         if (new_type == 2 || new_type == 3) {
-          document.location.href = "taskedit.php?task=" + task_id;
+          saveTask();
+          // document.location.href = "taskedit.php?task=" + task_id;
         }
 
         $('#span-fileType-' + file_id).html(response['svg']);
@@ -800,12 +801,20 @@ show_head("Добавление\Редактирование задания", ar
         $('#select-taskFileType-' + file_id).val(array_files[index].type);
 
         if ("error" in response) {
-          if (new_type == 1)
+          if (response["error"] == "EXT_FOR_CODE_TEST") {
+            if (new_type == 2)
+              alert("Файл с таким расширением не может быть прикреплён в качестве кода теста.");
+            else
+              alert("Файл с таким расширением не может быть прикреплён в качестве кода проверки теста.");
+          } else if (response["error"] == "EXT_FOR_CODE_PROJECT")
             alert("Файл с таким расширением не может быть прикреплён в качестве исходного кода.");
-          else if (new_type == 2)
-            alert("В задании не может быть двух файлов Кода теста.");
-          else
-            alert("В задании не может быть двух файлов Кода проверки.");
+          else if (response["error"] == "NO_MORE_FILES_CODE") {
+            if (new_type == 2)
+              alert("В задании не может быть двух файлов Кода теста.");
+            else
+              alert("В задании не может быть двух файлов Кода проверки.");
+
+          }
         }
 
 
