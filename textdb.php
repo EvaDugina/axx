@@ -122,45 +122,73 @@ else if ($file_id != 0) {
 //-----------------------------------------------------------------OPEN-------------------------------------------------------
 if ($type == "open") {
 
-  $responce = "Коммит $commit_id файла $file_name не найден";
-
-  // выбираем файл по названию и номеру коммита
-  $result = pg_query($dbconnect, "SELECT ax_file.id, ax_file.file_name, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
-  $result = pg_fetch_all($result);
-  foreach ($result as $item) {
-    if ($item['id'] == $file_id) {
-      header('Content-Type: text/plain');
-      $responce = $item['full_text'];
-    }
-  }
-}
-
-//-----------------------------------------------------------------SAVE-------------------------------------------------------
-else if ($type == "save") {
-
-  $id = 0;
-  $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
-  $result = pg_fetch_assoc($result);
-  if (count($result) > 0)
-    $id = $result['id'];
-  else if (array_key_exists('likeid', $_REQUEST))
-    $id = urldecode($_REQUEST['likeid']);
-  else if (array_key_exists('id', $_REQUEST))
-    $id = $file_id;
-  else {
+  // $responce = "Коммит $commit_id файла $file_name не найден";
+  if (array_key_exists('id', $_REQUEST)) {
+    $file_id = urldecode($_REQUEST['id']);
+  } else {
     echo "Некорректное обращение";
     http_response_code(400);
     exit;
   }
 
-  if (array_key_exists('file', $_REQUEST)) {
-    $file = $_REQUEST['file'];
-    pg_query($dbconnect, 'UPDATE ax_file SET full_text=$accelquotes$' . $file . '$accelquotes$, file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
+  $File = new File($file_id);
+  header('Content-Type: text/plain');
+  $responce = $File->getFullText();
+
+  // выбираем файл по названию и номеру коммита
+  // $result = pg_query($dbconnect, "SELECT ax_file.id, ax_file.file_name, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+  // $result = pg_fetch_all($result);
+  // foreach ($result as $item) {
+  //   if ($item['id'] == $file_id) {
+  //     header('Content-Type: text/plain');
+  //     $responce = $item['full_text'];
+  //   }
+  // }
+}
+
+//-----------------------------------------------------------------SAVE-------------------------------------------------------
+else if ($type == "save") {
+
+  if (array_key_exists('likeid', $_REQUEST)) {
+    $File = new File(urldecode($_REQUEST['likeid']));
+  } else if ($commit_id != 0) {
+    $Commit = new Commit($commit_id);
+    $File = $Commit->getFileByName($file_name);
   } else {
-    pg_query($dbconnect, 'UPDATE ax_file SET file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
+    echo "Некорректное обращение";
+    http_response_code(400);
+    exit;
   }
 
-  $responce = $_REQUEST['file'];
+
+
+  // $id = 0;
+  // $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+  // $result = pg_fetch_assoc($result);
+  // if (count($result) > 0)
+  //   $id = $result['id'];
+  // else if (array_key_exists('likeid', $_REQUEST))
+  //   $id = urldecode($_REQUEST['likeid']);
+  // else if (array_key_exists('id', $_REQUEST))
+  //   $id = $file_id;
+  // else {
+  //   echo "Некорректное обращение";
+  //   http_response_code(400);
+  //   exit;
+  // }
+
+  if (array_key_exists('file', $_REQUEST)) {
+    $file_text = $_REQUEST['file'];
+    if ($file_name != $File->name_without_prefix)
+      $File->setName(true, $file_name);
+    $File->setFullText($file_text);
+    // pg_query($dbconnect, 'UPDATE ax_file SET full_text=$accelquotes$' . $file . '$accelquotes$, file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
+  } else {
+    $File->setName(true, $file_name);
+    // pg_query($dbconnect, 'UPDATE ax_file SET file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
+  }
+
+  $responce = $File->getFullText();
 }
 
 //-----------------------------------------------------------------NEW--------------------------------------------------------

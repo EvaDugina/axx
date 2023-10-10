@@ -281,6 +281,14 @@ class Commit
     }
     return null;
   }
+  public function getFileByName($file_name)
+  {
+    foreach ($this->Files as $File) {
+      if ($File->name_without_prefix == $file_name)
+        return $File;
+    }
+    return null;
+  }
 
   private function pushFileToCommitDB($file_id)
   {
@@ -293,13 +301,13 @@ class Commit
   {
     global $dbconnect;
 
-    $query = "";
     if (!empty($Files)) {
+      $query = "";
       foreach ($Files as $File) {
         $query .= "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $File->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteFileFromCommitDB($file_id)
   {

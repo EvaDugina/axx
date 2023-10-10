@@ -132,26 +132,47 @@ class File
     return $this->type == 3;
   }
 
+  function isInUploadDir()
+  {
+    return $this->download_url != null && isInUploadDir($this->download_url);
+  }
+
 
   // -- END GETTERS
 
   // SETTERS
 
-  public function setName($textIsOnDB, $name)
+  public function setName($isWithoutPrefix, $name)
   {
     global $dbconnect;
 
-    $this->name = $name;
-    if ($textIsOnDB)
-      $this->name_without_prefix = $this->name;
-    else
+    if ($isWithoutPrefix) {
+      if ($this->isInUploadDir()) {
+        $this->name = addRandomPrefix($name);
+      } else {
+        $this->name = $name;
+      }
+      $this->name_without_prefix = $name;
+    } else {
+      $this->name = $name;
       $this->name_without_prefix = deleteRandomPrefix($this->name);
+    }
 
-    $query = "UPDATE ax_file SET file_name = '$this->name'
+    if ($this->isInUploadDir()) {
+      $this->setNameInUpload($this->name);
+    }
+
+    $query = "UPDATE ax_file SET file_name = \$antihype1\$$this->name\$antihype1\$
                 WHERE id = $this->id;
     ";
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+  private function setNameInUpload($new_file_name_with_prefix)
+  {
+    $new_download_url = getPathForUploadFiles() . $new_file_name_with_prefix;
+    setFileNameByPath($this->download_url, $new_download_url);
+    $this->setDownloadUrl($new_download_url);
   }
 
   public function setDownloadUrl($download_url)
@@ -169,19 +190,22 @@ class File
   {
     global $dbconnect;
 
-    $this->full_text = $full_text;
-    $query = "UPDATE ax_file SET full_text = \$antihype1\$$this->full_text\$antihype1\$
-                WHERE id = $this->id;
-    ";
+    if (!$this->isInUploadDir()) {
+      if ($this->full_text != $full_text)
+        $this->full_text = $full_text;
+      $query = "UPDATE ax_file SET full_text = \$antihype1\$$this->full_text\$antihype1\$
+                  WHERE id = $this->id;
+      ";
 
-    pg_query($dbconnect, $query) or pg_query($dbconnect, mb_convert_encoding($query, 'UTF-8', 'CP1251')) or die('Ошибка запроса: ' . pg_last_error());
-  }
-  public function editFullText($full_text)
-  {
-    if ($this->download_url != null) {
-      return setFileFullTextByPath($this->download_url, $full_text);
+      pg_query($dbconnect, $query) or pg_query($dbconnect, mb_convert_encoding($query, 'UTF-8', 'CP1251')) or die('Ошибка запроса: ' . pg_last_error());
     } else {
-      $this->setFullText($full_text);
+      $this->setFullTextInUpload($full_text);
+    }
+  }
+  private function setFullTextInUpload($full_text)
+  {
+    if ($this->getFullText() != $full_text) {
+      setFileFullTextByPath($this->download_url, $full_text);
     }
   }
   public function setType($type)
@@ -240,7 +264,7 @@ class File
       ";
     } else {
       $query = "INSERT INTO ax_file (type, visibility, file_name, status) 
-                VALUES ($this->type, $this->visibility, '$this->name', $this->status) 
+                VALUES ($this->type, $this->visibility, \$antihype1\$$this->name\$antihype1\$, $this->status) 
                 RETURNING id;
       ";
     }
@@ -255,12 +279,12 @@ class File
     global $dbconnect;
 
     if (isset($this->download_url)) {
-      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = '$this->name', 
+      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = \$antihype1\$$this->name\$antihype1\$, 
                 download_url = '$this->download_url'
                 WHERE id = $this->id;
       ";
     } else if (isset($this->full_text)) {
-      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = '$this->name',  
+      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = \$antihype1\$$this->name\$antihype1\$,  
                 full_text = \$antihype1\$$this->full_text\$antihype1\$
                 WHERE id = $this->id;
       ";
@@ -274,13 +298,14 @@ class File
   {
     global $dbconnect;
 
-    if ($this->full_text == null && $this->download_url != null) {
+    if ($this->isInUploadDir()) {
       $query = "UPDATE ax_file
-                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
+                SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name\$antihype1\$, 
                 download_url='$this->download_url', full_text=null, status=$this->status
                 WHERE id = $this->id;
       ";
-    } else if ($this->full_text != null && $this->download_url == null) {
+    } else if ($this->full_text != null) {
+      $this->full_text = mb_convert_encoding($this->full_text, "UTF-8");
       $query = "UPDATE ax_file
                 SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
                 full_text=\$antihype1\$$this->full_text\$antihype1\$, download_url=null, status=$this->status 
@@ -312,13 +337,43 @@ class File
     $File = new File((int)$file_id);
 
     $this->type = $File->type;
-    $this->name = $File->name;
-    $this->download_url = $File->download_url;
-    $this->full_text = $File->full_text;
+
     $this->status = $File->status;
-    $this->name_without_prefix = $File->name_without_prefix;
+
+    if (isInUploadDir($File->download_url)) {
+      // $this->name_without_prefix = $File->name_without_prefix;
+      // $this->name = addRandomPrefix($File->name_without_prefix);
+      // $this->download_url = getPathForUploadFiles() . $this->name;
+      $this->name = $File->name_without_prefix;
+      $this->name_without_prefix = $File->name_without_prefix;
+      $this->download_url = "";
+      // $this->full_text = $File->getFullText();
+      $this->full_text = "";
+    } else {
+      $this->name = $File->name;
+      $this->name_without_prefix = $File->name_without_prefix;
+      $this->download_url = "";
+      $this->full_text = $File->full_text;
+    }
 
     $this->pushAllChangesToDB();
+
+    // Если файлы на сервере
+    if ($this->isInUploadDir()) {
+      $this->createFileInUpload($File->getFullText());
+    }
+  }
+
+  function createFileInUpload($full_text)
+  {
+    $file_dir = getPathForUploadFiles();
+    $file_path = $file_dir . $this->name;
+
+    $myfile = fopen($file_path, "w") or die("Unable to open file!");
+    fwrite($myfile, $full_text);
+    fclose($myfile);
+
+    // $this->setName(false, $this->name);
   }
 
   // -- END WORK WITH FILE
@@ -379,6 +434,13 @@ function setFileFullTextByPath($file_path, $full_text)
   file_put_contents($file_path, $full_text);
 }
 
+function setFileNameByPath($file_last_path, $file_new_path)
+{
+  if (strpos($file_last_path, "editor.php?") !== false)
+    return "";
+  rename($file_last_path, $file_new_path);
+}
+
 function getFileContentByPath($file_path)
 {
   if (strpos($file_path, "editor.php?") !== false)
@@ -404,6 +466,17 @@ function convertWebFilesToFiles($name_files)
   return $files;
 }
 
+
+
+// function isInUploadDir($file_ext)
+// {
+//   return !in_array($file_ext, getSpecialFileTypes());
+// }
+
+function isInUploadDir($download_url)
+{
+  return strpos($download_url, getPathForUploadFiles()) !== false;
+}
 
 
 // Object это Message или Task 
@@ -435,7 +508,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
       $Object->addFile($File->id);
     } else { // Если файлы такого расширения надо хранить в БД, добавляем в БД полный текст файла
 
-      $File->setName(true, $File->name_without_prefix);
+      $File->setName(false, $File->name_without_prefix);
       $file_full_text = getFileContentByPath($file_path);
       $File->setFullText($file_full_text);
       $Object->addFile($File->id);
@@ -447,7 +520,6 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
     exit("Ошибка загрузки файла");
   }
 }
-
 
 
 

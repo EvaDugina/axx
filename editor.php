@@ -87,10 +87,10 @@ if ($last_commit_id != -1) {
   $nowCommit->addFiles($Task->getInitialCodeFiles());
 }
 
-foreach ($nowCommit->getFiles() as $File) {
-  $solution_file = array('id' => $File->id, 'file_name' => $File->name_without_prefix, 'text' => $File->getFullText());
-  array_push($solution_files, $solution_file);
-}
+// foreach ($nowCommit->getFiles() as $File) {
+//   $solution_file = array('id' => $File->id, 'file_name' => $File->name_without_prefix, 'text' => $File->getFullText());
+//   array_push($solution_files, $solution_file);
+// }
 
 if ($nowCommit->isNotEdit())
   $readOnly = "true";
@@ -161,55 +161,52 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               <?php } ?>
 
               <?php
-              if (count($solution_files) > 0) {
-                foreach ($solution_files as $i => $file) {
-                  $File = new File((int)$file['id']); ?>
-                  <li id="openFile" class="tasks__item list-group-item w-100 d-flex justify-content-between align-items-center px-0" style="cursor: pointer;" data-orderId="<?= $i ?>">
-                    <div class="px-1 align-items-center text-primary">
-                      <?= getSVGByFileType($File->type) ?>
-                    </div>
-                    <div style="width: 60%;">
-                      <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
-                    </div>
-                    <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
+              foreach ($nowCommit->getFiles() as $i => $File) { ?>
+                <li id="openFile" class="tasks__item list-group-item w-100 d-flex justify-content-between align-items-center px-0" style="cursor: pointer;" data-orderId="<?= $i ?>">
+                  <div class="px-1 align-items-center text-primary">
+                    <?= getSVGByFileType($File->type) ?>
+                  </div>
+                  <div style="width: 55%;">
+                    <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
+                  </div>
+                  <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
                   getSVGByCommitType($nowCommit->type)
                 </button> -->
-                    <div class="dropdown align-items-center h-100 ms-1 me-1" id="btn-group-moreActionsWithFile">
-                      <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile" data-mdb-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                          <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                        </svg>
-                      </button>
-                      <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">
-                        <?php if (!$nowCommit->isNotEdit()) { ?>
-                          <li>
-                            <a type="button" class="dropdown-item align-items-center" id="a-renameFile">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z" />
-                              </svg>
-                              &nbsp;
-                              Переименовать
-                            </a>
-                          </li>
-                        <?php } ?>
+                  <div class="dropdown align-items-center h-100 ms-1 me-1" id="btn-group-moreActionsWithFile">
+                    <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile" data-mdb-toggle="dropdown" aria-expanded="false">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                      </svg>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">
+                      <?php if (!$nowCommit->isNotEdit()) { ?>
                         <li>
-                          <a class="dropdown-item align-items-center" href="<?= $File->getDownloadLink() ?>" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-                              <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                          <a type="button" class="dropdown-item align-items-center" id="a-renameFile">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                              <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z" />
                             </svg>
                             &nbsp;
-                            Скачать
+                            Переименовать
                           </a>
                         </li>
-                      </ul>
-                    </div>
-                    <?php if (!$nowCommit->isNotEdit()) { ?>
-                      <button type="button" class="btn btn-link float-right mx-1 py-0 px-2" id="delFile"><i class="fas fa-times fa-lg"></i></button>
-                    <?php } ?>
-                  </li>
-              <?php }
-              } ?>
+                      <?php } ?>
+                      <li>
+                        <a class="dropdown-item align-items-center" href="<?= $File->getDownloadLink() ?>" target="_blank">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                          </svg>
+                          &nbsp;
+                          Скачать
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <?php if (!$nowCommit->isNotEdit()) { ?>
+                    <button type="button" class="btn btn-link float-right mx-1 py-0 px-2" id="delFile"><i class="fas fa-times fa-lg"></i></button>
+                  <?php } ?>
+                </li>
+              <?php } ?>
 
               <?php if (!$nowCommit->isNotEdit()) { ?>
                 <div id="div-add-new-file" class="input-group mt-2 mb-0">

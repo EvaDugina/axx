@@ -408,14 +408,13 @@ class Assignment
   {
     global $dbconnect;
 
-    $query = "";
     if (!empty($Students)) {
+      $query = "";
       foreach ($Students as $Student) {
         $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteStudentFromAssignmentDB($student_id)
   {
@@ -430,14 +429,13 @@ class Assignment
 
     $this->deleteStudentsFromAssignmentDB();
 
-    $query = "";
     if (!empty($this->Students)) {
+      $query = "";
       foreach ($this->Students as $Student) {
         $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteStudentsFromAssignmentDB()
   {

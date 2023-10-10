@@ -11,8 +11,11 @@ function saveAll() {
     var list = document.getElementsByClassName("tasks__list")[0];
     var items = list.querySelectorAll(".validationCustom");
     var name = "";
+    // TODO: Изменить на отправку только commit_id
+    // let file_ids = [];
     for (var i = 0; i < items.length - 1; i++) {
         name = items[i].value;
+        // file_ids.push(items[i].id);
         if (items[i].id == editor.id) {
             var text = editor.current.getValue();
             makeRequest('textdb.php?' + param + "&type=save&id=" + items[i].id + "&file_name=" + name + "&file=" + encodeURIComponent(text), "save");

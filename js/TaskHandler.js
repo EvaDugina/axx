@@ -187,7 +187,12 @@ function ajaxTaskChangeFileType(task_id, file_id, new_type) {
             ajaxResponse = [];
             response = response.replace(/(\r\n|\n|\r)/gm, "").trim();
             if (response != "") {
-                ajaxResponse['svg'] = response;
+                if (response == "ERROR TYPE: CODE_TEST")
+                    ajaxResponse['error'] = "CODE_TEST";
+                else if (response == "ERROR TYPE: CODE_PROJECT")
+                    ajaxResponse['error'] = "CODE_PROJECT";
+                else
+                    ajaxResponse['svg'] = response;
             }
         },
         complete: function () {

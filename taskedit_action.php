@@ -64,13 +64,18 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
 
   // В задании не может быть несколько файлов автоматической проверки
   if (($file_type == 2 || $file_type == 3)  && count($Task->getFilesByType($file_type)) > 0) {
-    echo "";
+    echo "ERROR TYPE: CODE_TEST";
     exit();
   }
 
   $file_id = $_POST['file_id'];
   // $Task = new Task((int)$_POST['task_id']);
   $File = $Task->getFileById((int)$file_id);
+  if ($File->isInUploadDir() && $file_type == 1) {
+    echo "ERROR TYPE: CODE_PROJECT";
+    exit();
+  }
+
   $File->setType($file_type);
 
   // header('Location: taskedit.php?task=' . $_POST['task_id']);

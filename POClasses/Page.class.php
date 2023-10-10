@@ -345,14 +345,13 @@ class Page
 
     $this->deleteGroupsFromPageDB();
 
-    $query = "";
     if (!empty($this->Groups)) {
+      $query = "";
       foreach ($this->Groups as $Group) {
         $query .= "INSERT INTO ax_page_group (page_id, group_id) VALUES ($this->id, $Group->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function deleteGroupsFromPageDB()
   {
@@ -423,14 +422,13 @@ class Page
 
     $this->deleteTeachersFromPageDB();
 
-    $query = "";
     if (!empty($this->Teachers)) {
+      $query = "";
       foreach ($this->Teachers as $Teacher) {
         $query .= "INSERT INTO ax_page_prep (page_id, prep_user_id) VALUES ($this->id, $Teacher->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function deleteTeachersFromPageDB()
   {

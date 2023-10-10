@@ -360,13 +360,13 @@ class Message
   {
     global $dbconnect;
 
-    $query = "";
     if (!empty($Files)) {
+      $query = "";
       foreach ($Files as $File) {
         $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteFileFromMessageDB($file_id)
   {
@@ -381,13 +381,13 @@ class Message
 
     $this->deleteFilesFromMessageDB();
 
-    $query = "";
     if (!empty($this->Files)) {
+      $query = "";
       foreach ($this->Files as $File) {
         $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
       }
+      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteFilesFromMessageDB()
   {
