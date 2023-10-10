@@ -87,6 +87,8 @@ if ($last_commit_id != -1) {
   $nowCommit->addFiles($Task->getInitialCodeFiles());
 }
 
+$nowCommitUser = new User($nowCommit->student_user_id);
+
 // foreach ($nowCommit->getFiles() as $File) {
 //   $solution_file = array('id' => $File->id, 'file_name' => $File->name_without_prefix, 'text' => $File->getFullText());
 //   array_push($solution_files, $solution_file);
@@ -245,8 +247,18 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <div id="div-history-commit-btns" class="flex-column mb-5 pe-3" style="<?= (count($Commits) > 10) ? "overflow-y: scroll;" : "overflow-y: hidden;" ?> max-height: 700px; min-height: 0px;">
 
               <?php foreach ($Commits as $i => $Commit) {
-                $commitUser = new User($Commit->student_user_id) ?>
-                <button class="btn btn-<?= ($Commit->isNotEdit()) ? "success" : "primary" ?> mb-1 d-flex align-items-center justify-content-between w-100 px-3" onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'" <?= ($Commit->id == $last_commit_id) ? "disabled" : "" ?>>
+                $commitUser = new User($Commit->student_user_id); ?>
+                <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
+                                                                                        if ($commitUser->id == $User->id) {
+                                                                                          echo "primary";
+                                                                                        } else {
+                                                                                          echo "success";
+                                                                                        }
+                                                                                      } else {
+                                                                                        echo "dark";
+                                                                                      } ?> 
+                    <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? "btn-outline-primary" : "btn-outline-success" ?> <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-light border border-dark text-dark <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
+
                   <div class="flex-column">
                     <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
                     <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
@@ -301,12 +313,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <!--<form action="taskchat.php" method="POST" style="width:50%">-->
             <input type="hidden" name="assignment" value="<?= $assignment_id ?>">
             <?php
-            if ($au->isAdminOrPrep()) { // Отправить задание на проверку 
+            if ($au->isAdminOrPrep()) {  // Оценить отправленное на проверку задание 
             ?>
-              <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($task_status_code == 4) ? "disabled" : "") ?>>Завершить проверку</button>
+              <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($Assignment->isWaitingCheck()) ? "" : "disabled") ?>>Завершить проверку</button>
             <?php
-            } else { // Оценить отправленное на проверку задание 
-              // TODO: Проверить!
+            } else { // Отправить задание на проверку
             ?>
               <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($assignment_status == -1) ? "disabled" : "") ?>>
                 Отправить на проверку</button>
@@ -321,33 +332,33 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
         <div class="col-md-4">
           <div class="d-none d-sm-block d-print-block">
             <div class="tab d-flex justify-content-between">
-              <button id="defaultOpen" class="tablinks" onclick="openCity(event, 'Task')">Задание</button>
-              <button class="tablinks" onclick="openCity(event, 'Console')">Консоль</button>
-              <button class="tablinks" onclick="openCity(event, 'Test')">Проверки</button>
-              <button class="tablinks" onclick="openCity(event, 'Chat')">Чат</button>
+              <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
+              <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>
+              <button class="tablinks" onclick="openCity('Test')" data-tab-name="Test">Проверки</button>
+              <button class="tablinks" onclick="openCity('Chat')" data-tab-name="Chat">Чат</button>
             </div>
 
             <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
-              <small>
+              <div>
                 <p id="TaskDescr"><?= $task_description ?></p>
                 <script>
                   document.getElementById('TaskDescr').innerHTML =
                     marked.parse(document.getElementById('TaskDescr').innerHTML);
                 </script>
-                <p>
+                <div>
                   <?php
                   if ($User->isTeacher() || $User->isAdmin())
                     $task_files = $Task->getTeacherFilesToTaskchat();
                   else
                     $task_files = $Task->getStudentFilesToTaskchat();
 
-                  if ($task_files) {
-                    echo '<b>Файлы, приложенные к заданию:</b>';
-                    showFiles($task_files);
-                  }
+                  if ($task_files) { ?>
+                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                    <?= showFiles($task_files); ?>
+                  <?php }
                   ?>
-                </p>
-              </small>
+                </div>
+              </div>
             </div>
 
             <div id="Console" class="tabcontent">
@@ -558,7 +569,32 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               show_accordion('checkres', $accord, "5px");
               ?>
               <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
-              <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+
+              <div class="d-flex flex-row justify-content-between my-1 w-100 align-items-center">
+                <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+                <div class="w-50 d-flex flex-row">
+                  <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;">
+                    <select id="dialogCheckTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+                      <option hidden value="-1"></option>
+                      <?php for ($i = 1; $i <= $Task->max_mark; $i++) { ?>
+                        <option value="<?= $i ?>"><?= $i ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                  <button id="button-check" class="btn btn-success d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%; height: fit-content;font-size: small;" onclick="markAssignment(<?= $Assignment->id ?>, <?= $User->id ?>)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                    </svg>
+                    <div class="d-flex align-items-center">
+                      &nbsp;&nbsp;Оценить&nbsp;
+                      <div id="spinner-mark" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                        <span class="sr-only">Loading...</span>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div id="Chat" class="tabcontent">
@@ -813,6 +849,7 @@ fun();
       let mark = $('#dialogCheckTask-select-mark').val();
       if (mark == -1) {
         alert("Не выбрана оценка!");
+        return;
       }
 
       if (assignment_id != null) {
@@ -820,8 +857,11 @@ fun();
         let ajaxResponse = ajaxAssignmentMark(assignment_id, mark, user_id);
         $('#spinner-mark').addClass("d-none");
         if (ajaxResponse != null) {
+          loadChatLog(true);
           $('#span-assignmentMark-' + assignment_id).text(mark);
           $('#dialogSuccess').modal("hide");
+          openCity("Chat");
+
         } else {
           alert("Неудалось оценить задание.");
         }

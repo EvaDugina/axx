@@ -1,5 +1,5 @@
 document.getElementById("defaultOpen").click();
-function openCity(evt, cityName) {
+function openCity(cityName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
@@ -7,10 +7,11 @@ function openCity(evt, cityName) {
     }
     tablinks = document.getElementsByClassName("tablinks");
     for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinks[i].classList.remove("active");
+        if (tablinks[i].dataset.tabName == cityName)
+            tablinks[i].classList.add("active");
     }
     document.getElementById(cityName).style.display = "block";
-    evt.currentTarget.className += " active";
 
     if (cityName == "Chat") {
         document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;

@@ -97,7 +97,7 @@ function openFile(event) {
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
-        console.log("Открыли!");
+        // console.log("Открыли!");
     }
 }
 
@@ -200,6 +200,7 @@ function saveFile(name, id) {
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
+
 }
 
 function saveEditedFile() {
@@ -274,9 +275,12 @@ function makeRequest(url, type) {
         return false;
     }
     if (type == "open") {
-        httpRequest.onreadystatechange = function () { alertContents(httpRequest); };
-        httpRequest.open('GET', encodeURI(url), true);
+        httpRequest.onreadystatechange = function () {
+            alertContents(httpRequest);
+        };
+        httpRequest.open('GET', encodeURI(url), false);
         httpRequest.send(null);
+        return 1;
     }
     else if (type == "save") {
         //httpRequest.onreadystatechange = function() { alertContents1(httpRequest); };  
@@ -286,9 +290,7 @@ function makeRequest(url, type) {
             $('#spinner-save').addClass("d-none");
             $('#btn-save').removeClass("active");
             $('#btn-save').prop("disabled", false);
-        })
-        //httpRequest.open('GET', encodeURI(url), true);
-        //httpRequest.send(null);
+        });
     }
     else if (type == "new") {
         httpRequest.onreadystatechange = function () { alertContentsNew(httpRequest); };
