@@ -180,11 +180,11 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                             <?php
                             if (count($Group->getStudents()) > 0) {
                               foreach ($Group->getStudents() as $Student) { ?>
-                                <div id="item-from-group-<?= $Group->id ?>" class="accordion-item p-2">
+                                <div id="item-from-group-<?= $Group->id ?>" class="accordion-item p-2" onclick="$('#student-<?= $Student->id ?>').prop('checked', !$('#student-<?= $Student->id ?>').prop('checked'));">
                                   <div id="accordion-sheader-<?= $Student->id ?>" class="accordion-header">
                                     <div class="d-flex justify-content-between" type="button">
                                       <div class="form-check ms-3">
-                                        <input id="student-<?= $Student->id ?>" class="accordion-input-item form-check-input input-student" type="checkbox" value="<?= $Student->id ?>" name="students[]" <?php if ($Assignment->getStudentById($Student->id) != null) echo 'checked'; ?>>
+                                        <input id="student-<?= $Student->id ?>" class="accordion-input-item form-check-input input-student" type="checkbox" value="<?= $Student->id ?>" name="students[]" <?php if ($Assignment->getStudentById($Student->id) != null) echo 'checked'; ?> onclick="this.checked = !this.checked;">
                                         <label class="form-check-label" for="flexCheck1"><?= $Student->getFI() ?></label>
                                       </div>
                                       <div class="">

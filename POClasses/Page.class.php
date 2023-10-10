@@ -242,11 +242,21 @@ class Page
   {
     $return_Tasks = array();
     foreach ($this->Tasks as $Task) {
-      if ($Task->status == 1)
+      if ($Task->isActive())
         array_push($return_Tasks, $Task);
     }
     return $return_Tasks;
   }
+  public function getArchivedTasks()
+  {
+    $return_Tasks = array();
+    foreach ($this->Tasks as $Task) {
+      if ($Task->isArchived())
+        array_push($return_Tasks, $Task);
+    }
+    return $return_Tasks;
+  }
+
 
   public function getCountCompletedAssignments($student_id)
   {

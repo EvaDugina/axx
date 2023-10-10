@@ -243,9 +243,33 @@ class Task
     $this->addFiles($Task->getFiles());
   }
 
+  public function isDefault()
+  {
+    if ($this->type == 1)
+      return true;
+    return false;
+  }
+  public function isProgramming()
+  {
+    if ($this->type == 1)
+      return true;
+    return false;
+  }
   public function isConversation()
   {
     if ($this->type == 2)
+      return true;
+    return false;
+  }
+  public function isActive()
+  {
+    if ($this->status == 1)
+      return true;
+    return false;
+  }
+  public function isArchived()
+  {
+    if ($this->status == 0)
       return true;
     return false;
   }

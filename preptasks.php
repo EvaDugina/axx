@@ -212,8 +212,8 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
             <div class="my-5">
               <h2 class="pt-5 text-secondary"><i class="fas fa-ban"></i> Архив заданий</h2>
               <?php
-              $query = select_page_tasks($page_id, 0);
-              $result = pg_query($dbconnect, $query);
+              // $query = select_page_tasks($page_id, 0);
+              // $result = pg_query($dbconnect, $query);
 
               if (!$result || pg_num_rows($result) < 1)
                 echo 'Архивные задания по этой дисциплине отсутствуют';
@@ -229,24 +229,19 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                   </thead>
                   <tbody>
                     <?php
-                    while ($row = pg_fetch_assoc($result)) { ?>
+                    foreach ($Page->getArchivedTasks() as $archivedTask) { ?>
                       <tr>
                         <!-- <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td> -->
                         <td style="--mdb-table-accent-bg:unset;">
-                          <?php
-                          if ($row['type'] == 1) { ?>
-                            <i class="fas fa-code fa-lg"></i>
-                          <?php } else { ?>
-                            <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>
-                          <?php } ?>
-                          <?= $row['title'] ?>
+                          <?= getSVGByTaskType($archivedTask->type) ?>&nbsp;
+                          <?= $archivedTask->title ?>
                         </td>
                         <td class="text-nowrap" style="--mdb-table-accent-bg:unset;">
                           <div class="d-flex flex-row">
                             <form method="get" action="preptasks_edit.php">
                               <input type="hidden" name="action" value="recover" />
-                              <input type="hidden" name="page" value="<?= $page_id ?>" />
-                              <input type="hidden" name="tasknum" id="tasknum" value="<?= $row['id'] ?>" />
+                              <input type="hidden" name="page" value="<?= $Page->id ?>" />
+                              <input type="hidden" name="tasknum" id="tasknum" value="<?= $archivedTask->id ?>" />
                               <button type="submit" class="btn btn-outline-primary px-3" data-title="Вернуть из архива">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
                                   <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z" />
@@ -254,7 +249,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                             </form>
                             <form id="form-deleteTask" name="form-deleteTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
                               <input type="hidden" name="action" value="delete">
-                              <input type="hidden" name="task_id" value="<?= $row['id'] ?>">
+                              <input type="hidden" name="task_id" value="<?= $archivedTask->id ?>">
                               <button type="submit" class="btn btn-outline-danger px-3" data-title="Удалить навсегда">
                                 <i class="fas fa-trash fa-lg"></i>
                               </button>
@@ -264,7 +259,8 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                           </div>
                         </td>
                       </tr>
-                    <?php }  ?>
+                    <?php
+                    }  ?>
                   </tbody>
                 </table>
               <?php } ?>
