@@ -252,8 +252,9 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
               <div class="ps-5 mb-4">
                 <section class="w-100 py-2 d-flex justify-content-center">
                   <div class="w-100">
+
                     <div class="form-outline datetimepicker me-3">
-                      <input type="date" class="form-control active" name="fromtime" id="fromtime" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) : "" ?>">
+                      <input id="input-startDate" type="date" class="form-control active" name="fromtime" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) : "" ?>" onblur="$(this).addClass('active');$(this).css('opacity', '1');">
                       <label for="fromtime" class="form-label" style="margin-left: 0px;">Дата начала</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -276,7 +277,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
 
                   <div class="w-100">
                     <div class="form-outline datetimepicker">
-                      <input type="date" class="form-control active" name="tilltime" id="tilltime" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) : "" ?>">
+                      <input id="input-endDate" type="date" class="form-control active" name="tilltime" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) : "" ?>" onblur="$(this).addClass('active');$(this).css('opacity', '1');">
                       <label for="tilltime" class="form-label" style="margin-left: 0px;">Дата окончания</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -509,7 +510,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
 
               show_accordion('checks', $accord, "310px");
               ?>
-              <button id="checks-save" type="submit" class="btn btn-outline-primary mt-5" name="action" value="save" style="">Сохранить</button>
+              <button id="checks-save" type="button" class="btn btn-outline-primary mt-5" name="action" value="save" style="" onclick="checkFields()">Сохранить</button>
             </form>
           </div>
         </div>
@@ -523,14 +524,13 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
               <script>
                 document.getElementById('TaskDescr').innerHTML = marked.parse(document.getElementById('TaskDescr').innerHTML);
               </script>
-              <p>
-                <b>Файлы, приложенные к заданию:</b>
-                <br>
+              <div>
+                <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
                 <?php
                 // $task_files = getTaskFiles($dbconnect, $Task->id);
                 showFiles($Task->getFiles());
                 ?>
-              </p>
+              </div>
             </div>
 
           </div>
@@ -567,6 +567,39 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
     $('#input-startTime').on("blur", function() {
       $(this).addClass("active");
     });
+
+    $('#input-startDate').on("change", function() {
+      console.log(this.value);
+    });
+    $('#input-endDate').on("change", function() {
+      console.log(this.value);
+    });
+
+
+
+    function checkFields() {
+      let start_date = new Date($('#input-startDate').val());
+      let start_time = $('#input-startTime').val();
+      let end_date = Date.parse($('#input-endDate').val());
+      let end_time = $('#input-endTime').val();
+
+      if (start_date > end_date) {
+        alert("Неверно указаны даты!");
+        return;
+      } else {
+        let split_start_time = start_time.split(":");
+        let split_end_time = end_time.split(":");
+        if (parseInt(split_start_time[0]) > parseInt(split_end_time[0])) {
+          alert("Неверно указано время!");
+          return;
+        } else if (parseInt(split_start_time[0]) == parseInt(split_end_time[0]) && parseInt(split_start_time[1]) >= parseInt(split_end_time[1])) {
+          alert("Неверно указано время!");
+          return;
+        }
+      }
+
+      $('#checkparam').submit();
+    }
 
 
     function confirmRejectAssignment(form_id) {
