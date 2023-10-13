@@ -62,6 +62,11 @@ if (array_key_exists('commit', $_GET)) {
   $last_commit_id = $_GET['commit'];
   $lastCommit = new Commit($last_commit_id);
 } else {
+  if (!$au->isAdminOrPrep() && !$Assignment->checkStudent($User->id)) {
+    header('Location: index.php');
+    exit;
+  }
+
   if ($au->isStudent())
     $lastCommit = $Assignment->getLastCommitForStudent();
   else
@@ -237,41 +242,46 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </ul>
           </div>
 
-          <?php if ($au->isStudent())
-            $Commits = $Assignment->getCommitsForStudent();
-          else
-            $Commits = $Assignment->getCommitsForTeacher(); ?>
+          <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) {
 
-          <div class="flex-column mt-3">
-            <p><strong>История коммитов</strong></p>
-            <div id="div-history-commit-btns" class="flex-column mb-5 pe-3" style="<?= (count($Commits) > 10) ? "overflow-y: scroll;" : "overflow-y: hidden;" ?> max-height: 700px; min-height: 0px;">
+            if ($au->isStudent())
+              $Commits = $Assignment->getCommitsForStudent();
+            else
+              $Commits = $Assignment->getCommitsForTeacher();
+          ?>
 
-              <?php foreach ($Commits as $i => $Commit) {
-                $commitUser = new User($Commit->student_user_id); ?>
-                <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
-                                                                                        if ($commitUser->id == $User->id) {
-                                                                                          echo "primary";
+            <div class="flex-column mt-3">
+              <p><strong>История коммитов</strong></p>
+              <div id="div-history-commit-btns" class="flex-column mb-5 pe-3" style="<?= (count($Commits) > 10) ? "overflow-y: scroll;" : "overflow-y: hidden;" ?> max-height: 700px; min-height: 0px;">
+
+                <?php foreach ($Commits as $i => $Commit) {
+                  $commitUser = new User($Commit->student_user_id); ?>
+                  <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
+                                                                                          if ($commitUser->id == $User->id) {
+                                                                                            echo "primary";
+                                                                                          } else {
+                                                                                            echo "success";
+                                                                                          }
                                                                                         } else {
-                                                                                          echo "success";
-                                                                                        }
-                                                                                      } else {
-                                                                                        echo "dark";
-                                                                                      } ?> 
+                                                                                          echo "dark";
+                                                                                        } ?> 
                     <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? "btn-outline-primary" : "btn-outline-success" ?> <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-light border border-dark text-dark <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
 
-                  <div class="flex-column">
-                    <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
-                    <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
-                  </div>
-                  <?php
-                  // if ($Commit->id == $last_commit_id)
-                  //   echo '~ТЕКУЩИЙ~'; 
-                  ?>
-                  <?= getSVGByCommitType($Commit->type) ?>
-                </button>
-              <?php } ?>
+                    <div class="flex-column">
+                      <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
+                      <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
+                    </div>
+                    <?php
+                    // if ($Commit->id == $last_commit_id)
+                    //   echo '~ТЕКУЩИЙ~'; 
+                    ?>
+                    <?= getSVGByCommitType($Commit->type) ?>
+                  </button>
+                <?php } ?>
+              </div>
             </div>
-          </div>
+
+          <?php } ?>
 
         </div>
         <div class="col-md-6 px-0">
@@ -284,25 +294,27 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 <option value="java">Java</option>
               </select>
             </div>
-            <button id="btn-commit" class="btn btn-secondary w-100 align-items-center me-1" type="button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
-              </svg>
-              &nbsp;&nbsp;
-              Клонировать коммит
-            </button>
-            <button id="btn-save" class="btn btn-primary w-100" type="button" <?= ($nowCommit && $nowCommit->isNotEdit()) ? "disabled" : "" ?>>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
-                <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z" />
-                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z" />
-              </svg>
-              &nbsp;&nbsp;
-              Сохранить
-              <div id="spinner-save" class="spinner-border d-none ms-3" role="status" style="width: 1rem; height: 1rem;">
-                <span class="sr-only">Loading...</span>
-              </div>
+            <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
+              <button id="btn-commit" class="btn btn-secondary w-100 align-items-center me-1" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                </svg>
+                &nbsp;&nbsp;
+                Клонировать коммит
+              </button>
+              <button id="btn-save" class="btn btn-primary w-100" type="button" <?= ($nowCommit && $nowCommit->isNotEdit()) ? "disabled" : "" ?>>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
+                  <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z" />
+                  <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z" />
+                </svg>
+                &nbsp;&nbsp;
+                Сохранить
+                <div id="spinner-save" class="spinner-border d-none ms-3" role="status" style="width: 1rem; height: 1rem;">
+                  <span class="sr-only">Loading...</span>
+                </div>
 
-            </button>
+              </button>
+            <?php } ?>
           </div>
           <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
             <div id="container" class="embed-responsive-item"></div>
@@ -317,7 +329,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             ?>
               <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($Assignment->isWaitingCheck()) ? "" : "disabled") ?>>Завершить проверку</button>
             <?php
-            } else { // Отправить задание на проверку
+            } else if ($Assignment->checkStudent($User->id)) { // Отправить задание на проверку
             ?>
               <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($assignment_status == -1) ? "disabled" : "") ?>>
                 Отправить на проверку</button>
@@ -335,7 +347,9 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
               <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>
               <button class="tablinks" onclick="openCity('Test')" data-tab-name="Test">Проверки</button>
-              <button class="tablinks" onclick="openCity('Chat')" data-tab-name="Chat">Чат</button>
+              <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
+                <button class="tablinks" onclick="openCity('Chat')" data-tab-name="Chat">Чат</button>
+              <?php } ?>
             </div>
 
             <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
