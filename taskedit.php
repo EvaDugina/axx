@@ -609,7 +609,7 @@ show_head("Добавление\Редактирование задания", ar
     }
 
     if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null)
-      return;
+      return "EMPTY";
 
     $('#spinner-save').removeClass("d-none");
 
@@ -700,9 +700,9 @@ show_head("Добавление\Редактирование задания", ar
     if (permitted_file_names.length > 0) {
       $('#modalErrorFileName-h5-title').text("Внимание!");
       if (permitted_file_names.length == 1)
-        $('#modalErrorFileName-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не был добавлен. </br>Файл с таким названием уже присутствует.");
+        $('#modalErrorFileName-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не был добавлен. Файл с таким названием уже присутствует.");
       else
-        $('#modalErrorFileName-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не были добавлены. </br>Файлы с такими названиями уже присутствуют.");
+        $('#modalErrorFileName-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не были добавлены. Файлы с такими названиями уже присутствуют.");
 
       $('#dialogErrorFileName').modal("show");
     }
@@ -723,9 +723,9 @@ show_head("Добавление\Редактирование задания", ar
 
       $('#modalErrorFileSize-h5-title').text("Внимание!");
       if (ajaxResponse['permitted_file_names'].length == 1)
-        $('#modalErrorFileSize-p-text').html("<strong>" + ajaxResponse['permitted_file_names'].join(", ") + "</strong> не был добавлен. </br>Файл превышает допустимый размер.");
+        $('#modalErrorFileSize-p-text').html("<strong>" + ajaxResponse['permitted_file_names'].join(", ") + "</strong> не был добавлен. Файл превышает допустимый размер.");
       else
-        $('#modalErrorFileSize-p-text').html("<strong>" + ajaxResponse['permitted_file_names'].join(", ") + "</strong> не были добавлены. </br>Файлы превышают допустимый размер.");
+        $('#modalErrorFileSize-p-text').html("<strong>" + ajaxResponse['permitted_file_names'].join(", ") + "</strong> не были добавлены. Файлы превышают допустимый размер.");
 
       $('#dialogErrorFileSize').modal("show");
     }
@@ -790,8 +790,13 @@ show_head("Добавление\Редактирование задания", ar
     if (response != null) {
       if ("svg" in response) {
         if (new_type == 2 || new_type == 3) {
-          saveTask();
-          // document.location.href = "taskedit.php?task=" + task_id;
+          let empty = saveTask();
+          if (empty == "EMPTY")
+            document.location.href = "taskedit.php?task=" + task_id;
+        } else if (array_files[index].type == 2 || array_files[index].type == 3) {
+          let empty = saveTask();
+          if (empty == "EMPTY")
+            document.location.href = "taskedit.php?task=" + task_id;
         }
 
         $('#span-fileType-' + file_id).html(response['svg']);

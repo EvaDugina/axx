@@ -215,8 +215,9 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
               // $query = select_page_tasks($page_id, 0);
               // $result = pg_query($dbconnect, $query);
 
-              if (!$result || pg_num_rows($result) < 1)
-                echo 'Архивные задания по этой дисциплине отсутствуют';
+              $archivedTasks = $Page->getArchivedTasks();
+              if (count($archivedTasks) < 1)
+                echo 'Архивированные задания по этой дисциплине отсутствуют';
               else { ?>
 
                 <table class="table table-secondary table-hover">
@@ -229,7 +230,7 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                   </thead>
                   <tbody>
                     <?php
-                    foreach ($Page->getArchivedTasks() as $archivedTask) { ?>
+                    foreach ($archivedTasks as $archivedTask) { ?>
                       <tr>
                         <!-- <td scope="row"><div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"/></div></td> -->
                         <td style="--mdb-table-accent-bg:unset;">

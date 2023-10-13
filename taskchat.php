@@ -11,6 +11,7 @@ checkAuLoggedIN($au);
 $User = new User((int)$au->getUserId());
 
 echo "<script>var user_role=" . $User->role . ";</script>";
+echo "<script>var AVAILABLE_FILE_EXT=" . json_encode(getSpecialFileTypes()) . ";</script>";
 
 // TODO: Переписать c использованием POClasses
 // Обработка некорректного перехода между страницами
@@ -435,7 +436,7 @@ $task_number = explode('.', $task_title)[0];
             <div id="div-attachedFiles" class="d-flex flex-wrap mt-2">
 
             </div>
-            <!-- <p id="p-errorFileName" class="error" style="display: none;">Ошибка! Файл с таким названием уже существует!</p> -->
+            <!-- <p id="p-ErrorFileName" class="error" style="display: none;">Ошибка! Файл с таким названием уже существует!</p> -->
           </form>
         <?php } ?>
 
@@ -443,6 +444,24 @@ $task_number = explode('.', $task_title)[0];
 
     </div>
   </main>
+
+
+  <div class="modal fade" id="dialogErrorFileExt" tabindex="-1" aria-labelledby="dialogErrorFileExtLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="modalErrorFileExt-h5-title" class="modal-title">
+            Недопустимое расширение
+          </h5>
+          <button type="button" class="btn-close me-2" data-mdb-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="modalErrorFileExt-p-text">
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- <script type="text/javascript" src="js/messageHandler.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -582,22 +601,49 @@ $task_number = explode('.', $task_title)[0];
       $('#user-answer-files').on('change', function() {
         // TODO: Сделать удаление числа, если оно 0
 
-
         if (this.files.length != 0) {
           let div = document.getElementById("div-attachedAnswerFiles");
+
+          let permitted_file_names = [];
           Object.entries(this.files).forEach(file => {
-            if (checkIfFileIsExist(answerFiles, file[1].name)) {
-              alert("Внимание! Файл с таким названием уже прикреплён!")
+            if (!isAvailableFileExt(file[1].name)) {
+              // alert("Внимание! Файл с таким расширением не может быть прикреплён в качестве файла проекта!");
+              permitted_file_names.push(file[1].name);
             } else {
-              add_element(div, file[1].name, "answerFiles[]", answerFiles.length);
-              answerFiles.push(file[1]);
+
+              if (checkIfFileIsExist(answerFiles, file[1].name)) {
+                // alert("Внимание! Файл с таким названием уже прикреплён!");
+              } else {
+                add_element(div, file[1].name, "answerFiles[]", answerFiles.length);
+                answerFiles.push(file[1]);
+              }
             }
           });
-          $('#files-answer-count').html(this.files.length);
+          $('#files-answer-count').html((answerFiles.length > 0) ? answerFiles.length : "");
+
+          if (permitted_file_names.length > 0) {
+            $('#modalErrorFileExt-h5-title').text("Внимание! Недопустимое расширение");
+            if (permitted_file_names.length == 1)
+              $('#modalErrorFileExt-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не был добавлен. Файл с таким расширением нельзя прикрепить в качестве ответа.");
+            else
+              $('#modalErrorFileExt-p-text').html("<strong>" + permitted_file_names.join(", ") + "</strong> не были добавлены. Файлы с такими расширениями нельзя прикрепить в качестве ответа.");
+
+            $('#dialogErrorFileExt').modal("show");
+          }
         }
       });
 
     });
+
+    function isAvailableFileExt(file_name) {
+      let splitted = file_name.split(".");
+      let ext = splitted.splice(-1)[0];
+      // console.log(AVAILABLE_FILE_EXT);
+      if (AVAILABLE_FILE_EXT.includes(ext)) {
+        return true;
+      }
+      return false;
+    }
 
 
     function checkIfFileIsExist(arrayFiles, file_name) {
