@@ -511,10 +511,10 @@ else if ($type == "tools") {
   $files_codeTest = array();
   $Task = new Task((int)getTaskByAssignment((int)$assignment));
   foreach ($Task->getCodeTestFiles() as $File) {
-    $myfile = fopen($folder . '/' . $File->name, "w") or die("Unable to open file!");
+    $myfile = fopen($folder . '/' . "accel_autotest.cpp", "w") or die("Unable to open file!");
     fwrite($myfile, $File->getFullText());
     fclose($myfile);
-    array_push($files_codeTest, $File->name);
+    array_push($files_codeTest, "accel_autotest.cpp");
   }
 
   if (count($files_codeTest) < 1) {
