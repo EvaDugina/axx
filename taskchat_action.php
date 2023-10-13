@@ -226,12 +226,12 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
       <div id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
       d-flex flex-column w-100 h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> " style="<?php if ($Message->type == 1) echo "border-color: green;";
                                                                                           else if ($Message->type == 2) echo "border-color: red;" ?>">
-        <div class="d-flex align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1" style="text-transform: uppercase;">
+        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1" style="text-transform: uppercase;">
           <p class="m-0 p-0"><strong>
               <?= $senderUserFI ?>
             </strong> </p>
         </div>
-        <div class="d-flex justify-content-<?= ($isAuthor) ? "end" : "start" ?>">
+        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?>">
           <?php
           if ($Message->full_text != '') {
             if ($Message->type == 3) { // если ссылка
@@ -270,7 +270,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
               <?= $senderUserFI ?>
             </strong> </p>
         </div>
-        <div class="d-flex justify-content-<?= ($isAuthor) ? "end" : "start" ?>">
+        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?>">
           <?php
           if ($Message->full_text != '') {
             if ($Message->type == 3) { // если ссылка
