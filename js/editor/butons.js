@@ -78,8 +78,9 @@ function openFile(event = null, listItem = null) {
     let thisListItem = listItem;
     if (thisListItem == null)
         thisListItem = this;
-    // console.log($('#container').attr("class"));
+
     $('#container').removeClass("d-none");
+    $('#check').prop("disabled", false);
     var id = thisListItem.querySelector(".validationCustom").id;
     if (id != editor.id) {
         var items = list.querySelectorAll(".validationCustom");
@@ -132,8 +133,10 @@ function delFile(event) {
         openFile(null, listItems[0]);
 
     }
-    else
+    else {
         $('#container').addClass("d-none");
+        $('#check').prop("disabled", true);
+    }
 
 
 

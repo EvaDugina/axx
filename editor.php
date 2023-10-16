@@ -125,7 +125,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <body style="overflow-x:hidden">
 
   <?php
-  if ($User->isTeacher())
+  if ($User->isTeacher() || $User->isAdmin())
     // XXX: ПРОВЕРИТЬ
     show_header(
       $dbconnect,

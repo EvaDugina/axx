@@ -54,12 +54,12 @@ class Commit
 
       $this->student_user_id = $args[2];
 
-      if ($args[3] == null && $args[3] != 0)
-        $this->type = 1;
+      if ($args[3] === null)
+        $this->type = 0;
       else
         $this->type = $args[3];
 
-      if ($args[4] == null)
+      if ($args[4] === null)
         $this->autotest_results = "null";
       else
         $this->autotest_results = $args[4];
@@ -213,7 +213,7 @@ class Commit
   public function isEditByTeacher()
   {
     $commitUser = new User($this->student_user_id);
-    return $this->isChecking() || ($commitUser->isTeacher() && $this->isInProcess());
+    return $this->isChecking() || (($commitUser->isTeacher() || $commitUser->isAdmin()) && $this->isInProcess());
   }
   public function isEditByStudent()
   {
