@@ -465,7 +465,7 @@ async function alertContentsGet(httpRequest, name) {
 }
 
 function getCheckInfo(checks, checkname) {
-    for (check in checks) {
+    for (var check in checks) {
         var check_struct = checks[check];
         if (check_struct.check == checkname) {
             return check_struct;
@@ -547,13 +547,13 @@ function parseCppCheck(results) {
     var sumOfErrors = 0;
     var boxColor = 'green';
 
-    for (check in results.tools.cppcheck.checks) {
+    for (var check in results.tools.cppcheck.checks) {
         var check_struct = results.tools.cppcheck.checks[check];
         bodyText += check_struct.check + ' : ' + check_struct.result + '<br>';
         sumOfErrors += check_struct.result;
     }
 
-    for (check in results.tools.cppcheck.checks) {
+    for (var check in results.tools.cppcheck.checks) {
         var check_struct = results.tools.cppcheck.checks[check];
         switch (check_struct.outcome) {
             case 'fail':
