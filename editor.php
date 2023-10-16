@@ -325,7 +325,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <?php
             } else if ($Assignment->checkStudent($User->id)) { // Отправить задание на проверку
             ?>
-              <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($assignment_status == -1) ? "disabled" : "") ?>>
+              <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($assignment_status == -1 || count($solutionFiles) < 1) ? "disabled" : "") ?>>
                 Отправить на проверку</button>
             <?php
             }
