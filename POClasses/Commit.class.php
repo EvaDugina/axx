@@ -127,7 +127,7 @@ class Commit
     global $dbconnect;
 
     $query = "INSERT INTO ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type, autotest_results)
-              VALUES ($assignment_id, $this->session_id, $this->student_user_id, now(), $this->type, $this->autotest_results)
+              VALUES ($assignment_id, $this->session_id, $this->student_user_id, now(), $this->type, \$antihype1\$$this->autotest_results\$antihype1\$)
               RETURNING id, date_time";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -141,7 +141,7 @@ class Commit
     global $dbconnect;
 
     $query = "UPDATE ax_solution_commit SET assignment_id=$assignment_id, session_id=$this->session_id, 
-              student_user_id=$this->student_user_id, type=$this->type, autotest_results=$this->autotest_results
+              student_user_id=$this->student_user_id, type=$this->type, autotest_results=\$antihype1\$$this->autotest_results\$antihype1\$
               WHERE id = $this->id 
               RETURNING date_time;";
 
@@ -165,7 +165,7 @@ class Commit
     global $dbconnect;
 
     $query = "UPDATE ax_solution_commit SET session_id = $this->session_id, student_user_id = $this->student_user_id, 
-      date_time=$this->date_time, type = $this->type, autotest_results = '$this->autotest_results' WHERE id = $this->id;
+      date_time=$this->date_time, type = $this->type, autotest_results = \$antihype1\$$this->autotest_results\$antihype1\$ WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
