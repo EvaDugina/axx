@@ -121,7 +121,7 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
     $Files = $Task->getFilesByType(2);
     if ($_POST['codeTest'] != "") {
       if (empty($Files)) {
-        $File = new File(2, "test.cpp", null, $_POST['codeTest']);
+        $File = new File(2, "accel_autotest.cpp", null, $_POST['codeTest']);
         $Task->addFile($File->id);
       } else {
         foreach ($Files as $File) {
@@ -139,7 +139,7 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
   if (isset($_POST['codeCheck'])) {
     $Files = $Task->getFilesByType(3);
     if (empty($Files)) {
-      $File = new File(3, "checktest.cpp", null, $_POST['codeCheck']);
+      $File = new File(3, "accel_checktest.cpp", null, $_POST['codeCheck']);
       $Task->addFile($File->id);
     } else {
       foreach ($Files as $File) {
