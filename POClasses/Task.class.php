@@ -393,8 +393,15 @@ class Task
   }
   public function addFiles($Files)
   {
-    $this->pushFilesToTaskDB($Files);
+    $copyFiles = array();
     foreach ($Files as $File) {
+      $copiedFile = new File($File->type, $File->name_without_prefix);
+      $copiedFile->copy($File->id);
+      array_push($copyFiles, $copiedFile);
+    }
+    $this->pushFilesToTaskDB($copyFiles);
+
+    foreach ($copyFiles as $File) {
       array_push($this->Files, $File);
     }
   }
