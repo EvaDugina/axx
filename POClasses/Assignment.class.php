@@ -295,6 +295,13 @@ class Assignment
       return true;
     return false;
   }
+  public function isVisibleForStudent()
+  {
+    $date_now = get_now_date("d-m-Y H:i:s");
+    if ($this->isVisible() && !($this->start_limit != null && $date_now < $this->start_limit))
+      return true;
+    return false;
+  }
   public function isCompleteable()
   {
     if ($this->status != -1 && $this->visibility != 4)

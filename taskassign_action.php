@@ -264,7 +264,8 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
       $str = $_POST['fromtime'] . " " . $_POST['start_time'] . ":00";
       $date = strtotime($str);
     }
-    $Assignment->setStartLimit(date("Y-m-d H:i:s", $date));
+    $date_start = date("Y-m-d H:i:s", $date);
+    $Assignment->setStartLimit($date_start);
   }
 
 

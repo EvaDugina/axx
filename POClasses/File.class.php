@@ -305,7 +305,6 @@ class File
                 WHERE id = $this->id;
       ";
     } else if ($this->full_text != null) {
-      $this->full_text = mb_convert_encoding($this->full_text, "UTF-8");
       $query = "UPDATE ax_file
                 SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
                 full_text=\$antihype1\$$this->full_text\$antihype1\$, download_url=null, status=$this->status 
@@ -318,7 +317,7 @@ class File
                 WHERE id = $this->id;
       ";
     }
-    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    pg_query($dbconnect, $query) or pg_query($dbconnect, mb_convert_encoding($query, 'UTF-8', 'CP1251')) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function deleteFromDB()
   {

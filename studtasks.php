@@ -58,47 +58,62 @@ show_head("Страница предмета " . $Page->name);
           <div class="col-md-11 col-md-push-1 w-100">
             <div class="list-group list-group-flush" id="list-tab" role="tablist">
               <?php
-              $key = 0;
+              $conversationTask = null;
               foreach ($Page->getActiveTasksWithConversation() as $Task) {
-                foreach ($Task->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
-                  $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
-                  if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
-                    $date_finish = "до $Assignment->finish_limit";
-                  else
-                    $date_finish = "";
-                  if ($Assignment->isCompleted() && $Assignment->isMarked()) {
-                    $text_status = 'Проверено (оценка: <strong>' . $Assignment->mark . '</strong>)';
-                  } else if ($Assignment->isWaitingCheck() && $Assignment->isMarked()) {
-                    $text_status = 'Ожидает проверки (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
-                  } else {
-                    $text_status = status_to_text($Assignment->status);
-                  }
-              ?>
-                  <button class="list-group-item list-group-item-action d-flex justify-content-between mb-3 align-items-center" onclick="window.location='taskchat.php?assignment=<?= $Assignment->id ?>'" style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;" id="studtasks-elem-<?php echo $key + 1; ?>">
-                    <p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?= $Task->title; ?></p>
-                    <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $date_finish; ?></p>
-                    <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $text_status; ?></p>
-                    <div class="form-check" style="margin: 10px;">
-                      <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?= ($Assignment->isMarked() || $Assignment->isCompleted()) ? 'checked' : 'unchecked' ?> disabled>
-                      <label class="form-check-label" for="flexCheckChecked"></label>
-                    </div>
-                    <!-- ВОЗМОЖНЫЕ ДОРАБОТКИ ПО МАКЕТУ
-											<button type="button" style="color:crimson; border-width: 0px; background: none;"> <i class="fas fa-file-download fa-lg"></i></button>
-											<button type="button" class="btn btn-outline-primary" style="color: darkcyan; background: white; border-color: darkcyan; margin-top: 0px; margin-bottom: 0px;"> Загрузить </button>
-											-->
-                    <span class="badge badge-pill me-2 <?= (count($unreadedMessages) > 0) ? "badge-info" : "badge-light" ?>">
-                      <?= count($unreadedMessages) ?>
-                    </span>
-                  </button>
-              <?php $key++;
+                if ($Task->isConversation()) {
+                  $conversationTask = $Task;
+                  continue;
                 }
-              } ?>
+                generateTaskLine($Task, $student_id);
+              }
+              if ($conversationTask != null)
+                generateTaskLine($conversationTask, $student_id); ?>
             </div>
           </div>
         </div>
       </div>
     </div>
   </main>
+
+  <?php function generateTaskLine($Task, $student_id)
+  {
+    foreach ($Task->getVisibleAssignmemntsByStudent((int)$student_id) as $Assignment) {
+      $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
+      if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
+        $date_finish = "до $Assignment->finish_limit";
+      else
+        $date_finish = "";
+      if ($Assignment->isCompleted() && $Assignment->isMarked()) {
+        $text_status = 'Проверено (оценка: <strong>' . $Assignment->mark . '</strong>)';
+      } else if ($Assignment->isWaitingCheck() && $Assignment->isMarked()) {
+        $text_status = 'Ожидает проверки (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
+      } else {
+        $text_status = status_to_text($Assignment->status);
+      }
+  ?>
+      <button class="list-group-item list-group-item-action d-flex justify-content-between mb-3 align-items-center <?= ($Task->isConversation()) ? "bg-primary text-white" : "" ?>" onclick="window.location='taskchat.php?assignment=<?= $Assignment->id ?>'" style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;">
+        <p class="col-md-5" style="margin: 10px; margin-left: 15px;"> <?= $Task->title; ?></p>
+        <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $date_finish; ?></p>
+        <?php if (!$Task->isConversation()) { ?>
+          <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $text_status; ?></p>
+        <?php } ?>
+        <div class="form-check" style="margin: 10px;">
+          <?php if (!$Task->isConversation()) { ?>
+            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?= ($Assignment->isMarked() || $Assignment->isCompleted()) ? 'checked' : 'unchecked' ?> disabled>
+            <label class="form-check-label" for="flexCheckChecked"></label>
+          <?php } ?>
+        </div>
+        <!-- ВОЗМОЖНЫЕ ДОРАБОТКИ ПО МАКЕТУ
+											<button type="button" style="color:crimson; border-width: 0px; background: none;"> <i class="fas fa-file-download fa-lg"></i></button>
+											<button type="button" class="btn btn-outline-primary" style="color: darkcyan; background: white; border-color: darkcyan; margin-top: 0px; margin-bottom: 0px;"> Загрузить </button>
+											-->
+        <span class="badge badge-pill me-2 <?= (count($unreadedMessages) > 0) ? "badge-info" : "badge-light" ?>">
+          <?= count($unreadedMessages) ?>
+        </span>
+      </button>
+  <?php
+    }
+  } ?>
 
 
 </body>

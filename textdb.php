@@ -492,14 +492,23 @@ else if ($type == "tools") {
   fclose($myfile);
 
   // $result = pg_query($dbconnect,  "SELECT * from ax_solution_file where commit_id = ".$commit_id);
-  $result = pg_query($dbconnect, "SELECT * FROM ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id WHERE ax_commit_file.commit_id = $commit_id");
+  // $result = pg_query($dbconnect, "SELECT * FROM ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id WHERE ax_commit_file.commit_id = $commit_id");
+  // while ($row = pg_fetch_assoc($result)) {
+  //   $myfile = fopen($folder . '/' . $row['file_name'], "w") or die("Unable to open file!");
+  //   fwrite($myfile, $row['full_text']);
+  //   fclose($myfile);
+  //   if (strtoupper($row['file_name']) != 'MAKEFILE')
+  //     array_push($files, $row['file_name']);
+  // }
+
   $files = array();
-  while ($row = pg_fetch_assoc($result)) {
-    $myfile = fopen($folder . '/' . $row['file_name'], "w") or die("Unable to open file!");
-    fwrite($myfile, $row['full_text']);
+  $Commit = new Commit($commit_id);
+  foreach ($Commit->getFiles() as $File) {
+    $myfile = fopen($folder . '/' . $File->name, "w") or die("Unable to open file!");
+    fwrite($myfile, $File->getFullText());
     fclose($myfile);
-    if (strtoupper($row['file_name']) != 'MAKEFILE')
-      array_push($files, $row['file_name']);
+    if (strtoupper($File->name) != 'MAKEFILE')
+      array_push($files, $File->name);
   }
 
   if (count($files) < 1) {

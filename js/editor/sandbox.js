@@ -1,5 +1,5 @@
 import editor from "./editor.js";
-import { makeRequest, saveEditedFile, saveActiveFile } from "./butons.js";
+import { makeRequest, saveEditedFile, saveActiveFile, openFile } from "./butons.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
 //import alertify from "./alertifyjs/alertify.js";
@@ -76,12 +76,16 @@ function endAnimationButtonCheck() {
 function funonload() {
     var list = document.getElementsByClassName("tasks__list")[0];
     var listItems = list.querySelectorAll(".tasks__item");
-    var id = listItems[0].querySelector(".validationCustom").id;
-    listItems[0].className += " active_file";
-    var param = document.location.href.split("?")[1].split("#")[0];
-    if (param == '') param = 'void';
-    makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
-    editor.id = id;
+    if (listItems.length > 0) {
+        // var id = listItems[0].querySelector(".validationCustom").id;
+        // listItems[0].className += " active_file";
+        // var param = document.location.href.split("?")[1].split("#")[0];
+        // if (param == '') param = 'void';
+        // // makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
+        // editor.id = id;
+        // $('#container').removeClass("d-none");
+        openFile(null, listItems[0]);
+    }
 }
 window.onload = funonload;
 

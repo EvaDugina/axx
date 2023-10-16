@@ -1,1 +1,1 @@
-export default `https://vega.fcyb.mirea.ru/sandbox`;
+export default `https://vega.mirea.ru/sandbox`;

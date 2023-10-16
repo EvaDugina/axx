@@ -79,9 +79,6 @@ if (array_key_exists('commit', $_GET)) {
   }
 }
 
-
-$solution_files = array();
-
 $nowCommit = null;
 $readOnly = "false";
 if ($last_commit_id != -1) {
@@ -94,10 +91,7 @@ if ($last_commit_id != -1) {
 
 $nowCommitUser = new User($nowCommit->student_user_id);
 
-// foreach ($nowCommit->getFiles() as $File) {
-//   $solution_file = array('id' => $File->id, 'file_name' => $File->name_without_prefix, 'text' => $File->getFullText());
-//   array_push($solution_files, $solution_file);
-// }
+$solutionFiles = $nowCommit->getFiles();
 
 if ($nowCommit->isNotEdit())
   $readOnly = "true";
@@ -168,12 +162,12 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               <?php } ?>
 
               <?php
-              foreach ($nowCommit->getFiles() as $i => $File) { ?>
+              foreach ($solutionFiles as $i => $File) { ?>
                 <li id="openFile" class="tasks__item list-group-item w-100 d-flex justify-content-between align-items-center px-0" style="cursor: pointer;" data-orderId="<?= $i ?>">
                   <div class="px-1 align-items-center text-primary">
                     <?= getSVGByFileType($File->type) ?>
                   </div>
-                  <div style="width: 55%;">
+                  <div class="px-1" style="width: 55%;">
                     <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
                   </div>
                   <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
@@ -586,28 +580,30 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
               <div class="d-flex flex-row justify-content-between my-1 w-100 align-items-center">
                 <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
-                <div class="w-50 d-flex flex-row">
-                  <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;">
-                    <select id="checkTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
-                      <option hidden value="-1"></option>
-                      <?php for ($i = 1; $i <= $Task->max_mark; $i++) { ?>
-                        <option value="<?= $i ?>"><?= $i ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                  <button id="button-check" class="btn btn-success d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%; height: fit-content;font-size: small;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, $('#checkTask-select-mark').val())">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
-                      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
-                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-                    </svg>
-                    <div class="d-flex align-items-center">
-                      &nbsp;&nbsp;Оценить&nbsp;
-                      <div id="spinner-mark" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
-                        <span class="sr-only">Loading...</span>
-                      </div>
+                <?php if ($au->isAdminOrPrep()) { ?>
+                  <div class="w-50 d-flex flex-row">
+                    <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;">
+                      <select id="checkTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+                        <option hidden value="-1"></option>
+                        <?php for ($i = 1; $i <= $Task->max_mark; $i++) { ?>
+                          <option value="<?= $i ?>"><?= $i ?></option>
+                        <?php } ?>
+                      </select>
                     </div>
-                  </button>
-                </div>
+                    <button id="button-check" class="btn btn-success d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%; height: fit-content;font-size: small;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, $('#checkTask-select-mark').val())">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                        <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                      </svg>
+                      <div class="d-flex align-items-center">
+                        &nbsp;&nbsp;Оценить&nbsp;
+                        <div id="spinner-mark" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                <?php } ?>
               </div>
             </div>
 

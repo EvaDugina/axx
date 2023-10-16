@@ -2,6 +2,7 @@ import editor from "./editor.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
 
+export { makeRequest, saveEditedFile, saveActiveFile, openFile };
 
 var list = document.getElementsByClassName("tasks__list")[0];
 var listItems = list.querySelectorAll(".tasks__item");
@@ -73,32 +74,45 @@ function addNewIntermediateCommit() {
 //     makeRequest('textdb.php?' + param + "&type=commit&commit_type=answer&status=clone", "commit");
 // }
 
-function openFile(event) {
+function openFile(event = null, listItem = null) {
+    let thisListItem = listItem;
+    if (thisListItem == null)
+        thisListItem = this;
+    // console.log($('#container').attr("class"));
     $('#container').removeClass("d-none");
-    var id = this.querySelector(".validationCustom").id;
+    var id = thisListItem.querySelector(".validationCustom").id;
     if (id != editor.id) {
+        var items = list.querySelectorAll(".validationCustom");
+
         if (editor.id) {
-            for (var i = 0; i < listItems.length; i++) {
-                listItems[i].className = listItems[i].className.replace(" active_file", "");
+            let index = getIndexById(editor.id);
+            if (index != null) {
+                listItems[index].classList.remove("active_file");
+
+                let name = items[index].value;
+                saveFile(name, editor.id);
             }
-            var items = list.querySelectorAll(".validationCustom");
-            var name = "";
-            for (var i = 0; i < items.length; i++) {
-                if (items[i].id == editor.id) {
-                    name = items[i].value;
-                }
-                else if (items[i].id == id) {
-                    listItems[i].className += " active_file";
-                }
-            }
-            saveFile(name, editor.id);
-        };
+        }
+
         editor.id = id;
+        let index = getIndexById(editor.id);
+        listItems[index].classList.add("active_file");
+
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
         // console.log("Открыли!");
     }
+}
+
+function getIndexById(id) {
+    let items = list.querySelectorAll(".validationCustom");
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].id == editor.id)
+            return i;
+    }
+    return null;
+
 }
 
 function delFile(event) {
@@ -114,21 +128,15 @@ function delFile(event) {
     list.removeChild(this.parentNode);
 
     listItems = list.querySelectorAll(".tasks__item");
-    if (listItems.length > 0)
-        listItems[0].click();
+    if (listItems.length > 0) {
+        openFile(null, listItems[0]);
+
+    }
     else
         $('#container').addClass("d-none");
 
-    checkFilesEmpty();
 
-}
 
-function checkFilesEmpty() {
-    // if(listItems.length > 0) {
-    //     $('#p-no-files').addClass("d-none");
-    // } else {
-    //     $('#p-no-files').removeClass("d-none");
-    // }
 }
 
 function renameFile(event) {
@@ -829,8 +837,10 @@ function newFile() {
         </div>';
 
         entry.innerHTML += '\
+        <div class="px-1" style="width: 55%;"> \
         <input type="button" class="form-control-plaintext form-control-sm validationCustom" \
         id="0" value="'+ nameFile + '" disabled style="cursor: pointer; outline:none;">\
+        </div>\
         <div class="dropdown align-items-center h-100 me-1" id="btn-group-moreActionsWithFile">\
             <button class="btn btn-primary py-1 px-2" type="button" id="ul-dropdownMenu-moreActionsWithFile"\
             data-mdb-toggle="dropdown" aria-expanded="false">\
@@ -867,8 +877,6 @@ function newFile() {
         document.getElementById("div-add-new-file").insertAdjacentElement('beforebegin', entry);
         listItems = list.querySelectorAll(".tasks__item");
         array_files.push(nameFile);
-
-        checkFilesEmpty();
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
@@ -946,6 +954,7 @@ if (document.querySelector("#newFile")) {
 
         listItems = list.querySelectorAll(".tasks__item");
         makeRequest('textdb.php?' + param + "&type=new&file_name=" + name, "new");
+
     });
 }
 
@@ -965,5 +974,3 @@ function switchCon(n) {
         con.style.display = 'block';
     }
 }
-
-export { makeRequest, saveEditedFile, saveActiveFile };

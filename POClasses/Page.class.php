@@ -94,7 +94,7 @@ class Page
   {
     $studentAssignments = [];
     foreach ($this->Tasks as $Task) {
-      if (!$Task->isConversation()) {
+      if (!$Task->isConversation() && $Task->isActive()) {
         $Assignment = $Task->getLastAssignmentByStudent($student_id);
         if ($Assignment != null)
           array_push($studentAssignments, $Assignment);
@@ -106,7 +106,8 @@ class Page
   {
     $count_success = 0;
     foreach ($this->Tasks as $Task) {
-      $count_success += $Task->getCountCompletedAssignments($student_id);
+      if ($Task->isActive())
+        $count_success += $Task->getCountCompletedAssignments($student_id);
     }
     return $count_success;
   }
@@ -233,7 +234,7 @@ class Page
   {
     $return_Tasks = array();
     foreach ($this->getTasks() as $Task) {
-      if ($Task->status == 1)
+      if ($Task->isActive())
         array_push($return_Tasks, $Task);
     }
     return $return_Tasks;

@@ -125,7 +125,7 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
         $Task->addFile($File->id);
       } else {
         foreach ($Files as $File) {
-          $File->editFullText($_POST['codeTest']);
+          $File->setFullText($_POST['codeTest']);
           $File->pushChangesToDB();
         }
       }
@@ -143,7 +143,7 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
       $Task->addFile($File->id);
     } else {
       foreach ($Files as $File) {
-        $File->full_text = $_POST['codeCheck'];
+        $File->setFullText($_POST['codeCheck']);
         $File->pushChangesToDB();
       }
     }

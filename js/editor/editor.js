@@ -14,4 +14,5 @@ require(['vs/editor/editor.main'], function () {
 
     });
     editor.current.layout();
+    $('#container').addClass("d-none");
 });

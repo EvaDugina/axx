@@ -325,7 +325,7 @@ class Task
   {
     $student_Assignments = array();
     foreach ($this->Assignments as $Assignment) {
-      if (($Assignment->isVisible()) && $Assignment->checkStudent($student_id))
+      if (($Assignment->isVisibleForStudent()) && $Assignment->checkStudent($student_id))
         array_push($student_Assignments, $Assignment);
     }
     return $student_Assignments;

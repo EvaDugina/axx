@@ -80,130 +80,16 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                   </thead>
                   <tbody>
                     <?php
-                    foreach ($Tasks as $Task) { ?>
-                      <tr>
-                        <div class="row">
-                          <td class="col-1" scope="row" style="--mdb-table-accent-bg:unset;">
-                            <div class="form-check"><input class="form-check-input enabler" type="checkbox" value="<?= $Task->id ?>" name="activeTasks[]" id="checkActive" onChange="updateOps();" />
-                            </div>
-                          </td>
-                          <td class="col-3" style="--mdb-table-accent-bg:unset;">
-                            <h6 class="d-flex">
-                              <?php getSVGByTaskType($Task->type); ?>
-                              &nbsp;&nbsp;<?= $Task->title ?>
-                            </h6>
-
-                            <?php if (count($Task->getAssignments()) > 0) { ?>
-                              <div class="small">Назначения:</div>
-                              <div id="student_container">
-                                <?php
-
-                                foreach ($Task->getAssignments() as $Assignment) {
-                                  $stud_list = "";
-                                  $countStudents = 0;
-                                  foreach ($Assignment->getStudents() as $i => $Student) {
-                                    if ($i != 0)
-                                      $stud_list .= ", ";
-                                    $stud_list .= $Student->getFI();
-                                    $countStudents++;
-                                  }
-                                  $icon_multiusers = false;
-                                  if ($countStudents > 0)
-                                    $icon_multiusers = true;
-                                ?>
-                                  <form id="form-rejectAssignment-<?= $Assignment->id ?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1">
-                                    <input type="hidden" name="task_id" value="<?= $Task->id ?>"></input>
-                                    <input type="hidden" name="assignment_id" value="<?= $Assignment->id ?>"></input>
-                                    <input type="hidden" name="action" value="reject"></input>
-
-                                    <div class="d-flex justify-content-between align-items-center me-2 badge-primary 
-                                <?php if ($stud_list == "") echo "bg-warning"; ?> text-wrap small">
-                                      <span class="mx-1">
-                                        <?php if ($stud_list == "") { ?>
-                                          ~СТУДЕНТЫ ОТСУТСТВУЮТ~
-                                        <?php } else { ?>
-                                          <span id="span-assignmentVisibility-<?= $Assignment->id ?>" class="p-0 m-0">
-                                            <?php getSVGByAssignmentVisibility($Assignment->visibility); ?> &nbsp;
-                                          </span>
-                                          <span class="span-assignmentStatus-<?= $Task->id ?>" class="p-0 m-0">
-                                            <?php getSVGByAssignmentStatus($Assignment->status); ?> &nbsp;
-                                          </span>
-                                          <i class="fas fa-user<?= (($icon_multiusers) ? "s" : "") ?>"></i> <?= $stud_list ?>
-                                        <?php }
-                                        if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
-                                          echo " (до $Assignment->finish_limit)";
-                                        else
-                                          echo " (бессрочно)"; ?>
-                                      </span>
-                                      <span>
-                                        <button class="btn btn-link me-0 p-1" type="button" onclick="window.location='taskassign.php?assignment_id=<?= $Assignment->id ?>';" data-title="Редактировать">
-                                          <i class="fas fa-pen fa-lg"></i>
-                                        </button>
-                                        <button class="btn btn-link me-0 p-1" type="button" onclick="confirmRejectAssignment(<?= $Assignment->id ?>, 'delete')" data-title="Удалить">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
-                                          </svg>
-                                        </button>
-                                      </span>
-                                    </div>
-                                  </form>
-                                <?php //$i++;
-                                } ?>
-                              </div>
-
-                            <?php } ?>
-
-
-
-                          </td>
-                          <td class="col-8 text-nowrap" style="--mdb-table-accent-bg:unset;">
-
-                            <div class="d-flex justify-content-end mb-3">
-                              <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
-                                <input type="hidden" name="action" value="archive">
-                                <input type="hidden" name="task_id" value="<?= $Task->id ?>">
-                                <button type="submit" class="btn btn-outline-secondary px-3 me-1" data-title="Перенести в архив">
-                                  <i class="fas fa-ban"></i>
-                                </button>
-                              </form>
-                              <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskedit.php?task=<?= $Task->id ?>';" data-title="Редактировать">
-                                <i class="fas fa-pen fa-lg"></i>
-                              </button>
-                              <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="window.location='taskassign.php?task_id=<?= $Task->id ?>';" data-title="Назначить">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
-                                  <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-                                </svg>
-                              </button>
-                              <button type="button" class="btn btn-primary px-3" data-title="Скачать задание" disabled>
-                                <i class="fas fa-download fa-lg"></i>
-                              </button>
-                            </div>
-
-                            <?php
-                            if (count($Task->getAssignments()) > 0) { ?>
-                              <section class="d-flex justify-content-end">
-                                <button id="btn-assignment-visibility-<?= $Task->id ?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>" onclick="ajaxChangeVisibilityAllAssignmentsByTask(0, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделать невидимыми все назначения">
-                                  <?php getSVGByAssignmentVisibility(0); ?>
-                                </button>
-                                <button id="btn-assignment-visibility-<?= $Task->id ?>-2" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>" onclick="ajaxChangeVisibilityAllAssignmentsByTask(2, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделдать видимыми все назначения">
-                                  <?php getSVGByAssignmentVisibility(2); ?>
-                                </button>
-                                <button id="btn-assignment-visibility-<?= $Task->id ?>-4" class="btn btn-outline-light px-3 me-3 btn-assignment-visibility-<?= $Task->id ?>" onclick="ajaxChangeVisibilityAllAssignmentsByTask(4, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Отменить все назначения">
-                                  <?php getSVGByAssignmentVisibility(4); ?>
-                                </button>
-
-                                <button id="btn-assignment-status-<?= $Task->id ?>--1" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?= $Task->id ?>" onclick="ajaxChangeStatusAllAssignmentsByTask(-1, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделать недоступными все назначения">
-                                  <?php getSVGByAssignmentStatus(-1); ?>
-                                </button>
-                                <button id="btn-assignment-status-<?= $Task->id ?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?= $Task->id ?>" onclick="ajaxChangeStatusAllAssignmentsByTask(0, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделать доступными все назначения">
-                                  <?php getSVGByAssignmentStatus(0); ?>
-                                </button>
-                              </section>
-                            <?php } ?>
-
-                          </td>
-                      </tr>
-                    <?php }  ?>
+                    $conversationTask = null;
+                    foreach ($Tasks as $Task) {
+                      if ($Task->isConversation()) {
+                        $conversationTask = $Task;
+                        continue;
+                      }
+                      generateTaskLine($Task);
+                    }
+                    if ($conversationTask != null)
+                      generateTaskLine($conversationTask); ?>
                   </tbody>
                 </table>
               </div>
@@ -433,6 +319,135 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
     </div>
   </div>
 
+
+  <?php
+  function generateTaskLine($Task)
+  { ?>
+    <tr role="button" onclick="chooseTaskLine($(this))">
+      <div class="row">
+        <td class="col-1" scope="row" style="--mdb-table-accent-bg:unset;">
+          <div class="form-check"><input class="form-check-input enabler" type="checkbox" value="<?= $Task->id ?>" name="activeTasks[]" id="checkActive" onclick="event.stopPropagation();" onChange="updateOps();" />
+          </div>
+        </td>
+        <td class="col-3" style="--mdb-table-accent-bg:unset;">
+          <h6 class="d-flex">
+            <?php getSVGByTaskType($Task->type); ?>
+            &nbsp;&nbsp;<?= $Task->title ?>
+          </h6>
+
+          <?php if (count($Task->getAssignments()) > 0) { ?>
+            <div class="small">Назначения:</div>
+            <div id="student_container">
+              <?php
+
+              foreach ($Task->getAssignments() as $Assignment) {
+                $stud_list = "";
+                $countStudents = 0;
+                foreach ($Assignment->getStudents() as $i => $Student) {
+                  if ($i != 0)
+                    $stud_list .= ", ";
+                  $stud_list .= $Student->getFI();
+                  $countStudents++;
+                }
+                $icon_multiusers = false;
+                if ($countStudents > 0)
+                  $icon_multiusers = true;
+              ?>
+                <form id="form-rejectAssignment-<?= $Assignment->id ?>" name="deleteTaskFiles" action="taskedit_action.php" method="POST" enctype="multipart/form-data" class="py-1" onclick="event.stopPropagation();">
+                  <input type="hidden" name="task_id" value="<?= $Task->id ?>"></input>
+                  <input type="hidden" name="assignment_id" value="<?= $Assignment->id ?>"></input>
+                  <input type="hidden" name="action" value="reject"></input>
+
+                  <div class="d-flex justify-content-between align-items-center me-2 badge-primary 
+                                <?php if ($stud_list == "") echo "bg-warning"; ?> text-wrap small">
+                    <span class="mx-1">
+                      <?php if ($stud_list == "") { ?>
+                        ~СТУДЕНТЫ ОТСУТСТВУЮТ~
+                      <?php } else { ?>
+                        <span id="span-assignmentVisibility-<?= $Assignment->id ?>" class="p-0 m-0">
+                          <?php getSVGByAssignmentVisibility($Assignment->visibility); ?> &nbsp;
+                        </span>
+                        <span class="span-assignmentStatus-<?= $Task->id ?>" class="p-0 m-0">
+                          <?php getSVGByAssignmentStatus($Assignment->status); ?> &nbsp;
+                        </span>
+                        <i class="fas fa-user<?= (($icon_multiusers) ? "s" : "") ?>"></i> <?= $stud_list ?>
+                      <?php }
+                      if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
+                        echo " (до $Assignment->finish_limit)";
+                      else
+                        echo " (бессрочно)"; ?>
+                    </span>
+                    <span>
+                      <button class="btn btn-link me-0 p-1" type="button" onclick="event.stopPropagation(); window.location='taskassign.php?assignment_id=<?= $Assignment->id ?>';" data-title="Редактировать">
+                        <i class="fas fa-pen fa-lg"></i>
+                      </button>
+                      <button class="btn btn-link me-0 p-1" type="button" onclick="event.stopPropagation(); confirmRejectAssignment(<?= $Assignment->id ?>, 'delete')" data-title="Удалить">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                      </button>
+                    </span>
+                  </div>
+                </form>
+              <?php //$i++;
+              } ?>
+            </div>
+
+          <?php } ?>
+
+
+
+        </td>
+        <td class="col-8 text-nowrap" style="--mdb-table-accent-bg:unset;">
+
+          <div class="d-flex justify-content-end mb-3">
+            <form name="form-archTask" action="taskedit_action.php" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="action" value="archive">
+              <input type="hidden" name="task_id" value="<?= $Task->id ?>">
+              <button type="submit" class="btn btn-outline-secondary px-3 me-1" data-title="Перенести в архив">
+                <i class="fas fa-ban"></i>
+              </button>
+            </form>
+            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="event.stopPropagation(); window.location='taskedit.php?task=<?= $Task->id ?>';" data-title="Редактировать">
+              <i class="fas fa-pen fa-lg"></i>
+            </button>
+            <button type="submit" class="btn btn-outline-warning px-3 me-1" onclick="event.stopPropagation(); window.location='taskassign.php?task_id=<?= $Task->id ?>';" data-title="Назначить">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+              </svg>
+            </button>
+            <button type="button" class="btn btn-primary px-3 d-none" data-title="Скачать задание" disabled>
+              <i class="fas fa-download fa-lg"></i>
+            </button>
+          </div>
+
+          <?php
+          if (count($Task->getAssignments()) > 0) { ?>
+            <section class="d-flex justify-content-end" onclick="event.stopPropagation();">
+              <button id="btn-assignment-visibility-<?= $Task->id ?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>" onclick="ajaxChangeVisibilityAllAssignmentsByTask(0, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделать невидимыми все назначения">
+                <?php getSVGByAssignmentVisibility(0); ?>
+              </button>
+              <button id="btn-assignment-visibility-<?= $Task->id ?>-2" class="btn btn-outline-light px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>" onclick="ajaxChangeVisibilityAllAssignmentsByTask(2, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделдать видимыми все назначения">
+                <?php getSVGByAssignmentVisibility(2); ?>
+              </button>
+              <button id="btn-assignment-visibility-<?= $Task->id ?>-4" class="btn btn-outline-light px-3 me-3 btn-assignment-visibility-<?= $Task->id ?>" onclick="ajaxChangeVisibilityAllAssignmentsByTask(4, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Отменить все назначения">
+                <?php getSVGByAssignmentVisibility(4); ?>
+              </button>
+
+              <button id="btn-assignment-status-<?= $Task->id ?>--1" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?= $Task->id ?>" onclick="ajaxChangeStatusAllAssignmentsByTask(-1, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделать недоступными все назначения">
+                <?php getSVGByAssignmentStatus(-1); ?>
+              </button>
+              <button id="btn-assignment-status-<?= $Task->id ?>-0" class="btn btn-outline-light px-3 me-1 btn-assignment-status-<?= $Task->id ?>" onclick="ajaxChangeStatusAllAssignmentsByTask(0, <?= $Task->id ?>)" style="color: var(--mdb-gray-400); border-color: var(--mdb-gray-400);" data-title="Сделать доступными все назначения">
+                <?php getSVGByAssignmentStatus(0); ?>
+              </button>
+            </section>
+          <?php } ?>
+
+        </td>
+    </tr>
+  <?php } ?>
+
+
   <script type="text/javascript">
     function getSelectedTasks() {
       return $(checkActiveForm).find('#checkActive:checked:enabled').map(function() {
@@ -479,6 +494,15 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
       $('#modal-btn-escape').click(function() {
         $('#dialogMark').modal('hide');
       });
+    }
+
+    function chooseTaskLine(tr) {
+      tr.find('#checkActive').click();
+      // if (tr.hasClass('border-primary')) {
+      //   tr.removeClass('border-primary');
+      // } else {
+      //   tr.addClass('border-primary');
+      // }
     }
 
     function ajaxChangeAssignmentStatus(assignment_id, new_status) {

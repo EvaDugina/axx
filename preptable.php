@@ -357,7 +357,7 @@ if ($scripts) echo $scripts;
                         </li>
                         <div class="inner-accordion noselect" style="display: none;">
                           <?php
-                          foreach ($Page->getTasks() as $Task) {
+                          foreach ($Page->getActiveTasks() as $Task) {
                             $Assignment = $Task->getLastAssignmentByStudent($Student->id);
                             if ($Assignment != null) { ?>
                               <a href="taskchat.php?assignment=<?= $Assignment->id ?>">
@@ -399,7 +399,7 @@ if ($scripts) echo $scripts;
         </div>
 
         <?php if ($messages && count($messages) > 0) { ?>
-          <div class="col-4 bg-light p-3" style="z-index: 999;">
+          <div class="col-4 bg-light p-3" style="z-index: 3;">
             <h5>История посылок и оценок</h5>
             <div id="list-messages" class="bg-light" style="/*overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);*/">
               <div id="list-messages-id">

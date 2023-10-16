@@ -1,5 +1,5 @@
-const apiUrl = `https://vega.fcyb.mirea.ru/sandbox`;
-const wsUrl = `wss://vega.fcyb.mirea.ru/sandbox/sandbox/ws`;
+const apiUrl = `https://vega.mirea.ru/sandbox`;
+const wsUrl = `wss://vega.mirea.ru/sandbox/sandbox/ws`;
 
 const Sandbox = {
     id: null
@@ -19,8 +19,8 @@ export default Sandbox;
 
     const socket = new WebSocket(`${wsUrl}/${Sandbox.id}`);
 
-    socket.addEventListener('message', ({data}) => {
-        if(data.indexOf(`# Sandbox with id ${Sandbox.id} does not exist`) === 0)
+    socket.addEventListener('message', ({ data }) => {
+        if (data.indexOf(`# Sandbox with id ${Sandbox.id} does not exist`) === 0)
             window.location.hash = ``;
     }, { once: true });
 

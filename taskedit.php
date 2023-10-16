@@ -153,7 +153,7 @@ show_head("Добавление\Редактирование задания", ar
           </table>
 
           <div class="d-flex">
-            <button id="submit-save" class="btn btn-outline-success d-flex align-items-center" onclick="saveTask(); document.location.href='preptasks.php?page=<?= $Page->id ?>';">
+            <button id="submit-save" class="btn btn-outline-success d-flex align-items-center" onclick="saveTask(true);">
               Сохранить &nbsp;
               <div id="spinner-save" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
@@ -578,7 +578,7 @@ show_head("Добавление\Редактирование задания", ar
     return TASK_ID != null && TASK_ID != -1;
   }
 
-  function saveTask() {
+  function saveTask(flagButtonSave = false) {
 
     let task_id = getTaskId("saveTask()");
     if (task_id == -1)
@@ -617,7 +617,10 @@ show_head("Добавление\Редактирование задания", ar
     $('#spinner-save').addClass("d-none");
 
     if (ajaxResponse != null) {
-      document.location.href = "taskedit.php?task=" + task_id;
+      if (flagButtonSave)
+        document.location.href = 'preptasks.php?page=<?= $Page->id ?>';
+      else
+        document.location.href = "taskedit.php?task=" + task_id;
       return;
     } else {
       alert("Не удалось сохранить изменения. Попробуйте ещё раз.")
@@ -630,7 +633,6 @@ show_head("Добавление\Редактирование задания", ar
       descriptionChange();
       codeTestChange();
       codeCheckTestChange();
-
     }
 
   }
