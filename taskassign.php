@@ -580,13 +580,13 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
     function checkFields() {
       let start_date = new Date($('#input-startDate').val());
       let start_time = $('#input-startTime').val();
-      let end_date = Date.parse($('#input-endDate').val());
+      let end_date = new Date($('#input-endDate').val());
       let end_time = $('#input-endTime').val();
 
       if (start_date > end_date) {
         alert("Неверно указаны даты!");
         return;
-      } else {
+      } else if (start_date == end_date) {
         let split_start_time = start_time.split(":");
         let split_end_time = end_time.split(":");
         if (parseInt(split_start_time[0]) > parseInt(split_end_time[0])) {

@@ -550,7 +550,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 $resultC = pg_query($dbconnect, "select autotest_results res from ax_solution_commit where id = " . $last_commit_id);
                 if ($resultC && pg_num_rows($resultC) > 0) {
                   $rowC = pg_fetch_assoc($resultC);
-                  if (array_key_exists('res', $rowC) && $rowC['res'] != null)
+                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
                     $checkres = json_decode($rowC['res'], true);
                 }
               }

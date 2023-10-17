@@ -208,18 +208,46 @@ show_head("Задания по дисциплине: " . $row['disc_name'], arra
                   </div>
                 </section>
                 <section class="w-100 py-2 d-flex justify-content-center">
-                  <div class="form-outline datetimepicker w-100" style="width: 22rem">
-                    <input type="date" class="form-control active" name="tilltime" id="datetimepickerExample" style="margin-bottom: 0px;">
-                    <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Срок выполения</label>
+                  <div class="form-outline datetimepicker w-100">
+                    <input type="date" class="form-control active" name="fromtime" id="datetimepickerExample" style="margin-bottom: 0px;">
+                    <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Дата начала</label>
                     <div class="form-notch">
                       <div class="form-notch-leading" style="width: 9px;"></div>
                       <div class="form-notch-middle" style="width: 114.4px;"></div>
                       <div class="form-notch-trailing"></div>
                     </div>
-
+                  </div>
+                  <div class="form-outline datetimepicker w-100 ms-2">
+                    <input id="input-startTime" type="time" name="start_time" class="form-control active" style="margin-bottom: 0px;" value="00:00">
+                    <label for="input-startTime" class="form-label" style="margin-left: 0px;">Время начала</label>
+                    <div class="form-notch">
+                      <div class="form-notch-leading" style="width: 9px;"></div>
+                      <div class="form-notch-middle" style="width: 108px;"></div>
+                      <div class="form-notch-trailing"></div>
+                    </div>
                   </div>
                 </section>
-                <button type="submit" class="btn btn-outline-primary" onclick="$(assignForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
+                <section class="w-100 py-2 d-flex justify-content-center">
+                  <div class="form-outline datetimepicker w-100">
+                    <input type="date" class="form-control active" name="tilltime" id="datetimepickerExample" style="margin-bottom: 0px;">
+                    <label for="datetimepickerExample" class="form-label" style="margin-left: 0px;">Дата окончания</label>
+                    <div class="form-notch">
+                      <div class="form-notch-leading" style="width: 9px;"></div>
+                      <div class="form-notch-middle" style="width: 114.4px;"></div>
+                      <div class="form-notch-trailing"></div>
+                    </div>
+                  </div>
+                  <div class="form-outline datetimepicker w-100 ms-2">
+                    <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="23:59">
+                    <label for="input-endTime" class="form-label" style="margin-left: 0px;">Время окончания</label>
+                    <div class="form-notch">
+                      <div class="form-notch-leading" style="width: 9px;"></div>
+                      <div class="form-notch-middle" style="width: 108px;"></div>
+                      <div class="form-notch-trailing"></div>
+                    </div>
+                  </div>
+                </section>
+                <button type="submit" class="btn btn-outline-primary me-2" onclick="$(assignForm).find(tasknum).val($(checkActiveForm).find('#checkActive:checked:enabled').map(function(){return $(this).val();}).get());
                           $(assignForm).find(groupped).val(0);" onChange="$(assignForm).trigger('submit')">
                   <i class="fas fa-user fa-lg"></i> Назначить индивидуально
                 </button>

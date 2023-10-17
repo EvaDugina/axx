@@ -80,7 +80,8 @@ function openFile(event = null, listItem = null) {
         thisListItem = this;
 
     $('#container').removeClass("d-none");
-    $('#check').prop("disabled", false);
+    if (user_role == 3)
+      $('#check').prop("disabled", false);
     var id = thisListItem.querySelector(".validationCustom").id;
     if (id != editor.id) {
         var items = list.querySelectorAll(".validationCustom");
@@ -135,7 +136,8 @@ function delFile(event) {
     }
     else {
         $('#container').addClass("d-none");
-        $('#check').prop("disabled", true);
+        if (user_role == 3)
+          $('#check').prop("disabled", true);
     }
 
 
@@ -396,7 +398,8 @@ function alertContentsCheck(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
                 // alert('Код отправлен на проверку!');
-                $('#check').prop("disabled", false);
+                if (user_role == 3)
+                  $('#check').prop("disabled", false);
                 $('#dialogSuccess').modal('show');
                 // document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
                 // document.location.reload();

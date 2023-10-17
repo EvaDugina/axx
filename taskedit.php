@@ -608,8 +608,11 @@ show_head("Добавление\Редактирование задания", ar
       original_codeCheck = new_codeCheck;
     }
 
-    if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null)
-      return "EMPTY";
+    // if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null) {
+    //   if (flagButtonSave)
+    //     document.location.href = 'preptasks.php?page=<?= $Page->id ?>';
+    //   return "EMPTY";
+    // }
 
     $('#spinner-save').removeClass("d-none");
 
@@ -619,7 +622,7 @@ show_head("Добавление\Редактирование задания", ar
     if (ajaxResponse != null) {
       if (flagButtonSave)
         document.location.href = 'preptasks.php?page=<?= $Page->id ?>';
-      else
+      else if (ajaxResponse != "EMPTY")
         document.location.href = "taskedit.php?task=" + task_id;
       return;
     } else {
