@@ -5,7 +5,7 @@ require_once("utilities.php");
 require_once("POClasses/Commit.class.php");
 
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
-  exit;
+  exit();
 }
 
 // Находим sender_user_type (3 - студент, 2 - преподаватель)

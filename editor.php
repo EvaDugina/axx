@@ -250,27 +250,38 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
                 <?php foreach ($Commits as $i => $Commit) {
                   $commitUser = new User($Commit->student_user_id); ?>
-                  <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
-                                                                                          if ($commitUser->id == $User->id) {
-                                                                                            echo "primary";
+                  <div class="d-flex <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?>">
+                    <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
+                                                                                            if ($commitUser->id == $User->id) {
+                                                                                              echo "primary";
+                                                                                            } else {
+                                                                                              echo "success";
+                                                                                            }
                                                                                           } else {
-                                                                                            echo "success";
-                                                                                          }
-                                                                                        } else {
-                                                                                          echo "dark";
-                                                                                        } ?> 
-                    <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? "btn-outline-primary" : "btn-outline-success" ?> <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-light border border-dark text-dark <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?> d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
+                                                                                            echo "dark";
+                                                                                          } ?> 
+                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? "btn-outline-primary" : "btn-outline-success" ?> 
+                       d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-light border border-dark text-dark 
+                        d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
 
-                    <div class="flex-column">
-                      <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
-                      <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
-                    </div>
-                    <?php
-                    // if ($Commit->id == $last_commit_id)
-                    //   echo '~ТЕКУЩИЙ~'; 
-                    ?>
-                    <?= getSVGByCommitType($Commit->type) ?>
-                  </button>
+                      <div class="flex-column">
+                        <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
+                        <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
+                      </div>
+                      <?php
+                      // if ($Commit->id == $last_commit_id)
+                      //   echo '~ТЕКУЩИЙ~'; 
+                      ?>
+                      <?= getSVGByCommitType($Commit->type) ?>
+                    </button>
+                    <?php if (!$Commit->isNotEdit() && count($Commits) > 1 && $commitUser->id == $User->id) { ?>
+                      <button class="btn btn-link bg-danger text-white ms-1 p-2" type="button" onclick="deleteCommit(<?= $Commit->id ?>)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                      </button>
+                    <?php } ?>
+                  </div>
                 <?php } ?>
               </div>
             </div>
@@ -321,11 +332,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <?php
             if ($au->isAdminOrPrep()) {  // Оценить отправленное на проверку задание 
             ?>
-              <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($Assignment->isWaitingCheck()) ? "" : "disabled") ?>>Завершить проверку</button>
+              <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" commit="<?= $Commit->id ?>" <?= (($Assignment->isWaitingCheck()) ? "" : "disabled") ?>>Завершить проверку</button>
             <?php
             } else if ($Assignment->checkStudent($User->id)) { // Отправить задание на проверку
             ?>
-              <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" <?= (($assignment_status == -1 || count($solutionFiles) < 1) ? "disabled" : "") ?>>
+              <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" commit="<?= $Commit->id ?>" <?= (($assignment_status == -1 || count($solutionFiles) < 1) ? "disabled" : "") ?>>
                 Отправить на проверку</button>
             <?php
             }
@@ -868,7 +879,11 @@ fun();
   <script src="js/tab.js"></script>
   <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
   <script src="js/editorloader.js" type="module"></script>
+
+  <!-- Handlers -->
   <script type="text/javascript" src="js/AssignmentHandler.js"></script>
+  <script type="text/javascript" src="js/CommitHandler.js"></script>
+
   <!-- Custom scripts -->
   <script type="text/javascript">
     function showBorders() {
@@ -924,6 +939,18 @@ fun();
       } else {
         alert("Произошла ошибка!");
         return false;
+      }
+    }
+
+    function deleteCommit(commit_id) {
+      let ajaxResponse = ajaxCommitDelete(commit_id);
+      if (ajaxResponse != null) {
+        if (commit_id != parseInt(document.getElementById('check').getAttribute('commit')))
+          document.location.reload();
+        else
+          document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
+      } else {
+        alert("Не удалось удалить коммит.");
       }
     }
 
