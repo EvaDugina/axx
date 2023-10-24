@@ -382,9 +382,13 @@ if ($scripts) echo $scripts;
                                           </span>
                                         <?php }
 
-                                        if ($Assignment->isCompleted() || $Assignment->isMarked()) { ?>
+                                        if ($Assignment->isMarked()) { ?>
                                           <span class="badge badge-primary badge-pill bg-success text-white">
                                             Выполнено
+                                          </span>
+                                        <?php } else if ($Assignment->isCompleted()) { ?>
+                                          <span class="badge badge-primary badge-pill bg-primary text-white">
+                                            Проверено
                                           </span>
                                         <?php } ?>
 

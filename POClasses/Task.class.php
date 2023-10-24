@@ -123,7 +123,7 @@ class Task
     $count_success = 0;
     if ($this->status == 1) {
       foreach ($this->getVisibleAssignmemntsByStudent($student_id) as $Assignment) {
-        if ($Assignment->isMarked() || $Assignment->isCompleted())
+        if ($Assignment->isMarked())
           $count_success++;
       }
     }
