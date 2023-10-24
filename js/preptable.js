@@ -2,7 +2,6 @@
 
 TEXT_WITH_MARK = "Задание проверено. \nОценка: ";
 
-
 const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
   const value = document.getElementById("selectCourse").value;
   document.location.href = 'preptable.php?page=' + value;
@@ -190,12 +189,15 @@ function filterTableByTasks(value) {
   }
 }
 
-function showPopover(element) {
-  //console.log(element);
+function showTdPopover(element) {
+
+  // console.log(element.getAttribute('data-mdb-content'));
+
+  // $('[data-toggle="popover"]').popover();
 
   $(element).popover({
     html: true,
-    delay: 250,
+    delay: 250, // без этого ничего не работает и popover сразу закрывается
     trigger: 'focus',
     placement: 'bottom',
     sanitize: false,

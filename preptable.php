@@ -251,7 +251,7 @@ if ($scripts) echo $scripts;
                                   $last_Message = $Assignment->getLastAnswerMessage();
                                   $last_message_Student = new User((int)$last_Message->sender_user_id);
                                 ?>
-                                  <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showPopover(this);" style="cursor: pointer;" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id) ?>">
+                                  <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showTdPopover(this);" style="cursor: pointer;" data-toggle="popover" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id) ?>">
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
                                       <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
                                       else getSVGByAssignmentStatus(4); ?>
@@ -630,7 +630,7 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id)
   $data_mdb_content .= "
   <div class='d-flex flex-column mt-1'>
     <div class='d-flex w-100 justify-content-between mb-1'>
-      <a href='javascript:chooseAssignment($assignment_id); javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", " . $Task->max_mark . ")'
+      <a href='javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", " . $Task->max_mark . ");'
       type='message' class='btn btn-outline-success w-100 me-1'>
         Зачесть
       </a> 
@@ -696,20 +696,20 @@ function show_preptable_message($message, $flag_marked_message = false)
 <?php
 }
 
-function getPopoverHtml($message_fio, $message_group, $message_task_title, $message_time, $message_text)
-{
-  $popover_html = "
-  <div class='popover message role='listitem'>
-    <div class='popover-arrow'></div>
-    <div class='p-3 popover-header' style='background-color: #80E08040;'>
-      <h6 style='margin-bottom: 0px;' data-title='" . $message_group . "\nЗадание: " . $message_task_title . "'>" .
-    $message_fio . "<br></h6>
-      <p style='text-align: right; font-size: 8pt; margin-bottom: 0px;'>" . convert_mtime($message_time) . "</p>
-    </div>
-    <div class='popover-body'>" . $message_text . "</div>
-  </div>";
-  return $popover_html;
-}
+// function getPopoverHtml($message_fio, $message_group, $message_task_title, $message_time, $message_text)
+// {
+//   $popover_html = "
+//   <div class='popover message role='listitem'>
+//     <div class='popover-arrow'></div>
+//     <div class='p-3 popover-header' style='background-color: #80E08040;'>
+//       <h6 style='margin-bottom: 0px;' data-title='" . $message_group . "\nЗадание: " . $message_task_title . "'>" .
+//     $message_fio . "<br></h6>
+//       <p style='text-align: right; font-size: 8pt; margin-bottom: 0px;'>" . convert_mtime($message_time) . "</p>
+//     </div>
+//     <div class='popover-body'>" . $message_text . "</div>
+//   </div>";
+//   return $popover_html;
+// }
 
 function generate_message_for_student_task_commit($task_title)
 {
