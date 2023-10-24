@@ -87,8 +87,8 @@ show_head("Страница предмета " . $Page->name);
       $text_status = status_to_text($Assignment->status);
       if ($Assignment->isMarked()) {
         if ($Assignment->isWaitingCheck())
-          $text_status = ' (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
-        else if ($Assignment->mark != "зачтено")
+          $text_status .= ' </br>(текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
+        if ($Assignment->mark != "зачтено")
           $text_status .= ' (оценка: <strong>' . $Assignment->mark . '</strong>)';
         else
           $text_status .= ' (<strong>' . $Assignment->mark . '</strong>)';

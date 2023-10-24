@@ -278,7 +278,7 @@ $task_number = explode('.', $task_title)[0];
                   <?php $text_status = status_to_text($Assignment->status);
                   if ($Assignment->isMarked()) {
                     if ($Assignment->isWaitingCheck())
-                      $text_status = ' (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
+                      $text_status .= ' </br>(текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
                     else if ($Assignment->mark != "зачтено")
                       $text_status .= ' (оценка: <strong>' . $Assignment->mark . '</strong>)';
                     else
