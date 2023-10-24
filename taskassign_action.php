@@ -314,6 +314,9 @@ if (isset($_POST['flag-markAssignment']) && isset($_POST['assignment_id']) && is
   $Message = new Message((int)$Assignment->id, 2, $User->id, $User->role);
   $Message->setFullText($message_text);
   $Assignment->addMessage($Message->id);
+
+  echo getSVGByAssignmentStatus($Assignment->status);
+  exit();
 }
 
 header('Location:' . $_SERVER['HTTP_REFERER']);

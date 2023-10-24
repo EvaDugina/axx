@@ -23,7 +23,9 @@ function ajaxAssignmentMark(assignment_id, mark, user_id) {
         data: formData,
         dataType: 'html',
         success: function (response) {
-            ajaxResponse = response.replace(/(\r\n|\n|\r)/gm, "").trim();
+            response = response.replace(/(\r\n|\n|\r)/gm, "").trim();
+            ajaxResponse = {};
+            ajaxResponse['svg-checked'] = response;
         },
         complete: function () {
         }
