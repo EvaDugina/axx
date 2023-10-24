@@ -83,12 +83,15 @@ show_head("Страница предмета " . $Page->name);
         $date_finish = "до $Assignment->finish_limit";
       else
         $date_finish = "";
-      if ($Assignment->isCompleted() && $Assignment->isMarked()) {
-        $text_status = 'Проверено (оценка: <strong>' . $Assignment->mark . '</strong>)';
-      } else if ($Assignment->isWaitingCheck() && $Assignment->isMarked()) {
-        $text_status = 'Ожидает проверки (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
-      } else {
-        $text_status = status_to_text($Assignment->status);
+
+      $text_status = status_to_text($Assignment->status);
+      if ($Assignment->isMarked()) {
+        if ($Assignment->isWaitingCheck())
+          $text_status = ' (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
+        else if ($Assignment->mark != "зачтено")
+          $text_status .= ' (оценка: <strong>' . $Assignment->mark . '</strong>)';
+        else
+          $text_status .= ' (<strong>' . $Assignment->mark . '</strong>)';
       }
   ?>
       <button class="list-group-item list-group-item-action d-flex justify-content-between mb-3 align-items-center <?= ($Task->isConversation()) ? "bg-primary text-white" : "" ?>" onclick="window.location='taskchat.php?assignment=<?= $Assignment->id ?>'" style="cursor: pointer; border-width: 1px; padding: 0px; border-radius: 5px;">
@@ -97,11 +100,12 @@ show_head("Страница предмета " . $Page->name);
         <?php if (!$Task->isConversation()) { ?>
           <p class="col-md-2" style="margin: 10px; text-align: center;"><?= $text_status; ?></p>
         <?php } ?>
-        <div class="form-check" style="margin: 10px;">
-          <?php if (!$Task->isConversation()) { ?>
-            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" <?= ($Assignment->isMarked() || $Assignment->isCompleted()) ? 'checked' : 'unchecked' ?> disabled>
-            <label class="form-check-label" for="flexCheckChecked"></label>
-          <?php } ?>
+        <div class="d-flex align-items-center ps-0">
+          <div class="text-primary me-2">
+            <?php if (!$Task->isConversation()) {
+              getSVGByAssignmentStatus($Assignment->status);
+            } ?>
+          </div>
         </div>
         <!-- ВОЗМОЖНЫЕ ДОРАБОТКИ ПО МАКЕТУ
 											<button type="button" style="color:crimson; border-width: 0px; background: none;"> <i class="fas fa-file-download fa-lg"></i></button>

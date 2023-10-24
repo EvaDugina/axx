@@ -809,7 +809,7 @@ function status_to_text($status)
     case 3:
       return "Ожидает повторного выполнения";
     case 4:
-      return "Оценено";
+      return "Выполнено";
     default:
       return "";
   }

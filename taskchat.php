@@ -268,17 +268,27 @@ $task_number = explode('.', $task_title)[0];
         if (!$Task->isConversation()) { ?>
           <div class="task-status-wrapper me-0 ps-3 col-3 align-items-end">
             <div class="align-items-end w-100">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="flexCheckDisabled" <?php if ($Assignment->isMarked() || $Assignment->isCompleted()) echo 'checked'; ?> disabled>
-                <?php //XXX: Проверить
-                ?>
-                <label id="label-task-status-text"><?= status_to_text($Assignment->status) ?></label>
+              <div class="d-flex align-items-center ps-0">
+                <div class="text-primary me-2">
+                  <?php if (!$Task->isConversation()) {
+                    getSVGByAssignmentStatus($Assignment->status);
+                  } ?>
+                </div>
+                <label id="label-task-status-text">
+                  <?php $text_status = status_to_text($Assignment->status);
+                  if ($Assignment->isMarked()) {
+                    if ($Assignment->isWaitingCheck())
+                      $text_status = ' (текущая оценка: <strong>' . $Assignment->mark . '</strong>)';
+                    else if ($Assignment->mark != "зачтено")
+                      $text_status .= ' (оценка: <strong>' . $Assignment->mark . '</strong>)';
+                    else
+                      $text_status .= ' (<strong>' . $Assignment->mark . '</strong>)';
+                  }
+                  echo $text_status; ?>
+                </label>
               </div>
-              <span id="span-answer-date"><?php if ($task_finish_date_time) echo $task_finish_date_time; ?></span><br>
-              <span id="span-text-mark"><?php if ($Assignment->isMarked()) { ?>
-                  Оценка: <b id="b-mark"><?= $Assignment->mark ?></b>
-                <?php } ?>
-              </span>
+              <span id="span-answer-date"><?php if ($task_finish_date_time) echo $task_finish_date_time; ?></span>
+              </br>
             </div>
             <div class="w-100">
               <div>
@@ -292,23 +302,35 @@ $task_number = explode('.', $task_title)[0];
 
               <?php if ($au->isAdminOrPrep()) { // Оценить отправленное на проверку задание 
               ?>
-                <form id="form-check-task" action="taskchat_action.php" method="POST">
-                  <div class="d-flex flex-row justify-content-end my-1">
-                    <div class="file-input-wrapper me-1">
-                      <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
-                        <option hidden value="-1"></option>
-                        <?php for ($i = 1; $i <= $task_max_mark; $i++) { ?>
-                          <option value="<?= $i ?>"><?= $i ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                    <button id="button-check" class="btn btn-success" target="_blank" type="submit" name="submit-check" style="width: 100%;">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
-                        <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
-                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-                      </svg>&nbsp;&nbsp;Оценить ответ</button>
+                <div class="d-flex flex-row justify-content-end my-1">
+                  <div class="file-input-wrapper me-1">
+                    <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+                      <option hidden value="-1"></option>
+                      <?php for ($i = 1; $i <= $task_max_mark; $i++) { ?>
+                        <option value="<?= $i ?>"><?= $i ?></option>
+                      <?php } ?>
+                    </select>
                   </div>
-                </form>
+                  <button id="button-check" class="btn btn-success" target="_blank" type="button" name="submit-check" style="width: 100%;" onclick="markAssignment($('#select-mark').val())">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                    </svg>&nbsp;&nbsp;Оценить ответ</button>
+                </div>
+                <div class="d-flex flex-row justify-content-end my-1">
+                  <button id="button-check-word" class="btn btn-primary d-flex justify-content-center" target="_blank" type="button" name="submit-check" style="width: 100%;" onclick="markAssignment('зачтено')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                    </svg>
+                    <div class="d-flex align-items-center">
+                      &nbsp;&nbsp;Зачесть&nbsp;
+                      <div id="spinner-check-word" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                        <span class="sr-only">Loading...</span>
+                      </div>
+                    </div>
+                  </button>
+                </div>
               <?php } else if ($Assignment->isCompleteable()) { // Отправить задание на проверку 
               ?>
                 <form id="form-send-answer" action="taskchat_action.php" method="POST">
@@ -477,7 +499,7 @@ $task_number = explode('.', $task_title)[0];
     $(document).ready(function() {
 
       let form_sendAnswer = document.getElementById('form-send-answer');
-      let form_check = document.getElementById('form-check-task');
+      // let form_check = document.getElementById('form-check-task');
 
       let button_check = document.getElementById('button-check');
       let button_answer = document.getElementById('submit-answer');
@@ -504,33 +526,6 @@ $task_number = explode('.', $task_title)[0];
             answerFiles = [];
 
             button_answer.blur();
-
-            loadChatLog(true);
-
-            return false;
-          }
-        });
-      } else if (form_check) {
-        form_check.addEventListener('submit', function(event) {
-          event.preventDefault();
-          // console.log("СРАБОТАЛА ФОРМА ОЦЕНИВАНИЯ ЗАДАНИЕ");
-          var selector_mark = $("#select-mark");
-          var mark = selector_mark.val();
-          // console.log(selector_mark);
-          if (mark == -1) {
-            // console.log("ОЦЕНКА НЕ ВЫБРАНА");
-            alert("Для проверки задания необходимо выбрать оценку!");
-            return false;
-          } else {
-            if (mark != "зачтено") var userMessage = "Задание оценено! \nОценка: " + $mark;
-            else var userMessage = "Задание зачтено!";
-
-            if (sendMessage(userMessage, null, 2, mark)) {
-              // console.log("Сообщение было успешно отправлено");
-            }
-            // selector_mark.prop('disabled', 'disabled');
-            // button_check.setAttribute('disabled', '');
-            button_check.blur();
 
             loadChatLog(true);
 
@@ -636,6 +631,19 @@ $task_number = explode('.', $task_title)[0];
       });
 
     });
+
+    function markAssignment(mark) {
+      if (mark != -1) {
+        if (mark != "зачтено") var userMessage = "Задание оценено! \nОценка: " + mark;
+        else var userMessage = "Задание зачтено!";
+
+        if (sendMessage(userMessage, null, 2, mark)) {
+          document.location.reload();
+        }
+        // loadChatLog(true);
+      } else
+        alert("Не выбрана оценка!");
+    }
 
     function isAvailableFileExt(file_name) {
       let splitted = file_name.split(".");
@@ -762,18 +770,6 @@ $task_number = explode('.', $task_title)[0];
           dataType: 'html',
           success: function(response) {
             $("#chat-box").html(response);
-            if (typeMessage == 1) {
-              let now = new Date();
-              $("#label-task-status-text").text("Ожидает проверки");
-              $("#span-answer-date").text(formatDate(now));
-            } else if (typeMessage == 2) {
-              let now = new Date();
-              $("#label-task-status-text").text("Выполнено");
-              $("#flexCheckDisabled").prop("checked", true);
-              $("#span-answer-date").text(formatDate(now));
-              $("#span-text-mark").html("Оценка: " + '<b id="b-mark">' + mark + '</b>');
-              console.log("Оценка: " + '<b id="b-mark">' + mark + '</b>');
-            }
           },
           complete: function() {
             // Скролим чат вниз после отправки сообщения
