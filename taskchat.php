@@ -522,8 +522,10 @@ $task_number = explode('.', $task_title)[0];
             alert("Для проверки задания необходимо выбрать оценку!");
             return false;
           } else {
-            var userMessage = "Задание оценено! Оценка: " + mark;
-            if (sendMessage(userMessage, null, 2, parseInt(mark))) {
+            if (mark != "зачтено") var userMessage = "Задание оценено! \nОценка: " + $mark;
+            else var userMessage = "Задание зачтено!";
+
+            if (sendMessage(userMessage, null, 2, mark)) {
               // console.log("Сообщение было успешно отправлено");
             }
             // selector_mark.prop('disabled', 'disabled');

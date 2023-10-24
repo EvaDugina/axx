@@ -2,5 +2,8 @@
 
 function getMessageAssignmentCompleted($mark)
 {
-  return "Задание оценено! Оценка: " . $mark;
+  if ($mark != "зачтено")
+    return "Задание оценено! \nОценка: " . $mark;
+  else
+    return "Задание зачтено!";
 }
