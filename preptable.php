@@ -255,19 +255,20 @@ if ($scripts) echo $scripts;
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
                                       <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
                                       else getSVGByAssignmentStatus(4); ?>
+
+                                      <?php if ($Assignment->isMarked()) { ?>
+                                        <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
+                                          </svg>
+                                        </span>
+                                      <?php } else { ?>
+                                        <span class="text-danger" style="font-size: larger;">
+                                          ?
+                                        </span>
+                                      <?php } ?>
                                     </span>
-                                    <?php if ($Assignment->isMarked()) { ?>
-                                      <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                          <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
-                                          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-                                        </svg>
-                                      </span>
-                                    <?php } else { ?>
-                                      <span class="text-danger" style="font-size: larger;">
-                                        ?
-                                      </span>
-                                    <?php } ?>
                                   </td>
                                 <?php } else { ?>
                                   <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,<?= $Task->max_mark ?>);" style="cursor: pointer;" data-title="Оценить задание">
@@ -629,7 +630,7 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id)
   $data_mdb_content .= "
   <div class='d-flex flex-column mt-1'>
     <div class='d-flex w-100 justify-content-between mb-1'>
-      <a href='javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", " . $Task->max_mark . ")'
+      <a href='javascript:chooseAssignment($assignment_id); javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", " . $Task->max_mark . ")'
       type='message' class='btn btn-outline-success w-100 me-1'>
         Зачесть
       </a> 
@@ -755,10 +756,11 @@ function generate_message_for_student_task_commit($task_title)
       $('#' + spinner_id).addClass("d-none");
 
       if (ajaxResponse != null) {
+        let id = 'span-assignmentMark-' + assignment_id;
         if (mark != "зачтено")
-          $('#span-assignmentMark-' + assignment_id).text(mark);
+          $("[id='" + id + "']").text(mark);
         else
-          $('#span-assignmentMark-' + assignment_id).html(ajaxResponse['svg-checked']);
+          $("[id='" + id + "']").html(ajaxResponse['svg-checked']);
 
         $('#dialogCheckTask').modal("hide");
       } else {
