@@ -333,7 +333,7 @@ class Task
   public function hasUncheckedAssignments($student_id)
   {
     foreach ($this->Assignments as $Assignment) {
-      if (($Assignment->status == 1) && $Assignment->checkStudent($student_id))
+      if (($Assignment->isWaitingCheck()) && $Assignment->checkStudent($student_id))
         return true;
     }
     return false;

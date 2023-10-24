@@ -254,7 +254,7 @@ if ($scripts) echo $scripts;
                                   <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showPopover(this);" style="cursor: pointer;" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id) ?>">
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
                                       <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
-                                      else echo getSVGByAssignmentStatus($Assignment->status); ?>
+                                      else getSVGByAssignmentStatus(4); ?>
                                     </span>
                                     <?php if ($Assignment->isMarked()) { ?>
                                       <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">

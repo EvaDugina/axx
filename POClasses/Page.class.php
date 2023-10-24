@@ -224,7 +224,7 @@ class Page
   public function hasUncheckedTasks($student_id)
   {
     foreach ($this->getTasks() as $Task) {
-      if ($Task->hasUncheckedAssignments($student_id))
+      if ($Task->isActive() && $Task->hasUncheckedAssignments($student_id))
         return true;
     }
     return false;

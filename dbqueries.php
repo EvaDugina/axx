@@ -1,39 +1,45 @@
 <?php
 // ОБЩИЕ
-function select_timestamp($shift) {
-    if (trim($shift) == "")
-        $shift = '0';
-    return 'SELECT to_char(now() + \''.$shift.'\', \'YYYY-MM-DD HH24:MI:SS\') val';
+function select_timestamp($shift)
+{
+  if (trim($shift) == "")
+    $shift = '0';
+  return 'SELECT to_char(now() + \'' . $shift . '\', \'YYYY-MM-DD HH24:MI:SS\') val';
 }
 
-function select_check_timestamp($datetime) {
-    return 'SELECT to_timestamp(\''.$datetime.'\', \'YYYY-MM-DD HH24:MI:SS\')';
+function select_check_timestamp($datetime)
+{
+  return 'SELECT to_timestamp(\'' . $datetime . '\', \'YYYY-MM-DD HH24:MI:SS\')';
 }
 
-function get_user_name($id) {
-    return "SELECT first_name, middle_name FROM students WHERE id = $id;";
+function get_user_name($id)
+{
+  return "SELECT first_name, middle_name FROM students WHERE id = $id;";
 }
 
-function update_user_email($id, $email) {
-    return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
+function update_user_email($id, $email)
+{
+  return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
         VALUES ('$id', '$email', null, 'TRUE')
         ON CONFLICT (user_id) DO UPDATE
         SET email = '$email';
     ";
 }
 
-function update_user_notify_type($id, $notify_type){
-    if($notify_type=="ON") $notify_type = 1;
-    else $notify_type = 0;
-    return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
+function update_user_notify_type($id, $notify_type)
+{
+  if ($notify_type == "ON") $notify_type = 1;
+  else $notify_type = 0;
+  return "INSERT INTO ax_settings (user_id, email, notification_type, monaco_dark) 
         VALUES ('$id', null, '$notify_type', 'TRUE')
         ON CONFLICT (user_id) DO UPDATE 
         SET notification_type = $notify_type;
     ";
 }
 
-function get_user_info($id){
-    return "SELECT first_name, middle_name, last_name, login, role,
+function get_user_info($id)
+{
+  return "SELECT first_name, middle_name, last_name, login, role,
         groups.name as group_name, ax_settings.email, ax_settings.notification_type, ax_settings.monaco_dark
         FROM students
         LEFT JOIN students_to_groups ON students_to_groups.student_id = students.id
@@ -46,31 +52,36 @@ function get_user_info($id){
 
 
 // ДЕЙСТВИЯ СО СТРАНИЦАМИ ПРЕДМЕТОВ
-function select_active_pages(){
-    return 'SELECT ax_page.disc_id, ax_page.year, ax_page.semester FROM ax_page WHERE status = 1;';
+function select_active_pages()
+{
+  return 'SELECT ax_page.disc_id, ax_page.year, ax_page.semester FROM ax_page WHERE status = 1;';
 }
 
 // - получение названия дисциплины + предмета
-function select_page_name($page_id) {
-    // p.id as pid, d.id as did, d.name as dname, p.short_name as pname
-    return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS name
+function select_page_name($page_id)
+{
+  // p.id as pid, d.id as did, d.name as dname, p.short_name as pname
+  return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS name
             FROM ax_page p INNER JOIN discipline d ON d.id = p.disc_id
             WHERE p.id='$page_id' ";
 }
 
-function select_ax_page_short_name($page_id){
+function select_ax_page_short_name($page_id)
+{
   return "SELECT short_name FROM ax_page
           WHERE id = $page_id;
   ";
 }
 
-function select_page_names($status) {
-    return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names
+function select_page_names($status)
+{
+  return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names
             FROM ax_page p INNER JOIN discipline d ON d.id = p.disc_id 
             WHERE p.status = " . $status . "ORDER BY p.semester";
 }
 
-function select_page_names_1($teacher_id) {
+function select_page_names_1($teacher_id)
+{
   return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names,
           p.year y, p.semester s,
           FROM ax_page p 
@@ -81,11 +92,13 @@ function select_page_names_1($teacher_id) {
           ORDER BY y DESC, s DESC";
 }
 
-function select_page_by_task_id($task_id) {
+function select_page_by_task_id($task_id)
+{
   return "SELECT page_id FROM ax_task WHERE id = $task_id";
 }
 
-function select_pages_for_teacher($teacher_id){
+function select_pages_for_teacher($teacher_id)
+{
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax_ct.src_url
           FROM ax_page p
           INNER JOIN ax_page_prep ON ax_page_prep.page_id = p.id
@@ -95,7 +108,8 @@ function select_pages_for_teacher($teacher_id){
   ";
 }
 
-function select_pages_for_admin(){
+function select_pages_for_admin()
+{
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax_ct.src_url
           FROM ax_page p
           INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
@@ -103,7 +117,8 @@ function select_pages_for_admin(){
   ";
 }
 
-function select_pages_for_student($group_id){
+function select_pages_for_student($group_id)
+{
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester, ax_ct.src_url 
           FROM ax_page p
           INNER JOIN ax_page_group ON ax_page_group.page_id = p.id
@@ -114,8 +129,9 @@ function select_pages_for_student($group_id){
 }
 
 // Страница предмета
-function select_discipline_page($page_id) {
-    return "SELECT ax_page.*, discipline.name AS disc_name, ax_ct.id as color_theme_id, ax_ct.bg_color FROM ax_page 
+function select_discipline_page($page_id)
+{
+  return "SELECT ax_page.*, discipline.name AS disc_name, ax_ct.id as color_theme_id, ax_ct.bg_color FROM ax_page 
             INNER JOIN discipline ON discipline.id = ax_page.disc_id 
             LEFT JOIN ax_color_theme ax_ct ON ax_ct.id = ax_page.color_theme_id
             WHERE ax_page.id = '$page_id';
@@ -123,49 +139,53 @@ function select_discipline_page($page_id) {
 }
 
 // Страницы дисциплин для конкретного студента
-function select_discipline_page_by_semester($semester) {
-    return "SELECT * FROM ax_page WHERE semester <=". $semester;
+function select_discipline_page_by_semester($semester)
+{
+  return "SELECT * FROM ax_page WHERE semester <=" . $semester;
 }
 
 // Все года и семестры
 function select_discipline_timestamps()
 {
-return 'SELECT distinct year, semester FROM ax_page ORDER BY year desc';
+  return 'SELECT distinct year, semester FROM ax_page ORDER BY year desc';
 }
 
 // Все года
-function select_discipline_years(){
-    return 'SELECT max(year) as max, min(year) as min FROM ax_page'; 
+function select_discipline_years()
+{
+  return 'SELECT max(year) as max, min(year) as min FROM ax_page';
 }
 
 // Изменение страницы дисциплины
-function update_discipline($discipline) {
-    $timestamp = convert_timestamp_from_string($discipline['timestamp']);
-    $short_name = pg_escape_string($discipline['short_name']);
-    $id = pg_escape_string($discipline['id']);
-    $disc_id = pg_escape_string($discipline['disc_id']);
-    $year = pg_escape_string($timestamp['year']);
-    $semester = pg_escape_string($timestamp['semester']);
-    $color_theme_id = pg_escape_string($discipline['color_theme_id']);
-    $creator_id = pg_escape_string($discipline['creator_id']);
-    $creation_date = getNowTimestamp();
+function update_discipline($discipline)
+{
+  $timestamp = convert_timestamp_from_string($discipline['timestamp']);
+  $short_name = pg_escape_string($discipline['short_name']);
+  $id = pg_escape_string($discipline['id']);
+  $disc_id = pg_escape_string($discipline['disc_id']);
+  $year = pg_escape_string($timestamp['year']);
+  $semester = pg_escape_string($timestamp['semester']);
+  $color_theme_id = pg_escape_string($discipline['color_theme_id']);
+  $creator_id = pg_escape_string($discipline['creator_id']);
+  $creation_date = getNowTimestamp();
 
-    return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester',
+  return "UPDATE ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester',
                 color_theme_id='$color_theme_id', creator_id='$creator_id', creation_date='$creation_date', status=1
             WHERE id ='$id'";
 }
 
-function insert_page($discipline) {
-    $timestamp = convert_timestamp_from_string($discipline['timestamp']);
-    $short_name = pg_escape_string($discipline['short_name']);
-    $disc_id = pg_escape_string($discipline['disc_id']);
-    $year = pg_escape_string($timestamp['year']);
-    $semester = pg_escape_string($timestamp['semester']);
-    $color_theme_id = pg_escape_string($discipline['color_theme_id']);
-    $creator_id = pg_escape_string($discipline['creator_id']);
-    $creation_date = getNowTimestamp();
+function insert_page($discipline)
+{
+  $timestamp = convert_timestamp_from_string($discipline['timestamp']);
+  $short_name = pg_escape_string($discipline['short_name']);
+  $disc_id = pg_escape_string($discipline['disc_id']);
+  $year = pg_escape_string($timestamp['year']);
+  $semester = pg_escape_string($timestamp['semester']);
+  $color_theme_id = pg_escape_string($discipline['color_theme_id']);
+  $creator_id = pg_escape_string($discipline['creator_id']);
+  $creation_date = getNowTimestamp();
 
-    return "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, status) 
+  return "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, status) 
         VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', 1) returning id";
 }
 
@@ -208,17 +228,19 @@ function insert_page($discipline) {
 // }
 
 // получение количества уведомлений по каждой странице предмета для преподавательского дэшборда
-function select_notify_count_by_page_for_mainpage($page_id){
-    return "SELECT COUNT(*) FROM ax_task
+function select_notify_count_by_page_for_mainpage($page_id)
+{
+  return "SELECT COUNT(*) FROM ax_task
         INNER JOIN ax_page ON ax_page.id = ax_task.page_id
         INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
-        WHERE ax_page.id = $page_id AND ax_assignment.status = 1;
+        WHERE ax_page.id = $page_id AND ax_assignment.status = 1 AND ax_task.status = 1;
     ";
 }
 
 // получение уведомлений по каждой странице предмета для преподавательского дэшборда
-function select_notify_by_page_for_mainpage($teacher_id, $page_id){
-    return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
+function select_notify_by_page_for_mainpage($teacher_id, $page_id)
+{
+  return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
         ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
         INNER JOIN ax_page ON ax_page.id = ax_task.page_id
         INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
@@ -229,8 +251,9 @@ function select_notify_by_page_for_mainpage($teacher_id, $page_id){
     ";
 }
 
-function select_notify_by_page_for_mainpage_for_admin($teacher_id, $page_id){
-    return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
+function select_notify_by_page_for_mainpage_for_admin($teacher_id, $page_id)
+{
+  return "SELECT ax_task.id, ax_task.page_id, ax_page.short_name, ax_task.title, ax_assignment.id as assignment_id, ax_assignment.status_code, 
         ax_assignment_student.student_user_id, students.middle_name, students.first_name FROM ax_task
         INNER JOIN ax_page ON ax_page.id = ax_task.page_id
         INNER JOIN ax_assignment ON ax_assignment.task_id = ax_task.id
@@ -284,23 +307,27 @@ function select_notify_by_page_for_mainpage_for_admin($teacher_id, $page_id){
 
 // ДЕЙСТВИЯ С ЗАДАНИЯМИ
 
-function select_task($task_id) {
-    return "SELECT * FROM ax_task WHERE id ='$task_id'";
+function select_task($task_id)
+{
+  return "SELECT * FROM ax_task WHERE id ='$task_id'";
 }
 
-function select_ax_assignment_by_id($assignment_id) {
+function select_ax_assignment_by_id($assignment_id)
+{
   return "SELECT * FROM ax_assignment WHERE id = $assignment_id";
 }
 
 // - получение статуса и времени отправки ответа студента
-function select_task_assignment_with_limit($task_id, $student_id) {
-    return "SELECT ax_assignment.id, ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status, ax_assignment.mark, ax_assignment.status_text FROM ax_assignment 
+function select_task_assignment_with_limit($task_id, $student_id)
+{
+  return "SELECT ax_assignment.id, ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status, ax_assignment.mark, ax_assignment.status_text FROM ax_assignment 
         INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
-        WHERE ax_assignment_student.student_user_id = ". $student_id ." AND ax_assignment.task_id = ". $task_id ." LIMIT 1;";
+        WHERE ax_assignment_student.student_user_id = " . $student_id . " AND ax_assignment.task_id = " . $task_id . " LIMIT 1;";
 }
 
-function select_task_assignment_student_id($student_id, $task_id) {
-    return "SELECT ax_assignment.id FROM ax_assignment
+function select_task_assignment_student_id($student_id, $task_id)
+{
+  return "SELECT ax_assignment.id FROM ax_assignment
             INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id
             WHERE ax_assignment_student.student_user_id = $student_id AND ax_assignment.task_id = $task_id;
     ";
@@ -316,24 +343,28 @@ function select_task_assignment_student_id($student_id, $task_id) {
 // }
 
 // - получение всех заданий по странице дисциплины
-function select_page_tasks($page_id, $status) {
-    return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' AND (type = 0 OR type = 1) ORDER BY id";
+function select_page_tasks($page_id, $status)
+{
+  return "SELECT * FROM ax_task WHERE page_id = '$page_id' AND status = '$status' AND (type = 0 OR type = 1) ORDER BY id";
 }
 
 // - получение количества всех заданий по странице дисциплины
-function select_count_page_tasks($page_id) {
+function select_count_page_tasks($page_id)
+{
   return "SELECT COUNT(*) FROM ax_task WHERE page_id = '$page_id'";
 }
 
-function select_ax_assignment_with_task_by_id ($assignment_id) {
+function select_ax_assignment_with_task_by_id($assignment_id)
+{
   return "SELECT * FROM ax_assignment 
           INNER JOIN ax_task ON ax_task.id = ax_assignment.task_id
           WHERE ax_assignment.id = $assignment_id;        
   ";
 }
 
-function select_page_tasks_with_assignment($page_id, $status, $student_id) {
-    return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id, 
+function select_page_tasks_with_assignment($page_id, $status, $student_id)
+{
+  return "SELECT ax_task.id, ax_task.page_id, ax_task.title, ax_task.status, ax_assignment.id as assignment_id, 
     ax_assignment.finish_limit, ax_assignment.status_code, ax_assignment.status as astatus, ax_assignment.mark, ax_assignment.status_text FROM ax_task 
     INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id
     INNER JOIN ax_assignment_student ON ax_assignment.id = ax_assignment_student.assignment_id 
@@ -342,8 +373,9 @@ function select_page_tasks_with_assignment($page_id, $status, $student_id) {
 }
 
 // - получение студентов, которым назначено задание
-function select_assigned_students($task_id) {
-    return "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,
+function select_assigned_students($task_id)
+{
+  return "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,
     ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts 
           FROM ax_task 
           INNER JOIN ax_assignment ON ax_task.id = ax_assignment.task_id 
@@ -354,7 +386,8 @@ function select_assigned_students($task_id) {
 }
 
 // - получение студентов по коммитам аналогичного задания
-function select_prev_students($assignment_id) {
+function select_prev_students($assignment_id)
+{
   return "SELECT students.id as sid, students.middle_name || ' ' || students.first_name fio, ax_task.id as tid,
                   ax_assignment.id aid, to_char(ax_assignment.finish_limit, 'DD-MM-YYYY HH24:MI:SS') ts 
         FROM ax_task 
@@ -366,7 +399,8 @@ function select_prev_students($assignment_id) {
 }
 
 // - получение файлов по коммитам аналогичного задания
-function select_prev_files($assignment_id) {
+function select_prev_files($assignment_id)
+{
   return "SELECT ax_file.id, ax_solution_commit.assignment_id, ax_solution_commit.id as commit_id, 
           ax_file.file_name, ax_file.full_text 
           from ax_solution_commit 
@@ -385,13 +419,15 @@ function select_prev_files($assignment_id) {
 // }
 
 // обновление задания
-function update_ax_task_status($id, $status) {
-    return "UPDATE ax_task SET status = $status WHERE id = $id";
+function update_ax_task_status($id, $status)
+{
+  return "UPDATE ax_task SET status = $status WHERE id = $id";
 }
 
 // обновление задания
-function update_ax_task($id, $type, $title, $description) {
-    return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' 
+function update_ax_task($id, $type, $title, $description)
+{
+  return "UPDATE ax_task SET type = '$type', title = '$title', description = '$description' 
             WHERE id = '$id'";
 }
 
@@ -401,20 +437,23 @@ function update_ax_task($id, $type, $title, $description) {
 //           WHERE id = $assignment_id";
 // }
 
-function update_ax_assignment_mark($assignment_id, $mark){
+function update_ax_assignment_mark($assignment_id, $mark)
+{
   return "UPDATE ax_assignment SET mark = '$mark', status = 4, status_text = 'выполнено' 
           WHERE id = $assignment_id;
   ";
 }
 
-function update_ax_assignment_delay($assignment_id, $delay){
+function update_ax_assignment_delay($assignment_id, $delay)
+{
   return "UPDATE ax_assignment SET delay = $delay 
           WHERE id = $assignment_id;
   ";
 }
 
-function update_ax_assignment_finish_limit($assignment_id, $finish_limit) {
-    return "UPDATE ax_assignment SET finish_limit = '$finish_limit' 
+function update_ax_assignment_finish_limit($assignment_id, $finish_limit)
+{
+  return "UPDATE ax_assignment SET finish_limit = '$finish_limit' 
             WHERE id = $assignment_id;
   ";
 }
@@ -437,21 +476,23 @@ function update_ax_assignment_finish_limit($assignment_id, $finish_limit) {
 //   return $query;
 // }
 
-function insert_ax_task($page_id, $type, $title, $description, $max_mark=5, $status=1){
+function insert_ax_task($page_id, $type, $title, $description, $max_mark = 5, $status = 1)
+{
   return "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
           VALUES ('$page_id', '$type', '$title', '$description', $max_mark, '$status')
           RETURNING id;
   ";
-
 }
 
-function insert_assignment($task_id){
+function insert_assignment($task_id)
+{
   return "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, status_code, status, delay, status_text, mark)
           VALUES ($task_id, null, now(), now()+'1 year', 2, null, null, null, null) RETURNING id;
   ";
 }
 
-function insert_assignment_student($assignment_id, $student_id){
+function insert_assignment_student($assignment_id, $student_id)
+{
   return "INSERT INTO ax_assignment_student (assignment_id, student_user_id)
           VALUES ($assignment_id, $student_id);
   ";
@@ -469,7 +510,7 @@ function insert_assignment_student($assignment_id, $student_id){
 
 //           DELETE FROM ax_solution_commit
 //           WHERE ax_solution_commit.assignment_id = $assignment_id;
-          
+
 //           DELETE FROM ax_message USING ax_message_attachment, ax_message_delivery
 //           WHERE ax_message.assignment_id = $assignment_id AND ax_message_attachment.message_id = ax_message.id
 //           AND ax_message.id = ax_message_delivery.message_id;
@@ -481,19 +522,19 @@ function insert_assignment_student($assignment_id, $student_id){
 //             WHERE ax_file.id = ax_task_file.file_id AND ax_task_file.task_id = $task_id;
 //           DELETE FROM ax_task_file 
 //             WHERE ax_task_file.task_id = $task_id;
-          
+
 //           DELETE FROM ax_message_delivery USING ax_message, ax_assignment
 //             WHERE ax_message_delivery.message_id = ax_message.id AND ax_message.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
 //           DELETE FROM ax_message_file USING ax_message, ax_assignment
 //             WHERE ax_message_file.message_id = ax_message.id AND ax_message.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
 //           DELETE FROM ax_message USING ax_assignment
 //             WHERE ax_message.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
-          
+
 //           DELETE FROM ax_commit_file USING ax_solution_commit, ax_assignment
 //             WHERE ax_commit_file.commit_id = ax_solution_commit.id AND ax_solution_commit.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
 //           DELETE FROM ax_solution_commit USING ax_assignment
 //             WHERE ax_solution_commit.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
-            
+
 //           DELETE FROM ax_assignment_student USING ax_assignment
 //             WHERE ax_assignment_student.assignment_id = ax_assignment.id AND ax_assignment.task_id = $task_id;
 //           DELETE FROM ax_assignment 
@@ -504,8 +545,8 @@ function insert_assignment_student($assignment_id, $student_id){
 // }
 
 // функция очистки задания для нового семестра
-function delete_task_hash($task_id){
-
+function delete_task_hash($task_id)
+{
 }
 
 
@@ -536,35 +577,37 @@ function delete_task_hash($task_id){
 //           WHERE ax_message_attachment.message_id = $message_id";
 // }
 
-function select_last_answer_message($assignment_id) {
+function select_last_answer_message($assignment_id)
+{
   return "SELECT commit_id, MAX(id) as reply_to_id FROM ax_message 
           WHERE assignment_id = $assignment_id AND type = 1 
           GROUP BY commit_id ORDER BY commit_id DESC;
   ";
 }
 
-function update_ax_message_status($message_id){
-return "UPDATE ax_message SET status = 1 
+function update_ax_message_status($message_id)
+{
+  return "UPDATE ax_message SET status = 1 
         WHERE id = $message_id";
 }
 
 // отправка ответа на сообщение
-function insert_message_reply($message_id, $message_text, $sender_id, $mark=null) {
-    if ($message_text != null)
-        $message_text = str_replace("'", "''", $message_text);
-    if ($mark != null)
-        $mark = str_replace("'", "''", $mark);
-    if ($mark != null)
-    {
-        return "UPDATE ax_assignment set mark='$mark' WHERE id in (SELECT assignment_id FROM ax_message WHERE id=$message_id);\n" .
-                "UPDATE ax_message set status=1 WHERE id=$message_id AND status=0;\n" .
-                "INSERT INTO ax_message (assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)\n" .
-                "(SELECT assignment_id, 2, 0, 3, $sender_id, now(), $message_id, '$message_text\nОценка: $mark', null, 0 FROM ax_message WHERE id=$message_id);";
-    } else {
-        return "UPDATE ax_message set status=1 WHERE id=$message_id AND status=0;\n" .
-                "INSERT INTO ax_message (assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)\n" .
-                "(SELECT assignment_id, 0, 0, 3, $sender_id, now(), $message_id, '$message_text', null, 0 FROM ax_message WHERE id=$message_id);";
-    }
+function insert_message_reply($message_id, $message_text, $sender_id, $mark = null)
+{
+  if ($message_text != null)
+    $message_text = str_replace("'", "''", $message_text);
+  if ($mark != null)
+    $mark = str_replace("'", "''", $mark);
+  if ($mark != null) {
+    return "UPDATE ax_assignment set mark='$mark' WHERE id in (SELECT assignment_id FROM ax_message WHERE id=$message_id);\n" .
+      "UPDATE ax_message set status=1 WHERE id=$message_id AND status=0;\n" .
+      "INSERT INTO ax_message (assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)\n" .
+      "(SELECT assignment_id, 2, 0, 3, $sender_id, now(), $message_id, '$message_text\nОценка: $mark', null, 0 FROM ax_message WHERE id=$message_id);";
+  } else {
+    return "UPDATE ax_message set status=1 WHERE id=$message_id AND status=0;\n" .
+      "INSERT INTO ax_message (assignment_id, type, visibility, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)\n" .
+      "(SELECT assignment_id, 0, 0, 3, $sender_id, now(), $message_id, '$message_text', null, 0 FROM ax_message WHERE id=$message_id);";
+  }
 }
 
 // function insert_message($assignment_id, $type, $visibility, $user_type, $user_id, $full_text, $commit_id=null, $reply_to_id=null){
@@ -588,7 +631,8 @@ function insert_message_reply($message_id, $message_text, $sender_id, $mark=null
 //   return $result;
 // }
 
-function insert_ax_message_delivery($message_id, $user_id){
+function insert_ax_message_delivery($message_id, $user_id)
+{
   return "INSERT INTO ax_message_delivery (message_id, recipient_user_id, read) 
           VALUES ($message_id, $user_id, true)
   ";
@@ -599,17 +643,20 @@ function insert_ax_message_delivery($message_id, $user_id){
 
 // ДЕЙСТВИЯ С ДИСЦИПЛИНАМИ
 
-function select_all_disciplines() {
-    return 'SELECT * FROM discipline';
+function select_all_disciplines()
+{
+  return 'SELECT * FROM discipline';
 }
 
 // - gjkextybt
-function select_discipline_name($disc_id){
-    return "SELECT name FROM discipline WHERE id =". $disc_id;
+function select_discipline_name($disc_id)
+{
+  return "SELECT name FROM discipline WHERE id =" . $disc_id;
 }
 
-function select_discipline_name_by_page($page_id) {
-    return "SELECT discipline.name from discipline 
+function select_discipline_name_by_page($page_id)
+{
+  return "SELECT discipline.name from discipline 
             INNER JOIN ax_page ON ax_page.disc_id = discipline.id
             WHERE ax_page.id = '$page_id';
     ";
@@ -621,60 +668,70 @@ function select_discipline_name_by_page($page_id) {
 
 
 // ДЕЙСТВИЯ С ГРУППАМИ
-function select_groups(){
-    return 'SELECT * FROM groups';
+function select_groups()
+{
+  return 'SELECT * FROM groups';
 }
 
-function select_ax_page_group($page_id, $group_id){
-    return "SELECT * FROM ax_page_group 
+function select_ax_page_group($page_id, $group_id)
+{
+  return "SELECT * FROM ax_page_group 
             WHERE page_id = $page_id AND group_id = $group_id;
     ";
 }
 
-function select_group_id_by_student_id($student_id) {
+function select_group_id_by_student_id($student_id)
+{
   return "SELECT group_id FROM students_to_groups
           WHERE students_to_groups.student_id = $student_id
   ";
 }
 
 // группы у конкретной дисциплины
-function select_discipline_groups($page_id) {
-    return 'SELECT groups.id, name FROM groups INNER JOIN ax_page_group ON groups.id = ax_page_group.group_id WHERE page_id ='.$page_id;
+function select_discipline_groups($page_id)
+{
+  return 'SELECT groups.id, name FROM groups INNER JOIN ax_page_group ON groups.id = ax_page_group.group_id WHERE page_id =' . $page_id;
 }
 
 // удаление из таблицы дисциплины-группы
-function delete_page_group($page_id) {
-    return 'DELETE FROM ax_page_group WHERE page_id ='.$page_id;
+function delete_page_group($page_id)
+{
+  return 'DELETE FROM ax_page_group WHERE page_id =' . $page_id;
 }
 
-function update_ax_page_group($page_id, $groups) {
-    $groups = pg_escape_string($groups);
+function update_ax_page_group($page_id, $groups)
+{
+  $groups = pg_escape_string($groups);
 
-    return "INSERT INTO ax_page_group(page_id, group_id)
+  return "INSERT INTO ax_page_group(page_id, group_id)
         VALUES ($page_id, (SELECT id FROM groups WHERE name = '$groups'))";
 }
 
-function addGroupToPage($page_id, $group_id){
+function addGroupToPage($page_id, $group_id)
+{
   return "INSERT INTO ax_page_group(page_id, group_id)
           VALUES ($page_id, $group_id)";
 }
 
-function update_ax_page_group_by_group_id($page_id, $group_id) {
+function update_ax_page_group_by_group_id($page_id, $group_id)
+{
   return "INSERT INTO ax_page_group(page_id, group_id)
           VALUES ($page_id, $group_id);
   ";
 }
 
-function select_page_groups($page_id) {
-    return "SELECT groups.id id, groups.name grp
+function select_page_groups($page_id)
+{
+  return "SELECT groups.id id, groups.name grp
             FROM ax_page_group 
           INNER JOIN groups ON groups.id = ax_page_group.group_id
             WHERE ax_page_group.page_id = '$page_id'
             ORDER BY grp";
 }
 
-function select_page_students($page_id) {
-    return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id, students_to_subgroups.subgroup
+function select_page_students($page_id)
+{
+  return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id, students_to_subgroups.subgroup
             FROM ax_page_group 
             INNER JOIN students_to_groups ON ax_page_group.group_id = students_to_groups.group_id
             INNER JOIN students ON students_to_groups.student_id = students.id
@@ -683,8 +740,9 @@ function select_page_students($page_id) {
             ORDER BY fio";
 }
 
-function select_page_students_grouped($page_id) {
-    return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id, ax_student_page_info.variant_num vnum, ax_student_page_info.variant_comment vtext, groups.name grp, groups.id gid
+function select_page_students_grouped($page_id)
+{
+  return "SELECT students.middle_name || ' ' || students.first_name fio, students.id id, ax_student_page_info.variant_num vnum, ax_student_page_info.variant_comment vtext, groups.name grp, groups.id gid
             FROM ax_page_group
           INNER JOIN students_to_groups ON ax_page_group.group_id = students_to_groups.group_id
           INNER JOIN students ON students_to_groups.student_id = students.id
@@ -699,19 +757,22 @@ function select_page_students_grouped($page_id) {
 // ДЕЙСТВИЯ С ПРЕПОДАВАТЕЛЯМИ
 
 // все преподователи
-function select_all_teachers() {
-    return 'SELECT id, first_name, middle_name, last_name, role FROM students
+function select_all_teachers()
+{
+  return 'SELECT id, first_name, middle_name, last_name, role FROM students
             WHERE role = 2';
 }
 
 // преподователи у конкретной дисциплины
-function select_page_prep_name($page_id) {
-    return 'SELECT students.id, first_name, middle_name FROM ax_page_prep 
+function select_page_prep_name($page_id)
+{
+  return 'SELECT students.id, first_name, middle_name FROM ax_page_prep 
             INNER JOIN students ON students.id = ax_page_prep.prep_user_id 
-            WHERE page_id ='.$page_id;
+            WHERE page_id =' . $page_id;
 }
 
-function isPrepByAssignmentId($assignment_id, $user_id){
+function isPrepByAssignmentId($assignment_id, $user_id)
+{
   return "SELECT DISTINCT prep_user_id FROM ax_page_prep
           INNER JOIN ax_page ON ax_page.id = ax_page_prep.page_id
           INNER JOIN ax_task ON ax_task.page_id = ax_page.id
@@ -720,19 +781,22 @@ function isPrepByAssignmentId($assignment_id, $user_id){
 }
 
 // удаление из таблицы дисциплины-преподователи
-function delete_page_prep($page_id) {
-    return 'DELETE FROM ax_page_prep WHERE page_id ='.$page_id;
+function delete_page_prep($page_id)
+{
+  return 'DELETE FROM ax_page_prep WHERE page_id =' . $page_id;
 }
 
-function prep_ax_prep_page($id, $first_name, $middle_name) {
-    $first_name = pg_escape_string($first_name);
-    $middle_name = pg_escape_string($middle_name);
+function prep_ax_prep_page($id, $first_name, $middle_name)
+{
+  $first_name = pg_escape_string($first_name);
+  $middle_name = pg_escape_string($middle_name);
 
-    return "INSERT INTO ax_page_prep(id, prep_user_id, page_id)
+  return "INSERT INTO ax_page_prep(id, prep_user_id, page_id)
         VALUES(default, (SELECT id FROM students WHERE first_name = '$first_name' AND middle_name = '$middle_name'),'$id')";
 }
 
-function addTeacherToPage($page_id, $teacher_id) {
+function addTeacherToPage($page_id, $teacher_id)
+{
   return "INSERT INTO ax_page_prep(prep_user_id, page_id)
           VALUES ($teacher_id, $page_id)";
 }
@@ -740,7 +804,8 @@ function addTeacherToPage($page_id, $teacher_id) {
 
 // ДЕЙСТВИЯ СО СТУДЕНТАМИ
 
-function select_students_by_group_by_page($page_id){
+function select_students_by_group_by_page($page_id)
+{
   return "SELECT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name 
           FROM groups g
           INNER JOIN ax_page_group ON g.id = ax_page_group.group_id 
@@ -750,7 +815,8 @@ function select_students_by_group_by_page($page_id){
   ";
 }
 
-function select_students_by_group_by_page_by_task($page_id, $task_id){
+function select_students_by_group_by_page_by_task($page_id, $task_id)
+{
   return "SELECT a.id, a.fi, a.login, a.group_id, a.group_name, max(a.task_id) task_id
           FROM( 
             SELECT DISTINCT s.id, s.middle_name || ' ' || s.first_name as fi, s.login, g.id as group_id, g.name as group_name, 
@@ -769,17 +835,20 @@ function select_students_by_group_by_page_by_task($page_id, $task_id){
   ";
 }
 
-function select_students_id_by_group($group_id){
+function select_students_id_by_group($group_id)
+{
   return "SELECT student_id FROM students_to_groups
           WHERE group_id = $group_id;
   ";
 }
 
-function select_group_students_count($group_id){
+function select_group_students_count($group_id)
+{
   return "SELECT COUNT(*) FROM students_to_groups WHERE group_id = $group_id";
 }
 
-function select_student_role($user_id){
+function select_student_role($user_id)
+{
   return "SELECT role FROM students 
           WHERE id = $user_id
   ";
@@ -790,19 +859,22 @@ function select_student_role($user_id){
 // ДЕЙСТВИЯ С ФАЙЛАМИ
 
 // получения файлов для задание
-function select_task_file($type, $task_id) {
-    return 'SELECT * FROM ax_task_file WHERE type = '.$type.' AND task_id = '.$task_id;
+function select_task_file($type, $task_id)
+{
+  return 'SELECT * FROM ax_task_file WHERE type = ' . $type . ' AND task_id = ' . $task_id;
 }
 
 // обновление текста файла
-function update_file($type, $task_id, $full_text) {
-    return 'UPDATE ax_task_file SET full_text = $accelquotes$'.$full_text.'$accelquotes$ WHERE task_id = '.$task_id.' AND type = '.$type;
+function update_file($type, $task_id, $full_text)
+{
+  return 'UPDATE ax_task_file SET full_text = $accelquotes$' . $full_text . '$accelquotes$ WHERE task_id = ' . $task_id . ' AND type = ' . $type;
 }
 
 // добавление файла
-function insert_file($type, $task_id, $file_name, $full_text) {
-    return 'INSERT INTO ax_task_file(type, task_id, file_name, full_text) VALUES ('.$type.
-                ', '.$task_id.', $accelquotes$'.$file_name.'$accelquotes$, $accelquotes$'.$full_text.'$accelquotes$)';
+function insert_file($type, $task_id, $file_name, $full_text)
+{
+  return 'INSERT INTO ax_task_file(type, task_id, file_name, full_text) VALUES (' . $type .
+    ', ' . $task_id . ', $accelquotes$' . $file_name . '$accelquotes$, $accelquotes$' . $full_text . '$accelquotes$)';
 }
 
 // function insert_file_by_link($type, $task_id, $file_name){
@@ -853,7 +925,8 @@ function insert_file($type, $task_id, $file_name, $full_text) {
 // ПРОЧЕЕ
 
 // Добавление нового коммита
-function insert_answer_commit($assignment_id, $student_id){
+function insert_answer_commit($assignment_id, $student_id)
+{
   return "INSERT INTO ax_solution_commit(assignment_id, session_id, student_user_id, type) 
           VALUES ($assignment_id, null, $student_id, 1) 
           RETURNING id";
@@ -879,18 +952,20 @@ function insert_answer_commit($assignment_id, $student_id){
 }*/
 
 
-function select_color_theme(){
-    return "SELECT * FROM ax_color_theme ORDER BY id;";
+function select_color_theme()
+{
+  return "SELECT * FROM ax_color_theme ORDER BY id;";
 }
 
-function pg_fetch_all_assoc($res) {
-    if (PHP_VERSION_ID >= 70100) 
-        return pg_fetch_all($res, PGSQL_ASSOC);
-    $array_out = array();
-    while ($row = pg_fetch_array($res, null, PGSQL_ASSOC)) {
-        $array_out[] = $row;
-    }
-    return $array_out;
+function pg_fetch_all_assoc($res)
+{
+  if (PHP_VERSION_ID >= 70100)
+    return pg_fetch_all($res, PGSQL_ASSOC);
+  $array_out = array();
+  while ($row = pg_fetch_array($res, null, PGSQL_ASSOC)) {
+    $array_out[] = $row;
+  }
+  return $array_out;
 }
 
 // function status_code_to_text($status_code) {
@@ -912,13 +987,15 @@ function pg_fetch_all_assoc($res) {
 //   }
 // }
 
-function select_last_commit_id_by_assignment_id($assignment_id) {
+function select_last_commit_id_by_assignment_id($assignment_id)
+{
   return "SELECT MAX(id) as id FROM ax_solution_commit 
           WHERE assignment_id = $assignment_id;
   ";
 }
 
-function select_last_ax_solution_file_by_commit_id($commit_id) {
+function select_last_ax_solution_file_by_commit_id($commit_id)
+{
   return "SELECT * FROM ax_commit_file
           INNER JOIN ax_file ON ax_file.id = ax_commit_file.file_id
           WHERE commit_id = $commit_id
@@ -929,8 +1006,9 @@ function select_last_ax_solution_file_by_commit_id($commit_id) {
 
 // TODO: ПРОВЕРИТЬ!
 // получение сообщений для таблицы посылок
-function select_preptable_messages($page_id) {
-    return "SELECT DISTINCT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
+function select_preptable_messages($page_id)
+{
+  return "SELECT DISTINCT s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
       ax_task.id tid, ax_assignment.id aid, ax_assignment.status_code, ax_assignment.status, m1.id mid, s1.id sid, 
       m1.type, ax_task.title task, ax_task.max_mark max_mark, ax_assignment.mark amark, 
       ax_assignment.delay adelay, ax_assignment.status_code astatus, 
@@ -949,7 +1027,7 @@ function select_preptable_messages($page_id) {
           LEFT JOIN ax_message m1 ON ax_assignment.id = m1.assignment_id 
             AND (m1.sender_user_id=ax_assignment_student.student_user_id OR m1.sender_user_type=2) AND m1.status in (0,1)
                   
-          WHERE ax_task.page_id = $page_id AND m1.type in (1, 2)
+          WHERE ax_task.page_id = $page_id AND m1.type in (1, 2) AND ax_task.status = 1 
           ORDER BY mid DESC
         ) a
         GROUP BY a.aid, a.type
@@ -974,7 +1052,8 @@ function select_preptable_messages($page_id) {
 }
 
 // TODO: ПРОВЕРИТЬ!
-function select_message_with_all_relations($message_id){
+function select_message_with_all_relations($message_id)
+{
   return "SELECT DISTINCT ON (ax_assignment.id) s1.middle_name || ' ' || s1.first_name fio, groups.name grp, 
           ax_task.id tid, ax_assignment.id aid, ax_assignment.status_code, ax_assignment.status, m1.id mid, ax_assignment_student.student_user_id sid, 
           m1.type, ax_task.title task, ax_task.max_mark max_mark, 
@@ -998,6 +1077,3 @@ function select_message_with_all_relations($message_id){
           WHERE m1.id = $message_id;
   ";
 }
-
-
-?>
