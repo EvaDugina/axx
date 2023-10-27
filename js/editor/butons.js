@@ -81,7 +81,7 @@ function openFile(event = null, listItem = null) {
 
     $('#container').removeClass("d-none");
     if (user_role == 3)
-      $('#check').prop("disabled", false);
+        $('#check').prop("disabled", false);
     var id = thisListItem.querySelector(".validationCustom").id;
     if (id != editor.id) {
         var items = list.querySelectorAll(".validationCustom");
@@ -137,7 +137,7 @@ function delFile(event) {
     else {
         $('#container').addClass("d-none");
         if (user_role == 3)
-          $('#check').prop("disabled", true);
+            $('#check').prop("disabled", true);
     }
 
 
@@ -399,7 +399,7 @@ function alertContentsCheck(httpRequest) {
             if (httpRequest.status == 200) {
                 // alert('Код отправлен на проверку!');
                 if (user_role == 3)
-                  $('#check').prop("disabled", false);
+                    $('#check').prop("disabled", false);
                 $('#dialogSuccess').modal('show');
                 // document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
                 // document.location.reload();
@@ -856,7 +856,7 @@ function newFile() {
             </button>\
             <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">\
             <li>\
-                <a class="dropdown-item align-items-center" href="#">\
+                <a class="dropdown-item align-items-center" id="a-renameFile">\
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">\
                     <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>\
                 </svg>\
