@@ -343,13 +343,22 @@ if ($scripts) echo $scripts;
                                 </div>
                                 <?php
                                 if ($Page->hasUncheckedTasks($Student->id)) { ?>
-                                  <span class="badge badge-primary badge-pill bg-warning text-white me-3">
+                                  <span id="span-studentStatus-<?= $Student->id ?>" class="badge badge-primary badge-pill bg-warning text-white me-3">
                                     Ожидает проверки
                                   </span>
                                 <?php } ?>
                                 <?php if (count($studentAssignments) > 0) { ?>
                                   <span class="badge badge-light me-3">
-                                    <span class="small font-weight-light"> (<?= $studentCompletedAssignments ?> / <?= count($studentAssignments) ?>)</span>
+                                    <span class="small font-weight-light">
+                                      (
+                                      <span id="span-countCompletedAssignments-<?= $Student->id ?>">
+                                        <?= $studentCompletedAssignments ?>
+                                      </span>
+                                      /
+                                      <span id="span-countVisibleAssignments-<?= $Student->id ?>">
+                                        <?= count($studentAssignments) ?>
+                                      </span>
+                                      )</span>
                                   </span>
                                 <?php } ?>
                               </div>
@@ -374,7 +383,7 @@ if ($scripts) echo $scripts;
                                   <div class="row">
                                     <div class="d-flex justify-content-between align-items-center">
                                       &nbsp;&nbsp;&nbsp;<?= $Task->title ?>
-                                      <div>
+                                      <div id="div-assignmentStatus-<?= $Assignment->id ?>" data-student-id="<?= $Student->id ?>">
                                         <?php
 
                                         if ($Assignment->isWaitingCheck()) { ?>
@@ -728,6 +737,8 @@ function generate_message_for_student_task_commit($task_title)
   var CHOOSED_ASSIGNMENT_ID = null;
   var USER_ID = <?= $User->id ?>;
 
+  var array_waiting_assignments = [];
+
   function chooseAssignment(assignment_id) {
     CHOOSED_ASSIGNMENT_ID = assignment_id;
   }
@@ -761,6 +772,45 @@ function generate_message_for_student_task_commit($task_title)
           $("[id='" + id + "']").text(mark);
         else
           $("[id='" + id + "']").html(ajaxResponse['svg-checked']);
+
+        id = 'div-assignmentStatus-' + assignment_id;
+        $("[id='" + id + "']").each(function() {
+
+          let accordionStatusElements = $(this).children();
+          let flagNotPlus = false;
+          if (accordionStatusElements.length > 1) {
+            $(this).empty();
+            accordionStatusElements = [];
+            flagNotPlus = true;
+          }
+
+          if (accordionStatusElements.length == 0) {
+            let span = document.createElement("span");
+            span.setAttribute("class", "badge badge-primary badge-pill bg-success text-white");
+            span.innerText = "Выполнено";
+            $(this).append(span);
+          } else if (accordionStatusElements.length == 1) {
+            if (accordionStatusElements[0].innerText == "Выполнено")
+              flagNotPlus = true;
+            else {
+              accordionStatusElements[0].classList = ["badge badge-primary badge-pill bg-success text-white"];
+              accordionStatusElements[0].innerText = "Выполнено";
+            }
+          }
+
+          console.log($(this).data("studentId"));
+          let nowCountCompleted = parseInt($('#span-countCompletedAssignments-' + $(this).data("studentId")).text());
+          if (!flagNotPlus) {
+            $('#span-countCompletedAssignments-' + $(this).data("studentId")).text(nowCountCompleted + 1);
+
+          }
+
+          if (nowCountCompleted == parseInt($('#span-countVisibleAssignments-' + $(this).data("studentId")).text()))
+            $('#span-studentStatus-' + $(this).data("studentId")).remove();
+
+
+
+        });
 
         $('#dialogCheckTask').modal("hide");
       } else {
