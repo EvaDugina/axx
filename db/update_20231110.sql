@@ -24,5 +24,6 @@ ALTER TABLE students_to_subgroups SET SCHEMA ax;
 ALTER TABLE ax_autotest_results SET SCHEMA ax;
 ALTER TABLE ax_color_theme SET SCHEMA ax;
 
+GRANT ALL PRIVILEGES ON SCHEMA ax TO accelerator;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ax TO accelerator;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ax TO accelerator;
