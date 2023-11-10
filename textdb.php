@@ -97,7 +97,7 @@ if (array_key_exists('commit', $_REQUEST)) {
   if ($Commit != null)
     $commit_id = $Commit->id;
 }
-// $result = pg_query($dbconnect, "select max(id) mid from ax_solution_commit where assignment_id = $assignment");
+// $result = pg_query($dbconnect, "select max(id) mid from ax.ax_solution_commit where assignment_id = $assignment");
 // $result = pg_fetch_assoc($result);
 // if ($result === false)
 //   $commit_id = 0;
@@ -110,7 +110,7 @@ if (array_key_exists('id', $_REQUEST))
 if (array_key_exists('file_name', $_REQUEST))
   $file_name = urldecode($_REQUEST['file_name']);
 else if ($file_id != 0) {
-  $result = pg_query($dbconnect, "SELECT file_name from ax_file where id = $file_id");
+  $result = pg_query($dbconnect, "SELECT file_name from ax.ax_file where id = $file_id");
   $result = pg_fetch_assoc($result);
   $file_name = $result['file_name'];
 } else if ($type != 'oncheck' && $type != 'tools' && $type != 'console' && $type != 'commit') {
@@ -136,7 +136,7 @@ if ($type == "open") {
   $responce = $File->getFullText();
 
   // выбираем файл по названию и номеру коммита
-  // $result = pg_query($dbconnect, "SELECT ax_file.id, ax_file.file_name, full_text from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where ax_file.file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+  // $result = pg_query($dbconnect, "SELECT ax.ax_file.id, ax.ax_file.file_name, full_text from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where ax.ax_file.file_name = '$file_name' and ax.ax_commit_file.commit_id = $commit_id");
   // $result = pg_fetch_all($result);
   // foreach ($result as $item) {
   //   if ($item['id'] == $file_id) {
@@ -163,7 +163,7 @@ else if ($type == "save") {
 
 
   // $id = 0;
-  // $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+  // $result = pg_query($dbconnect, "SELECT ax.ax_file.id from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where file_name = '$file_name' and ax.ax_commit_file.commit_id = $commit_id");
   // $result = pg_fetch_assoc($result);
   // if (count($result) > 0)
   //   $id = $result['id'];
@@ -182,10 +182,10 @@ else if ($type == "save") {
     if ($file_name != $File->name_without_prefix)
       $File->setName(true, $file_name);
     $File->setFullText($file_text);
-    // pg_query($dbconnect, 'UPDATE ax_file SET full_text=$accelquotes$' . $file . '$accelquotes$, file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
+    // pg_query($dbconnect, 'UPDATE ax.ax_file SET full_text=$accelquotes$' . $file . '$accelquotes$, file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
   } else {
     $File->setName(true, $file_name);
-    // pg_query($dbconnect, 'UPDATE ax_file SET file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
+    // pg_query($dbconnect, 'UPDATE ax.ax_file SET file_name=$accelquotes$' . $file_name . '$accelquotes$ where id=' . $id);
   }
 
   $responce = $File->getFullText();
@@ -209,7 +209,7 @@ else if ($type == "new") {
   //   $user_id = $result[0]['id'];
 
   //   // --- сессий пока нет
-  //   $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, type) values ($assignment, null, $user_id, 0) returning id;");
+  //   $result = pg_query($dbconnect, "insert into ax.ax_solution_commit (assignment_id, session_id, student_user_id, type) values ($assignment, null, $user_id, 0) returning id;");
   //   $result = pg_fetch_all($result);
   //   $commit_id = $result[0]['id'];
   // }
@@ -225,7 +225,7 @@ else if ($type == "new") {
   );
 
   $responce = json_encode($return_values);
-  //   $result = pg_query($dbconnect, "INSERT INTO ax_solution_file (assignment_id, commit_id, file_name, type) VALUES ('$assignment', $commit_id, '$file_name', '11') returning id;");
+  //   $result = pg_query($dbconnect, "INSERT INTO ax.ax_solution_file (assignment_id, commit_id, file_name, type) VALUES ('$assignment', $commit_id, '$file_name', '11') returning id;");
   //   $result = pg_fetch_assoc($result);
   // if ($result === false) {
   // 	echo "Не удалось сохранить файл $file_name в коммит $commit_id";
@@ -247,15 +247,15 @@ else if ($type == "del") {
 
   // тут нужно монотонное возрастание id-шников файлов
 
-  $result = pg_query($dbconnect, "SELECT ax_file.id from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where file_name = '$file_name' and ax_commit_file.commit_id = $commit_id");
+  $result = pg_query($dbconnect, "SELECT ax.ax_file.id from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where file_name = '$file_name' and ax.ax_commit_file.commit_id = $commit_id");
   $result = pg_fetch_assoc($result);
   if ($result === false) {
     echo "Не удалось найти удаляемый файл";
     http_response_code(400);
     exit;
   } else
-    pg_query($dbconnect, "DELETE FROM ax_file WHERE id=" . $result['id']);
-  pg_query($dbconnect, "DELETE FROM ax_commit_file WHERE file_id=" . $result['id']);
+    pg_query($dbconnect, "DELETE FROM ax.ax_file WHERE id=" . $result['id']);
+  pg_query($dbconnect, "DELETE FROM ax.ax_commit_file WHERE file_id=" . $result['id']);
 }
 //-----------------------------------------------------------------DEL---------------------------------------------------------
 else if ($type == "rename") {
@@ -268,7 +268,7 @@ else if ($type == "rename") {
 
   $new_file_name = urldecode($_REQUEST['new_file_name']);
 
-  pg_query($dbconnect, "UPDATE ax_file SET file_name = '$new_file_name' WHERE id = $file_id");
+  pg_query($dbconnect, "UPDATE ax.ax_file SET file_name = '$new_file_name' WHERE id = $file_id");
 }
 
 //---------------------------------------------------------------COMMIT-------------------------------------------------------
@@ -314,7 +314,7 @@ else if ($type == "oncheck") {
   }
 
   // $filecount = 0;
-  // $result = pg_query($dbconnect, "SELECT count(*) cnt from ax_commit_file where commit_id = $commit_id");
+  // $result = pg_query($dbconnect, "SELECT count(*) cnt from ax.ax_commit_file where commit_id = $commit_id");
   // $result = pg_fetch_all($result);
   // $filecount = $result[0]['cnt'];
   // $new_id = 0;
@@ -340,12 +340,12 @@ else if ($type == "oncheck") {
       $answerCommit->setType(3);
     }
 
-    // $result = pg_query($dbconnect, "insert into ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type) select assignment_id, session_id, $user_id, now()," .
-    //   (($user_role == 3) ? "1" : "3") . " from ax_solution_commit where id = $commit_id RETURNING id");
+    // $result = pg_query($dbconnect, "insert into ax.ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type) select assignment_id, session_id, $user_id, now()," .
+    //   (($user_role == 3) ? "1" : "3") . " from ax.ax_solution_commit where id = $commit_id RETURNING id");
     // $result = pg_fetch_all($result);
     // $new_id = $result[0]['id'];
 
-    // $pg_query = pg_query($dbconnect, "SELECT ax_file.* from ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id where commit_id = $commit_id");
+    // $pg_query = pg_query($dbconnect, "SELECT ax.ax_file.* from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where commit_id = $commit_id");
     // $Commit = new Commit((int)$new_id);
     // while ($file = pg_fetch_assoc($pg_query)) {
     //   $File = new File((int)$file['type'], $file['file_name']);
@@ -353,14 +353,14 @@ else if ($type == "oncheck") {
     //   $Commit->addFile($File->id);
     // }
 
-    // $result = pg_query($dbconnect, "insert into ax_solution_file (assignment_id, commit_id, type, file_name, download_url, full_text) select assignment_id, $new_id, type, file_name, download_url, full_text from ax_solution_file where commit_id = $commit_id");
+    // $result = pg_query($dbconnect, "insert into ax.ax_solution_file (assignment_id, commit_id, type, file_name, download_url, full_text) select assignment_id, $new_id, type, file_name, download_url, full_text from ax.ax_solution_file where commit_id = $commit_id");
 
-    // $result = pg_query($dbconnect, "update ax_solution_commit set type = 1 where id = $commit_id");
+    // $result = pg_query($dbconnect, "update ax.ax_solution_commit set type = 1 where id = $commit_id");
 
     // if ($User->isStudent())
-    //   pg_query($dbconnect, "UPDATE ax_assignment SET status=1, status_code=2 where id=$assignment");
+    //   pg_query($dbconnect, "UPDATE ax.ax_assignment SET status=1, status_code=2 where id=$assignment");
     // else
-    //   pg_query($dbconnect, "UPDATE ax_assignment SET status=4, status_code=2 where id=$assignment");
+    //   pg_query($dbconnect, "UPDATE ax.ax_assignment SET status=4, status_code=2 where id=$assignment");
 
     if ($User->isStudent()) {
       $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, null, "Отправлено на проверку", 0, 0);
@@ -372,7 +372,7 @@ else if ($type == "oncheck") {
       $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 0, 2);
       $Assignment->addMessage($linkMessage->id);
 
-      // $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
+      // $result2 = pg_query($dbconnect, "insert into ax.ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
       //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Отправлено на проверку', $new_id, 0) returning id");
       // $result = pg_fetch_assoc($result2);
       // $msg_id = $result['id'];
@@ -380,9 +380,9 @@ else if ($type == "oncheck") {
       // $Message = new Message((int)$msg_id);
       // $File = new File(null, 'проверить', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
       // $Message->addFile($File->id);
-      // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
+      // pg_query($dbconnect, "insert into ax.ax_message_attachment (message_id, file_name, download_url, full_text)".
       // 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-      // pg_query($dbconnect, "update ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
+      // pg_query($dbconnect, "update ax.ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
 
     } else {
       $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, null, "Проверено", 0, 0);
@@ -391,7 +391,7 @@ else if ($type == "oncheck") {
       $Message->addFile($File->id);
       $Assignment->addMessage($Message);
 
-      // $result2 = pg_query($dbconnect, "insert into ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
+      // $result2 = pg_query($dbconnect, "insert into ax.ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
       //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
       // $result = pg_fetch_assoc($result2);
       // $msg_id = $result['id'];
@@ -399,9 +399,9 @@ else if ($type == "oncheck") {
       // $Message = new Message((int)$msg_id);
       // $File = new File(null, 'проверенная версия', "editor.php?assignment=$assignment&commit=$new_id", null);
       // $Message->addFile($File->id);
-      // pg_query($dbconnect, "insert into ax_message_attachment (message_id, file_name, download_url, full_text)".
+      // pg_query($dbconnect, "insert into ax.ax_message_attachment (message_id, file_name, download_url, full_text)".
       // 				 "     values ($msg_id, 'проверенная версия', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-      // pg_query($dbconnect, "update ax_assignment set status_code = 2, status = 4, where id = $assignment");
+      // pg_query($dbconnect, "update ax.ax_assignment set status_code = 2, status = 4, where id = $assignment");
     }
 
     if ($User->isStudent()) {
@@ -421,8 +421,8 @@ else if ($type == "tools") {
     exit;
   }
 
-  $result = pg_query($dbconnect,  "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks " .
-    " from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = " . $assignment);
+  $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+    " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment);
   $row = pg_fetch_assoc($result);
   $checks = $row['achecks'];
   if ($checks == null)
@@ -474,7 +474,7 @@ else if ($type == "tools") {
     mkdir($folder, 0777, true);
 
   // получение файла проверки
-  $result = pg_query($dbconnect,  "SELECT f.* from ax_file f INNER JOIN ax_task_file ON ax_task_file.file_id = f.id inner join ax_assignment a on ax_task_file.task_id = a.task_id where f.type = 2 and a.id = " . $assignment);
+  $result = pg_query($dbconnect,  "SELECT f.* from ax.ax_file f INNER JOIN ax.ax_task_file ON ax.ax_task_file.file_id = f.id inner join ax.ax_assignment a on ax.ax_task_file.task_id = a.task_id where f.type = 2 and a.id = " . $assignment);
   $result = pg_fetch_assoc($result);
   if (!$result && array_key_exists('autotests', $checks['tools']))
     $checks['tools']['autotests']['enabled'] = false;
@@ -491,8 +491,8 @@ else if ($type == "tools") {
   fwrite($myfile, $checks);
   fclose($myfile);
 
-  // $result = pg_query($dbconnect,  "SELECT * from ax_solution_file where commit_id = ".$commit_id);
-  // $result = pg_query($dbconnect, "SELECT * FROM ax_file INNER JOIN ax_commit_file ON ax_commit_file.file_id = ax_file.id WHERE ax_commit_file.commit_id = $commit_id");
+  // $result = pg_query($dbconnect,  "SELECT * from ax.ax_solution_file where commit_id = ".$commit_id);
+  // $result = pg_query($dbconnect, "SELECT * FROM ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id WHERE ax.ax_commit_file.commit_id = $commit_id");
   // while ($row = pg_fetch_assoc($result)) {
   //   $myfile = fopen($folder . '/' . $row['file_name'], "w") or die("Unable to open file!");
   //   fwrite($myfile, $row['full_text']);
@@ -564,7 +564,7 @@ else if ($type == "tools") {
   //echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
 
   /* Получение результатов проверки из БД
-	$result = pg_query($dbconnect,  "select autotest_results from ax_solution_commit where id = ".$commit_id);
+	$result = pg_query($dbconnect,  "select autotest_results from ax.ax_solution_commit where id = ".$commit_id);
 	if (!($row = pg_fetch_assoc($result))) {
 	  echo "<pre>Ошибка при получении результатов проверок (".$retval."):\n";
 	  echo $output;
@@ -585,7 +585,7 @@ else if ($type == "tools") {
   $responce = fread($myfile, filesize($folder . '/output.json'));
   fclose($myfile);
 
-  pg_query($dbconnect, 'update ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $commit_id);
+  pg_query($dbconnect, 'update ax.ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $commit_id);
   /**/
 
   header('Content-Type: application/json');

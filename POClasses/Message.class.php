@@ -117,7 +117,7 @@ class Message
 
     $this->status = $status;
 
-    $query = "UPDATE ax_message SET status = $this->status WHERE ax_message.id = $this->id";
+    $query = "UPDATE ax.ax_message SET status = $this->status WHERE ax.ax_message.id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -127,7 +127,7 @@ class Message
 
     $this->resended_from_id = $message_id;
 
-    $query = "UPDATE ax_message SET resended_from_id = $this->resended_from_id WHERE ax_message.id = $this->id";
+    $query = "UPDATE ax.ax_message SET resended_from_id = $this->resended_from_id WHERE ax.ax_message.id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -137,7 +137,7 @@ class Message
 
     $this->full_text = $full_text;
 
-    $query = "UPDATE ax_message SET full_text = \$accel\$$this->full_text\$accel\$ WHERE ax_message.id = $this->id";
+    $query = "UPDATE ax.ax_message SET full_text = \$accel\$$this->full_text\$accel\$ WHERE ax.ax_message.id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -154,13 +154,13 @@ class Message
     // $this->date_time = getNowTimestamp();
 
     if ($this->reply_to_id != null) {
-      $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
+      $query = "INSERT INTO ax.ax_message (assignment_id, type, sender_user_id, sender_user_type, 
                 date_time, reply_to_id, full_text, status, visibility) 
                 VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
                 now(), $this->reply_to_id, \$antihype1\$$this->full_text\$antihype1\$, $this->status, $this->visibility)
                 RETURNING id, date_time;";
     } else {
-      $query = "INSERT INTO ax_message (assignment_id, type, sender_user_id, sender_user_type, 
+      $query = "INSERT INTO ax.ax_message (assignment_id, type, sender_user_id, sender_user_type, 
                 date_time, full_text, status, visibility) 
                 VALUES ($assignment_id, $this->type, $this->sender_user_id, $this->sender_user_type, 
                 now(), \$antihype1\$$this->full_text\$antihype1\$, $this->status, $this->visibility)
@@ -179,7 +179,7 @@ class Message
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_message SET type = $this->type, sender_user_id = $this->sender_user_id, 
+    $query = "UPDATE ax.ax_message SET type = $this->type, sender_user_id = $this->sender_user_id, 
       sender_user_type = $this->sender_user_type, date_time = '$this->date_time', 
       reply_to_id = $this->reply_to_id, full_text = \$antihype1\$$this->full_text\$antihype1\$, status = $this->status, 
       visibility = $this->visibility WHERE id = $this->id;
@@ -207,7 +207,7 @@ class Message
         $File->deleteFromDB();
     }
 
-    $query = "UPDATE ax_message SET status = 2 WHERE id = $this->id;";
+    $query = "UPDATE ax.ax_message SET status = 2 WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -251,7 +251,7 @@ class Message
   {
     global $dbconnect;
 
-    $query = "SELECT status FROM ax_message_delivery WHERE recipient_user_id = $user_id AND message_id = $this->id";
+    $query = "SELECT status FROM ax.ax_message_delivery WHERE recipient_user_id = $user_id AND message_id = $this->id";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $status = pg_fetch_assoc($pg_query)['status'];
 
@@ -261,7 +261,7 @@ class Message
   {
     global $dbconnect;
 
-    $query = "SELECT COUNT(status) as count FROM ax_message_delivery WHERE message_id = $this->id";
+    $query = "SELECT COUNT(status) as count FROM ax.ax_message_delivery WHERE message_id = $this->id";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $count = pg_fetch_assoc($pg_query)['count'];
 
@@ -273,7 +273,7 @@ class Message
   // public function isFirstUnreaded($user_id) {
   //   global $dbconnect; 
 
-  //   $query = "SELECT min(message_id) as min_message_id FROM ax_message_delivery WHERE recipient_user_id = $user_id 
+  //   $query = "SELECT min(message_id) as min_message_id FROM ax.ax_message_delivery WHERE recipient_user_id = $user_id 
   //             AND status = 0 AND assignment_id = ... LIMIT 1;";
   //   $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   //   $min_new_message_id = pg_fetch_assoc($pg_query)['min_message_id'];
@@ -287,7 +287,7 @@ class Message
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_message_delivery SET status = 1 WHERE recipient_user_id = $user_id AND message_id = $this->id";
+    $query = "UPDATE ax.ax_message_delivery SET status = 1 WHERE recipient_user_id = $user_id AND message_id = $this->id";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $status = pg_fetch_assoc($pg_query)['status'];
 
@@ -297,7 +297,7 @@ class Message
   // public function pushSelfToDeliveryDB() {
   //   global $dbconnect;
 
-  //   $query = "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+  //   $query = "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
   //             VALUES ($this->id, $this->sender_user_id, 1)";
 
   //   pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -353,7 +353,7 @@ class Message
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $file_id);";
+    $query = "INSERT INTO ax.ax_message_file (message_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function pushFilesToMessageDB($Files)
@@ -363,7 +363,7 @@ class Message
     if (!empty($Files)) {
       $query = "";
       foreach ($Files as $File) {
-        $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
+        $query .= "INSERT INTO ax.ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -372,7 +372,7 @@ class Message
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_message_file WHERE file_id = $file_id;";
+    $query = "DELETE FROM ax.ax_message_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function synchFilesToMessageDB()
@@ -384,7 +384,7 @@ class Message
     if (!empty($this->Files)) {
       $query = "";
       foreach ($this->Files as $File) {
-        $query .= "INSERT INTO ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
+        $query .= "INSERT INTO ax.ax_message_file (message_id, file_id) VALUES ($this->id, $File->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -394,7 +394,7 @@ class Message
     global $dbconnect;
 
     // Удаляем предыдущие прикрепления файлов
-    $query = "DELETE FROM ax_message_file WHERE message_id = $this->id;";
+    $query = "DELETE FROM ax.ax_message_file WHERE message_id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -415,7 +415,7 @@ class Message
 
     if ($this->Commit != null) {
       $commit_id = $this->Commit->id;
-      $query = "UPDATE ax_message SET commit_id = $commit_id WHERE id = $this->id;";
+      $query = "UPDATE ax.ax_message SET commit_id = $commit_id WHERE id = $this->id;";
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
   }
@@ -467,16 +467,16 @@ function getFilesByMessage($message_id)
 
 function queryGetMessageInfo($message_id)
 {
-  return "SELECT * FROM ax_message WHERE id = $message_id;
+  return "SELECT * FROM ax.ax_message WHERE id = $message_id;
   ";
 }
 
 function queryGetCommitByMessage($message_id)
 {
-  return "SELECT commit_id as id FROM ax_message WHERE id = $message_id";
+  return "SELECT commit_id as id FROM ax.ax_message WHERE id = $message_id";
 }
 
 function queryGetFilesByMessage($message_id)
 {
-  return "SELECT file_id as id FROM ax_message_file WHERE message_id = $message_id";
+  return "SELECT file_id as id FROM ax.ax_message_file WHERE message_id = $message_id";
 }

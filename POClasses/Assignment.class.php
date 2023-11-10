@@ -148,7 +148,7 @@ class Assignment
 
     $this->status = $status;
 
-    $query = "UPDATE ax_assignment SET status = $this->status
+    $query = "UPDATE ax.ax_assignment SET status = $this->status
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -159,7 +159,7 @@ class Assignment
 
     $this->delay = $delay;
 
-    $query = "UPDATE ax_assignment SET delay = $this->delay WHERE id = $this->id";
+    $query = "UPDATE ax.ax_assignment SET delay = $this->delay WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -170,7 +170,7 @@ class Assignment
     $this->visibility = $visibility;
     $this->visibility_text = visibility_to_text($this->visibility);
 
-    $query = "UPDATE ax_assignment SET status_code = $this->visibility, status_text = '$this->visibility_text'
+    $query = "UPDATE ax.ax_assignment SET status_code = $this->visibility, status_text = '$this->visibility_text'
               WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -181,7 +181,7 @@ class Assignment
 
     $this->finish_limit = $finish_limit;
 
-    $query = "UPDATE ax_assignment SET finish_limit = to_timestamp('$this->finish_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    $query = "UPDATE ax.ax_assignment SET finish_limit = to_timestamp('$this->finish_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -191,7 +191,7 @@ class Assignment
 
     $this->start_limit = $start_limit;
 
-    $query = "UPDATE ax_assignment SET start_limit = to_timestamp('$this->start_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    $query = "UPDATE ax.ax_assignment SET start_limit = to_timestamp('$this->start_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -211,7 +211,7 @@ class Assignment
 
     $this->variant_number = $variant_number;
 
-    $query = "UPDATE ax_assignment SET variant_number = $variant_number WHERE id = $this->id;";
+    $query = "UPDATE ax.ax_assignment SET variant_number = $variant_number WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function setMark($mark)
@@ -220,7 +220,7 @@ class Assignment
 
     $this->mark = $mark;
 
-    $query = "UPDATE ax_assignment SET mark = '$mark', status = 4, status_text = 'выполнено' 
+    $query = "UPDATE ax.ax_assignment SET mark = '$mark', status = 4, status_text = 'выполнено' 
               WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
@@ -236,7 +236,7 @@ class Assignment
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_assignment(task_id, variant_number, start_limit, finish_limit, 
+    $query = "INSERT INTO ax.ax_assignment(task_id, variant_number, start_limit, finish_limit, 
               status_code, status_text, status, delay, mark, checks)
               VALUES ($task_id, $this->variant_number, '$this->start_limit', '$this->finish_limit', 
               $this->visibility, '$this->visibility_text', $this->status, $this->delay, '$this->mark', '$this->checks') 
@@ -251,7 +251,7 @@ class Assignment
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_assignment(task_id, status_code, status_text, status)
+    $query = "INSERT INTO ax.ax_assignment(task_id, status_code, status_text, status)
               VALUES ($task_id, $this->visibility, '$this->visibility_text', $this->status) 
               RETURNING id;";
 
@@ -264,7 +264,7 @@ class Assignment
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_assignment SET variant_number=$this->variant_number, start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
+    $query = "UPDATE ax.ax_assignment SET variant_number=$this->variant_number, start_limit='$this->start_limit', finish_limit='$this->finish_limit', 
               status_code=$this->visibility, status_text='$this->visibility_text', delay=$this->delay, mark='$this->mark', checks='$this->checks', 
               status=$this->status
               WHERE id = $this->id";
@@ -283,7 +283,7 @@ class Assignment
       $Commit->deleteFromDB();
     }
 
-    $query = "DELETE FROM ax_assignment WHERE id = $this->id;";
+    $query = "DELETE FROM ax.ax_assignment WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -408,7 +408,7 @@ class Assignment
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
+    $query = "INSERT INTO ax.ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $student_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function pushStudentsToAssignmentDB($Students)
@@ -418,7 +418,7 @@ class Assignment
     if (!empty($Students)) {
       $query = "";
       foreach ($Students as $Student) {
-        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
+        $query .= "INSERT INTO ax.ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -427,7 +427,7 @@ class Assignment
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_assignment_student WHERE student_user_id = $student_id;";
+    $query = "DELETE FROM ax.ax_assignment_student WHERE student_user_id = $student_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function synchStudentsToAssignmentDB()
@@ -439,7 +439,7 @@ class Assignment
     if (!empty($this->Students)) {
       $query = "";
       foreach ($this->Students as $Student) {
-        $query .= "INSERT INTO ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
+        $query .= "INSERT INTO ax.ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -449,7 +449,7 @@ class Assignment
     global $dbconnect;
 
     // Удаляем предыдущие прикрепления студентов
-    $query = "DELETE FROM ax_assignment_student WHERE assignment_id = $this->id;";
+    $query = "DELETE FROM ax.ax_assignment_student WHERE assignment_id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -497,8 +497,8 @@ class Assignment
 
     $User = new User((int)$user_id);
 
-    $query = "SELECT min(ax_message.id) as min_message_id FROM ax_message WHERE assignment_id = $this->id
-              AND status = 0 AND ax_message.sender_user_type != $User->role LIMIT 1;";
+    $query = "SELECT min(ax_message.id) as min_message_id FROM ax.ax_message WHERE assignment_id = $this->id
+              AND status = 0 AND ax.ax_message.sender_user_type != $User->role LIMIT 1;";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     return pg_fetch_assoc($pg_query)['min_message_id'];
   }
@@ -537,7 +537,7 @@ class Assignment
     $query = "";
     foreach ($this->Students as $Student) {
       if ($Student->id != $Message->sender_user_id) {
-        $query .= "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+        $query .= "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
                   VALUES ($Message->id, $Student->id, 0)";
       }
     }
@@ -545,12 +545,12 @@ class Assignment
     $Teachers = getTeachersByAssignment($this->id);
     foreach ($Teachers as $Teacher) {
       if ($Teacher->id != $Message->sender_user_id) {
-        $query .= "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+        $query .= "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
                   VALUES ($Message->id, $Teacher->id, 0)";
       }
     }
 
-    $query = "INSERT INTO ax_message_delivery (message_id, recipient_user_id, status)
+    $query = "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
               VALUES ($Message->id, $Message->sender_user_id, 1)";
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -576,7 +576,7 @@ class Assignment
     return $new_messages;
   }
 
-  // TODO: Исправить на работу с таблицей ax_message_delivery
+  // TODO: Исправить на работу с таблицей ax.ax_message_delivery
   public function getCountUnreadedMessages($user_id)
   {
     $count_unreaded = 0;
@@ -738,7 +738,7 @@ function getAssignmentByCommit($commit_id)
 {
   global $dbconnect;
 
-  $query = "SELECT assignment_id FROM ax_solution_commit WHERE id = $commit_id";
+  $query = "SELECT assignment_id FROM ax.ax_solution_commit WHERE id = $commit_id";
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $assignment_id = pg_fetch_assoc($result)['assignment_id'];
 
@@ -751,25 +751,25 @@ function queryGetAssignmentInfo($assignment_id)
 {
   return "SELECT *, to_char(ax_assignment.start_limit, 'YYYY-MM-DD') as converted_start_limit,
           to_char(ax_assignment.finish_limit, 'YYYY-MM-DD') as converted_finish_limit
-          FROM ax_assignment WHERE id = $assignment_id";
+          FROM ax.ax_assignment WHERE id = $assignment_id";
 }
 
 function queryGetStudentsByAssignment($assignment_id)
 {
-  return "SELECT student_user_id as id FROM ax_assignment_student
-          WHERE ax_assignment_student.assignment_id = $assignment_id;";
+  return "SELECT student_user_id as id FROM ax.ax_assignment_student
+          WHERE ax.ax_assignment_student.assignment_id = $assignment_id;";
 }
 
 function queryGetMessagesByAssignment($assignment_id)
 {
-  return "SELECT id FROM ax_message
+  return "SELECT id FROM ax.ax_message
           WHERE assignment_id = $assignment_id AND (status = 0 OR status = 1)
           ORDER BY id;";
 }
 
 function queryGetCommitsByAssignment($assignment_id)
 {
-  return "SELECT id FROM ax_solution_commit
+  return "SELECT id FROM ax.ax_solution_commit
           WHERE assignment_id = $assignment_id
           ORDER BY id;";
 }

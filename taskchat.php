@@ -69,7 +69,7 @@ if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) {
     $assignment_id = $_REQUEST['assignment'];
 
 
-  $result = pg_query($dbconnect, "select task_id, page_id from ax_assignment a inner join ax_task t on a.task_id = t.id where a.id = $assignment_id");
+  $result = pg_query($dbconnect, "select task_id, page_id from ax.ax_assignment a inner join ax.ax_task t on a.task_id = t.id where a.id = $assignment_id");
   $row = pg_fetch_assoc($result);
   if ($row) {
     $task_id = $row['task_id'];
@@ -133,7 +133,7 @@ $Task = new Task((int)$task_id);
 
 
 $task_finish_date_time = '';
-$query = "SELECT date_time from ax_message where assignment_id = $assignment_id and type = 2";
+$query = "SELECT date_time from ax.ax_message where assignment_id = $assignment_id and type = 2";
 $result = pg_query($dbconnect, $query);
 $row = pg_fetch_assoc($result);
 if ($row) {

@@ -12,7 +12,7 @@ else {
 }
 
 function delete_discipline($discipline_id){
-	return 'DELETE FROM ax_page WHERE id ='.$discipline_id;
+	return 'DELETE FROM ax.ax_page WHERE id ='.$discipline_id;
 }
 
 if (isset($_POST['action'])) {
@@ -83,4 +83,3 @@ if (isset($_POST['action'])) {
 	}
 	header('Location: mainpage.php');
 }
-?>

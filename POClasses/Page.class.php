@@ -137,7 +137,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_page (disc_id, short_name, year, semester, color_theme_id, 
+    $query = "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
               creator_id, creation_date, status) 
               VALUES ($this->disc_id, \$antihype1\$$this->name\$antihype1\$, $this->year, $this->semester, $this->color_theme_id, 
               $this->creator_id, '$this->creation_date', $this->status) 
@@ -152,7 +152,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, disc_id=$this->disc_id, year=$this->year, semester=$this->semester,
+    $query = "UPDATE ax.ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, disc_id=$this->disc_id, year=$this->year, semester=$this->semester,
               color_theme_id=$this->color_theme_id, creator_id=$this->creator_id, creation_date='$this->creation_date', 
               status=$this->status
               WHERE id =$this->id;
@@ -168,10 +168,10 @@ class Page
       $Task->deleteFromDB();
     }
 
-    $query = "DELETE FROM ax_page_prep WHERE page_id = $this->id;";
-    $query .= "DELETE FROM ax_page_group WHERE page_id = $this->id;";
+    $query = "DELETE FROM ax.ax_page_prep WHERE page_id = $this->id;";
+    $query .= "DELETE FROM ax.ax_page_group WHERE page_id = $this->id;";
 
-    $query .= "DELETE FROM ax_page WHERE id = $this->id;";
+    $query .= "DELETE FROM ax.ax_page WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -282,7 +282,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_task SET page_id = $this->id WHERE id = $task_id";
+    $query = "UPDATE ax.ax_task SET page_id = $this->id WHERE id = $task_id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -329,7 +329,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_page_group(page_id, group_id)
+    $query = "INSERT INTO ax.ax_page_group(page_id, group_id)
               VALUES ($this->id, $group_id)";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -337,7 +337,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_page_group WHERE group_id = $group_id";
+    $query = "DELETE FROM ax.ax_page_group WHERE group_id = $group_id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function synchGroupsToPageDB()
@@ -349,7 +349,7 @@ class Page
     if (!empty($this->Groups)) {
       $query = "";
       foreach ($this->Groups as $Group) {
-        $query .= "INSERT INTO ax_page_group (page_id, group_id) VALUES ($this->id, $Group->id);";
+        $query .= "INSERT INTO ax.ax_page_group (page_id, group_id) VALUES ($this->id, $Group->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -358,7 +358,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_page_group WHERE page_id = $this->id";
+    $query = "DELETE FROM ax.ax_page_group WHERE page_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -406,7 +406,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_page_prep(page_id, prep_user_id)
+    $query = "INSERT INTO ax.ax_page_prep(page_id, prep_user_id)
               VALUES ($this->id, $teacher_id)";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -414,7 +414,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_page_prep WHERE prep_user_id = $teacher_id";
+    $query = "DELETE FROM ax.ax_page_prep WHERE prep_user_id = $teacher_id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function synchTeachersToPageDB()
@@ -426,7 +426,7 @@ class Page
     if (!empty($this->Teachers)) {
       $query = "";
       foreach ($this->Teachers as $Teacher) {
-        $query .= "INSERT INTO ax_page_prep (page_id, prep_user_id) VALUES ($this->id, $Teacher->id);";
+        $query .= "INSERT INTO ax.ax_page_prep (page_id, prep_user_id) VALUES ($this->id, $Teacher->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -435,7 +435,7 @@ class Page
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_page_prep WHERE page_id = $this->id";
+    $query = "DELETE FROM ax.ax_page_prep WHERE page_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -573,9 +573,9 @@ function getPageByTask($task_id)
 
 function queryGetPageInfo($page_id)
 {
-  return "SELECT p.*, ax_ct.bg_color, ax_ct.src_url, d.name as disc_name
-          FROM ax_page as p
-          INNER JOIN ax_color_theme ax_ct ON ax_ct.id = p.color_theme_id
+  return "SELECT p.*, ax.ax_color_theme.bg_color, ax.ax_color_theme.src_url, d.name as disc_name
+          FROM ax.ax_page as p
+          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           INNER JOIN discipline d ON d.id = p.disc_id
           WHERE p.id = $page_id;
   ";
@@ -583,75 +583,75 @@ function queryGetPageInfo($page_id)
 
 function queryGetColorThemeSrcUrl($color_theme_id)
 {
-  return "SELECT src_url FROM ax_color_theme ax_ct 
+  return "SELECT src_url FROM ax.ax_color_theme 
           WHERE id = $color_theme_id;
   ";
 }
 
 function queryGetAllPagesByGroup($group_id)
 {
-  return "SELECT p.id FROM ax_page p
-          INNER JOIN ax_page_group ON ax_page_group.page_id = p.id
-          WHERE ax_page_group.group_id = $group_id
+  return "SELECT p.id FROM ax.ax_page p
+          INNER JOIN ax.ax_page_group ON ax.ax_page_group.page_id = p.id
+          WHERE ax.ax_page_group.group_id = $group_id
           ORDER BY p.year DESC, p.semester DESC";
 }
 
 function queryGetPageByTask($task_id)
 {
-  return "SELECT page_id FROM ax_task WHERE id =$task_id;
+  return "SELECT page_id FROM ax.ax_task WHERE id =$task_id;
   ";
 }
 function queryGetPageByAssignment($assignment_id)
 {
-  return "SELECT page_id FROM ax_task WHERE ax_task.id = (SELECT task_id FROM ax_assignment WHERE ax_assignment.id = $assignment_id)";
+  return "SELECT page_id FROM ax.ax_task WHERE ax.ax_task.id = (SELECT task_id FROM ax.ax_assignment WHERE ax.ax_assignment.id = $assignment_id)";
 }
 
 function queryGetTasksByPage($page_id)
 {
-  return "SELECT ax_task.id as id FROM ax_task WHERE page_id = $page_id ORDER BY id";
+  return "SELECT id FROM ax.ax_task WHERE page_id = $page_id ORDER BY id";
 }
 
 function queryGetGroupsByPage($page_id)
 {
-  return "SELECT ax_page_group.group_id as id FROM ax_page_group 
-          INNER JOIN groups ON groups.id = ax_page_group.group_id 
+  return "SELECT ax.ax_page_group.group_id as id FROM ax.ax_page_group 
+          INNER JOIN groups ON groups.id = ax.ax_page_group.group_id 
           WHERE page_id = $page_id ORDER BY groups.name";
 }
 
 function queryGetTeachersByPage($page_id)
 {
-  return "SELECT ax_page_prep.prep_user_id as id FROM ax_page_prep WHERE page_id = $page_id ORDER BY prep_user_id";
+  return "SELECT ax.ax_page_prep.prep_user_id as id FROM ax.ax_page_prep WHERE page_id = $page_id ORDER BY prep_user_id";
 }
 
 
 function querySetColorThemeId($page_id, $color_theme_id)
 {
-  return "UPDATE ax_page SET color_theme_id = $color_theme_id WHERE id = $page_id;
-          SELECT src_url FROM ax_color_theme WHERE id = $color_theme_id;";
+  return "UPDATE ax.ax_page SET color_theme_id = $color_theme_id WHERE id = $page_id;
+          SELECT src_url FROM ax.ax_color_theme WHERE id = $color_theme_id;";
 }
 
 function querySetDiscId($page_id, $disc_id)
 {
-  return "UPDATE ax_page SET disc_id = $disc_id WHERE id = $page_id;
+  return "UPDATE ax.ax_page SET disc_id = $disc_id WHERE id = $page_id;
   SELECT name FROM discipline WHERE id = $disc_id;";
 }
 
 function queryCreateColorTheme($src_url)
 {
-  return "INSERT INTO ax_color_theme (disc_id, name, src_url)
+  return "INSERT INTO ax.ax_color_theme (disc_id, name, src_url)
           VALUES (null, null, $src_url) RETURNING id;
   ";
 }
 
 function queryGetPagesByTeacher($teacher_id)
 {
-  return "SELECT p.id FROM ax_page p
-          INNER JOIN ax_page_prep ON ax_page_prep.page_id = p.id
-          WHERE ax_page_prep.prep_user_id = $teacher_id
+  return "SELECT p.id FROM ax.ax_page p
+          INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
+          WHERE ax.ax_page_prep.prep_user_id = $teacher_id
   ";
 }
 
 function queryGetAllPages()
 {
-  return "SELECT ax_page.id FROM ax_page";
+  return "SELECT ax.ax_page.id FROM ax.ax_page";
 }

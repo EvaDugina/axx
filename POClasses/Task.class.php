@@ -142,7 +142,7 @@ class Task
 
     $this->status = $status;
 
-    $query = "UPDATE ax_task SET status = $this->status WHERE id = $this->id";
+    $query = "UPDATE ax.ax_task SET status = $this->status WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -152,7 +152,7 @@ class Task
 
     $this->title = $title;
 
-    $query = "UPDATE ax_task SET title = \$antihype1\$$this->title\$antihype1\$ WHERE id = $this->id";
+    $query = "UPDATE ax.ax_task SET title = \$antihype1\$$this->title\$antihype1\$ WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -166,7 +166,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_task (page_id, type, title, description, max_mark, status) 
+    $query = "INSERT INTO ax.ax_task (page_id, type, title, description, max_mark, status) 
               VALUES ($page_id, $this->type, \$antihype1\$$this->title\$antihype1\$, \$antihype1\$$this->description\$antihype1\$, $this->max_mark, $this->status)
               RETURNING id;";
 
@@ -179,7 +179,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_task (page_id, type, status, max_mark) 
+    $query = "INSERT INTO ax.ax_task (page_id, type, status, max_mark) 
               VALUES ($page_id, $this->type, $this->status, '$this->max_mark')
               RETURNING id;";
 
@@ -192,7 +192,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
+    $query = "UPDATE ax.ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
               description = \$antihype1\$$this->description\$antihype1\$, status = $this->status
               WHERE id = $this->id;
     ";
@@ -203,7 +203,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
+    $query = "UPDATE ax.ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
               description = \$antihype1\$$this->description\$antihype1\$, max_mark = '$this->max_mark', 
               status = $this->status, checks = \$antihype1\$$this->checks\$antihype1\$
               WHERE id = $this->id;
@@ -221,9 +221,9 @@ class Task
     foreach ($this->Files as $File) {
       $File->deleteFromDB();
     }
-    $query = "DELETE FROM ax_task_file WHERE task_id = $this->id;";
+    $query = "DELETE FROM ax.ax_task_file WHERE task_id = $this->id;";
 
-    $query .= "DELETE FROM ax_task WHERE id = $this->id;";
+    $query .= "DELETE FROM ax.ax_task WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -475,7 +475,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
+    $query = "INSERT INTO ax.ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function pushFilesToTaskDB($Files)
@@ -484,7 +484,7 @@ class Task
 
     $query = "";
     foreach ($Files as $File)
-      $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
+      $query .= "INSERT INTO ax.ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
     if (count($Files) > 0)
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
@@ -492,7 +492,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_task_file WHERE file_id = $file_id;";
+    $query = "DELETE FROM ax.ax_task_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function synchFilesToTaskDB()
@@ -504,7 +504,7 @@ class Task
     if (!empty($this->Files)) {
       $query = "";
       foreach ($this->Files as $File) {
-        $query .= "INSERT INTO ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
+        $query .= "INSERT INTO ax.ax_task_file (task_id, file_id) VALUES ($this->id, $File->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -513,7 +513,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_task_file WHERE task_id = $this->id";
+    $query = "DELETE FROM ax.ax_task_file WHERE task_id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -526,7 +526,7 @@ function getTaskByAssignment($assignment_id)
 {
   global $dbconnect;
 
-  $query = "SELECT task_id FROM ax_assignment WHERE id = $assignment_id";
+  $query = "SELECT task_id FROM ax.ax_assignment WHERE id = $assignment_id";
   $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $task_id = pg_fetch_assoc($pg_query)['task_id'];
 
@@ -598,20 +598,20 @@ function getSVGByTaskType($type)
 
 function queryGetTaskInfo($task_id)
 {
-  return "SELECT * FROM ax_task WHERE ax_task.id = $task_id 
-          ORDER BY ax_task.id;
+  return "SELECT * FROM ax.ax_task WHERE ax.ax_task.id = $task_id 
+          ORDER BY ax.ax_task.id;
   ";
 }
 
 function queryGetAssignmentsByTask($task_id)
 {
-  return "SELECT id FROM ax_assignment WHERE task_id = $task_id ORDER BY id;
+  return "SELECT id FROM ax.ax_assignment WHERE task_id = $task_id ORDER BY id;
   ";
 }
 
 function queryGetFilesByTask($task_id)
 {
-  return "SELECT * FROM ax_task_file WHERE task_id = $task_id
+  return "SELECT * FROM ax.ax_task_file WHERE task_id = $task_id
           ORDER BY id;
   ";
 }

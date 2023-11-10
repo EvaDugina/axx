@@ -378,7 +378,7 @@ function addFileToMessage($commit_id, $message_id, $file_name, $file_tmp_name, $
 
   $file_id = addFileToObject($Message, $file_name, $file_tmp_name, $type);
 
-  // Добавление файла в ax_solution_file, если сообщение - ответ на задание
+  // Добавление файла в ax.ax_solution_file, если сообщение - ответ на задание
   if ($commit_id != null) {
     $Commit = new Commit((int)$commit_id);
     $Commit->addFile($file_id);

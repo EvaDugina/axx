@@ -18,20 +18,19 @@ if (isset($_GET['assignment']) && isset($_GET['file'])) {
 }
 
 // TODO: ПРОВЕРИТЬ!
-$result = pg_query($dbconnect, "SELECT file_name, full_text from ax_file WHERE ax_file.id = $file_id");
+$result = pg_query($dbconnect, "SELECT file_name, full_text from ax.ax_file WHERE ax.ax_file.id = $file_id");
 $result = pg_fetch_all($result);
-if (count($result) > 0)
-{
+if (count($result) > 0) {
   $filename = $result[0]['file_name'];
   $fulltext = $result[0]['full_text'];
 }
 
 // remove non ascii characters for copydetect correct work
-$fulltext = preg_replace('/[^\x20-\x7E]/','', $fulltext);
+$fulltext = preg_replace('/[^\x20-\x7E]/', '', $fulltext);
 
-file_put_contents('../plate/tested/'.$filename, $fulltext);
+file_put_contents('../plate/tested/' . $filename, $fulltext);
 shell_exec('/var/bin/copydetect -t ../plate/tested -r ../plate/222 -a -O ../plate/report.html');
-shell_exec('rm ../plate/tested/'.$filename);
+shell_exec('rm ../plate/tested/' . $filename);
 
 header('Location: /plate/report.html');
 

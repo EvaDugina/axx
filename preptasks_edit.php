@@ -53,7 +53,7 @@ if (isset($_POST['action']) && $_POST['action'] == "linkFile") {
   // TODO: ПРОВЕРИТЬ!
   $tasknums = explode(',', @$_POST['tasknum']);
   if (count($tasknums) > 0) {
-    // $query = 'insert into ax_task_file (type, task_id, file_name, download_url, full_text) VALUES ';
+    // $query = 'insert into ax.ax_task_file (type, task_id, file_name, download_url, full_text) VALUES ';
 
     // $items = array();
     foreach ($tasknums as $tn) {
@@ -104,7 +104,7 @@ switch ($action) {
       // TODO: ПРОВЕРИТЬ!
       $tasknums = explode(',', @$_REQUEST['tasknum']);
       if (count($tasknums) > 0) {
-        // $query = 'insert into ax_task_file (type, task_id, file_name, download_url, full_text) VALUES ';
+        // $query = 'insert into ax.ax_task_file (type, task_id, file_name, download_url, full_text) VALUES ';
 
         // $items = array();
         foreach ($tasknums as $tn) {
@@ -213,7 +213,7 @@ switch ($action) {
         // TODO: Проверить!
         foreach ($tasknums as $tn) {
 
-          // $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, ' .
+          // $query = 'insert into ax.ax_assignment(task_id, variant_number, start_limit, finish_limit, ' .
           //   ' status_code, status, delay, status_text, mark) values ' .
           //   ' (' . $tn . ', null, null, null, 2, 0, 0, \'Доступно для просмотра\', null) returning id;';
           // $result = pg_query($dbconnect, $query);
@@ -229,7 +229,7 @@ switch ($action) {
 
           foreach ($students as $s) {
             $Assignment->addStudent($s);
-            // $query = 'insert into ax_assignment_student (assignment_id, student_user_id) VALUES (' . $a . ', ' . $s . ')';
+            // $query = 'insert into ax.ax_assignment_student (assignment_id, student_user_id) VALUES (' . $a . ', ' . $s . ')';
             // $result = pg_query($dbconnect, $query);
           }
         }
@@ -243,7 +243,7 @@ switch ($action) {
 
         //   foreach ($students as $s) {
         //     $Assignment->addStudent($s);
-        //     // $query = 'insert into ax_assignment_student (assignment_id, student_user_id) VALUES (' . $a . ', ' . $s . ')';
+        //     // $query = 'insert into ax.ax_assignment_student (assignment_id, student_user_id) VALUES (' . $a . ', ' . $s . ')';
         //     // $result = pg_query($dbconnect, $query);
         //   }
         // }
@@ -269,7 +269,7 @@ switch ($action) {
         // $assignnum = 0;
         // foreach ($students as $s) {
         //   foreach ($tasknums as $tn) {
-        //     $query = 'insert into ax_assignment(task_id, variant_number, start_limit, finish_limit, ' .
+        //     $query = 'insert into ax.ax_assignment(task_id, variant_number, start_limit, finish_limit, ' .
         //       ' status_code, status, delay, status_text, mark) values ' .
         //       ' (' . $tn . ', null, null, ' . (($tilltime == "") ? 'null' : $tilltime) .
         //       ' , 2, 0, 0, \'Доступно для просмотра\', null) returning id;';
@@ -278,7 +278,7 @@ switch ($action) {
 
         //     if ($row = pg_fetch_assoc($result)) {
         //       $assignnum = $row['id'];
-        //       $query = 'insert into ax_assignment_student (assignment_id, student_user_id) VALUES (' . $assignnum . ', ' . $s . ')';
+        //       $query = 'insert into ax.ax_assignment_student (assignment_id, student_user_id) VALUES (' . $assignnum . ', ' . $s . ')';
         //       $result = pg_query($dbconnect, $query);
         //     }
         //   }
@@ -298,7 +298,7 @@ switch ($action) {
         exit;
       }
 
-      $query = 'update ax_task set status = 0 where id in (' . implode(',', $tasknums) . ')';
+      $query = 'update ax.ax_task set status = 0 where id in (' . implode(',', $tasknums) . ')';
       $result = pg_query($dbconnect, $query);
 
       header('Location:preptasks.php?page=' . $_REQUEST['page']);
@@ -332,7 +332,7 @@ switch ($action) {
         exit;
       }
 
-      $query = 'update ax_task set status = 1 where id in (' . implode(',', $tasknums) . ')';
+      $query = 'update ax.ax_task set status = 1 where id in (' . implode(',', $tasknums) . ')';
       $result = pg_query($dbconnect, $query);
 
       header('Location:preptasks.php?page=' . $_REQUEST['page']);

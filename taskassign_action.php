@@ -250,7 +250,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   //header('Content-Type: application/json');
   //echo $json;
 
-  // $query = 'update ax_assignment set start_limit = '.
+  // $query = 'update ax.ax_assignment set start_limit = '.
   // ($_POST['fromtime'] == "" ?"null" :"to_timestamp('".$_POST['fromtime']." 00:00:00', 'YYYY-MM-DD HH24:MI:SS')").
   // " , finish_limit = ".($_POST['tilltime'] == "" ?"null" :"to_timestamp('".$_POST['tilltime']." 23:59:59', 'YYYY-MM-DD HH24:MI:SS')").
   // ' , variant_number=$accel$'.$_POST['variant'].'$accel$ '.
@@ -281,13 +281,13 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   if (isset($_POST['variant']) && $_POST['variant'] != "")
     $Assignment->setVariantNumber($_POST['variant']);
 
-  $query = 'update ax_assignment set checks = $accel$' . $json . '$accel$';
+  $query = 'update ax.ax_assignment set checks = $accel$' . $json . '$accel$';
   $result = pg_query($dbconnect, $query);
 
-  $result = pg_query($dbconnect, "delete from ax_assignment_student where assignment_id=" . $Assignment->id);
+  $result = pg_query($dbconnect, "delete from ax.ax_assignment_student where assignment_id=" . $Assignment->id);
 
   foreach ($_POST['students'] as $sid)
-    $result = pg_query($dbconnect, "insert into ax_assignment_student (assignment_id, student_user_id) values (" . $Assignment->id . ", " . $sid . ")");
+    $result = pg_query($dbconnect, "insert into ax.ax_assignment_student (assignment_id, student_user_id) values (" . $Assignment->id . ", " . $sid . ")");
 
 
   if (isset($_POST['from']))

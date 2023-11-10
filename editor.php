@@ -558,7 +558,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               }
 
               if ($last_commit_id && $last_commit_id != "") {
-                $resultC = pg_query($dbconnect, "select autotest_results res from ax_solution_commit where id = " . $last_commit_id);
+                $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
                 if ($resultC && pg_num_rows($resultC) > 0) {
                   $rowC = pg_fetch_assoc($resultC);
                   if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
@@ -566,8 +566,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 }
               }
 
-              $result = pg_query($dbconnect,  "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks " .
-                " from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = " . $assignment_id);
+              $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+                " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
               $row = pg_fetch_assoc($result);
               $checks = $row['achecks'];
               if ($checks == null)

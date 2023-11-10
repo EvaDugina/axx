@@ -23,7 +23,7 @@ if ($au->isAdminOrPrep()) {
 
 $result = pg_query($dbconnect, select_pages_for_student($group_id));
 $disciplines = pg_fetch_all($result);
-$result1 = pg_query($dbconnect, 'select count(id) from ax_page');
+$result1 = pg_query($dbconnect, 'select count(id) from ax.ax_page');
 $disc_count = pg_fetch_all($result1);
 
 $query = pg_query($dbconnect, queryGetAllPagesByGroup($group_id));
