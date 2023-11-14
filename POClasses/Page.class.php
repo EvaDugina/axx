@@ -638,8 +638,8 @@ function querySetDiscId($page_id, $disc_id)
 
 function queryCreateColorTheme($src_url)
 {
-  return "INSERT INTO ax.ax_color_theme (disc_id, name, src_url)
-          VALUES (null, null, $src_url) RETURNING id;
+  return "INSERT INTO ax.ax_color_theme (src_url)
+          VALUES ('$src_url') RETURNING id;
   ";
 }
 

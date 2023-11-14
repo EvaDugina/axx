@@ -7,7 +7,7 @@ class File
   public $id = null;
   public $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
   // 10 - просто файл с результатами, 11 - файл проекта)
-  // 21 - иконка пользователя
+  // 21 - иконка пользователя, 22 - иконка раздела
   public $name = null, $download_url = null, $full_text = null;
   public $visibility = null; // 0 - не видно студенту, 1 - видно всем 
   public $status = null; // 0 - не удалённый файл, 2 - удалённый файл
@@ -514,6 +514,31 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
       unlink($file_path);
     }
 
+    return $File->id;
+  } else {
+    exit("Ошибка загрузки файла");
+  }
+}
+
+function addFileToColorTheme($file_name, $file_tmp_name, $type)
+{
+  global $dbconnect;
+
+  $store_in_db = getSpecialFileTypes();
+
+  $File = new File($type, $file_name);
+
+  $file_ext = $File->getExt();
+  $file_dir = getUploadFileDir();
+  $file_path = $file_dir . $File->name;
+
+  // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+  if (move_uploaded_file($file_tmp_name, $file_path)) {
+
+    $File->setDownloadUrl($file_path);
+    $query = queryCreateColorTheme($File->download_url);
+    $result = pg_query($dbconnect, $query);
+    echo $result;
     return $File->id;
   } else {
     exit("Ошибка загрузки файла");

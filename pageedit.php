@@ -106,7 +106,7 @@ else
 	else
 		show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI']), $User); ?>
 
-	<main class="pt-2" aria-hidden="true">
+	<main class="pt-2 pb-5" aria-hidden="true">
 		<form class="container-fluid overflow-hidden" action="pageedit_action.php" id="pageedit_action" name="action" method="post">
 			<div class="row gy-5">
 				<div class="col-lg-12">
@@ -127,12 +127,13 @@ else
 				<div class="col-lg-2">
 					<input type="text" id="input-name" class="form-control" maxlength="19" value="<?= $short_name ?>" name="short_name" autocomplete="off" data-container="body" data-placement="right" data-title="Это поле должно быть заполнено!" />
 				</div>
+				<p id="p-errorPageName" class="error p-0 d-none">Ошибка! Незаполненное поле!</p>
 			</div>
 
 			<div class="row align-items-center m-3" style="height: 40px;">
 				<div class="col-lg-2 row justify-content-left">Полное название дисциплины:</div>
 				<div class="col-lg-4">
-					<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right" data-title="Это поле должно быть заполнено!">
+					<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right">
 						<select id="selectDiscipline" class="form-select" name="disc_id">
 							<option selected value="<?= $disc_id ?>">
 								<?= $name ?>
@@ -147,6 +148,7 @@ else
 						</select>
 					</div>
 				</div>
+				<p id="p-errorDisciplineName" class="error p-0 d-none">Ошибка! Не выбранная дисциплина!</p>
 			</div>
 
 
@@ -236,21 +238,52 @@ else
 					$result = pg_query($dbconnect, $query);
 					$thems = pg_fetch_all($result);
 
-					foreach ($thems as $key => $thema) { ?>
+					foreach ($thems as $key => $thema) {
+						$bg_color = ($thema['bg_color'] != null) ? $thema['bg_color'] : "#000000";
+						$disc_id = ($thema['disc_id'] != null) ? $thema['disc_id'] : -1; ?>
 
-						<label class="label-theme col-lg-2 me-3" style="padding: 0px;">
+						<label class="label-theme col-lg-2 me-3 mb-3 " style="padding: 0px;">
 							<div class="card theme-check-button" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
 								<div class="bg-image hover-zoom" style="border-radius: 10px;">
 									<img src="<?= $thema['src_url'] ?>" style="transition: all .1s linear; min-width: 100%; max-height: 120px;">
-									<div id="mask-<?= $thema['disc_id'] ?>" class="mask" style="background: <?= $thema['bg_color'] ?>; transition: all .1s linear;"></div>
+									<div id="mask-<?= $disc_id ?>" class="mask" style="background: <?= $bg_color ?>; transition: all .1s linear;"></div>
 								</div>
 							</div>
-							<input id="input-<?= $thema['disc_id'] ?>" type="radio" class="input-thema" <?php if ($page_id == 0 && !$key) echo 'checked="checked"';
-																										else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"'; ?> name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>">
-							<div class="checkmark" style="background-color:<?= $thema['bg_color'] ?>"></div>
+							<input id="input-<?= $disc_id ?>" type="radio" class="input-thema" <?php if ($page_id == 0 && !$key) echo 'checked="checked"';
+																								else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"'; ?> name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>">
+							<div class="checkmark" style="background-color:<?= $bg_color ?>"></div>
 						</label>
 
 					<?php } ?>
+
+					<label class="label-theme col-lg-2 me-3 mb-3" style="padding: 0px;">
+						<div class="card theme-check-button w-100 h-100" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
+							<div class="btn btn-outline-primary py-2 px-4 w-100 h-100">
+								<input id="input-image" type="file" name="image-file" style="display: none;">
+								<div class="py-1">
+									<div class="row py-2">
+										<div class="d-flex justify-content-center align-self-center">
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload w-50 h-50" viewBox="0 0 16 16">
+												<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+												<path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
+											</svg>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</label>
+
+					<!-- <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
+						<a class="btn btn-link" href="pageedit.php?addpage" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
+							<div class="row">
+								<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
+								<span class="align-self-center">Добавить новый раздел</span>
+							</div>
+						</a>
+					</div> -->
+
 				</div>
 			</div>
 
@@ -309,6 +342,64 @@ else
 		}
 
 	});
+
+	$('#input-image').on("change", function(event) {
+		if (!event || !event.target || !event.target.files || event.target.files.length === 0) {
+			return;
+		}
+
+		let new_file = event.target.files[0];
+		// console.log("newImage", new_file);
+
+		// Получаем расширение файла и сравниваем точно ли оно png или jpeg или jpg
+		// let ext = new_file.name.split('.').pop();
+		if (new_file.type == "image/png" || new_file.type == "image/jpg" || new_file.type == "image/jpeg" || new_file.type == "image/gif") {
+			ajaxAddColorTheme(new_file);
+			document.location.reload();
+		} else {
+			alert("Ошибка загрузки файла! Файл должен быть с расширением PNG, JPG или JPEG");
+		}
+
+	});
+
+	// function addColorTheme(file) {
+
+	// 	let files = document.getElementById("input-image").files;
+	// 	if (files.length > 0) {
+	// 		addFiles(files[1]);
+	// 		document.location.reload();
+	// 	}
+	// }
+
+
+	function ajaxAddColorTheme(file) {
+
+		var formData = new FormData();
+
+		formData.append('flag-addColorTheme', true);
+		formData.append('image-file', file);
+
+		ajaxResponse = null;
+
+		$.ajax({
+			type: "POST",
+			url: 'pageedit_action.php#content',
+			cache: false,
+			contentType: false,
+			processData: false,
+			async: false,
+			data: formData,
+			dataType: 'html',
+			success: function(response) {
+				response = response.replace(/(\r\n|\n|\r)/gm, "").trim();
+				ajaxResponse['response'] = response;
+			},
+			complete: function() {}
+		});
+
+		return ajaxResponse;
+	}
+
 
 
 
@@ -416,40 +507,27 @@ else
 		}
 	});
 
-	$('#input-name').change(function() {
-		if ($('#input-name').val() != "") {
-			$('#input-name').popover('enable');
-			$('#input-name').popover('hide');
-			$('#input-name').popover('disable');
-		}
-	});
-
-	$('#selectDiscipline').change(function() {
-		if ($('#selectDiscipline').val() != "0" && $('#selectDiscipline').val() != "") {
-			$('#div-popover-select').popover('enable');
-			$('#div-popover-select').popover('hide');
-			$('#div-popover-select').popover('disable');
-		} else {
-
-		}
-	});
-
 	function checkFiledsBeforeSave() {
 		flag = true;
-		console.log($('#selectDiscipline').val());
-		if ($('#selectDiscipline').val() == "0" || $('#selectDiscipline').val() == "") {
-			$('#div-popover-select').popover('enable');
-			$('#div-popover-select').popover('show');
-			$('#div-popover-select').popover('disable');
-			flag = false;
-		}
-
 
 		if (!$('#input-name').val()) {
-			$('#input-name').popover('enable');
-			$('#input-name').popover('show');
-			$('#input-name').popover('disable');
+			// $('#input-name').popover('enable');
+			// $('#input-name').popover('show');
+			// $('#input-name').popover('disable');
+			$('#p-errorPageName').removeClass("d-none");
 			flag = false;
+		} else {
+			$('#p-errorPageName').addClass("d-none");
+		}
+
+		if ($('#selectDiscipline').val() == "0" || $('#selectDiscipline').val() == "") {
+			// $('#div-popover-select').popover('enable');
+			// $('#div-popover-select').popover('show');
+			// $('#div-popover-select').popover('disable');
+			$('#p-errorDisciplineName').removeClass("d-none");
+			flag = false;
+		} else {
+			$('#p-errorDisciplineName').addClass("d-none");
 		}
 
 		if (!checkTeachersList() && !isAdmin) {
@@ -479,22 +557,22 @@ else
 
 <script type="text/javascript">
 	// Скрипт синхронизации выбора дисциплины и оформления для раздела
-	var select = document.querySelector('#selectDiscipline');
-	select.addEventListener('click', function() {
+	// var select = document.querySelector('#selectDiscipline');
+	// select.addEventListener('click', function() {
 
-		if ($('#selectDiscipline').val() != "0") {
-			console.log("input-" + select.value);
-			var input = document.getElementById("input-" + select.value);
+	// 	if ($('#selectDiscipline').val() != "0") {
+	// 		console.log("input-" + select.value);
+	// 		var input = document.getElementById("input-" + select.value);
 
-			var divLabels = input.parentElement.parentElement;
-			var labelList = divLabels.children;
-			for (let i = 0; i < labelList.length; i++) {
-				labelList[i].children[1].checked = false;
-			}
+	// 		var divLabels = input.parentElement.parentElement;
+	// 		var labelList = divLabels.children;
+	// 		for (let i = 0; i < labelList.length; i++) {
+	// 			labelList[i].children[1].checked = false;
+	// 		}
 
-			input.checked = true;
-		}
-	});
+	// 		input.checked = true;
+	// 	}
+	// });
 </script>
 
 </html>
