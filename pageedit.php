@@ -174,6 +174,9 @@ else
 							<!-- Добавление в новый, не существующий в бд семестр -->
 							<option class="text-info"><?= ($years['max'] + 1) . "/" . ($years['max'] + 2) . " Осень" ?></option>;
 							<option class="text-info"><?= ($years['max'] + 1) . "/" . ($years['max'] + 2) . " Весна" ?></option>;
+
+							<!-- Добавление вне семестровых разделов -->
+							<option class="text-secondary">ВНЕ CЕМЕСТРА</option>;
 						</select>
 					</div>
 				</div>

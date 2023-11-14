@@ -46,14 +46,33 @@ function select_page_by_task_id($task_id)
   return "SELECT page_id FROM ax.ax_task WHERE id = $task_id";
 }
 
+function select_inside_semester_pages_for_teacher($teacher_id)
+{
+  return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
+  FROM ax.ax_page p
+  INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
+  INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+  WHERE y IS null AND p.semester IS null AND ax.ax_page_prep.prep_user_id = $teacher_id
+";
+}
+
 function select_pages_for_teacher($teacher_id)
 {
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
           FROM ax.ax_page p
           INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
           INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
-          WHERE ax.ax_page_prep.prep_user_id = $teacher_id
-          ORDER BY y DESC, s DESC
+          WHERE p.year IS NOT null AND p.semester IS NOT null AND ax.ax_page_prep.prep_user_id = $teacher_id
+          ORDER BY p.year DESC, p.semester DESC
+  ";
+}
+
+function select_inside_semester_pages_for_admin()
+{
+  return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
+          FROM ax.ax_page p
+          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+          WHERE p.year IS null AND p.semester IS null
   ";
 }
 
@@ -62,7 +81,8 @@ function select_pages_for_admin()
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
           FROM ax.ax_page p
           INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
-          ORDER BY y DESC, s DESC
+          WHERE p.year IS NOT null AND p.semester IS NOT null
+          ORDER BY p.year DESC, p.semester DESC
   ";
 }
 
@@ -72,8 +92,8 @@ function select_pages_for_student($group_id)
           FROM ax.ax_page p
           INNER JOIN ax.ax_page_group ON ax.ax_page_group.page_id = p.id
           INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
-          WHERE ax.ax_page_group.group_id = $group_id AND p.status = 1
-          ORDER BY y DESC, p.semester DESC;
+          WHERE p.year IS NOT null AND p.semester IS NOT null AND ax.ax_page_group.group_id = $group_id AND p.status = 1
+          ORDER BY p.year DESC, p.semester DESC;
   ";
 }
 
@@ -119,17 +139,30 @@ function update_discipline($discipline)
 
 function insert_page($discipline)
 {
-  $timestamp = convert_timestamp_from_string($discipline['timestamp']);
   $short_name = pg_escape_string($discipline['short_name']);
   $disc_id = pg_escape_string($discipline['disc_id']);
-  $year = pg_escape_string($timestamp['year']);
-  $semester = pg_escape_string($timestamp['semester']);
+
   $color_theme_id = pg_escape_string($discipline['color_theme_id']);
   $creator_id = pg_escape_string($discipline['creator_id']);
   $creation_date = getNowTimestamp();
 
-  return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, status) 
-        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', 1) returning id";
+  $timestamp = $discipline["timestamp"];
+  if (trim($timestamp) != "ВНЕ CЕМЕСТРА") {
+    $type = 0;
+    $timestamp = convert_timestamp_from_string($timestamp);
+    $year = pg_escape_string($timestamp['year']);
+    $semester = pg_escape_string($timestamp['semester']);
+  } else {
+    $type = 1;
+  }
+
+  if ($type == 0) {
+    return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, type, status) 
+        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', $type, 1) returning id";
+  } else {
+    return "INSERT INTO ax.ax_page (disc_id, short_name, color_theme_id, creator_id, creation_date, type, status) 
+        VALUES ('$disc_id', '$short_name', '$color_theme_id', '$creator_id', '$creation_date', $type, 1) returning id";
+  }
 }
 
 
