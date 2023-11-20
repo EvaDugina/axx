@@ -135,6 +135,11 @@ class Page
     return false;
   }
 
+  public function isOutsideSemester()
+  {
+    return $this->type == 1;
+  }
+
   public function getGroups()
   {
     return $this->Groups;

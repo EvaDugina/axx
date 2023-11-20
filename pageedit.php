@@ -156,7 +156,7 @@ else
 				<div class="col-lg-2 row justify-content-left">Семестр:</div>
 				<div class="col-lg-4">
 					<div class="btn-group shadow-0">
-						<select class="form-select" name="timestamp">
+						<select id="select-semester" class="form-select" name="timestamp">
 							<?php // echo $page['year'] . " " . $page['semester'];
 							for ($year = $years['max'] - 4; $year <= $years['max']; $year++) {
 								echo "<option ";
@@ -176,7 +176,7 @@ else
 							<option class="text-info"><?= ($years['max'] + 1) . "/" . ($years['max'] + 2) . " Весна" ?></option>;
 
 							<!-- Добавление вне семестровых разделов -->
-							<option class="text-secondary">ВНЕ CЕМЕСТРА</option>;
+							<option value="ВНЕ CЕМЕСТРА" class="text-secondary" <?= ($Page->isOutsideSemester()) ? "selected" : "" ?>>ВНЕ CЕМЕСТРА</option>;
 						</select>
 					</div>
 				</div>
@@ -208,26 +208,28 @@ else
 				</div>
 			</div>
 
-			<div class="row align-items-center mx-3 pe-group-upper">
-				<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
-				<div id="groups_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
-			</div>
+			<div id="div-students-groups" class="<?= ($Page->isOutsideSemester()) ? "d-none" : "" ?>">
+				<div class="row align-items-center mx-3 pe-group-upper">
+					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
+					<div id="groups_container" class="col-lg-10" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
+				</div>
 
-			<div class="row align-items-center mx-3 pe-group-lower">
-				<div class="col-lg-2 row"></div>
-				<div class="col-lg-10">
-					<div class="btn-group shadow-0">
-						<select class="form-select" name="page_group" id="select_groups">
-							<?php
-							foreach ($groups as $page_group) { ?>
-								<option value="<?= $page_group['id'] ?>"><?= $page_group['name'] ?></option>
-							<?php }
-							echo "<option>Нет учебной группы</option>";
-							?>
-						</select>&nbsp;
-						<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
-							Добавить
-						</button>
+				<div class="row align-items-center mx-3 pe-group-lower">
+					<div class="col-lg-2 row"></div>
+					<div class="col-lg-10">
+						<div class="btn-group shadow-0">
+							<select class="form-select" name="page_group" id="select_groups">
+								<?php
+								foreach ($groups as $page_group) { ?>
+									<option value="<?= $page_group['id'] ?>"><?= $page_group['name'] ?></option>
+								<?php }
+								echo "<option>Нет учебной группы</option>";
+								?>
+							</select>&nbsp;
+							<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
+								Добавить
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -576,6 +578,15 @@ else
 	// 		input.checked = true;
 	// 	}
 	// });
+
+	$('#select-semester').on('change', function() {
+		console.log($(this).val());
+		if ($(this).val() == "ВНЕ СЕМЕСТРА") {
+			$('#div-students-groups').addClass("d-none");
+		} else {
+			$('#div-students-groups').removeClass("d-none");
+		}
+	});
 </script>
 
 </html>
