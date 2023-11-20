@@ -1038,6 +1038,12 @@ fun();
         return false;
       });
 
+      $('#textarea-user-message').on("keydown", function(event) {
+        // console.log(event);
+        if (event.key == "Enter" && !event.shiftKey)
+          $("#submit-message").click();
+      });
+
 
       // Первое обновление лога чата
       loadChatLog(true);
