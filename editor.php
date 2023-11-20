@@ -358,26 +358,30 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </div>
 
             <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
-              <div>
-                <p id="TaskDescr"><?= $task_description ?></p>
-                <script>
-                  document.getElementById('TaskDescr').innerHTML =
-                    marked.parse(document.getElementById('TaskDescr').innerHTML);
-                </script>
+              <?php if ($task_description != "") { ?>
                 <div>
-                  <?php
-                  if ($User->isTeacher() || $User->isAdmin())
-                    $task_files = $Task->getTeacherFilesToTaskchat();
-                  else
-                    $task_files = $Task->getStudentFilesToTaskchat();
+                  <p id="TaskDescr"><?= $task_description ?></p>
+                  <script>
+                    document.getElementById('TaskDescr').innerHTML =
+                      marked.parse(document.getElementById('TaskDescr').innerHTML);
+                  </script>
+                  <div>
+                    <?php
+                    if ($User->isTeacher() || $User->isAdmin())
+                      $task_files = $Task->getTeacherFilesToTaskchat();
+                    else
+                      $task_files = $Task->getStudentFilesToTaskchat();
 
-                  if ($task_files) { ?>
-                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
-                    <?= showFiles($task_files); ?>
-                  <?php }
-                  ?>
+                    if ($task_files) { ?>
+                      <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                      <?= showFiles($task_files); ?>
+                    <?php }
+                    ?>
+                  </div>
                 </div>
-              </div>
+              <?php } else { ?>
+                <h6 class="mt-2">Описание задания отсутствует</h6>
+              <?php } ?>
             </div>
 
             <div id="Console" class="tabcontent">
@@ -577,20 +581,43 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               $checks = json_decode($checks, true);
 
               //  line-height: 20px; color: #fff; text-align: center;
-              $accord = array(
-                parseBuildCheck(@$checkres['tools']['build'], $checks),
-                parseCppCheck(@$checkres['tools']['cppcheck'], $checks),
-                parseClangFormat(@$checkres['tools']['clang-format'], $checks),
-                parseValgrind(@$checkres['tools']['valgrind'], $checks),
-                parseAutoTests(@$checkres['tools']['autotests'], $checks),
-                parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
-              );
+              $accord = array();
+              if (!$User->isStudent()) {
+                $accord = array(
+                  parseBuildCheck(@$checkres['tools']['build'], $checks),
+                  parseCppCheck(@$checkres['tools']['cppcheck'], $checks),
+                  parseClangFormat(@$checkres['tools']['clang-format'], $checks),
+                  parseValgrind(@$checkres['tools']['valgrind'], $checks),
+                  parseAutoTests(@$checkres['tools']['autotests'], $checks),
+                  parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
+                );
+              } else {
+                if ($checks['tools']['build']['show_to_student'])
+                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks));
+                if ($checks['tools']['cppcheck']['show_to_student'])
+                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks));
+                if ($checks['tools']['clang-format']['show_to_student'])
+                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks));
+                if ($checks['tools']['valgrind']['show_to_student'])
+                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks));
+                if ($checks['tools']['autotests']['show_to_student'])
+                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks));
+                if ($checks['tools']['copydetect']['show_to_student'])
+                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks));
+              }
               show_accordion('checkres', $accord, "5px");
               ?>
+
               <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
 
               <div class="d-flex flex-row justify-content-between my-1 w-100 align-items-start">
-                <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+
+                <?php if (count($accord) > 0) { ?>
+                  <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+                <?php } else { ?>
+                  <h6 class="mt-2">Отсутствуют проверки, доступные для запуска</h6>
+                <?php } ?>
+
                 <?php if ($au->isAdminOrPrep()) { ?>
                   <div class="w-50 flex-column">
                     <div class="d-flex flex-row">
