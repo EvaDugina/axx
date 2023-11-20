@@ -468,7 +468,7 @@ function show_accordion($name, $data, $labelshift = "0px")
                       <?= $d['body'] ?>
                     </div>
                   </div>
-                  <?= @$d['footer'] ?>
+                  <?= trim(@$d['footer']) ?>
                 </div>
               </div>
             </div>

@@ -356,7 +356,7 @@ function makeRequest(url, type) {
     } else {
         httpRequest.onreadystatechange = function () {
             var con = document.getElementById(type);
-            con.innerHTML = httpRequest.responseText;
+            con.innerHTML = httpRequest.responseText.trim();
         }
         httpRequest.open('POST', encodeURI(url), true);
         httpRequest.send(null);
