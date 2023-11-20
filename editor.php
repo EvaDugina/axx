@@ -347,7 +347,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           </div>
         </div>
         <div class="col-md-4">
-          <div class="d-none d-sm-block d-print-block">
+          <div class="d-none d-sm-block d-print-block border rounded">
             <div class="tab d-flex justify-content-between">
               <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
               <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>

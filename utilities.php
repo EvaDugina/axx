@@ -426,13 +426,13 @@ function convert_sem_from_number($id)
 function show_accordion($name, $data, $labelshift = "0px")
 {
 ?>
-  <div id="main-accordion-<?= $name ?>" class="accordion accordion-flush" style="overflow-y: auto; height: 100%px; width: 100%;">
+  <div id="main-accordion-<?= $name ?>" class="accordion accordion-flush border rounded" style="overflow-y: auto; height: 100%px; width: 100%;">
     <div class="accordion-item">
       <?php
       $i = 111;
       foreach ($data as $d) {
       ?>
-        <div id="accordion-<?= $name ?>-gheader-<?= $i ?>" class="accordion-header border">
+        <div id="accordion-<?= $name ?>-gheader-<?= $i ?>" class="accordion-header border px-2">
           <?php
           if (array_key_exists('label', $d)) {
           ?>
