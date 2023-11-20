@@ -464,8 +464,8 @@ function show_accordion($name, $data, $labelshift = "0px")
               <div id="item-from-<?= $name ?>-group-<?= $i ?>" class="accordion-item">
                 <div id="accordion-<?= $name ?>-sheader-<?= $i ?>" class="accordion-header">
                   <div class="d-flex justify-content-between" type="button">
-                    <div class="form-check ms-3" style="width:100%;">
-                      <?= $d['body'] ?>
+                    <div class="form-check ms-0 ps-0" style="width:100%;">
+                      <strong><?= $d['body'] ?></strong>
                     </div>
                   </div>
                   <?= trim(@$d['footer']) ?>
