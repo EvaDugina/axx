@@ -240,8 +240,8 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
                 <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
-              <p class="p-0 m-0 h6 text-start">
-                <?= stripslashes(htmlspecialchars($Message->full_text)) ?>
+              <p class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
+                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
                 <br>
               </p>
           <?php }
@@ -279,8 +279,8 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
                 <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
-              <p class="p-0 m-0 h6 text-start">
-                <?= stripslashes(htmlspecialchars($Message->full_text)) ?>
+              <p class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
+                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
                 <br>
               </p>
           <?php }
@@ -378,7 +378,7 @@ function addFileToMessage($commit_id, $message_id, $file_name, $file_tmp_name, $
 
   $file_id = addFileToObject($Message, $file_name, $file_tmp_name, $type);
 
-  // Добавление файла в ax_solution_file, если сообщение - ответ на задание
+  // Добавление файла в ax.ax_solution_file, если сообщение - ответ на задание
   if ($commit_id != null) {
     $Commit = new Commit((int)$commit_id);
     $Commit->addFile($file_id);

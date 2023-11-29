@@ -790,7 +790,7 @@ function generate_message_for_student_task_commit($task_title)
             span.innerText = "Выполнено";
             $(this).append(span);
           } else if (accordionStatusElements.length == 1) {
-            if (accordionStatusElements[0].innerText == "Выполнено")
+            if (accordionStatusElements[0].innerText.trim() == "Выполнено")
               flagNotPlus = true;
             else {
               accordionStatusElements[0].classList = ["badge badge-primary badge-pill bg-success text-white"];
@@ -798,11 +798,11 @@ function generate_message_for_student_task_commit($task_title)
             }
           }
 
-          console.log($(this).data("studentId"));
-          let nowCountCompleted = parseInt($('#span-countCompletedAssignments-' + $(this).data("studentId")).text());
+          let student_id = $(this).data("studentId");
+          let nowCountCompleted = parseInt($('#span-countCompletedAssignments-' + student_id).text());
           if (!flagNotPlus) {
             $('#span-countCompletedAssignments-' + $(this).data("studentId")).text(nowCountCompleted + 1);
-
+            document.location.reload();
           }
 
           if (nowCountCompleted == parseInt($('#span-countVisibleAssignments-' + $(this).data("studentId")).text()))

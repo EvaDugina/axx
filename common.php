@@ -105,7 +105,6 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
   <script type="text/javascript">
     $(document).ready(function() {
       $('main').css("margin-top", parseFloat($('#header').css("height")) + parseFloat($('main').css("margin-top")));
-      $('main').addClass("pt-1");
     });
   </script>
   <header id="header" class="header header--fixed js-header is-show">

@@ -347,7 +347,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           </div>
         </div>
         <div class="col-md-4">
-          <div class="d-none d-sm-block d-print-block">
+          <div class="d-none d-sm-block d-print-block border rounded">
             <div class="tab d-flex justify-content-between">
               <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
               <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>
@@ -358,26 +358,30 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </div>
 
             <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
-              <div>
-                <p id="TaskDescr"><?= $task_description ?></p>
-                <script>
-                  document.getElementById('TaskDescr').innerHTML =
-                    marked.parse(document.getElementById('TaskDescr').innerHTML);
-                </script>
+              <?php if ($task_description != "") { ?>
                 <div>
-                  <?php
-                  if ($User->isTeacher() || $User->isAdmin())
-                    $task_files = $Task->getTeacherFilesToTaskchat();
-                  else
-                    $task_files = $Task->getStudentFilesToTaskchat();
+                  <p id="TaskDescr"><?= $task_description ?></p>
+                  <script>
+                    document.getElementById('TaskDescr').innerHTML =
+                      marked.parse(document.getElementById('TaskDescr').innerHTML);
+                  </script>
+                  <div>
+                    <?php
+                    if ($User->isTeacher() || $User->isAdmin())
+                      $task_files = $Task->getTeacherFilesToTaskchat();
+                    else
+                      $task_files = $Task->getStudentFilesToTaskchat();
 
-                  if ($task_files) { ?>
-                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
-                    <?= showFiles($task_files); ?>
-                  <?php }
-                  ?>
+                    if ($task_files) { ?>
+                      <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                      <?= showFiles($task_files); ?>
+                    <?php }
+                    ?>
+                  </div>
                 </div>
-              </div>
+              <?php } else { ?>
+                <h6 class="mt-2">Описание задания отсутствует</h6>
+              <?php } ?>
             </div>
 
             <div id="Console" class="tabcontent">
@@ -558,7 +562,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               }
 
               if ($last_commit_id && $last_commit_id != "") {
-                $resultC = pg_query($dbconnect, "select autotest_results res from ax_solution_commit where id = " . $last_commit_id);
+                $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
                 if ($resultC && pg_num_rows($resultC) > 0) {
                   $rowC = pg_fetch_assoc($resultC);
                   if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
@@ -566,8 +570,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 }
               }
 
-              $result = pg_query($dbconnect,  "select ax_assignment.id aid, ax_task.id tid, ax_assignment.checks achecks, ax_task.checks tchecks " .
-                " from ax_assignment inner join ax_task on ax_assignment.task_id = ax_task.id where ax_assignment.id = " . $assignment_id);
+              $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+                " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
               $row = pg_fetch_assoc($result);
               $checks = $row['achecks'];
               if ($checks == null)
@@ -577,20 +581,43 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               $checks = json_decode($checks, true);
 
               //  line-height: 20px; color: #fff; text-align: center;
-              $accord = array(
-                parseBuildCheck(@$checkres['tools']['build'], $checks),
-                parseCppCheck(@$checkres['tools']['cppcheck'], $checks),
-                parseClangFormat(@$checkres['tools']['clang-format'], $checks),
-                parseValgrind(@$checkres['tools']['valgrind'], $checks),
-                parseAutoTests(@$checkres['tools']['autotests'], $checks),
-                parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
-              );
+              $accord = array();
+              if (!$User->isStudent()) {
+                $accord = array(
+                  parseBuildCheck(@$checkres['tools']['build'], $checks),
+                  parseCppCheck(@$checkres['tools']['cppcheck'], $checks),
+                  parseClangFormat(@$checkres['tools']['clang-format'], $checks),
+                  parseValgrind(@$checkres['tools']['valgrind'], $checks),
+                  parseAutoTests(@$checkres['tools']['autotests'], $checks),
+                  parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
+                );
+              } else {
+                if ($checks['tools']['build']['show_to_student'])
+                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks));
+                if ($checks['tools']['cppcheck']['show_to_student'])
+                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks));
+                if ($checks['tools']['clang-format']['show_to_student'])
+                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks));
+                if ($checks['tools']['valgrind']['show_to_student'])
+                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks));
+                if ($checks['tools']['autotests']['show_to_student'])
+                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks));
+                if ($checks['tools']['copydetect']['show_to_student'])
+                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks));
+              }
               show_accordion('checkres', $accord, "5px");
               ?>
+
               <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
 
               <div class="d-flex flex-row justify-content-between my-1 w-100 align-items-start">
-                <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+
+                <?php if (count($accord) > 0) { ?>
+                  <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+                <?php } else { ?>
+                  <h6 class="mt-2">Отсутствуют проверки, доступные для запуска</h6>
+                <?php } ?>
+
                 <?php if ($au->isAdminOrPrep()) { ?>
                   <div class="w-50 flex-column">
                     <div class="d-flex flex-row">
@@ -1009,6 +1036,12 @@ fun();
         loadChatLog(true);
 
         return false;
+      });
+
+      $('#textarea-user-message').on("keydown", function(event) {
+        // console.log(event);
+        if (event.key == "Enter" && !event.shiftKey)
+          $("#submit-message").click();
       });
 
 

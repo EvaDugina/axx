@@ -102,6 +102,19 @@ function getConvertedDateTime($db_date)
   return $date_time;
 }
 
+function getTextWithTagBrAfterLines($text)
+{
+  $array = preg_split("/\r\n|\n|\r/", $text);
+  $text_with_br = "";
+  for ($i = 0; $i < count($array) - 1; $i++) {
+    $text_with_br .= $array[$i];
+    if ($array[$i] != "")
+      $text_with_br .= "</br>";
+  }
+  $text_with_br .= $array[count($array) - 1];
+  return $text_with_br;
+}
+
 
 
 
@@ -426,13 +439,13 @@ function convert_sem_from_number($id)
 function show_accordion($name, $data, $labelshift = "0px")
 {
 ?>
-  <div id="main-accordion-<?= $name ?>" class="accordion accordion-flush" style="overflow-y: auto; height: 100%px; width: 100%;">
+  <div id="main-accordion-<?= $name ?>" class="accordion accordion-flush border rounded" style="overflow-y: auto; height: 100%px; width: 100%;">
     <div class="accordion-item">
       <?php
       $i = 111;
       foreach ($data as $d) {
       ?>
-        <div id="accordion-<?= $name ?>-gheader-<?= $i ?>" class="accordion-header border">
+        <div id="accordion-<?= $name ?>-gheader-<?= $i ?>" class="accordion-header border px-2">
           <?php
           if (array_key_exists('label', $d)) {
           ?>
@@ -464,11 +477,11 @@ function show_accordion($name, $data, $labelshift = "0px")
               <div id="item-from-<?= $name ?>-group-<?= $i ?>" class="accordion-item">
                 <div id="accordion-<?= $name ?>-sheader-<?= $i ?>" class="accordion-header">
                   <div class="d-flex justify-content-between" type="button">
-                    <div class="form-check ms-3" style="width:100%;">
-                      <?= $d['body'] ?>
+                    <div class="form-check ms-0 ps-0" style="width:100%;">
+                      <strong><?= $d['body'] ?></strong>
                     </div>
                   </div>
-                  <?= @$d['footer'] ?>
+                  <?= trim(@$d['footer']) ?>
                 </div>
               </div>
             </div>

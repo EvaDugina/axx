@@ -90,7 +90,7 @@ class Commit
 
     $this->type = $type;
 
-    $query = "UPDATE ax_solution_commit SET type = $this->type
+    $query = "UPDATE ax.ax_solution_commit SET type = $this->type
               WHERE id = $this->id;
     ";
 
@@ -102,7 +102,7 @@ class Commit
 
     $this->student_user_id = $student_user_id;
 
-    $query = "UPDATE ax_solution_commit SET student_user_id = $this->student_user_id
+    $query = "UPDATE ax.ax_solution_commit SET student_user_id = $this->student_user_id
               WHERE id = $this->id;
     ";
 
@@ -126,7 +126,7 @@ class Commit
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type, autotest_results)
+    $query = "INSERT INTO ax.ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type, autotest_results)
               VALUES ($assignment_id, $this->session_id, $this->student_user_id, now(), $this->type, \$antihype1\$$this->autotest_results\$antihype1\$)
               RETURNING id, date_time";
 
@@ -140,7 +140,7 @@ class Commit
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_solution_commit SET assignment_id=$assignment_id, session_id=$this->session_id, 
+    $query = "UPDATE ax.ax_solution_commit SET assignment_id=$assignment_id, session_id=$this->session_id, 
               student_user_id=$this->student_user_id, type=$this->type, autotest_results=\$antihype1\$$this->autotest_results\$antihype1\$
               WHERE id = $this->id 
               RETURNING date_time;";
@@ -157,14 +157,14 @@ class Commit
       $File->deleteFromDB();
     }
 
-    $query = "DELETE FROM ax_solution_commit WHERE id = $this->id;";
+    $query = "DELETE FROM ax.ax_solution_commit WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   public function pushChangesToDB()
   {
     global $dbconnect;
 
-    $query = "UPDATE ax_solution_commit SET session_id = $this->session_id, student_user_id = $this->student_user_id, 
+    $query = "UPDATE ax.ax_solution_commit SET session_id = $this->session_id, student_user_id = $this->student_user_id, 
       date_time=$this->date_time, type = $this->type, autotest_results = \$antihype1\$$this->autotest_results\$antihype1\$ WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -294,7 +294,7 @@ class Commit
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $file_id);";
+    $query = "INSERT INTO ax.ax_commit_file (commit_id, file_id) VALUES ($this->id, $file_id);";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function pushFilesToCommitDB($Files)
@@ -304,7 +304,7 @@ class Commit
     if (!empty($Files)) {
       $query = "";
       foreach ($Files as $File) {
-        $query .= "INSERT INTO ax_commit_file (commit_id, file_id) VALUES ($this->id, $File->id);";
+        $query .= "INSERT INTO ax.ax_commit_file (commit_id, file_id) VALUES ($this->id, $File->id);";
       }
       pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
@@ -313,7 +313,7 @@ class Commit
   {
     global $dbconnect;
 
-    $query = "DELETE FROM ax_commit_file WHERE file_id = $file_id;";
+    $query = "DELETE FROM ax.ax_commit_file WHERE file_id = $file_id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function deleteFilesFromCommitDB()
@@ -321,7 +321,7 @@ class Commit
     global $dbconnect;
 
     // Удаляем предыдущие прикрепления файлов
-    $query = "DELETE FROM ax_commit_file WHERE commit_id = $this->id;";
+    $query = "DELETE FROM ax.ax_commit_file WHERE commit_id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -376,12 +376,12 @@ function getSVGByCommitType($type)
 
 function queryGetFilesByCommit($commit_id)
 {
-  return "SELECT file_id as id FROM ax_commit_file WHERE commit_id = $commit_id";
+  return "SELECT file_id as id FROM ax.ax_commit_file WHERE commit_id = $commit_id";
 }
 
 function queryGetCommitInfo($commit_id)
 {
-  return "SELECT * FROM ax_solution_commit WHERE id = $commit_id";
+  return "SELECT * FROM ax.ax_solution_commit WHERE id = $commit_id";
 }
 
 ?>

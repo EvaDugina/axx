@@ -7,7 +7,7 @@ class File
   public $id = null;
   public $type = null;  // тип файла (0 - просто файл, 1 - шаблон проекта, 2 - код теста, 3 - код проверки теста, 
   // 10 - просто файл с результатами, 11 - файл проекта)
-  // 21 - иконка пользователя
+  // 21 - иконка пользователя, 22 - иконка раздела
   public $name = null, $download_url = null, $full_text = null;
   public $visibility = null; // 0 - не видно студенту, 1 - видно всем 
   public $status = null; // 0 - не удалённый файл, 2 - удалённый файл
@@ -162,7 +162,7 @@ class File
       $this->setNameInUpload($this->name);
     }
 
-    $query = "UPDATE ax_file SET file_name = \$antihype1\$$this->name\$antihype1\$
+    $query = "UPDATE ax.ax_file SET file_name = \$antihype1\$$this->name\$antihype1\$
                 WHERE id = $this->id;
     ";
 
@@ -180,7 +180,7 @@ class File
     global $dbconnect;
 
     $this->download_url = $download_url;
-    $query = "UPDATE ax_file SET download_url = '$this->download_url'
+    $query = "UPDATE ax.ax_file SET download_url = '$this->download_url'
                 WHERE id = $this->id;
     ";
 
@@ -193,7 +193,7 @@ class File
     if (!$this->isInUploadDir()) {
       if ($this->full_text != $full_text)
         $this->full_text = $full_text;
-      $query = "UPDATE ax_file SET full_text = \$antihype1\$$this->full_text\$antihype1\$
+      $query = "UPDATE ax.ax_file SET full_text = \$antihype1\$$this->full_text\$antihype1\$
                   WHERE id = $this->id;
       ";
 
@@ -214,7 +214,7 @@ class File
 
     $this->type = $type;
 
-    $query = "UPDATE ax_file SET type = $this->type
+    $query = "UPDATE ax.ax_file SET type = $this->type
               WHERE id = $this->id;
     ";
 
@@ -233,7 +233,7 @@ class File
 
     $this->visibility = $visibility;
 
-    $query = "UPDATE ax_file SET visibility = $this->visibility
+    $query = "UPDATE ax.ax_file SET visibility = $this->visibility
               WHERE id = $this->id;
     ";
 
@@ -252,18 +252,18 @@ class File
     global $dbconnect;
 
     if ($this->full_text == null && $this->download_url != null) {
-      $query = "INSERT INTO ax_file (type, visibility, file_name, download_url, status) 
+      $query = "INSERT INTO ax.ax_file (type, visibility, file_name, download_url, status) 
                 VALUES ($this->type, $this->visibility, \$antihype1\$$this->name\$antihype1\$, '$this->download_url', $this->status) 
                 RETURNING id;
       ";
     } else if ($this->full_text != null && $this->download_url == null) {
-      $query = "INSERT INTO ax_file (type, visibility, file_name, full_text, status) 
+      $query = "INSERT INTO ax.ax_file (type, visibility, file_name, full_text, status) 
                 VALUES ($this->type, $this->visibility, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$,
                 $this->status) 
                 RETURNING id;
       ";
     } else {
-      $query = "INSERT INTO ax_file (type, visibility, file_name, status) 
+      $query = "INSERT INTO ax.ax_file (type, visibility, file_name, status) 
                 VALUES ($this->type, $this->visibility, \$antihype1\$$this->name\$antihype1\$, $this->status) 
                 RETURNING id;
       ";
@@ -279,12 +279,12 @@ class File
     global $dbconnect;
 
     if (isset($this->download_url)) {
-      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = \$antihype1\$$this->name\$antihype1\$, 
+      $query = "UPDATE ax.ax_file SET type = $this->type, visibility = $this->visibility, file_name = \$antihype1\$$this->name\$antihype1\$, 
                 download_url = '$this->download_url'
                 WHERE id = $this->id;
       ";
     } else if (isset($this->full_text)) {
-      $query = "UPDATE ax_file SET type = $this->type, visibility = $this->visibility, file_name = \$antihype1\$$this->name\$antihype1\$,  
+      $query = "UPDATE ax.ax_file SET type = $this->type, visibility = $this->visibility, file_name = \$antihype1\$$this->name\$antihype1\$,  
                 full_text = \$antihype1\$$this->full_text\$antihype1\$
                 WHERE id = $this->id;
       ";
@@ -299,19 +299,19 @@ class File
     global $dbconnect;
 
     if ($this->isInUploadDir()) {
-      $query = "UPDATE ax_file
+      $query = "UPDATE ax.ax_file
                 SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name\$antihype1\$, 
                 download_url='$this->download_url', full_text=null, status=$this->status
                 WHERE id = $this->id;
       ";
     } else if ($this->full_text != null) {
-      $query = "UPDATE ax_file
+      $query = "UPDATE ax.ax_file
                 SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
                 full_text=\$antihype1\$$this->full_text\$antihype1\$, download_url=null, status=$this->status 
                 WHERE id = $this->id;
       ";
     } else {
-      $query = "UPDATE ax_file
+      $query = "UPDATE ax.ax_file
                 SET type=$this->type, visibility=$this->visibility, file_name=\$antihype1\$$this->name_without_prefix\$antihype1\$, 
                 full_text=null, download_url=null, status=$this->status 
                 WHERE id = $this->id;
@@ -326,7 +326,7 @@ class File
     if ($this->download_url != "" && file_exists($this->download_url))
       unlink($this->download_url);
 
-    $query = "UPDATE ax_file SET status = 2 WHERE id = $this->id;";
+    $query = "UPDATE ax.ax_file SET status = 2 WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
@@ -520,12 +520,37 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
   }
 }
 
+function addFileToColorTheme($file_name, $file_tmp_name, $type)
+{
+  global $dbconnect;
+
+  $store_in_db = getSpecialFileTypes();
+
+  $File = new File($type, $file_name);
+
+  $file_ext = $File->getExt();
+  $file_dir = getUploadFileDir();
+  $file_path = $file_dir . $File->name;
+
+  // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+  if (move_uploaded_file($file_tmp_name, $file_path)) {
+
+    $File->setDownloadUrl($file_path);
+    $query = queryCreateColorTheme($File->download_url);
+    $result = pg_query($dbconnect, $query);
+    echo $result;
+    return $File->id;
+  } else {
+    exit("Ошибка загрузки файла");
+  }
+}
+
 
 
 // ФУНКЦИИ ЗАПРОСОВ К БД
 
 function queryGetFileInfo($file_id)
 {
-  return "SELECT * FROM ax_file WHERE id = $file_id;
+  return "SELECT * FROM ax.ax_file WHERE id = $file_id;
   ";
 }

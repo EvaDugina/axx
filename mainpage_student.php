@@ -23,7 +23,7 @@ if ($au->isAdminOrPrep()) {
 
 $result = pg_query($dbconnect, select_pages_for_student($group_id));
 $disciplines = pg_fetch_all($result);
-$result1 = pg_query($dbconnect, 'select count(id) from ax_page');
+$result1 = pg_query($dbconnect, 'select count(id) from ax.ax_page');
 $disc_count = pg_fetch_all($result1);
 
 $query = pg_query($dbconnect, queryGetAllPagesByGroup($group_id));
@@ -41,7 +41,7 @@ $Group = new Group((int)$group_id);
 
 <body>
   <?php show_header($dbconnect, 'Дашборд студента', array(), $User); ?>
-  <main class="justify-content-start" style="margin-bottom: 30px;">
+  <main class="justify-content-start mb-5 pt-3">
     <?php
     $array_year = 0;
     $array_semester = 0;

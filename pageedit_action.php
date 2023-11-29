@@ -11,65 +11,71 @@ else {
 	header('Location:login.php');
 }
 
-function delete_discipline($discipline_id){
-	return 'DELETE FROM ax_page WHERE id ='.$discipline_id;
+
+function delete_discipline($discipline_id)
+{
+	return 'DELETE FROM ax.ax_page WHERE id =' . $discipline_id;
+}
+
+if (isset($_POST['flag-addColorTheme']) && isset($_FILES['image-file'])) {
+	addFileToColorTheme($_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 22);
+	exit;
 }
 
 if (isset($_POST['action'])) {
 	$action = $_POST['action'];
 	var_dump($_POST);
-	switch($action){
+	switch ($action) {
 		case 'save':
 			if (isset($_POST['id']) && $_POST['id'] != 0) {
-        		$id = $_POST['id'];
+				$id = $_POST['id'];
 
 				$query = update_discipline($_POST);
 				$result = pg_query($dbconnect, $query);
-		
+
 				$query = delete_page_prep($_POST['id']);
 				$result = pg_query($dbconnect, $query);
-		
+
 				$query = delete_page_group($_POST['id']);
 				$result = pg_query($dbconnect, $query);
-			} 
-			else {
+			} else {
 				$query = insert_page($_POST);
 				$result = pg_query($dbconnect, $query);
 				$id = pg_fetch_all($result)[0]['id'];
 			}
 
-			if (isset($_POST['teachers'])){
-        echo '</br></br>';
-        print_r($_POST['teachers']);
-				foreach($_POST['teachers'] as $teacher) {
-          // echo '</br>';
-          // $pos = explode(" ", $teacher);
-          // $first_name = $pos[0];
-          // $middle_name = "";
-          // if (isset($pos[1]))
-          //   $middle_name = $pos[1];
-          // //echo $first_name .' ' . $middle_name;  
-          // //echo $teacher;
-          // $query = prep_ax_prep_page($id, $first_name, $middle_name);
-          $query = addTeacherToPage($id, (int)$teacher);
-          pg_query($dbconnect, $query);
+			if (isset($_POST['teachers'])) {
+				echo '</br></br>';
+				print_r($_POST['teachers']);
+				foreach ($_POST['teachers'] as $teacher) {
+					// echo '</br>';
+					// $pos = explode(" ", $teacher);
+					// $first_name = $pos[0];
+					// $middle_name = "";
+					// if (isset($pos[1]))
+					//   $middle_name = $pos[1];
+					// //echo $first_name .' ' . $middle_name;  
+					// //echo $teacher;
+					// $query = prep_ax_prep_page($id, $first_name, $middle_name);
+					$query = addTeacherToPage($id, (int)$teacher);
+					pg_query($dbconnect, $query);
 				}
 			}
 
-			if (isset($_POST['groups'])){
-				foreach($_POST['groups'] as $group) {
-          $query = addGroupToPage($id, (int)$group);
-          pg_query($dbconnect, $query);
+			if (isset($_POST['groups'])) {
+				foreach ($_POST['groups'] as $group) {
+					$query = addGroupToPage($id, (int)$group);
+					pg_query($dbconnect, $query);
 				}
 			}
-			
+
 			break;
 
 		case 'delete':
 			var_dump($_POST['id']);
 			$query = delete_page_prep($_POST['id']);
 			$result = pg_query($dbconnect, $query);
-		
+
 			$query = delete_page_group($_POST['id']);
 			$result = pg_query($dbconnect, $query);
 
@@ -78,9 +84,7 @@ if (isset($_POST['action'])) {
 			break;
 		default:
 			echo "Error: action";
-		break;
-
+			break;
 	}
 	header('Location: mainpage.php');
 }
-?>

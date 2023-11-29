@@ -44,7 +44,7 @@ class Variant
 
 function queryGetVariantInfo($variant_id)
 {
-  return "SELECT * FROM ax_student_page_info WHERE id = $variant_id;";
+  return "SELECT * FROM ax.ax_student_page_info WHERE id = $variant_id;";
 }
 
 ?>
