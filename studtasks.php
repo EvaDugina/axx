@@ -28,7 +28,7 @@ $count_tasks = $Page->getCountActiveAssignments($student_id);
 <html lang="en">
 
 <?php
-show_head("Страница предмета " . $Page->name);
+show_head("Страница предмета " . $Page->name, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
 ?>
 
 <body style="overflow-x: hidden;">
@@ -47,15 +47,32 @@ show_head("Страница предмета " . $Page->name);
       </div>
       <div class="pt-4 px-5">
         <div class="row">
-          <div class="col-md-offset-2 col-md-5">
+
+          <?php if ($Page->description != "") { ?>
+            <h5 class="px-0">Описание раздела</h5>
+            <div class="rounded border p-3 mt-3 mb-5">
+              <p id="p-pageDescription" class="m-0 p-0" style="overflow: auto;"><?= getTextWithTagBrAfterLines($Page->description) ?></p>
+            </div>
+
+            <script>
+              document.getElementById('p-pageDescription').innerHTML =
+                marked.parse(document.getElementById('p-pageDescription').innerHTML);
+              $('#p-pageDescription').children().addClass("m-0");
+            </script>
+          <?php } ?>
+
+
+
+          <div class="col-md-offset-2 col-md-5 mt-3 px-0">
             <?php if ($count_tasks == 0)
               echo '<h5>Задания по этой дисциплине отсутствуют</h5>';
             else  echo '<h5>Название задания</h5>'; ?>
           </div>
+
         </div>
 
-        <div class="row pt-3">
-          <div class="col-md-11 col-md-push-1 w-100">
+        <div class="row pt-3 px-0">
+          <div class="col-md-11 col-md-push-1 w-100 px-0">
             <div class="list-group list-group-flush" id="list-tab" role="tablist">
               <?php
               $conversationTask = null;

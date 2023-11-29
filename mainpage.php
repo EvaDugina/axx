@@ -112,12 +112,19 @@ function full_name($discipline_id, $dbconnect)
                     </div>
                   </div>
                 </div>
-
-
-
               <?php } ?>
 
+
+              <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage=1&year=-1&sem=-1'">
+                <a class="btn btn-link" href="pageedit.php?addpage=1&year=-1&sem=-1" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
+                  <div class="row">
+                    <i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
+                    <span class="align-self-center">Добавить новый раздел</span>
+                  </div>
+                </a>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -154,7 +161,7 @@ function full_name($discipline_id, $dbconnect)
                 $Page = new Page((int)$page_id);
 
                 if ($curr_sem != $page['sem']) { ?>
-                  <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
+                  <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>'">
                     <a class="btn btn-link" href="pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
                       <div class="row">
                         <i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
@@ -247,8 +254,8 @@ function full_name($discipline_id, $dbconnect)
 
           <?php } ?>
 
-          <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
-            <a class="btn btn-link" href="pageedit.php?addpage" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
+          <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>'">
+            <a class="btn btn-link" href="pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
               <div class="row">
                 <i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
                 <span class="align-self-center">Добавить новый раздел</span>
@@ -263,8 +270,8 @@ function full_name($discipline_id, $dbconnect)
           <div class="container">
             <div class="d-flex align-items-center justify-content-center h-75">
 
-              <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
-                <a class="btn btn-link" href="pageedit.php?addpage" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
+              <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>'">
+                <a class="btn btn-link" href="pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
                   <div class="row">
                     <i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
                     <span class="align-self-center">Добавить новый раздел</span>

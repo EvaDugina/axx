@@ -240,8 +240,8 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
                 <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
-              <p class="p-0 m-0 h6 text-start">
-                <?= stripslashes(htmlspecialchars($Message->full_text)) ?>
+              <p class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
+                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
                 <br>
               </p>
           <?php }
@@ -279,8 +279,8 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
                 <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
               </p>
             <?php } else { ?>
-              <p class="p-0 m-0 h6 text-start">
-                <?= stripslashes(htmlspecialchars($Message->full_text)) ?>
+              <p class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
+                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
                 <br>
               </p>
           <?php }

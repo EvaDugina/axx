@@ -102,6 +102,19 @@ function getConvertedDateTime($db_date)
   return $date_time;
 }
 
+function getTextWithTagBrAfterLines($text)
+{
+  $array = preg_split("/\r\n|\n|\r/", $text);
+  $text_with_br = "";
+  for ($i = 0; $i < count($array) - 1; $i++) {
+    $text_with_br .= $array[$i];
+    if ($array[$i] != "")
+      $text_with_br .= "</br>";
+  }
+  $text_with_br .= $array[count($array) - 1];
+  return $text_with_br;
+}
+
 
 
 

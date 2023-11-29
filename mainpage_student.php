@@ -41,7 +41,7 @@ $Group = new Group((int)$group_id);
 
 <body>
   <?php show_header($dbconnect, 'Дашборд студента', array(), $User); ?>
-  <main class="justify-content-start" style="margin-bottom: 30px;">
+  <main class="justify-content-start mb-5 pt-3">
     <?php
     $array_year = 0;
     $array_semester = 0;

@@ -14,6 +14,7 @@ class Page
   public $name, $year, $semester;
   public $color_theme_id;
   public $creator_id, $creation_date;
+  public $description;
   public $type; // 0 - обычное, 1 - внесеместровое
   public $status; // 0 - удалённое, 1 - активное
   // public $subgroup = null;
@@ -50,6 +51,8 @@ class Page
       $this->creator_id = $page['creator_id'];
       $this->creation_date = $page['creation_date'];
 
+      $this->description = $page['description'];
+
       // if(array_key_exists('subgroup_id', $page))
       //   $this->subgroup = $page['subgroup_id'];
 
@@ -72,7 +75,7 @@ class Page
       $this->status = 1;
 
       $this->pushNewToDB();
-    } else if ($count_args == 7) {
+    } else if ($count_args == 8) {
       $this->disc_id = $args[0];
 
       $this->name = $args[1];
@@ -82,6 +85,9 @@ class Page
       $this->color_theme_id = $args[4];
       $this->creator_id = $args[5];
       $this->creation_date = $args[6];
+
+      $this->description = $args[7];
+
       $this->type = 0;
       $this->status = 1;
 
@@ -158,9 +164,9 @@ class Page
     global $dbconnect;
 
     $query = "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
-              creator_id, creation_date, type, status) 
+              creator_id, creation_date, description, type, status) 
               VALUES ($this->disc_id, \$antihype1\$$this->name\$antihype1\$, $this->year, $this->semester, $this->color_theme_id, 
-              $this->creator_id, '$this->creation_date', $this->type, $this->status) 
+              $this->creator_id, '$this->creation_date', $this->description, $this->type, $this->status) 
               RETURNING id";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -173,8 +179,7 @@ class Page
     global $dbconnect;
 
     $query = "UPDATE ax.ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, disc_id=$this->disc_id, year=$this->year, semester=$this->semester,
-              color_theme_id=$this->color_theme_id, creator_id=$this->creator_id, creation_date='$this->creation_date', type = $this->type,
-              status=$this->status
+              color_theme_id=$this->color_theme_id, description=$this->description, type = $this->type, status=$this->status
               WHERE id =$this->id;
     ";
 

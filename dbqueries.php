@@ -126,8 +126,7 @@ function update_discipline($discipline)
   $id = pg_escape_string($discipline['id']);
   $disc_id = pg_escape_string($discipline['disc_id']);
   $color_theme_id = pg_escape_string($discipline['color_theme_id']);
-  $creator_id = pg_escape_string($discipline['creator_id']);
-  $creation_date = getNowTimestamp();
+  $page_description = pg_escape_string($discipline['page-description']);
 
   $timestamp = trim($discipline['timestamp']);
   if ($timestamp != "ВНЕ CЕМЕСТРА") {
@@ -141,12 +140,12 @@ function update_discipline($discipline)
 
   if ($type == 0) {
     return "UPDATE ax.ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester',
-            color_theme_id='$color_theme_id', creator_id='$creator_id', creation_date='$creation_date', type = $type, status=1
+            color_theme_id='$color_theme_id', type = $type, status=1, description = \$antihype1\$$page_description\$antihype1\$
             WHERE id ='$id'";
   } else {
     return "UPDATE ax.ax_page SET short_name ='$short_name', disc_id='$disc_id',
-            color_theme_id='$color_theme_id', creator_id='$creator_id', creation_date='$creation_date', year=null, semester=null,
-            type = $type, status=1
+            color_theme_id='$color_theme_id', year=null, semester=null,
+            type = $type, status=1, description = \$antihype1\$$page_description\$antihype1\$
             WHERE id ='$id'";
   }
 }
@@ -160,6 +159,8 @@ function insert_page($discipline)
   $creator_id = pg_escape_string($discipline['creator_id']);
   $creation_date = getNowTimestamp();
 
+  $page_description = pg_escape_string($discipline['page-description']);
+
   $timestamp = trim($discipline["timestamp"]);
   if ($timestamp != "ВНЕ CЕМЕСТРА") {
     $type = 0;
@@ -171,11 +172,11 @@ function insert_page($discipline)
   }
 
   if ($type == 0) {
-    return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, type, status) 
-        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', $type, 1) returning id";
+    return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, type, status, description) 
+        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', $type, 1, \$antihype1\$$page_description\$antihype1\$) returning id";
   } else {
-    return "INSERT INTO ax.ax_page (disc_id, short_name, color_theme_id, creator_id, creation_date, type, status) 
-        VALUES ('$disc_id', '$short_name', '$color_theme_id', '$creator_id', '$creation_date', $type, 1) returning id";
+    return "INSERT INTO ax.ax_page (disc_id, short_name, color_theme_id, creator_id, creation_date, type, status, description) 
+        VALUES ('$disc_id', '$short_name', '$color_theme_id', '$creator_id', '$creation_date', $type, 1, \$antihype1\$$page_description\$antihype1\$) returning id";
   }
 }
 
