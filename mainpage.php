@@ -77,11 +77,11 @@ $disc_count = pg_fetch_all($result1);
                 <div class="col-xs-12 col-sm-12 col-md-6 col-xl-3">
                   <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px!important;">
                     <div data-mdb-ripple-color="light" style="position: relative;">
-                      <div class="bg-image" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?= $Page->id ?>'">
+                      <div class="bg-image" style="">
                         <img src="<?= $Page->getColorThemeSrcUrl() ?>" alt="" style="transition: all .1s linear; height: 200px;">
                         <div class="mask" style="transition: all .1s linear;"></div>
                       </div>
-                      <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;" onclick="window.location='preptable.php?page=<?= $Page->id ?>'">
+                      <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1;">
                         <div class="d-flex justify-content-between" style="z-index: 2;">
                           <a class="bg-white p-0" style="border-radius: 10px 0px 10px 0px!important; opacity: 0.8;" href="pageedit.php?page=<?php echo $Page->id; ?>">
                             <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-left-radius: 0px;">
@@ -99,9 +99,9 @@ $disc_count = pg_fetch_all($result1);
                           </a>
                         </div>
                       </div>
-                      <div class="card_image_content p-2" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?= $Page->id ?>'">
+                      <div class="card_image_content p-2" style="">
                         <div class="" style="text-align: left; overflow:hidden;">
-                          <a class="text-white" href="preptable.php?page=<?= $Page->id ?>" style="font-weight: bold; white-space: nowrap;"><?php echo $Page->name; ?></a>
+                          <a class="text-white" style="font-weight: bold; white-space: nowrap;"><?php echo $Page->name; ?></a>
                           <br><a><?php echo $discipline_name; ?></a>
                         </div>
                       </div>

@@ -55,17 +55,14 @@ else if (isset($_POST['select-discipline'])) {
 // TODO: check prep access rights to page
 
 $query = select_page_name($page_id);
-$result = pg_query($dbconnect, $query);
-// echo select_page_name($page_id);
-$row = [];
-if (!$result || pg_num_rows($result) < 1) {
-  echo 'Неверно указана дисциплина';
-  http_response_code(400);
-  exit;
+$result = pg_fetch_row(pg_query($dbconnect, $query));
+if ($result) {
+  $discipline_name = $result[1];
+} else {
+  $discipline_name = "ДРУГОЕ";
 }
-$row = pg_fetch_row($result);
 
-show_head("Посылки по дисциплине: " . $row[1]);
+show_head("Посылки по дисциплине: " . $discipline_name);
 if ($scripts) echo $scripts;
 
 ?>
@@ -74,7 +71,7 @@ if ($scripts) echo $scripts;
 
 <body>
 
-  <?php show_header($dbconnect, 'Посылки по дисциплине', array($row[1]  => 'preptable.php?page=' . $page_id), $User); ?>
+  <?php show_header($dbconnect, 'Посылки по дисциплине', array($discipline_name => 'preptable.php?page=' . $page_id), $User); ?>
 
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">
@@ -94,7 +91,7 @@ if ($scripts) echo $scripts;
                 $page_names = pg_fetch_all($result);
 
                 foreach ($page_names as $page_name) {
-                  if ($row[0] == $page_name['id'])
+                  if ($page_id == $page_name['id'])
                     echo '<option selected value="' . $page_name['id'] . '">' . $page_name['names'] . '</option>';
                   else
                     echo '<option value="' . $page_name['id'] . '">' . $page_name['names'] . '</option>';
