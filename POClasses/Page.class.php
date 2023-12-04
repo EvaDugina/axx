@@ -278,8 +278,14 @@ class Page
   {
     global $dbconnect;
 
-    $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl($this->color_theme_id)) or die('Ошибка запроса: ' . pg_last_error());
-    return pg_fetch_assoc($pg_query)['src_url'];
+    $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl($this->color_theme_id));
+    $result = pg_fetch_assoc($pg_query);
+    if ($result)
+      return $result['src_url'];
+    else {
+      $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(0)) or die('Ошибка запроса: ' . pg_last_error());
+      return pg_fetch_assoc($pg_query)['src_url'];
+    }
   }
 
   // -- END WORK WITH PAGE
@@ -674,7 +680,7 @@ function queryGetPageInfo($page_id)
 {
   return "SELECT p.*, ax.ax_color_theme.bg_color, ax.ax_color_theme.src_url, d.name as disc_name
           FROM ax.ax_page as p
-          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+          LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           LEFT JOIN discipline d ON d.id = p.disc_id
           WHERE p.id = $page_id;
   ";

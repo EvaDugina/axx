@@ -51,7 +51,7 @@ function select_inside_semester_pages_for_teacher($teacher_id)
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
   FROM ax.ax_page p
   INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
-  INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+  LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
   WHERE p.year IS null AND p.semester IS null AND ax.ax_page_prep.prep_user_id = $teacher_id
 ";
 }
@@ -61,7 +61,7 @@ function select_pages_for_teacher($teacher_id)
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
           FROM ax.ax_page p
           INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
-          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+          LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS NOT null AND p.semester IS NOT null AND ax.ax_page_prep.prep_user_id = $teacher_id
           ORDER BY p.year DESC, p.semester DESC
   ";
@@ -71,7 +71,7 @@ function select_inside_semester_pages_for_admin()
 {
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
           FROM ax.ax_page p
-          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+          LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS null AND p.semester IS null
   ";
 }
@@ -80,7 +80,7 @@ function select_pages_for_admin()
 {
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
           FROM ax.ax_page p
-          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+          LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS NOT null AND p.semester IS NOT null
           ORDER BY p.year DESC, p.semester DESC
   ";
