@@ -191,7 +191,7 @@ $task_number = explode('.', $task_title)[0];
           </div>
 
           <?php if ($task_description != "") { ?>
-            <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;"><?= getTextWithTagBrAfterLines($task_description) ?></p>
+            <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;"><?= $task_description ?></p>
           <?php } else { ?>
             <p class="m-0 p-0" style="color: grey;">Описание отсутствует.</p>
           <?php } ?>

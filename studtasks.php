@@ -51,7 +51,7 @@ show_head("Страница предмета " . $Page->name, array('https://cdn
           <?php if ($Page->description != "") { ?>
             <h5 class="px-0">Описание раздела</h5>
             <div class="rounded border p-3 mt-3 mb-5">
-              <p id="p-pageDescription" class="m-0 p-0" style="overflow: auto;"><?= getTextWithTagBrAfterLines($Page->description) ?></p>
+              <p id="p-pageDescription" class="m-0 p-0" style="overflow: auto;"><?= $Page->description ?></p>
             </div>
 
             <script>
