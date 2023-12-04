@@ -101,7 +101,7 @@ function select_pages_for_student($group_id)
 function select_discipline_page($page_id)
 {
   return "SELECT ax.ax_page.*, discipline.name AS disc_name, ax.ax_color_theme.id as color_theme_id, ax.ax_color_theme.bg_color FROM ax.ax_page 
-            INNER JOIN discipline ON discipline.id = ax.ax_page.disc_id 
+            LEFT JOIN discipline ON discipline.id = ax.ax_page.disc_id 
             LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = ax.ax_page.color_theme_id
             WHERE ax.ax_page.id = '$page_id';
     ";
@@ -124,7 +124,16 @@ function update_discipline($discipline)
 {
   $short_name = pg_escape_string($discipline['short_name']);
   $id = pg_escape_string($discipline['id']);
+
   $disc_id = pg_escape_string($discipline['disc_id']);
+  $disc_sql = "";
+  if ($disc_id == "null") {
+    $disc_id = null;
+    $disc_sql = "disc_id = null";
+  } else {
+    $disc_sql = "disc_id = $disc_id";
+  }
+
   $color_theme_id = pg_escape_string($discipline['color_theme_id']);
   $page_description = pg_escape_string($discipline['page-description']);
 
@@ -139,11 +148,11 @@ function update_discipline($discipline)
   }
 
   if ($type == 0) {
-    return "UPDATE ax.ax_page SET short_name ='$short_name', disc_id='$disc_id', year='$year', semester='$semester',
+    return "UPDATE ax.ax_page SET short_name ='$short_name', " . $disc_sql . ", year='$year', semester='$semester',
             color_theme_id='$color_theme_id', type = $type, status=1, description = \$antihype1\$$page_description\$antihype1\$
             WHERE id ='$id'";
   } else {
-    return "UPDATE ax.ax_page SET short_name ='$short_name', disc_id='$disc_id',
+    return "UPDATE ax.ax_page SET short_name ='$short_name', " . $disc_sql . ",
             color_theme_id='$color_theme_id', year=null, semester=null,
             type = $type, status=1, description = \$antihype1\$$page_description\$antihype1\$
             WHERE id ='$id'";
@@ -153,7 +162,15 @@ function update_discipline($discipline)
 function insert_page($discipline)
 {
   $short_name = pg_escape_string($discipline['short_name']);
+
   $disc_id = pg_escape_string($discipline['disc_id']);
+  $disc_sql = "";
+  if ($disc_id == "null") {
+    $disc_id = null;
+    $disc_sql = "null";
+  } else {
+    $disc_sql = "$disc_id";
+  }
 
   $color_theme_id = pg_escape_string($discipline['color_theme_id']);
   $creator_id = pg_escape_string($discipline['creator_id']);
@@ -173,10 +190,10 @@ function insert_page($discipline)
 
   if ($type == 0) {
     return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, creator_id, creation_date, type, status, description) 
-        VALUES ('$disc_id', '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', $type, 1, \$antihype1\$$page_description\$antihype1\$) returning id";
+        VALUES (" . $disc_sql . ", '$short_name', '$year', '$semester', '$color_theme_id', '$creator_id', '$creation_date', $type, 1, \$antihype1\$$page_description\$antihype1\$) returning id";
   } else {
     return "INSERT INTO ax.ax_page (disc_id, short_name, color_theme_id, creator_id, creation_date, type, status, description) 
-        VALUES ('$disc_id', '$short_name', '$color_theme_id', '$creator_id', '$creation_date', $type, 1, \$antihype1\$$page_description\$antihype1\$) returning id";
+        VALUES (" . $disc_sql . ", '$short_name', '$color_theme_id', '$creator_id', '$creation_date', $type, 1, \$antihype1\$$page_description\$antihype1\$) returning id";
   }
 }
 

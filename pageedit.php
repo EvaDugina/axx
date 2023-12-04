@@ -85,12 +85,8 @@ if (array_key_exists('page', $_REQUEST)) {
 	$query = select_discipline_page($page_id);
 	$result = pg_query($dbconnect, $query);
 	$page = pg_fetch_all($result)[0];
-	$disc_id = $page['disc_id'];
 
-	foreach ($disciplines as $key => $discipline) {
-		if ($discipline['id'] == $page['disc_id'])
-			$name = $discipline['name'];
-	}
+	$name = $Page->getDisciplineName();
 	$short_name = $Page->name;
 
 	$query = select_page_prep_name($page_id);
@@ -164,16 +160,18 @@ else
 				<div class="col-lg-4 px-0">
 					<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right">
 						<select id="selectDiscipline" class="form-select" name="disc_id">
-							<option selected value="<?= $disc_id ?>">
+							<option selected value="<?= ($disc_id == null) ? "null" : $disc_id ?>">
 								<?= $name ?>
 							</option>
 							<?php
 							foreach ($disciplines as $discipline) {
 								if ($discipline['name'] == $name)
-									continue;
-								echo "<option value=" . $discipline['id'] . ">" . $discipline['name'] . "</option>";
-							}
-							?>
+									continue; ?>
+								<option value="<?= $discipline['id'] ?>"><?= $discipline['name'] ?></option>
+							<?php }
+							if ($Page->disc_id != null) { ?>
+								<option value="null">ДРУГОЕ</option>
+							<?php } ?>
 						</select>
 					</div>
 				</div>

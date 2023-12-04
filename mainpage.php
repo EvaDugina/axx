@@ -37,11 +37,11 @@ $result1 = pg_query($dbconnect, 'select count(id) from ax.ax_page');
 $disc_count = pg_fetch_all($result1);
 
 
-function full_name($discipline_id, $dbconnect)
-{
-  $query = 'select name from discipline where id =' . $discipline_id;
-  return pg_query($dbconnect, $query);
-}
+// function full_name($discipline_id, $dbconnect)
+// {
+//   $query = 'select name from discipline where id =' . $discipline_id;
+//   return pg_query($dbconnect, $query);
+// }
 ?>
 
 <html>
@@ -70,8 +70,8 @@ function full_name($discipline_id, $dbconnect)
 
                 $page_id = $page['id'];
                 $Page = new Page((int)$page_id);
-                $result = full_name($page['disc_id'], $dbconnect);
-                $discipline_name = pg_fetch_all($result)[0]['name'];
+                // $result = full_name($page['disc_id'], $dbconnect);
+                $discipline_name = $Page->getDisciplineName();
               ?>
 
                 <div class="col-xs-12 col-sm-12 col-md-6 col-xl-3">
@@ -154,11 +154,12 @@ function full_name($discipline_id, $dbconnect)
                 $result = pg_query($dbconnect, $query);
                 $array_notify = pg_fetch_all($result);
 
-                $result = full_name($page['disc_id'], $dbconnect);
-                $full_name = pg_fetch_all($result)[0]['name'];
-
                 $page_id = $page['id'];
                 $Page = new Page((int)$page_id);
+
+
+                // $result = full_name($page['disc_id'], $dbconnect);
+                $full_name = $Page->getDisciplineName();
 
                 if ($curr_sem != $page['sem']) { ?>
                   <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage=1&year=<?= $year ?>&sem=<?= $sem ?>'">

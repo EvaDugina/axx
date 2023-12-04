@@ -39,8 +39,13 @@ class Page
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       $page = pg_fetch_assoc($result);
 
-      $this->disc_id = $page['disc_id'];
-      $this->disc_name = $page['disc_name'];
+      if (isset($page['disc_id'])) {
+        $this->disc_id = $page['disc_id'];
+        $this->disc_name = $page['disc_name'];
+      } else {
+        $this->disc_id = null;
+        $this->disc_name = "ДРУГОЕ";
+      }
 
       $this->name = $page['short_name'];
       $this->year = $page['year'];
@@ -155,6 +160,14 @@ class Page
     return $this->Teachers;
   }
 
+  public function getDisciplineName()
+  {
+    if ($this->disc_id == null)
+      return "ДРУГОЕ";
+    else
+      return $this->disc_name;
+  }
+
 
 
   // WORK WITH PAGE
@@ -163,9 +176,16 @@ class Page
   {
     global $dbconnect;
 
+    $disc_sql = "";
+    if ($this->disc_id == null) {
+      $disc_sql = "null";
+    } else {
+      $disc_sql = "$this->disc_id";
+    }
+
     $query = "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
               creator_id, creation_date, description, type, status) 
-              VALUES ($this->disc_id, \$antihype1\$$this->name\$antihype1\$, $this->year, $this->semester, $this->color_theme_id, 
+              VALUES ($disc_sql, \$antihype1\$$this->name\$antihype1\$, $this->year, $this->semester, $this->color_theme_id, 
               $this->creator_id, '$this->creation_date', $this->description, $this->type, $this->status) 
               RETURNING id";
 
@@ -178,7 +198,14 @@ class Page
   {
     global $dbconnect;
 
-    $query = "UPDATE ax.ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, disc_id=$this->disc_id, year=$this->year, semester=$this->semester,
+    $disc_sql = "";
+    if ($this->disc_id == null) {
+      $disc_sql = "disc_id = null";
+    } else {
+      $disc_sql = "disc_id = $this->disc_id";
+    }
+
+    $query = "UPDATE ax.ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, " . $disc_sql . ", year=$this->year, semester=$this->semester,
               color_theme_id=$this->color_theme_id, description=$this->description, type = $this->type, status=$this->status
               WHERE id =$this->id;
     ";
@@ -601,7 +628,7 @@ function queryGetPageInfo($page_id)
   return "SELECT p.*, ax.ax_color_theme.bg_color, ax.ax_color_theme.src_url, d.name as disc_name
           FROM ax.ax_page as p
           INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
-          INNER JOIN discipline d ON d.id = p.disc_id
+          LEFT JOIN discipline d ON d.id = p.disc_id
           WHERE p.id = $page_id;
   ";
 }
