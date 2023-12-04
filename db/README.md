@@ -5,6 +5,7 @@
 ДЛЯ ДАМПА scheme_testdata:
 2. ЗАПУСКАЕМ db_restore.bat
 
-3. Выполнить все скрипты update_*.sql
+3. Выполнить все скрипты update_*.sql 
+или запустить: pg_execute_updates.bat 
 
 4. Выполнить скрипт scheme_grant.sql

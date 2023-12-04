@@ -1,0 +1,1 @@
+FOR %i IN (update_*.sql) DO psql.exe -d accelerator -h localhost -p 5432 -U accelerator -W -F p -E < %i
