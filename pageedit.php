@@ -294,13 +294,24 @@ else
 
 						<label class="label-theme col-lg-2 me-3 mb-3 " style="padding: 0px;">
 							<div class="card theme-check-button" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
+								<!-- <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;">
+									<div class="d-flex justify-content-end" style="z-index: 2;">
+										<div class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important; opacity: 0.8;">
+											<button type="button" class="btn btn-white h-100 text-danger" style="box-shadow: unset; border-top-right-radius: 0px;" onclick="">
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+													<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+												</svg>
+											</button>
+										</div>
+									</div>
+								</div> -->
 								<div class="bg-image hover-zoom" style="border-radius: 10px;">
 									<img src="<?= $thema['src_url'] ?>" style="transition: all .1s linear; min-width: 100%; max-height: 120px;">
 									<div id="mask-<?= $disc_id ?>" class="mask" style="background: <?= $bg_color ?>; transition: all .1s linear;"></div>
 								</div>
 							</div>
-							<input id="input-<?= $disc_id ?>" type="radio" class="input-thema" <?php if ($page_id == 0 && !$key) echo 'checked="checked"';
-																								else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"'; ?> name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>">
+							<input id="input-<?= $disc_id ?>" type="radio" class="input-thema" name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>" <?php if ($page_id == 0 && !$key) echo 'checked="checked"';
+																																										else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"'; ?>>
 							<div class="checkmark" style="background-color:<?= $bg_color ?>"></div>
 						</label>
 
@@ -313,12 +324,13 @@ else
 								<div class="py-1">
 									<div class="row py-2">
 										<div class="d-flex justify-content-center align-self-center">
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload w-50 h-50" viewBox="0 0 16 16">
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16" style="width:40%; height:40%;">
 												<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
 												<path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
 											</svg>
 										</div>
 									</div>
+									<p class="text-black mb-0" style="font-size:xx-small;">Допустимые пропорции высоты к ширине: 3 к 4</p>
 								</div>
 							</div>
 
@@ -441,10 +453,30 @@ else
 		// Получаем расширение файла и сравниваем точно ли оно png или jpeg или jpg
 		// let ext = new_file.name.split('.').pop();
 		if (new_file.type == "image/png" || new_file.type == "image/jpg" || new_file.type == "image/jpeg" || new_file.type == "image/gif") {
-			page_id = getPageId();
-			$('#input-pageId').val(page_id);
-			saveFieldsWithoutChecking();
-			ajaxAddColorTheme(new_file);
+			// var img = new Image();
+			// img.onload = function() {
+			// 	var width = this.width;
+			// 	var hight = this.height;
+			// }
+			// img.src = new_file;
+			let _URL = window.URL || window.webkitURL;
+			let img = new Image();
+			var objectUrl = _URL.createObjectURL(new_file);
+			img.onload = function() {
+				// alert(this.width + " " + this.height);
+				let size = this.height / this.width;
+				if (0.74 <= size && size <= 0.76) {
+					page_id = getPageId();
+					$('#input-pageId').val(page_id);
+					saveFieldsWithoutChecking();
+					ajaxAddColorTheme(new_file);
+				} else {
+					alert("Некорректные размеры картинки!");
+				}
+			};
+			img.src = objectUrl;
+
+
 			// document.location.reload();
 		} else {
 			alert("Ошибка загрузки файла! Файл должен быть с расширением PNG, JPG или JPEG");

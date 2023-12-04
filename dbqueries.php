@@ -52,7 +52,7 @@ function select_inside_semester_pages_for_teacher($teacher_id)
   FROM ax.ax_page p
   INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
   INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
-  WHERE y IS null AND p.semester IS null AND ax.ax_page_prep.prep_user_id = $teacher_id
+  WHERE p.year IS null AND p.semester IS null AND ax.ax_page_prep.prep_user_id = $teacher_id
 ";
 }
 
