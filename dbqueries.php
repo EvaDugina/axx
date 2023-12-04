@@ -759,9 +759,9 @@ function insert_answer_commit($assignment_id, $student_id)
 }
 
 
-function select_color_theme()
+function select_color_theme($page_id)
 {
-  return "SELECT * FROM ax.ax_color_theme ORDER BY id;";
+  return "SELECT * FROM ax.ax_color_theme WHERE status = 1 OR page_id = $page_id ORDER BY id;";
 }
 
 function pg_fetch_all_assoc($res)

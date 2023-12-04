@@ -323,8 +323,7 @@ class File
   {
     global $dbconnect;
 
-    if ($this->download_url != "" && file_exists($this->download_url))
-      unlink($this->download_url);
+    deleteFile($this->download_url);
 
     $query = "UPDATE ax.ax_file SET status = 2 WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -377,6 +376,12 @@ class File
 
   // -- END WORK WITH FILE
 
+}
+
+function deleteFile($download_url)
+{
+  if ($download_url != "" && file_exists($download_url))
+    unlink($download_url);
 }
 
 function getCompressedFileName($file_name, $num_symbols = 20)
@@ -520,7 +525,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
   }
 }
 
-function addFileToColorTheme($file_name, $file_tmp_name, $type)
+function addFileToColorTheme($page_id, $file_name, $file_tmp_name, $type)
 {
   global $dbconnect;
 
@@ -536,7 +541,7 @@ function addFileToColorTheme($file_name, $file_tmp_name, $type)
   if (move_uploaded_file($file_tmp_name, $file_path)) {
 
     $File->setDownloadUrl($file_path);
-    $query = queryCreateColorTheme($File->download_url);
+    $query = queryCreateColorTheme($page_id, $File->download_url);
     $result = pg_query($dbconnect, $query);
     echo $result;
     return $File->id;

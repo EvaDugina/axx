@@ -97,11 +97,12 @@ if (array_key_exists('page', $_REQUEST)) {
 	$result = pg_query($dbconnect, $query);
 	$page_groups = pg_fetch_all($result);
 	echo "<script>var isNewPage=false;</script>";
+	echo "<script>var PAGE_ID=$Page->id;</script>";
 } else {
 	$page_id = 0;
 	// TODO: Сделать создание страницы
 	echo "<script>var isNewPage=true;</script>";
-
+	echo "<script>var PAGE_ID=null;</script>";
 
 	if (array_key_exists('year', $_REQUEST) && array_key_exists('sem', $_REQUEST))
 		$semester = $_REQUEST['year'] . "/" . convert_sem_from_number($_REQUEST['sem']);
@@ -145,7 +146,7 @@ else
 			</div>
 
 
-			<input type="hidden" name="id" value="<?= $page_id ?>"></input>
+			<input id="input-pageId" type="hidden" name="id" value="<?= $page_id ?>"></input>
 
 			<div class="row align-items-center m-3 mb-4">
 				<div class="col-lg-2 row justify-content-left">Название раздела:</div>
@@ -169,7 +170,7 @@ else
 									continue; ?>
 								<option value="<?= $discipline['id'] ?>"><?= $discipline['name'] ?></option>
 							<?php }
-							if ($Page->disc_id != null) { ?>
+							if ($page_id == 0 || $Page->disc_id != null) { ?>
 								<option value="null">ДРУГОЕ</option>
 							<?php } ?>
 						</select>
@@ -283,7 +284,7 @@ else
 				<div class="col-lg-2 row justify-content-left">Оформление:</div>
 				<div class="col-lg-10 row container-fluid">
 					<?php
-					$query = select_color_theme();
+					$query = select_color_theme($page_id);
 					$result = pg_query($dbconnect, $query);
 					$thems = pg_fetch_all($result);
 
@@ -360,6 +361,8 @@ else
 </body>
 <!-- End your project here-->
 
+<script type="text/javascript" src="js/PageHandler.js"></script>
+
 <!-- Custom scripts -->
 <script type="text/javascript">
 	let teachers = new Set();
@@ -371,6 +374,18 @@ else
 
 	let easyMDE_value = easyMDE.value();
 	var original_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+
+
+	function getPageId() {
+		if (PAGE_ID != null)
+			return PAGE_ID;
+		else {
+			PAGE_ID = ajaxPageCreate(PAGE_ID);
+			if (PAGE_ID == null)
+				alert("Не удалось сохранить раздел!");
+			return PAGE_ID;
+		}
+	}
 
 	function descriptionChange() {
 		if (checkDescription()) {
@@ -426,8 +441,11 @@ else
 		// Получаем расширение файла и сравниваем точно ли оно png или jpeg или jpg
 		// let ext = new_file.name.split('.').pop();
 		if (new_file.type == "image/png" || new_file.type == "image/jpg" || new_file.type == "image/jpeg" || new_file.type == "image/gif") {
+			page_id = getPageId();
+			$('#input-pageId').val(page_id);
+			saveFieldsWithoutChecking();
 			ajaxAddColorTheme(new_file);
-			document.location.reload();
+			// document.location.reload();
 		} else {
 			alert("Ошибка загрузки файла! Файл должен быть с расширением PNG, JPG или JPEG");
 		}
@@ -449,6 +467,7 @@ else
 		var formData = new FormData();
 
 		formData.append('flag-addColorTheme', true);
+		formData.append('page_id', getPageId());
 		formData.append('image-file', file);
 
 		ajaxResponse = null;
@@ -578,6 +597,12 @@ else
 			$('#pageedit_action').submit();
 		}
 	});
+
+	function saveFieldsWithoutChecking() {
+		$('#pageedit_action').append('<input type="text" name="action" value="save" hidden>');
+		$('#pageedit_action').append('<input type="text" name="status-backLocation" value="page" hidden>');
+		$('#pageedit_action').submit();
+	}
 
 	function checkFiledsBeforeSave() {
 		flag = true;

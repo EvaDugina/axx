@@ -12,13 +12,21 @@ else {
 }
 
 
+
 function delete_discipline($discipline_id)
 {
 	return 'DELETE FROM ax.ax_page WHERE id =' . $discipline_id;
 }
 
-if (isset($_POST['flag-addColorTheme']) && isset($_FILES['image-file'])) {
-	addFileToColorTheme($_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 22);
+if (isset($_POST['flag-addColorTheme']) && isset($_POST['page_id']) && isset($_FILES['image-file'])) {
+	addFileToColorTheme($_POST['page_id'], $_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 22);
+	exit;
+}
+
+if (isset($_POST['flag-createPage'])) {
+	$Page = new Page($au->getUserId(), null);
+	$return_json = array("page_id" => $Page->id);
+	echo json_encode($return_json);
 	exit;
 }
 
@@ -73,18 +81,16 @@ if (isset($_POST['action'])) {
 
 		case 'delete':
 			var_dump($_POST['id']);
-			$query = delete_page_prep($_POST['id']);
-			$result = pg_query($dbconnect, $query);
+			$Page = new Page($_POST['id']);
+			$Page->deleteFromDB();
 
-			$query = delete_page_group($_POST['id']);
-			$result = pg_query($dbconnect, $query);
-
-			$query = delete_discipline($_POST['id']);
-			$result = pg_query($dbconnect, $query);
 			break;
 		default:
 			echo "Error: action";
 			break;
 	}
-	header('Location: mainpage.php');
+	if (isset($_POST['status-backLocation']) && $_POST['status-backLocation'] == "page")
+		header('Location: pageedit.php?page=' . $_POST['id']);
+	else
+		header('Location: mainpage.php');
 }

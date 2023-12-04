@@ -68,19 +68,29 @@ class Page
       $this->Tasks = getTasksByPage($this->id);
       $this->Groups = getGroupsByPage($this->id);
       $this->Teachers = getTeachersByPage($this->id);
-    } else if ($count_args == 5) {
+    } else if ($count_args == 2) {
+
+      $this->disc_id = null;
+      $this->name = null;
+
+      $this->color_theme_id = null;
+      $this->creator_id = $args[0];
+      $this->type = 1;
+      $this->status = 1;
+
+      $this->pushNewToDB();
+    } else if ($count_args == 4) {
 
       $this->disc_id = $args[0];
       $this->name = $args[1];
 
       $this->color_theme_id = $args[2];
       $this->creator_id = $args[3];
-      $this->creation_date = $args[4];
       $this->type = 1;
       $this->status = 1;
 
       $this->pushNewToDB();
-    } else if ($count_args == 8) {
+    } else if ($count_args == 7) {
       $this->disc_id = $args[0];
 
       $this->name = $args[1];
@@ -89,9 +99,8 @@ class Page
 
       $this->color_theme_id = $args[4];
       $this->creator_id = $args[5];
-      $this->creation_date = $args[6];
 
-      $this->description = $args[7];
+      $this->description = $args[6];
 
       $this->type = 0;
       $this->status = 1;
@@ -183,10 +192,45 @@ class Page
       $disc_sql = "$this->disc_id";
     }
 
+    $name_sql = "";
+    if ($this->name == null) {
+      $name_sql = "null";
+    } else {
+      $name_sql = "\$antihype1\$$this->name\$antihype1\$";
+    }
+
+    $year_sql = "";
+    if ($this->year == null) {
+      $year_sql = "null";
+    } else {
+      $year_sql = "$this->year";
+    }
+
+    $semester_sql = "";
+    if ($this->semester == null) {
+      $semester_sql = "null";
+    } else {
+      $semester_sql = "$this->semester";
+    }
+
+    $color_theme_sql = "";
+    if ($this->color_theme_id == null) {
+      $color_theme_sql = "null";
+    } else {
+      $color_theme_sql = "$this->color_theme_id";
+    }
+
+    $description_sql = "";
+    if ($this->description == null) {
+      $description_sql = "null";
+    } else {
+      $description_sql = "\$antihype1\$$this->description\$antihype1\$";
+    }
+
     $query = "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
               creator_id, creation_date, description, type, status) 
-              VALUES ($disc_sql, \$antihype1\$$this->name\$antihype1\$, $this->year, $this->semester, $this->color_theme_id, 
-              $this->creator_id, '$this->creation_date', $this->description, $this->type, $this->status) 
+              VALUES ($disc_sql, $name_sql, $year_sql, $semester_sql, $color_theme_sql, 
+              $this->creator_id, now(), $description_sql, $this->type, $this->status) 
               RETURNING id";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -222,6 +266,9 @@ class Page
 
     $query = "DELETE FROM ax.ax_page_prep WHERE page_id = $this->id;";
     $query .= "DELETE FROM ax.ax_page_group WHERE page_id = $this->id;";
+
+    deleteFile($this->getColorThemeSrcUrl());
+    $query .= "DELETE FROM ax.ax_color_theme WHERE page_id = $this->id;";
 
     $query .= "DELETE FROM ax.ax_page WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -688,10 +735,10 @@ function querySetDiscId($page_id, $disc_id)
   SELECT name FROM discipline WHERE id = $disc_id;";
 }
 
-function queryCreateColorTheme($src_url)
+function queryCreateColorTheme($page_id, $src_url)
 {
-  return "INSERT INTO ax.ax_color_theme (src_url)
-          VALUES ('$src_url') RETURNING id;
+  return "INSERT INTO ax.ax_color_theme (page_id, src_url, status)
+          VALUES ($page_id, '$src_url', 0) RETURNING id;
   ";
 }
 
