@@ -704,8 +704,7 @@ else
 	// });
 
 	$('#select-semester').on('change', function() {
-		console.log($(this).val());
-		if ($(this).val() == "ВНЕ СЕМЕСТРА") {
+		if ($(this).val() == "ВНЕ CЕМЕСТРА") {
 			$('#div-students-groups').addClass("d-none");
 		} else {
 			$('#div-students-groups').removeClass("d-none");
