@@ -281,7 +281,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   if (isset($_POST['variant']) && $_POST['variant'] != "")
     $Assignment->setVariantNumber($_POST['variant']);
 
-  $query = 'update ax.ax_assignment set checks = $accel$' . $json . '$accel$';
+  $query = "UPDATE ax.ax_assignment SET checks = \$accel\$$json\$accel\$ WHERE id = $Assignment->id";
   $result = pg_query($dbconnect, $query);
 
   $result = pg_query($dbconnect, "delete from ax.ax_assignment_student where assignment_id=" . $Assignment->id);
