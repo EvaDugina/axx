@@ -347,7 +347,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           </div>
         </div>
         <div class="col-md-4">
-          <div class="d-none d-sm-block d-print-block border rounded">
+          <div class="d-none d-sm-block d-print-block border rounded mb-5">
             <div class="tab d-flex justify-content-between">
               <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
               <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>
@@ -584,26 +584,26 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               $accord = array();
               if (!$User->isStudent()) {
                 $accord = array(
-                  parseBuildCheck(@$checkres['tools']['build'], $checks),
-                  parseCppCheck(@$checkres['tools']['cppcheck'], $checks),
-                  parseClangFormat(@$checkres['tools']['clang-format'], $checks),
-                  parseValgrind(@$checkres['tools']['valgrind'], $checks),
-                  parseAutoTests(@$checkres['tools']['autotests'], $checks),
-                  parseCopyDetect(@$checkres['tools']['copydetect'], $checks)
+                  parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']),
+                  parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']),
+                  parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']),
+                  parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']),
+                  parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']),
+                  parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled'])
                 );
               } else {
                 if ($checks['tools']['build']['show_to_student'])
-                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks));
+                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']));
                 if ($checks['tools']['cppcheck']['show_to_student'])
-                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks));
+                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']));
                 if ($checks['tools']['clang-format']['show_to_student'])
-                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks));
+                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']));
                 if ($checks['tools']['valgrind']['show_to_student'])
-                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks));
+                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
                 if ($checks['tools']['autotests']['show_to_student'])
-                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks));
+                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
                 if ($checks['tools']['copydetect']['show_to_student'])
-                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks));
+                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled']));
               }
               show_accordion('checkres', $accord, "5px");
               ?>
@@ -753,80 +753,90 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
             </div>
 
-            <div id="deadline-message" class="deadline-message">
-              Время вышло!
-            </div>
 
-            <div id="countdown" class="countdown">
-              <div class="countdown-number">
-                <span class="days countdown-time"></span>
+
+
+            <?php
+            if ($Assignment->finish_limit && checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") { ?>
+
+              <div id="deadline-message" class="deadline-message m-3">
+                Время и стекло!
               </div>
-              <div class="countdown-number">
-                <span class="hours countdown-time"></span>
+
+              <div id="countdown" class="countdown">
+                <div class="countdown-number">
+                  <span class="days countdown-time"></span>
+                </div>
+                <div class="countdown-number">
+                  <span class="hours countdown-time"></span>
+                </div>
+                <div class="countdown-number">
+                  <span class="minutes countdown-time"></span>
+                </div>
+                <div class="countdown-number">
+                  <span class="seconds countdown-time"></span>
+                </div>
               </div>
-              <div class="countdown-number">
-                <span class="minutes countdown-time"></span>
-              </div>
-              <div class="countdown-number">
-                <span class="seconds countdown-time"></span>
-              </div>
-            </div>
+
+              <script>
+                function getTimeRemaining(endtime) {
+                  let dateEndTime = Date.parse(endtime);
+                  console.log(new Date(dateEndTime));
+                  let dateNow = Date.parse(new Date());
+                  var deltaTime = dateEndTime - dateNow;
+                  var seconds = Math.floor((deltaTime / 1000) % 60);
+                  var minutes = Math.floor((deltaTime / 1000 / 60) % 60);
+                  var hours = Math.floor((deltaTime / (1000 * 60 * 60)) % 24);
+                  var days = Math.floor(deltaTime / (1000 * 60 * 60 * 24));
+                  return {
+                    total: deltaTime,
+                    days: days,
+                    hours: hours,
+                    minutes: minutes,
+                    seconds: seconds
+                  };
+                }
+
+                function initializeClock(id, endtime) {
+                  var clock = document.getElementById(id);
+                  var daysSpan = clock.querySelector(".days");
+                  var hoursSpan = clock.querySelector(".hours");
+                  var minutesSpan = clock.querySelector(".minutes");
+                  var secondsSpan = clock.querySelector(".seconds");
+
+                  function updateClock() {
+                    var t = getTimeRemaining(endtime);
+
+                    if (t.total <= 0) {
+                      document.getElementById("countdown").className = "hidden";
+                      document.getElementById("deadline-message").classList.remove("deadline-message");
+                      document.getElementById("deadline-message").classList.add("visible");
+                      clearInterval(timeinterval);
+                      return true;
+                    }
+
+                    daysSpan.innerHTML = t.days + "д.";
+                    hoursSpan.innerHTML = ("0" + t.hours).slice(-2) + "ч.";
+                    minutesSpan.innerHTML = ("0" + t.minutes).slice(-2) + "м.";
+                    secondsSpan.innerHTML = ("0" + t.seconds).slice(-2) + "с.";
+                  }
+
+                  updateClock();
+                  var timeinterval = setInterval(updateClock, 1000);
+                }
+
+                function fun() {
+                  var deadline = "<?= $Assignment->getEndDateTime() ?>"; // for endless timer
+                  initializeClock("countdown", deadline);
+                }
+                fun();
+              </script>
+
+            <?php
+            } ?>
+
           </div>
 
-
-          <?php
-          if ($task_finish_limit) {
-            echo '
-<script>
-function getTimeRemaining(endtime) {
-  var t = Date.parse(endtime) - Date.parse(new Date());
-  var seconds = Math.floor((t / 1000) % 60);
-  var minutes = Math.floor((t / 1000 / 60) % 60);
-  var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
-  var days = Math.floor(t / (1000 * 60 * 60 * 24));
-  return {
-    total: t,
-    days: days,
-    hours: hours,
-    minutes: minutes,
-    seconds: seconds
-  };
-}
-
-function initializeClock(id, endtime) {
-  var clock = document.getElementById(id);
-  var daysSpan = clock.querySelector(".days");
-  var hoursSpan = clock.querySelector(".hours");
-  var minutesSpan = clock.querySelector(".minutes");
-  var secondsSpan = clock.querySelector(".seconds");
-
-  function updateClock() {
-    var t = getTimeRemaining(endtime);
-
-    if (t.total <= 0) {
-      document.getElementById("countdown").className = "hidden";
-      document.getElementById("deadline-message").className = "visible";
-      clearInterval(timeinterval);
-      return true;
-    }
-
-    daysSpan.innerHTML = t.days+"д.";
-    hoursSpan.innerHTML = ("0" + t.hours).slice(-2)+"ч.";
-    minutesSpan.innerHTML = ("0" + t.minutes).slice(-2)+"м.";
-    secondsSpan.innerHTML = ("0" + t.seconds).slice(-2)+"с.";
-  }
-
-  updateClock();
-  var timeinterval = setInterval(updateClock, 1000);
-}
-function fun() { 
-	var deadline = "' . $task_finish_limit . '"; // for endless timer
-	initializeClock("countdown", deadline);
-} 
-fun();
-</script>';
-          }
-          ?>
         </div>
       </div>
     </div>

@@ -205,6 +205,11 @@ class Assignment
     return convert_timestamp_to_date($this->finish_limit, "H:i:s");
   }
 
+  public function getEndDateTime()
+  {
+    return convert_timestamp_to_date($this->finish_limit, "m-d-Y H:i:s");
+  }
+
   public function setVariantNumber($variant_number)
   {
     global $dbconnect;
