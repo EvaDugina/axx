@@ -283,7 +283,7 @@ class Page
     if ($result)
       return $result['src_url'];
     else {
-      $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(0)) or die('Ошибка запроса: ' . pg_last_error());
+      $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(-1)) or die('Ошибка запроса: ' . pg_last_error());
       return pg_fetch_assoc($pg_query)['src_url'];
     }
   }
