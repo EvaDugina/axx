@@ -91,7 +91,7 @@ function select_pages_for_student($group_id)
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester, ax.ax_color_theme.src_url 
           FROM ax.ax_page p
           INNER JOIN ax.ax_page_group ON ax.ax_page_group.page_id = p.id
-          INNER JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
+          LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS NOT null AND p.semester IS NOT null AND ax.ax_page_group.group_id = $group_id AND p.status = 1
           ORDER BY p.year DESC, p.semester DESC;
   ";

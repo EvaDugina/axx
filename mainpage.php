@@ -188,7 +188,7 @@ $disc_count = pg_fetch_all($result1);
               <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px!important;">
                 <div data-mdb-ripple-color="light" style="position: relative;">
                   <div class="bg-image" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?= $page_id ?>'">
-                    <img src="<?= $page['src_url'] ?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
+                    <img src="<?= $Page->getColorThemeSrcUrl() ?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
                     <div class="mask" style="transition: all .1s linear;"></div>
                   </div>
                   <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;" onclick="window.location='preptable.php?page=<?= $page_id ?>'">
