@@ -403,7 +403,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 "full_output": "output_build.txt",
                 "outcome": "pass"
               },
-              "outcome": "pass"
+              "outcome": "undefined"
             },
             "valgrind": {
               "enabled": true,
@@ -430,7 +430,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 }
               ],
               "full_output": "output_valgrind.xml",
-              "outcome": "pass"
+              "outcome": "undefined"
             },
             "cppcheck": {
               "enabled": true,
@@ -504,7 +504,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 }
               ],
               "full_output": "output_cppcheck.xml",
-              "outcome": "pass"
+              "outcome": "undefined"
             },
             "clang-format": {
               "enabled": true,
@@ -521,7 +521,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 "outcome": "fail"
               },
               "full_output": "output_format.xml",
-              "outcome": "pass"
+              "outcome": "undefined"
             },
             "copydetect": {
               "enabled": true,
@@ -537,7 +537,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 "outcome": "skipped"
               },
               "full_output": "output_copydetect.html",
-              "outcome": "pass"
+              "outcome": "undefined"
             },
             "autotests": {
               "enabled": true,
@@ -551,7 +551,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 "failures": 3
               },
               "full_output": "output_tests.txt",
-              "outcome": "pass"
+              "outcome": "undefined"
             }
           }
         }', true);

@@ -50,7 +50,7 @@ function parseBuildCheck($data, $enabled)
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("build_body", "Не проверено."),
-                'footer' => $resFooter
+                'footer' => ""
             );
             break;
     }
@@ -110,6 +110,15 @@ function parseCppCheck($data, $enabled)
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("cppcheck_body", "Проверка пропущена или инструмент проверки не установлен."),
                 'footer' => $resFooter
+            );
+            break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>CppCheck</b><span id="cppcheck_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("cppcheck_body", "Не проверено."),
+                'footer' => ""
             );
             break;
     }
@@ -180,6 +189,15 @@ function parseClangFormat($data, $enabled)
                 'footer' => $resFooter
             );
             break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Clang-format</b><span id="clangformat_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("clangformat_body", "Не проверено."),
+                'footer' => ""
+            );
+            break;
     }
 
     $resBody = $data['outcome'];
@@ -241,6 +259,15 @@ function parseValgrind($data, $enabled)
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("valgrind_body", "Проверка пропущена или инструмент проверки не установлен."),
                 'footer' => $resFooter
+            );
+            break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Valgrind</b><span id="valgrind_errors" class="rightbadge"></span><span id="valgrind_leaks" class="rightbadge"></span></div>',
+                'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("valgrind_body", "Не проверено."),
+                'footer' => ""
             );
             break;
     }
@@ -320,6 +347,15 @@ function parseAutoTests($data, $enabled)
                 'footer' => $resFooter
             );
             break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Автотесты</b><span id="autotests_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("autotests_body", "Не проверено."),
+                'footer' => ""
+            );
+            break;
     }
 
     $result = 0;
@@ -378,6 +414,15 @@ function parseCopyDetect($data, $enabled)
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("copydetect_body", "Проверка пропущена или инструмент проверки не установлен."),
                 'footer' => ''
+            );
+            break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Антиплагиат</b><span id="copydetect_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("copydetect_body", "Не проверено."),
+                'footer' => ""
             );
             break;
     }
