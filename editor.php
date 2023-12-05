@@ -781,7 +781,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               <script>
                 function getTimeRemaining(endtime) {
                   let dateEndTime = Date.parse(endtime);
-                  console.log(new Date(dateEndTime));
                   let dateNow = Date.parse(new Date());
                   var deltaTime = dateEndTime - dateNow;
                   var seconds = Math.floor((deltaTime / 1000) % 60);
@@ -1192,7 +1191,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
 
     function loadChatLog($first_scroll = false) {
-      console.log("loadChatLog");
+      // console.log("loadChatLog");
       // TODO: Обращаться к обновлению чата только в случае, если добавлиось новое, ещё не прочитанное сообщение
       $('#chat-box').load('taskchat_action.php#content', {
         assignment_id: <?= $assignment_id ?>,

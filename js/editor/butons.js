@@ -254,14 +254,23 @@ document.querySelector("#startTools").addEventListener('click', async e => {
     document.querySelector('#startTools').disabled = true;
     saveEditedFile();
     var param = document.location.href.split("?")[1].split("#")[0];
-    makeRequest('textdb.php?' + param + "&type=tools" +
-        "&build=" + document.querySelector("#buildcheck_enabled").checked +
-        "&cppcheck=" + document.querySelector("#cppcheck_enabled").checked +
-        "&clang=" + document.querySelector("#clangformat_enabled").checked +
-        "&valgrind=" + document.querySelector("#valgrind_enabled").checked +
-        "&test=" + document.querySelector("#autotests_enabled").checked +
-        "&copy=" + document.querySelector("#copydetect_enabled").checked,
-        "tools");
+
+    let request_text = "";
+    if (document.querySelector("#buildcheck_enabled"))
+        request_text += "&build=" + document.querySelector("#buildcheck_enabled").checked;
+    if (document.querySelector("#cppcheck_enabled"))
+        request_text += "&cppcheck=" + document.querySelector("#cppcheck_enabled").checked;
+    if (document.querySelector("#clangformat_enabled"))
+        request_text += "&clang=" + document.querySelector("#clangformat_enabled").checked;
+    if (document.querySelector("#valgrind_enabled"))
+        request_text += "&valgrind=" + document.querySelector("#valgrind_enabled").checked;
+    if (document.querySelector("#autotests_enabled"))
+        request_text += "&test=" + document.querySelector("#autotests_enabled").checked;
+    if (document.querySelector("#copydetect_enabled"))
+        request_text += "&copy=" + document.querySelector("#copydetect_enabled").checked;
+
+
+    makeRequest('textdb.php?' + param + "&type=tools" + request_text, "tools");
 });
 
 
@@ -819,6 +828,13 @@ function alertContentsTools(httpRequest) {
                 document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
                 document.querySelector('#startTools').disabled = false;
                 alert('С запросом возникла проблема.' + httpRequest.status);
+            }
+
+            // Обновляем все отрытые фотографии подробного вывода
+            var conlist = document.querySelectorAll(".switchcon");
+            for (var i = 0; i < conlist.length; i++) {
+                if (conlist[i].nextSibling.style.display != "none")
+                    switchCon(conlist[i].id);
             }
         }
     }
