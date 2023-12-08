@@ -275,7 +275,7 @@ class Page
 
   function getColorThemeSrcUrl()
   {
-    return getColorThemeSrcUrlById($this->id);
+    return getColorThemeSrcUrlById($this->color_theme_id);
   }
 
   // -- END WORK WITH PAGE

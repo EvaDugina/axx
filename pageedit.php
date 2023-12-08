@@ -314,8 +314,7 @@ else
 									</div>
 								<?php } ?>
 							</div>
-							<input id="input-radio-<?= $thema['id'] ?>" type="radio" class="input-thema" name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>" <?php if (($Page == null && $key == 0) || ($Page != null && $thema['id'] == $page['color_theme_id'])) echo 'checked="checked"';
-																																													else echo 'checked=""'; ?>>
+							<input id="input-radio-<?= $thema['id'] ?>" type="radio" class="input-thema" name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>" <?php if (($Page == null && $key == 0) || ($Page != null && $thema['id'] == $page['color_theme_id'])) echo 'checked="checked"'; ?>>
 							<div id="div-lineChoosed-<?= $thema['id'] ?>" class="checkmark <?php if (($Page == null && $key == 0) || ($Page != null && $thema['id'] == $page['color_theme_id'])) echo '';
 																							else echo 'd-none'; ?>" style="background-color:<?= $bg_color ?>"></div>
 						</label>
