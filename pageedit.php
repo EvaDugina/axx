@@ -279,7 +279,6 @@ else
 				</div>
 			</div>
 
-
 			<div class="row align-items-left m-3 mb-4">
 				<div class="col-lg-2 row justify-content-left">Оформление:</div>
 				<div class="col-lg-10 row container-fluid">
@@ -292,27 +291,33 @@ else
 						$bg_color = ($thema['bg_color'] != null) ? $thema['bg_color'] : "#000000";
 						$disc_id = ($thema['disc_id'] != null) ? $thema['disc_id'] : -1; ?>
 
-						<label class="label-theme col-lg-2 me-3 mb-3 " style="padding: 0px;">
+						<label id="label-colorTheme-<?= $thema['id'] ?>" class="label-theme col-lg-2 me-3 mb-3 " style="padding: 0px;">
 							<div class="card theme-check-button" data-mdb-ripple-color="light" style="position: relative; cursor: pointer;">
-								<!-- <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;">
-									<div class="d-flex justify-content-end" style="z-index: 2;">
-										<div class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important; opacity: 0.8;">
-											<button type="button" class="btn btn-white h-100 text-danger" style="box-shadow: unset; border-top-right-radius: 0px;" onclick="">
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-													<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-												</svg>
-											</button>
-										</div>
-									</div>
-								</div> -->
-								<div class="bg-image hover-zoom" style="border-radius: 10px;">
+								<div class="bg-image hover-zoom" style="border-radius: 10px;" onclick="event.preventDefault(); choosePageImage(<?= $thema['id'] ?>);">
 									<img src="<?= $thema['src_url'] ?>" style="transition: all .1s linear; min-width: 100%; max-height: 120px;">
 									<div id="mask-<?= $disc_id ?>" class="mask" style="background: <?= $bg_color ?>; transition: all .1s linear;"></div>
 								</div>
+								<?php if ($thema['status'] == 0) { ?>
+									<div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;">
+										<div class="d-flex justify-content-between" style="z-index: 2;">
+											<div>
+												<button class="d-none" onclick="event.preventDefault(); choosePageImage(<?= $thema['id'] ?>);"></button>
+											</div>
+											<div class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important; opacity: 0.8;">
+												<button type="button" class="btn btn-white h-100 text-danger" style="box-shadow: unset; border-top-right-radius: 0px;" onclick="event.stopPropagation(); deletePageImage(<?= $thema['id'] ?>);">
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+														<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+													</svg>
+												</button>
+											</div>
+										</div>
+									</div>
+								<?php } ?>
 							</div>
-							<input id="input-<?= $disc_id ?>" type="radio" class="input-thema" name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>" <?php if ($page_id == 0 && !$key) echo 'checked="checked"';
-																																										else if ($page != 0 && $key == $page['color_theme_id']) echo 'checked="checked"'; ?>>
-							<div class="checkmark" style="background-color:<?= $bg_color ?>"></div>
+							<input id="input-radio-<?= $thema['id'] ?>" type="radio" class="input-thema" name="color_theme_id" style="display: none;" value="<?= $thema['id'] ?>" <?php if (($Page == null && $key == 0) || ($Page != null && $thema['id'] == $page['color_theme_id'])) echo 'checked="checked"';
+																																													else echo 'checked=""'; ?>>
+							<div id="div-lineChoosed-<?= $thema['id'] ?>" class="checkmark <?php if (($Page == null && $key == 0) || ($Page != null && $thema['id'] == $page['color_theme_id'])) echo '';
+																							else echo 'd-none'; ?>" style="background-color:<?= $bg_color ?>"></div>
 						</label>
 
 					<?php } ?>
@@ -330,7 +335,7 @@ else
 											</svg>
 										</div>
 									</div>
-									<p class="text-black mb-0" style="font-size:xx-small;">Допустимые пропорции высоты к ширине: 3 к 4</p>
+									<p class="text-black mb-0" style="font-size:xx-small;">Допустимые пропорции ширины к высоте: 4 к 3</p>
 								</div>
 							</div>
 
@@ -524,6 +529,51 @@ else
 	}
 
 
+	function choosePageImage(ax_color_theme_id) {
+		$.each($('.input-thema'), function(index, elem) {
+			elem.checked = false;
+		});
+		$('.checkmark').addClass("d-none");
+
+		$('#input-radio-' + ax_color_theme_id)[0].checked = true;
+		console.log($('#input-radio-' + ax_color_theme_id)[0]);
+
+		$('#div-lineChoosed-' + ax_color_theme_id).removeClass("d-none");
+	}
+
+	function deletePageImage(ax_color_theme_id) {
+		ajaxDeleteColorTheme(ax_color_theme_id);
+		document.location.reload();
+	}
+
+	function ajaxDeleteColorTheme(color_theme_id) {
+		var formData = new FormData();
+
+		formData.append('flag-deleteColorTheme', true);
+		formData.append('color_theme_id', color_theme_id);
+
+		ajaxResponse = null;
+
+		$.ajax({
+			type: "POST",
+			url: 'pageedit_action.php#content',
+			cache: false,
+			contentType: false,
+			processData: false,
+			async: false,
+			data: formData,
+			dataType: 'html',
+			success: function(response) {
+				response = response.replace(/(\r\n|\n|\r)/gm, "").trim();
+				ajaxResponse['response'] = response;
+			},
+			complete: function() {}
+		});
+
+		return ajaxResponse;
+	}
+
+
 
 
 	var add_teachers_button = document.getElementById("add_teachers");
@@ -626,6 +676,9 @@ else
 		event.preventDefault();
 		if (checkFiledsBeforeSave()) {
 			$('#pageedit_action').append('<input type="text" name="action" value="save" hidden>');
+			$.each($('.input-thema'), function(index, elem) {
+				console.log(elem.id + " " + elem.checked);
+			});
 			$('#pageedit_action').submit();
 		}
 	});

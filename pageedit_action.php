@@ -23,6 +23,11 @@ if (isset($_POST['flag-addColorTheme']) && isset($_POST['page_id']) && isset($_F
 	exit;
 }
 
+if (isset($_POST['flag-deleteColorTheme']) && isset($_POST['color_theme_id'])) {
+	deleteColorThemeFromDB($_POST['color_theme_id'], getColorThemeSrcUrlById($_POST['color_theme_id']));
+	exit;
+}
+
 if (isset($_POST['flag-createPage'])) {
 	$Page = new Page($au->getUserId(), null);
 	$return_json = array("page_id" => $Page->id);

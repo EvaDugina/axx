@@ -267,8 +267,7 @@ class Page
     $query = "DELETE FROM ax.ax_page_prep WHERE page_id = $this->id;";
     $query .= "DELETE FROM ax.ax_page_group WHERE page_id = $this->id;";
 
-    deleteFile($this->getColorThemeSrcUrl());
-    $query .= "DELETE FROM ax.ax_color_theme WHERE page_id = $this->id;";
+    deleteColorThemeFromDB($this->id, $this->getColorThemeSrcUrl());
 
     $query .= "DELETE FROM ax.ax_page WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -276,16 +275,7 @@ class Page
 
   function getColorThemeSrcUrl()
   {
-    global $dbconnect;
-
-    $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl($this->color_theme_id));
-    $result = pg_fetch_assoc($pg_query);
-    if ($result)
-      return $result['src_url'];
-    else {
-      $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(-1)) or die('Ошибка запроса: ' . pg_last_error());
-      return pg_fetch_assoc($pg_query)['src_url'];
-    }
+    return getColorThemeSrcUrlById($this->id);
   }
 
   // -- END WORK WITH PAGE
@@ -590,7 +580,28 @@ class Page
   }
 }
 
+function getColorThemeSrcUrlById($color_theme_id)
+{
+  global $dbconnect;
 
+  $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl($color_theme_id));
+  $result = pg_fetch_assoc($pg_query);
+  if ($result)
+    return $result['src_url'];
+  else {
+    $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(-1)) or die('Ошибка запроса: ' . pg_last_error());
+    return pg_fetch_assoc($pg_query)['src_url'];
+  }
+}
+
+function deleteColorThemeFromDB($color_theme_id, $src_url)
+{
+  global $dbconnect;
+
+  deleteFile($src_url);
+  $query = "DELETE FROM ax.ax_color_theme WHERE id = $color_theme_id;";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
 
 
 // TODO: Протестировать!
