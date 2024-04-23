@@ -358,30 +358,31 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </div>
 
             <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
-              <?php if ($task_description != "") { ?>
-                <div>
+              <div>
+                <?php if ($task_description != "") { ?>
                   <p id="TaskDescr"><?= $task_description ?></p>
                   <script>
                     document.getElementById('TaskDescr').innerHTML =
                       marked.parse(document.getElementById('TaskDescr').innerHTML);
                   </script>
-                  <div>
-                    <?php
-                    if ($User->isTeacher() || $User->isAdmin())
-                      $task_files = $Task->getTeacherFilesToTaskchat();
-                    else
-                      $task_files = $Task->getStudentFilesToTaskchat();
+                <?php } else { ?>
+                  <h6 class="mt-2">Описание задания отсутствует</h6>
+                <?php } ?>
+                <div>
+                  <?php
+                  if ($User->isTeacher() || $User->isAdmin())
+                    $task_files = $Task->getTeacherFilesToTaskchat();
+                  else
+                    $task_files = $Task->getStudentFilesToTaskchat();
 
-                    if ($task_files) { ?>
-                      <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
-                      <?= showFiles($task_files); ?>
-                    <?php }
-                    ?>
-                  </div>
+                  if ($task_files) { ?>
+                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                    <?= showFiles($task_files); ?>
+                  <?php }
+                  ?>
                 </div>
-              <?php } else { ?>
-                <h6 class="mt-2">Описание задания отсутствует</h6>
-              <?php } ?>
+              </div>
+
             </div>
 
             <div id="Console" class="tabcontent">
@@ -923,11 +924,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   <!-- Custom scripts -->
   <script type="text/javascript">
     function showBorders() {
-      var list = document.querySelector("#TaskDescr").querySelectorAll("table");
+      if (document.querySelector("TaskDescr") == null)
+        return;
+
+      var list = document.querySelector("TaskDescr").querySelectorAll("table");
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
-      list = document.querySelector("#TaskDescr").querySelectorAll("th");
+      list = document.querySelector("TaskDescr").querySelectorAll("th");
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
-      list = document.querySelector("#TaskDescr").querySelectorAll("td");
+      list = document.querySelector("TaskDescr").querySelectorAll("td");
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
     }
     showBorders();
