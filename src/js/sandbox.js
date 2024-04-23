@@ -1,5 +1,5 @@
-const apiUrl = `https://vgit.mirea.ru/sandbox`;
-const wsUrl = `wss://vgit.mirea.ru/sandbox/sandbox/ws`;
+const apiUrl = `https://vega.mirea.ru/sandbox`;
+const wsUrl = `wss://vega.mirea.ru/sandbox/sandbox/ws`;
 
 const Sandbox = {
     id: null
