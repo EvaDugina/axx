@@ -370,6 +370,7 @@ class Task
   {
     $conversationAssignment = new Assignment($this->id, 2, -1);
     $conversationAssignment->addStudents($Students);
+    $this->addAssignment($conversationAssignment->id);
     return $conversationAssignment;
   }
   public function getConversationAssignment()

@@ -72,34 +72,42 @@ $disc_count = pg_fetch_all($result1);
                 $Page = new Page((int)$page_id);
                 // $result = full_name($page['disc_id'], $dbconnect);
                 $discipline_name = $Page->getDisciplineName();
-              ?>
+
+                $link_on_image = "preptable.php?page=$page_id";
+                if ($Page->isOutsideSemester()) {
+                  $link_on_image = "preptasks.php?page=$Page->id";
+                } ?>
 
                 <div class="col-xs-12 col-sm-12 col-md-6 col-xl-3">
                   <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px!important;">
                     <div data-mdb-ripple-color="light" style="position: relative;">
-                      <div class="bg-image" style="">
-                        <img src="<?= $Page->getColorThemeSrcUrl() ?>" alt="" style="transition: all .1s linear; height: 200px;">
+                      <button class="w-100 bg-image border p-0" onclick="window.location='<?= $link_on_image ?>'">
+                        <img src="<?= $Page->getColorThemeSrcUrl() ?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
                         <div class="mask" style="transition: all .1s linear;"></div>
-                      </div>
-                      <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1;">
+                      </button>
+                      <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1;" onclick="window.location='<?= $link_on_image ?>'">
                         <div class="d-flex justify-content-between" style="z-index: 2;">
                           <a class="bg-white p-0" style="border-radius: 10px 0px 10px 0px!important; opacity: 0.8;" href="pageedit.php?page=<?php echo $Page->id; ?>">
                             <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-left-radius: 0px;">
                               <i class="fas fa-pencil-alt"></i>
                             </button>
                           </a>
-                          <a class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important; opacity: 0.8;" href="preptasks.php?page=<?php echo $Page->id; ?>">
-                            <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-right-radius: 0px;">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-task" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M2 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 0-.5-.5H2zM3 3H2v1h1V3z" />
-                                <path d="M5 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM5.5 7a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 4a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9z" />
-                                <path fill-rule="evenodd" d="M1.5 7a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5V7zM2 7h1v1H2V7zm0 3.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5H2zm1 .5H2v1h1v-1z" />
-                              </svg>&nbsp;задания
-                            </button>
-                          </a>
+
+                          <?php if (!$Page->isOutsideSemester()) { ?>
+                            <a class="bg-white p-0" style="border-radius: 0px 10px 0px 10px!important; opacity: 0.8;" href="preptasks.php?page=<?php echo $Page->id; ?>">
+                              <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-right-radius: 0px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-task" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M2 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 0-.5-.5H2zM3 3H2v1h1V3z" />
+                                  <path d="M5 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM5.5 7a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 4a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9z" />
+                                  <path fill-rule="evenodd" d="M1.5 7a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5V7zM2 7h1v1H2V7zm0 3.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5H2zm1 .5H2v1h1v-1z" />
+                                </svg>&nbsp;задания
+                              </button>
+                            </a>
+                          <?php } ?>
+
                         </div>
                       </div>
-                      <div class="card_image_content p-2" style="">
+                      <div class="card_image_content p-2" style="cursor: pointer;" onclick="window.location='<?= $link_on_image ?>'">
                         <div class="" style="text-align: left; overflow:hidden;">
                           <a class="text-white" style="font-weight: bold; white-space: nowrap;"><?php echo $Page->name; ?></a>
                           <br><a><?php echo $discipline_name; ?></a>
@@ -183,15 +191,20 @@ $disc_count = pg_fetch_all($result1);
             <div class="row g-5 container-fluid">
             <?php } ?>
 
+            <?php
+                $link_on_image = "preptable.php?page=$page_id";
+                if ($Page->isOutsideSemester()) {
+                  $link_on_image = "preptasks.php?page=$Page->id";
+                } ?>
 
             <div class="col-xs-12 col-sm-12 col-md-6 col-xl-3">
               <div id="card_subject" class="card" style="border-radius: 0px 0px 10px 10px!important;">
                 <div data-mdb-ripple-color="light" style="position: relative;">
-                  <div class="bg-image" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?= $page_id ?>'">
+                  <button class="w-100 bg-image border p-0" onclick="window.location='<?= $link_on_image ?>'">
                     <img src="<?= $Page->getColorThemeSrcUrl() ?>" alt="ИНФОРМАТИКА" style="transition: all .1s linear; height: 200px;">
                     <div class="mask" style="transition: all .1s linear;"></div>
-                  </div>
-                  <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;" onclick="window.location='preptable.php?page=<?= $page_id ?>'">
+                  </button>
+                  <div class="card_image_content" style="bottom:unset; top:0%; background: unset; z-index: 1; cursor: pointer;" onclick="window.location='<?= $link_on_image ?>'">
                     <div class="d-flex justify-content-between" style="z-index: 2;">
                       <a class="bg-white p-0" style="border-radius: 10px 0px 10px 0px!important; opacity: 0.8;" href="pageedit.php?page=<?php echo $page_id; ?>">
                         <button type="button" class="btn btn-white h-100 text-primary" style="box-shadow: unset; border-top-left-radius: 0px;">
@@ -209,7 +222,7 @@ $disc_count = pg_fetch_all($result1);
                       </a>
                     </div>
                   </div>
-                  <div class="card_image_content p-2" style="cursor: pointer;" onclick="window.location='preptable.php?page=<?= $page_id ?>'">
+                  <div class="card_image_content p-2" style="cursor: pointer;" onclick="window.location='<?= $link_on_image ?>'">
                     <div class="" style="text-align: left; overflow:hidden;">
                       <a class="text-white" href="preptable.php?page=<?= $page_id ?>" style="font-weight: bold; white-space: nowrap;"><?php echo $page['short_name']; ?></a>
                       <br><a><?php echo $full_name; ?></a>
