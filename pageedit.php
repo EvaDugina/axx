@@ -21,6 +21,11 @@ function generatePairOptionsSemester($choosedYear, $year, $page_year, $page_seme
 	return $options;
 }
 
+function isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)
+{
+	return ($Page && $Page->isOutsideSemester()) || ($new_page_year == -1 && $new_page_semester == -1);
+}
+
 $au = new auth_ssh();
 checkAuLoggedIN($au);
 checkAuIsNotStudent($au);
@@ -200,7 +205,7 @@ else
 							<option class="text-info"><?= ($years['max'] + 1) . "/" . ($years['max'] + 2) . " Весна" ?></option>;
 
 							<!-- Добавление вне семестровых разделов -->
-							<option value="ВНЕ CЕМЕСТРА" class="text-secondary" <?= (($Page && $Page->isOutsideSemester()) || ($new_page_year == -1 && $new_page_semester == -1)) ? "selected" : "" ?>>ВНЕ CЕМЕСТРА</option>;
+							<option value="ВНЕ CЕМЕСТРА" class="text-secondary" <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "selected" : "" ?>>ВНЕ CЕМЕСТРА</option>;
 						</select>
 					</div>
 				</div>
@@ -232,7 +237,7 @@ else
 				</div>
 			</div>
 
-			<div id="div-students-groups" class="mb-4 <?= ($Page && $Page->isOutsideSemester()) ? "d-none" : "" ?>">
+			<div id="div-students-groups" class="mb-4 <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "d-none" : "" ?>">
 				<div class="row align-items-center mx-3 pe-group-upper">
 					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
 					<div id="groups_container" class="col-lg-10 px-0" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
