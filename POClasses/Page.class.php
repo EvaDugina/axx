@@ -568,6 +568,7 @@ class Page
       }
     }
     $conversationTask->createConversationAssignment($Students);
+    $this->addTask($conversationTask->id);
     return $conversationTask;
   }
   public function getConversationTask()

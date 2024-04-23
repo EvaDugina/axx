@@ -117,10 +117,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
 <link rel="stylesheet" href="css/mdb/rdt.css" />
 
-<link rel="stylesheet" href="https://vega.mirea.ru/sandbox/node_modules/xterm/css/xterm.css" />
-<script src="https://vega.mirea.ru/sandbox/node_modules/xterm/lib/xterm.js"></script>
-<script src="https://vega.mirea.ru/sandbox/node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
-<script src="https://vega.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<link rel="stylesheet" href="https://vgit.mirea.ru/sandbox/node_modules/xterm/css/xterm.css" />
+<script src="https://vgit.mirea.ru/sandbox/node_modules/xterm/lib/xterm.js"></script>
+<script src="https://vgit.mirea.ru/sandbox/node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
+<script src="https://vgit.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 
 <body style="overflow-x:hidden">
 
