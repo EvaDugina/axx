@@ -167,7 +167,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                   <div class="px-1 align-items-center text-primary">
                     <?= getSVGByFileType($File->type) ?>
                   </div>
-                  <div class="px-1" style="width: 55%;">
+                  <div id="div-fileName" class="px-1" style="width: 55%;">
                     <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
                   </div>
                   <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
@@ -296,7 +296,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 <option value="cpp" selected>C++</option>
                 <option value="c">C</option>
                 <option value="python">Python</option>
-                <option value="java">Java</option>
+                <option value="javascript">Java</option>
+                <option value="php">Php</option>
+                <option value="html">Html</option>
+                <option value="css">Css</option>
+                <option value="plaintext" class="text-secondary">Default</option>
               </select>
             </div>
             <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
