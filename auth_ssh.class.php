@@ -1,5 +1,6 @@
 <?php
 //include_once('../disc/variables_disc.php');
+session_start();
 
 class auth_ssh
 {
