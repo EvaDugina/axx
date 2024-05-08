@@ -4,7 +4,6 @@
 
 	<?php
 	require("auth_ssh.class.php");
-	session_start();
 
 	$au = new auth_ssh();
 	if ($au->isAdmin($_SESSION['hash'])) {
