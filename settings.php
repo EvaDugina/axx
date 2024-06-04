@@ -1,5 +1,5 @@
 <?php
-$DB_CONNECTION_STRING = "host=127.0.0.1 port=5432 dbname=accelerator user=accelerator password=123456";
+require('env.php');
 session_start();
 
 // подключение к БД

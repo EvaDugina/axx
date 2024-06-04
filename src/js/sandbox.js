@@ -1,5 +1,8 @@
-const apiUrl = `https://vgit.mirea.ru/sandbox`;
-const wsUrl = `wss://vgit.mirea.ru/sandbox/sandbox/ws`;
+const apiUrl = `${window.location.protocol}//${window.location.host}:${window.location.port}/sandbox`;
+//const apiUrl = `https://vega.mirea.ru/sandbox`;
+const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}:${window.location.port}/sandbox/sandbox/ws`;
+//const wsUrl = `wss://vega.mirea.ru/sandbox/sandbox/ws`;
+//const wsUrl = `ws://10.0.66.40/sandbox/sandbox/ws`;
 
 const Sandbox = {
     id: null
