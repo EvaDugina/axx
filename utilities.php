@@ -33,12 +33,27 @@ function getPGQuotationMarks()
 
 
 // Работа с TIMESTAMP
+$date_time_offset = 6 - date("H", date("Z"));
+// здесь 6 (те. UTC+6) - это время на сервере
+
 date_default_timezone_set('Europe/Moscow');
 
 function getNowTimestamp()
 {
   $timestamp = date("Y-m-d H:i", mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
   return $timestamp;
+}
+
+function convertServerDateTimeToCurrent($date_time, $format = "Y-m-d H:i")
+{
+  global $date_time_offset;
+  return date($format, strtotime($date_time . " - $date_time_offset hour"));
+}
+
+function convertCurrentDateTimeToServer($date_time, $format = "Y-m-d H:i")
+{
+  global $date_time_offset;
+  return date($format, strtotime($date_time . " + $date_time_offset hour"));
 }
 
 function get_now_date($format = "d-m-Y")

@@ -167,7 +167,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                   <div class="px-1 align-items-center text-primary">
                     <?= getSVGByFileType($File->type) ?>
                   </div>
-                  <div class="px-1" style="width: 55%;">
+                  <div id="div-fileName" class="px-1" style="width: 55%;">
                     <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
                   </div>
                   <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
@@ -296,7 +296,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 <option value="cpp" selected>C++</option>
                 <option value="c">C</option>
                 <option value="python">Python</option>
-                <option value="java">Java</option>
+                <option value="javascript">Java</option>
+                <option value="php">Php</option>
+                <option value="html">Html</option>
+                <option value="css">Css</option>
+                <option value="plaintext" class="text-secondary">Default</option>
               </select>
             </div>
             <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
@@ -358,30 +362,31 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </div>
 
             <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
-              <?php if ($task_description != "") { ?>
-                <div>
+              <div>
+                <?php if ($task_description != "") { ?>
                   <p id="TaskDescr"><?= $task_description ?></p>
                   <script>
                     document.getElementById('TaskDescr').innerHTML =
                       marked.parse(document.getElementById('TaskDescr').innerHTML);
                   </script>
-                  <div>
-                    <?php
-                    if ($User->isTeacher() || $User->isAdmin())
-                      $task_files = $Task->getTeacherFilesToTaskchat();
-                    else
-                      $task_files = $Task->getStudentFilesToTaskchat();
+                <?php } else { ?>
+                  <h6 class="mt-2">Описание задания отсутствует</h6>
+                <?php } ?>
+                <div>
+                  <?php
+                  if ($User->isTeacher() || $User->isAdmin())
+                    $task_files = $Task->getTeacherFilesToTaskchat();
+                  else
+                    $task_files = $Task->getStudentFilesToTaskchat();
 
-                    if ($task_files) { ?>
-                      <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
-                      <?= showFiles($task_files); ?>
-                    <?php }
-                    ?>
-                  </div>
+                  if ($task_files) { ?>
+                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                    <?= showFiles($task_files); ?>
+                  <?php }
+                  ?>
                 </div>
-              <?php } else { ?>
-                <h6 class="mt-2">Описание задания отсутствует</h6>
-              <?php } ?>
+              </div>
+
             </div>
 
             <div id="Console" class="tabcontent">
@@ -923,11 +928,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   <!-- Custom scripts -->
   <script type="text/javascript">
     function showBorders() {
-      var list = document.querySelector("#TaskDescr").querySelectorAll("table");
+      if (document.querySelector("TaskDescr") == null)
+        return;
+
+      var list = document.querySelector("TaskDescr").querySelectorAll("table");
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
-      list = document.querySelector("#TaskDescr").querySelectorAll("th");
+      list = document.querySelector("TaskDescr").querySelectorAll("th");
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
-      list = document.querySelector("#TaskDescr").querySelectorAll("td");
+      list = document.querySelector("TaskDescr").querySelectorAll("td");
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
     }
     showBorders();

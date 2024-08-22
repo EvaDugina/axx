@@ -41,7 +41,7 @@ class Message
       $this->sender_user_id = $message['sender_user_id'];
       $this->sender_user_type = $message['sender_user_type'];
 
-      $this->date_time = $message['date_time'];
+      $this->date_time = convertServerDateTimeToCurrent($message['date_time']);
       $this->reply_to_id = $message['reply_to_id'];
       $this->resended_from_id = $message['resended_from_id'];
 

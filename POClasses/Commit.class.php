@@ -40,7 +40,7 @@ class Commit
       if (isset($commit['autotest_results']))
         $this->autotest_results = $commit['autotest_results'];
       if (isset($commit['date_time']))
-        $this->date_time = $commit['date_time'];
+        $this->date_time = convertServerDateTimeToCurrent($commit['date_time']);
       //$this->comment = $file[''];
 
       $this->Files = getFilesByCommit($this->id);
@@ -134,7 +134,7 @@ class Commit
     $result = pg_fetch_assoc($pg_query);
 
     $this->id = $result['id'];
-    $this->date_time = $result['date_time'];
+    $this->date_time = convertServerDateTimeToCurrent($result['date_time']);
   }
   public function pushAllChangesToDB($assignment_id)
   {

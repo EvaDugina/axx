@@ -381,7 +381,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
                     '<label class="form-check-label" for="build_enabled" style="color:#4f4f4f;">выполнять сборку</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' .
                     '<input id="build_show" name="build_show" ' . checked(@$checks['tools']['build']['show_to_student']) .
-                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true">' .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
                     '<label class="form-check-label" for="build_show" style="color:#4f4f4f;">отображать студенту</label>',
 
                   'body'   => //'<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>'.
@@ -405,7 +405,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
                     '<label class="form-check-label" for="valgrind_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
                     '<input id="valgrind_show" name="valgrind_show" ' . checked(@$checks['tools']['valgrind']['show_to_student']) .
-                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true">' .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
                     '<label class="form-check-label" for="valgrind_show" style="color:#4f4f4f;">отображать студенту</label>',
 
                   'body'   => '<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>' .
@@ -427,7 +427,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
                     '<label class="form-check-label" for="cppcheck_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
                     '<input id="cppcheck_show" name="cppcheck_show" ' . checked(@$checks['tools']['cppcheck']['show_to_student']) .
-                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true">' .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
                     '<label class="form-check-label" for="cppcheck_show" style="color:#4f4f4f;">отображать студенту</label>',
 
                   'body'   => '<div><label class="form-check-label" for="cppcheck_arg" style="width:20%;">аргументы</label>' .
@@ -449,7 +449,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
                     '<label class="form-check-label" for="clang_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
                     '<input id="clang_show" name="clang_show" ' . checked(@$checks['tools']['clang-format']['show_to_student']) .
-                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true">' .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
                     '<label class="form-check-label" for="clang_show" style="color:#4f4f4f;">отображать студенту</label>',
 
                   'body'   => '<div><label class="form-check-label" for="clang_arg" style="width:20%;">аргументы</label>' .
@@ -474,7 +474,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
                     '<label class="form-check-label" for="test_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
                     '<input id="test_show" name="test_show" ' . checked(@$checks['tools']['autotests']['show_to_student']) .
-                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" >' .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
                     '<label class="form-check-label" for="test_show" style="color:#4f4f4f;">отображать студенту</label>',
 
                   'body'   => //'<div><label class="form-check-label" for="test_lang" style="width:20%;">сравнивать</label>'.
@@ -491,7 +491,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
                     '<label class="form-check-label" for="plug_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
                     '<input id="plug_show" name="plug_show" ' . checked(@$checks['tools']['copydetect']['show_to_student']) .
-                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" >' .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
                     '<label class="form-check-label" for="plug_show" style="color:#4f4f4f;">отображать студенту</label>',
 
                   'body'   => '<div><label class="form-check-label" for="plug_arg" style="width:20%;">аргументы</label>' .
@@ -568,14 +568,33 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
       $(this).addClass("active");
     });
 
-    $('#input-startDate').on("change", function() {
-      console.log(this.value);
-    });
-    $('#input-endDate').on("change", function() {
-      console.log(this.value);
-    });
+    $('#input-startDate').on("change", function() {});
+    $('#input-endDate').on("change", function() {});
 
+    function onInputShowClick(event) {
+      if (!event.target.checked)
+        return;
 
+      var parentNode = event.target.parentNode;
+
+      previousInputEnabled = parentNode.querySelector("#build_enabled");
+      if (previousInputEnabled == null)
+        previousInputEnabled = parentNode.querySelector("#valgrind_enabled");
+      if (previousInputEnabled == null)
+        previousInputEnabled = parentNode.querySelector("#cppcheck_enabled");
+      if (previousInputEnabled == null)
+        previousInputEnabled = parentNode.querySelector("#clang_enabled");
+      if (previousInputEnabled == null)
+        previousInputEnabled = parentNode.querySelector("#test_enabled");
+      if (previousInputEnabled == null)
+        previousInputEnabled = parentNode.querySelector("#plug_enabled");
+      if (previousInputEnabled == null)
+        return;
+
+      if (previousInputEnabled && !previousInputEnabled.checked) {
+        previousInputEnabled.checked = true;
+      }
+    }
 
     function checkFields() {
       let start_date = new Date($('#input-startDate').val());

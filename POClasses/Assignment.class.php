@@ -65,8 +65,8 @@ class Assignment
       else if (isset($assignment['variant_comment']))
         $this->variant_number = $assignment['variant_comment'];
 
-      $this->start_limit = convert_timestamp_to_date($assignment['start_limit'], "d-m-Y H:i:s");
-      $this->finish_limit = convert_timestamp_to_date($assignment['finish_limit'], "d-m-Y H:i:s");
+      $this->start_limit = convertServerDateTimeToCurrent($assignment['start_limit'], "d-m-Y H:i:s");
+      $this->finish_limit = convertServerDateTimeToCurrent($assignment['finish_limit'], "d-m-Y H:i:s");
 
       $this->visibility = $assignment['status_code'];
       $this->visibility_text = $assignment['status_text'];

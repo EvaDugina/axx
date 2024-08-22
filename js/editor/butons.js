@@ -1,6 +1,7 @@
-import editor from "./editor.js";
+import * as Editor from "./editor.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
+import * as FileHandler from "../FileHandler.js";
 
 export { makeRequest, saveEditedFile, saveActiveFile, openFile };
 
@@ -31,15 +32,22 @@ for (var i = 0; i < conlist.length; i++) {
     });
 }
 
+function updateListItems() {
+    list = document.getElementsByClassName("tasks__list")[0];
+    listItems = list.querySelectorAll(".tasks__item");
+    for (var i = 0; i < listItems.length; i++) {
+        setEventListener(listItems[i]);
+    }
+}
 
 function getActiveFileName() {
-    if (editor.id) {
+    if (Editor.getEditorId()) {
         // for (var i = 0; i < listItems.length; i++) {
         //     listItems[i].className = listItems[i].className.replace(" active_file", "");
         // }
         var items = list.querySelectorAll(".validationCustom");
         for (var i = 0; i < items.length; i++) {
-            if (items[i].id == editor.id) {
+            if (items[i].id == Editor.getEditorId()) {
                 // listItems[i].className = listItems[i].classList.add("active_file");
                 return items[i].value;
             }
@@ -57,7 +65,7 @@ function handleButtonSave() {
 
 function saveActiveFile() {
     let activeFileName = getActiveFileName();
-    saveFile(activeFileName, editor.id);
+    saveFile(activeFileName, Editor.getEditorId());
 }
 
 function addNewIntermediateCommit() {
@@ -65,6 +73,11 @@ function addNewIntermediateCommit() {
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
     makeRequest('textdb.php?' + param + "&type=commit&commit_type=intermediate&status=empty", "commit");
+}
+
+function changeEditorLanguage(new_file_language) {
+    Editor.setEditorLanguage(new_file_language);
+    document.querySelector("#language").value = new_file_language;
 }
 
 // function addNewAnswerCommit() {
@@ -83,34 +96,40 @@ function openFile(event = null, listItem = null) {
     if (user_role == 3)
         $('#check').prop("disabled", false);
     var id = thisListItem.querySelector(".validationCustom").id;
-    if (id != editor.id) {
+    let editor_id = Editor.getEditorId();
+    if (id != editor_id) {
         var items = list.querySelectorAll(".validationCustom");
 
-        if (editor.id) {
-            let index = getIndexById(editor.id);
+        if (editor_id) {
+            let index = getIndexById(editor_id);
             if (index != null) {
                 listItems[index].classList.remove("active_file");
 
                 let name = items[index].value;
-                saveFile(name, editor.id);
+                saveFile(name, editor_id);
             }
         }
 
-        editor.id = id;
-        let index = getIndexById(editor.id);
+        editor_id = id;
+        Editor.setEditorId(editor_id);
+        let index = getIndexById(editor_id);
         listItems[index].classList.add("active_file");
+        let input_file = listItems[index].querySelector("#div-fileName > input");
+
+        let new_file_name = input_file.value;
+        let new_file_language = FileHandler.determinFileLanguage(new_file_name);
+        changeEditorLanguage(new_file_language);
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
-        // console.log("Открыли!");
     }
 }
 
 function getIndexById(id) {
     let items = list.querySelectorAll(".validationCustom");
     for (let i = 0; i < items.length; i++) {
-        if (items[i].id == editor.id)
+        if (items[i].id == Editor.getEditorId())
             return i;
     }
     return null;
@@ -209,7 +228,7 @@ function handleInputFileName(event) {
 
 
 function saveFile(name, id) {
-    var text = editor.current.getValue();
+    var text = Editor.getEditorValue();
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
@@ -220,15 +239,15 @@ function saveEditedFile() {
     var items = list.querySelectorAll(".validationCustom");
     var name = "";
     for (var i = 0; i < items.length; i++) {
-        if (items[i].id == editor.id) {
+        if (items[i].id == Editor.getEditorId()) {
             name = items[i].value;
         }
     }
 
-    var text = editor.current.getValue();
+    var text = Editor.getEditorValue();
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
-    makeRequest(['textdb.php?' + param + "&type=save&likeid=" + editor.id + "&" + "file_name=" + name, text], "save");
+    makeRequest(['textdb.php?' + param + "&type=save&likeid=" + Editor.getEditorId() + "&" + "file_name=" + name, text], "save");
 }
 
 function setEventListener(listItem) {
@@ -244,9 +263,8 @@ function setEventListener(listItem) {
 }
 
 document.querySelector("#language").addEventListener('click', async e => {
-
     const sel = document.querySelector("#language").value;
-    monaco.editor.setModelLanguage(editor.current.getModel(), sel);
+    changeEditorLanguage(sel);
 });
 
 document.querySelector("#startTools").addEventListener('click', async e => {
@@ -376,7 +394,7 @@ function alertContents(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                editor.current.setValue(httpRequest.responseText.trim());
+                Editor.setEditorValue(httpRequest.responseText.trim());
             } else {
                 alert('С запросом возникла проблема.');
             }
@@ -859,7 +877,7 @@ function newFile() {
         </div>';
 
         entry.innerHTML += '\
-        <div class="px-1" style="width: 55%;"> \
+        <div id="div-fileName" class="px-1" style="width: 55%;"> \
         <input type="button" class="form-control-plaintext form-control-sm validationCustom" \
         id="0" value="'+ nameFile + '" disabled style="cursor: pointer; outline:none;">\
         </div>\
@@ -898,6 +916,7 @@ function newFile() {
         setEventListener(entry);
         document.getElementById("div-add-new-file").insertAdjacentElement('beforebegin', entry);
         listItems = list.querySelectorAll(".tasks__item");
+
         array_files.push(nameFile);
 
         var param = document.location.href.split("?")[1].split("#")[0];
