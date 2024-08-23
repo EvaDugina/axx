@@ -38,23 +38,24 @@ if (isset($_POST['flag-createPage'])) {
 if (isset($_POST['action'])) {
 	$action = $_POST['action'];
 	var_dump($_POST);
+	$status = False;
 	switch ($action) {
 		case 'save':
 			if (isset($_POST['id']) && $_POST['id'] != 0) {
 				$id = $_POST['id'];
 
 				$query = update_discipline($_POST);
-				$result = pg_query($dbconnect, $query);
+				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
 				$query = delete_page_prep($_POST['id']);
-				$result = pg_query($dbconnect, $query);
+				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
 				$query = delete_page_group($_POST['id']);
-				$result = pg_query($dbconnect, $query);
+				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 			} else {
 				$query = insert_page($_POST);
 				$result = pg_query($dbconnect, $query);
-				$id = pg_fetch_all($result)[0]['id'];
+				$id = pg_fetch_all($result)[0]['id'] or die('Ошибка запроса: ' . pg_last_error());
 			}
 
 			if (isset($_POST['teachers'])) {
@@ -71,16 +72,18 @@ if (isset($_POST['action'])) {
 					// //echo $teacher;
 					// $query = prep_ax_prep_page($id, $first_name, $middle_name);
 					$query = addTeacherToPage($id, (int)$teacher);
-					pg_query($dbconnect, $query);
+					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 				}
 			}
 
 			if (isset($_POST['groups'])) {
 				foreach ($_POST['groups'] as $group) {
 					$query = addGroupToPage($id, (int)$group);
-					pg_query($dbconnect, $query);
+					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 				}
 			}
+
+			$status = True;
 
 			break;
 
@@ -89,13 +92,18 @@ if (isset($_POST['action'])) {
 			$Page = new Page($_POST['id']);
 			$Page->deleteFromDB();
 
+			$status = True;
+
 			break;
 		default:
-			echo "Error: action";
+			echo "Error: Некорректный action";
 			break;
 	}
-	if (isset($_POST['status-backLocation']) && $_POST['status-backLocation'] == "page")
-		header('Location: pageedit.php?page=' . $_POST['id']);
-	else
-		header('Location: mainpage.php');
+
+	if ($status) {
+		if (isset($_POST['status-backLocation']) && $_POST['status-backLocation'] == "page")
+			header('Location: pageedit.php?page=' . $_POST['id']);
+		else
+			header('Location: mainpage.php');
+	}
 }
