@@ -61,23 +61,23 @@ $actual_teachers = [];
 $page_groups = [];
 
 $query = select_all_disciplines();
-$result = pg_query($dbconnect, $query);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $disciplines = pg_fetch_all($result);
 
 $query = select_discipline_timestamps();
-$result = pg_query($dbconnect, $query);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $timestamps = pg_fetch_all($result);
 
 $query = select_discipline_years();
-$result = pg_query($dbconnect, $query);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $years = pg_fetch_assoc($result);
 
 $query = select_all_teachers();
-$result = pg_query($dbconnect, $query);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $teachers = pg_fetch_all($result);
 
 $query = select_groups();
-$result = pg_query($dbconnect, $query);
+$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $groups = pg_fetch_all($result);
 
 $page = null;
@@ -88,18 +88,18 @@ if (array_key_exists('page', $_REQUEST)) {
 	$Page = new Page((int)$page_id);
 
 	$query = select_discipline_page($page_id);
-	$result = pg_query($dbconnect, $query);
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$page = pg_fetch_all($result)[0];
 
 	$name = $Page->getDisciplineName();
 	$short_name = $Page->name;
 
 	$query = select_page_prep_name($page_id);
-	$result = pg_query($dbconnect, $query);
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$actual_teachers = pg_fetch_all($result);
 
 	$query = select_discipline_groups($page_id);
-	$result = pg_query($dbconnect, $query);
+	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 	$page_groups = pg_fetch_all($result);
 	echo "<script>var isNewPage=false;</script>";
 	echo "<script>var PAGE_ID=$Page->id;</script>";
@@ -288,8 +288,13 @@ else
 				<div class="col-lg-2 row justify-content-left">Оформление:</div>
 				<div class="col-lg-10 row container-fluid">
 					<?php
+					$query = select_color_theme("SELECT * FROM ax.ax_color_theme;");
+					$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+					$thems1 = pg_fetch_all($result);
+					var_dump($thems1);
+
 					$query = select_color_theme($page_id);
-					$result = pg_query($dbconnect, $query);
+					$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 					$thems = pg_fetch_all($result);
 
 					foreach ($thems as $key => $thema) {
