@@ -288,10 +288,13 @@ else
 				<div class="col-lg-2 row justify-content-left">Оформление:</div>
 				<div class="col-lg-10 row container-fluid">
 					<?php
-					$query = select_color_theme("SELECT * FROM ax.ax_color_theme;");
-					$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+					$query = "SELECT * FROM ax.ax_color_theme;";
+					$result = pg_query($dbconnect, $query);
 					$thems1 = pg_fetch_all($result);
-					var_dump($thems1);
+					foreach ($thems1 as $key => $thema) {
+						var_dump($thema);
+						echo "</br>";
+					}
 
 					$query = select_color_theme($page_id);
 					$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
