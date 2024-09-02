@@ -47,6 +47,8 @@ function getNowTimestamp()
 function convertServerDateTimeToCurrent($date_time, $format = "Y-m-d H:i")
 {
   global $date_time_offset;
+  if ($date_time == null)
+    return null;
   return date($format, strtotime($date_time . " - $date_time_offset hour"));
 }
 
