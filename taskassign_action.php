@@ -122,8 +122,9 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   } else if (isset($_POST['assignment_id'])) {
     $Assignment = new Assignment((int)$_POST['assignment_id']);
   } else {
+    echo "Некорректное обращение, не распознан Assignment";
     http_response_code(401);
-    die("Неверное обращение");
+    exit();
   }
 
   $params = array(

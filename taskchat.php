@@ -59,7 +59,7 @@ if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) {
   if ($row) {
     $assignment_id = $row['id'];
   } else {
-    echo 'TASK&PAGE НЕ НАЙДЕНЫ';
+    echo 'Не распознанный Assignment';
     http_response_code(404);
     exit;
   }
@@ -75,7 +75,7 @@ if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) {
     $task_id = $row['task_id'];
     $page_id = $row['page_id'];
   } else {
-    echo 'ASSIGNMENT НЕ НАЙДЕН';
+    echo 'Не распознанные Page & Task';
     http_response_code(404);
     exit;
   }

@@ -24,14 +24,14 @@ if (isset($_GET['task_id']) && isset($_GET['page_id'])) {
 }
 
 if (!array_key_exists('page', $_REQUEST)) {
-  echo "Некорректное обращение";
+  echo "Некорректное обращение, отсутствует ключ 'page'";
   http_response_code(400);
   exit;
 }
 
 if (isset($_POST['action']) && $_POST['action'] == "linkFile") {
   if (count($_FILES) != 1) {
-    echo "Некорректное обращение";
+    echo "Некорректное обращение, отсутствуют файлы";
     http_response_code(400);
     exit;
   }
@@ -82,7 +82,7 @@ $action = @$_REQUEST['action'];
 switch ($action) {
   case "linkFile": {
       if (count($_FILES) != 1) {
-        echo "Некорректное обращение";
+        echo "Некорректное обращение, отсутствуют файлы";
         http_response_code(400);
         exit;
       }
@@ -339,7 +339,7 @@ switch ($action) {
       break;
     }
   default: {
-      echo "Некорректное обращение";
+      echo "Некорректное обращение, не существующая операция";
       http_response_code(400);
       exit;
     }
