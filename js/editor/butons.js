@@ -267,29 +267,33 @@ document.querySelector("#language").addEventListener('click', async e => {
     changeEditorLanguage(sel);
 });
 
-document.querySelector("#startTools").addEventListener('click', async e => {
-    document.querySelector('#startTools').innerText = "Идет проверка...";
-    document.querySelector('#startTools').disabled = true;
-    saveEditedFile();
-    var param = document.location.href.split("?")[1].split("#")[0];
+let startTools = document.querySelector("#startTools");
+if (startTools != null) {
+    startTools.addEventListener('click', async e => {
+        document.querySelector('#startTools').innerText = "Идет проверка...";
+        document.querySelector('#startTools').disabled = true;
+        saveEditedFile();
+        var param = document.location.href.split("?")[1].split("#")[0];
 
-    let request_text = "";
-    if (document.querySelector("#buildcheck_enabled"))
-        request_text += "&build=" + document.querySelector("#buildcheck_enabled").checked;
-    if (document.querySelector("#cppcheck_enabled"))
-        request_text += "&cppcheck=" + document.querySelector("#cppcheck_enabled").checked;
-    if (document.querySelector("#clangformat_enabled"))
-        request_text += "&clang=" + document.querySelector("#clangformat_enabled").checked;
-    if (document.querySelector("#valgrind_enabled"))
-        request_text += "&valgrind=" + document.querySelector("#valgrind_enabled").checked;
-    if (document.querySelector("#autotests_enabled"))
-        request_text += "&test=" + document.querySelector("#autotests_enabled").checked;
-    if (document.querySelector("#copydetect_enabled"))
-        request_text += "&copy=" + document.querySelector("#copydetect_enabled").checked;
+        let request_text = "";
+        if (document.querySelector("#buildcheck_enabled"))
+            request_text += "&build=" + document.querySelector("#buildcheck_enabled").checked;
+        if (document.querySelector("#cppcheck_enabled"))
+            request_text += "&cppcheck=" + document.querySelector("#cppcheck_enabled").checked;
+        if (document.querySelector("#clangformat_enabled"))
+            request_text += "&clang=" + document.querySelector("#clangformat_enabled").checked;
+        if (document.querySelector("#valgrind_enabled"))
+            request_text += "&valgrind=" + document.querySelector("#valgrind_enabled").checked;
+        if (document.querySelector("#autotests_enabled"))
+            request_text += "&test=" + document.querySelector("#autotests_enabled").checked;
+        if (document.querySelector("#copydetect_enabled"))
+            request_text += "&copy=" + document.querySelector("#copydetect_enabled").checked;
 
+        console.log("REQUEST: ", 'textdb.php?' + param + "&type=tools" + request_text)
 
-    makeRequest('textdb.php?' + param + "&type=tools" + request_text, "tools");
-});
+        makeRequest('textdb.php?' + param + "&type=tools" + request_text, "tools");
+    });
+}
 
 
 function makeRequest(url, type) {
@@ -839,14 +843,14 @@ function alertContentsTools(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
-                document.querySelector('#startTools').disabled = false;
                 showCheckResults(httpRequest.responseText);
             } else {
-                document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
-                document.querySelector('#startTools').disabled = false;
-                alert('С запросом возникла проблема.' + httpRequest.status);
+                alert('С запросом возникла проблема: ' + httpRequest.status);
+                console.log(httpRequest.responseText.trim());
             }
+
+            document.querySelector('#startTools').innerText = "ЗАПУСТИТЬ ПРОВЕРКИ";
+            document.querySelector('#startTools').disabled = false;
 
             // Обновляем все отрытые фотографии подробного вывода
             var conlist = document.querySelectorAll(".switchcon");
