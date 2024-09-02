@@ -10,7 +10,7 @@ require_once("POClasses/Message.class.php");
 $file_name = 0;
 $assignment = 0;
 $responce = 0;
-$commit_id = 0;
+$commit_id = null;
 $file_id = 0;
 
 
@@ -71,7 +71,7 @@ function get_prev_files($assignment)
 if (array_key_exists('type', $_REQUEST))
   $type = urldecode($_REQUEST['type']);
 else {
-  echo "Некорректное обращение";
+  echo "Некорректное обращение, отсутсвует ключ 'type'";
   http_response_code(400);
   exit;
 }
@@ -80,7 +80,7 @@ if (array_key_exists('assignment', $_REQUEST)) {
   $assignment = $_REQUEST['assignment'];
   $Assignment = new Assignment((int)$assignment);
 } else {
-  echo "Некорректное обращение";
+  echo "Некорректное обращение, отсутсвует ключ 'assignment'";
   http_response_code(400);
   exit;
 }
@@ -114,7 +114,7 @@ else if ($file_id != 0) {
   $result = pg_fetch_assoc($result);
   $file_name = $result['file_name'];
 } else if ($type != 'oncheck' && $type != 'tools' && $type != 'console' && $type != 'commit') {
-  echo "Некорректное обращение";
+  echo "Некорректное обращение, неизвестная операция";
   http_response_code(400);
   exit;
 }
@@ -126,7 +126,7 @@ if ($type == "open") {
   if (array_key_exists('id', $_REQUEST)) {
     $file_id = urldecode($_REQUEST['id']);
   } else {
-    echo "Некорректное обращение";
+    echo "Некорректное обращение, отсутствует идентификатор открываемого файла";
     http_response_code(400);
     exit;
   }
@@ -151,11 +151,11 @@ else if ($type == "save") {
 
   if (array_key_exists('likeid', $_REQUEST)) {
     $File = new File(urldecode($_REQUEST['likeid']));
-  } else if ($commit_id != 0) {
-    $Commit = new Commit($commit_id);
+  } else if ($Commit != null) {
+    // $Commit = new Commit($commit_id);
     $File = $Commit->getFileByName($file_name);
   } else {
-    echo "Некорректное обращение";
+    echo "Невозможно найти файл, который требуется сохранить";
     http_response_code(400);
     exit;
   }
@@ -239,15 +239,15 @@ else if ($type == "new") {
 //-----------------------------------------------------------------DEL---------------------------------------------------------
 else if ($type == "del") {
 
-  if ($commit_id == 0) {
-    echo "Некорректное обращение";
+  if ($Commit == null) {
+    echo "Некорректное обращение: отсутствует идентификатор коммита";
     http_response_code(400);
     exit;
   }
 
   // тут нужно монотонное возрастание id-шников файлов
 
-  $result = pg_query($dbconnect, "SELECT ax.ax_file.id from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where file_name = '$file_name' and ax.ax_commit_file.commit_id = $commit_id");
+  $result = pg_query($dbconnect, "SELECT ax.ax_file.id from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where file_name = '$file_name' and ax.ax_commit_file.commit_id = $Commit->id");
   $result = pg_fetch_assoc($result);
   if ($result === false) {
     echo "Не удалось найти удаляемый файл";
@@ -260,8 +260,8 @@ else if ($type == "del") {
 //-----------------------------------------------------------------DEL---------------------------------------------------------
 else if ($type == "rename") {
 
-  if ($commit_id == 0) {
-    echo "Некорректное обращение";
+  if ($Commit == null) {
+    echo "Некорректное обращение: отсутствует идентификатор коммита";
     http_response_code(400);
     exit;
   }
@@ -275,7 +275,7 @@ else if ($type == "rename") {
 else if ($type == "commit") {
 
   if ($Commit == null) {
-    echo "Некорректное обращение";
+    echo "Некорректное обращение: отсутствует идентификатор коммита";
     http_response_code(400);
     exit;
   }
@@ -298,7 +298,7 @@ else if ($type == "commit") {
       // header("Location:editor.php?assignment=" . $Assignment->id);
     }
   } else {
-    echo "Отсутствует commit_type";
+    echo "Некорректное обращение: отсутствует тип коммита";
     http_response_code(400);
     exit;
   }
@@ -308,7 +308,7 @@ else if ($type == "commit") {
 else if ($type == "oncheck") {
 
   if ($Commit == null) {
-    echo "Некорректное обращение";
+    echo "Некорректное обращение: отсутствует идентификатор коммита";
     http_response_code(400);
     exit;
   }
@@ -415,8 +415,8 @@ else if ($type == "oncheck") {
 //---------------------------------------------------------------TOOLS-------------------------------------------------------
 else if ($type == "tools") {
 
-  if ($commit_id == 0) {
-    echo "Некорректное обращение";
+  if ($Commit == null) {
+    echo "Некорректное обращение. Отсутствует идентификатор коммита";
     http_response_code(400);
     exit;
   }
@@ -481,13 +481,13 @@ else if ($type == "tools") {
   else if (array_key_exists('autotests', $checks['tools'])) {
     $checks["tools"]["autotests"]["test_path"] = $result["file_name"];
     @unlink($folder . '/' . $result['file_name']);
-    $myfile = fopen($folder . '/' . $result['file_name'], "w") or die("Unable to open file!");
+    $myfile = fopen($folder . '/' . $result['file_name'], "w") or die("Невозможно открыть файл ($File->name) кода теста!");
     fwrite($myfile, $result['full_text']);
     fclose($myfile);
   }
   $checks = json_encode($checks);
 
-  $myfile = fopen($folder . '/config.json', "w") or die("Unable to open file!");
+  $myfile = fopen($folder . '/config.json', "w") or die("Невозможно открыть файл конфигурации!");
   fwrite($myfile, $checks);
   fclose($myfile);
 
@@ -502,9 +502,14 @@ else if ($type == "tools") {
   // }
 
   $files = array();
-  $Commit = new Commit($commit_id);
+  // $Commit = new Commit($commit_id);
   foreach ($Commit->getFiles() as $File) {
-    $myfile = fopen($folder . '/' . $File->name, "w") or die("Unable to open file!");
+    $myfile = fopen($folder . '/' . $File->name, "w") or die("Невозможно открыть файл ($File->name) проекта!");
+    if (!$myfile) {
+      echo "Невозможно открыть файл ($File->name) проекта!";
+      http_response_code(500);
+      exit;
+    }
     fwrite($myfile, $File->getFullText());
     fclose($myfile);
     if (strtoupper($File->name) != 'MAKEFILE')
@@ -512,7 +517,7 @@ else if ($type == "tools") {
   }
 
   if (count($files) < 1) {
-    echo "Не найдено файлов для коммита " . $commit_id;
+    echo "Не найдены файлы коммита " . $Commit->id;
     http_response_code(400);
     exit;
   }
@@ -520,34 +525,168 @@ else if ($type == "tools") {
   $files_codeTest = array();
   $Task = new Task((int)getTaskByAssignment((int)$assignment));
   foreach ($Task->getCodeTestFiles() as $File) {
-    $myfile = fopen($folder . '/' . "accel_autotest.cpp", "w") or die("Unable to open file!");
+    $myfile = fopen($folder . '/' . "accel_autotest.cpp", "w");
+    if (!$myfile) {
+      echo "Невозможно открыть файл ($File->name) автотеста!";
+      http_response_code(500);
+      exit;
+    }
     fwrite($myfile, $File->getFullText());
     fclose($myfile);
     array_push($files_codeTest, "accel_autotest.cpp");
   }
 
-/*  if (count($files_codeTest) < 1) {
+  if (count($files_codeTest) < 1) {
     echo "Не найдены файлы теста!" . $Task->id;
     http_response_code(400);
     exit;
   }
-*/
 
   @unlink($folder . '/copydetect_input');
   mkdir($folder . '/copydetect_input', 0777, true);
   $prev_files = get_prev_files($assignment);
   foreach ($prev_files as $pf) {
     $cyr = [
-      'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я', 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я'
+      'а',
+      'б',
+      'в',
+      'г',
+      'д',
+      'е',
+      'ё',
+      'ж',
+      'з',
+      'и',
+      'й',
+      'к',
+      'л',
+      'м',
+      'н',
+      'о',
+      'п',
+      'р',
+      'с',
+      'т',
+      'у',
+      'ф',
+      'х',
+      'ц',
+      'ч',
+      'ш',
+      'щ',
+      'ъ',
+      'ы',
+      'ь',
+      'э',
+      'ю',
+      'я',
+      'А',
+      'Б',
+      'В',
+      'Г',
+      'Д',
+      'Е',
+      'Ё',
+      'Ж',
+      'З',
+      'И',
+      'Й',
+      'К',
+      'Л',
+      'М',
+      'Н',
+      'О',
+      'П',
+      'Р',
+      'С',
+      'Т',
+      'У',
+      'Ф',
+      'Х',
+      'Ц',
+      'Ч',
+      'Ш',
+      'Щ',
+      'Ъ',
+      'Ы',
+      'Ь',
+      'Э',
+      'Ю',
+      'Я'
     ];
     $lat = [
-      'a', 'b', 'v', 'g', 'd', 'e', 'io', 'zh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'ts', 'ch', 'sh', 'sht', 'a', 'i', 'y', 'e', 'yu', 'ya', 'A', 'B', 'V', 'G', 'D', 'E', 'Io', 'Zh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'Ts', 'Ch', 'Sh', 'Sht', 'A', 'I', 'Y', 'e', 'Yu', 'Ya'
+      'a',
+      'b',
+      'v',
+      'g',
+      'd',
+      'e',
+      'io',
+      'zh',
+      'z',
+      'i',
+      'y',
+      'k',
+      'l',
+      'm',
+      'n',
+      'o',
+      'p',
+      'r',
+      's',
+      't',
+      'u',
+      'f',
+      'h',
+      'ts',
+      'ch',
+      'sh',
+      'sht',
+      'a',
+      'i',
+      'y',
+      'e',
+      'yu',
+      'ya',
+      'A',
+      'B',
+      'V',
+      'G',
+      'D',
+      'E',
+      'Io',
+      'Zh',
+      'Z',
+      'I',
+      'Y',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'R',
+      'S',
+      'T',
+      'U',
+      'F',
+      'H',
+      'Ts',
+      'Ch',
+      'Sh',
+      'Sht',
+      'A',
+      'I',
+      'Y',
+      'e',
+      'Yu',
+      'Ya'
     ];
     $transname = str_replace($cyr, $lat, $pf["name"]);
 
     $myfile = fopen($folder . '/copydetect_input/' . $transname, "w");
     if (!$myfile) {
-      echo "Ошибка создания файлов для проверки";
+      echo "Ошибка создания файла для проверки!";
       http_response_code(500);
       exit;
     }
@@ -576,9 +715,16 @@ else if ($type == "tools") {
 	$responce = $row['autotest_results'];
 */
   /* Получение результатов проверки из файла */
+  $fileName = $folder . '/output.json';
+  if (!file_exists($fileName)) {
+    echo "Не удалось найти файл output.json в папке с результатами файлов:\n";
+    var_dump($output);
+    http_response_code(500);
+    exit;
+  }
   $myfile = fopen($folder . '/output.json', "r");
   if (!$myfile) {
-    echo "Не удалось получить результаты проверки:<br>";
+    echo "Не удалось получить результаты проверки из файла:<br>";
     var_dump($output);
     http_response_code(500);
     exit;
@@ -586,7 +732,7 @@ else if ($type == "tools") {
   $responce = fread($myfile, filesize($folder . '/output.json'));
   fclose($myfile);
 
-  pg_query($dbconnect, 'update ax.ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $commit_id);
+  pg_query($dbconnect, 'update ax.ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $Commit->id);
   /**/
 
   header('Content-Type: application/json');
@@ -596,6 +742,7 @@ else if ($type == "tools") {
 else if ($type == "console") {
   $sid = session_id();
   if (!array_key_exists('tool', $_REQUEST)) {
+    echo "Отсутсвует ключ 'tool'";
     http_response_code(400);
     exit;
   }
