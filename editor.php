@@ -132,7 +132,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
       $page_title,
       array(
         'Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id,
-        $task_title => 'taskchat.php?assignment=' . $assignment_id, $page_title => ''
+        $task_title => 'taskchat.php?assignment=' . $assignment_id,
+        $page_title => ''
       ),
       $User
     );
@@ -300,7 +301,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 <option value="php">Php</option>
                 <option value="html">Html</option>
                 <option value="css">Css</option>
-                <option value="plaintext" class="text-secondary">Default</option>
+                <option value="plaintext" class="text-secondary">Txt</option>
               </select>
             </div>
             <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>

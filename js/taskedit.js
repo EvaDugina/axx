@@ -60,9 +60,15 @@ if(task_select){
       tools.classList.add("d-none");
     else
       tools.classList.remove("d-none");
+
+    if(task_select.value == 2)
+      $('#div-mark-type').addClass("d-none");
+    else
+      $('#div-mark-type').removeClass("d-none");
+    
+    task_select.addEventListener("change", select_change);
   }
 
-  task_select.addEventListener("change", select_change);
 
   //var type = <?php echo json_encode($task["type"]); ?>;
   //alert(type);

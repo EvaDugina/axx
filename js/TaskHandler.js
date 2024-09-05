@@ -39,20 +39,23 @@ function ajaxTaskCreate(page_id) {
 
 
 
-function ajaxTaskSave(task_id, new_title = null, new_type = null, new_description = null, new_codeTest = null, new_codeCheck = null) {
+function ajaxTaskSave(task_id, new_title = null, new_type = null, new_mark_type = null, new_mark_max = null, new_description = null, new_codeTest = null, new_codeCheck = null) {
     var formData = new FormData();
-
 
     formData.append('task_id', task_id);
     formData.append('action', 'save');
 
-    if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null)
+    if (new_title == null && new_type == null && new_mark_type == null && new_mark_max == null && new_description == null && new_codeTest == null && new_codeCheck == null)
         return "EMPTY";
 
     if (new_title != null)
         formData.append('title', new_title);
     if (new_type != null)
         formData.append('type', new_type);
+    if (new_mark_type != null)
+        formData.append('markType', new_mark_type);
+    if (new_mark_max)
+        formData.append('markMax', new_mark_max);
     if (new_description != null)
         formData.append('description', new_description);
     if (new_codeTest != null)

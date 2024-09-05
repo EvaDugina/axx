@@ -9,7 +9,7 @@ class Task
   public $id;
   public $type; // 0 - обычное, 1 - программирование, 2 - общая беседа потока
   public $title, $description;
-  public $max_mark;
+  public $mark_type, $max_mark;
   public $status; // 1 - активно, 0 - архив
   public $checks;
 
@@ -32,6 +32,7 @@ class Task
       $this->title = "";
       $this->description = "";
 
+      $this->mark_type = "";
       $this->max_mark = "";
       $this->status = -1;
       $this->checks = "";
@@ -49,6 +50,7 @@ class Task
       $this->title = $task['title'];
       $this->description = $task['description'];
 
+      $this->mark_type = $task['mark_type'];
       $this->max_mark = $task['max_mark'];
       $this->status = $task['status'];
       $this->checks = $task['checks'];
@@ -60,19 +62,21 @@ class Task
       $page_id = $args[0];
       $this->type = $args[1];
       $this->status = $args[2];
+      $this->mark_type = "";
       $this->max_mark = 5;
 
       $this->pushEmptyNewToDB($page_id);
-    } else if ($count_args == 7) {
+    } else if ($count_args == 8) {
       $page_id = $args[0];
 
       $this->type = $args[1];
       $this->title = $args[2];
       $this->description = $args[3];
 
-      $this->max_mark = $args[4];
-      $this->status = $args[5];
-      $this->checks = $args[6];
+      $this->mark_type = $args[4];
+      $this->max_mark = $args[5];
+      $this->status = $args[6];
+      $this->checks = $args[7];
 
       $this->pushNewToDB($page_id);
     } else {
@@ -156,6 +160,26 @@ class Task
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function setMarkType($mark_type)
+  {
+    global $dbconnect;
+
+    $this->mark_type = $mark_type;
+
+    $query = "UPDATE ax.ax_task SET mark_type = '$this->mark_type' WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function setMarkMax($max_mark)
+  {
+    global $dbconnect;
+
+    $this->max_mark = $max_mark;
+
+    $query = "UPDATE ax.ax_task SET max_mark = '$this->max_mark' WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
   // -- END SETTERS
 
 
@@ -166,8 +190,8 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax.ax_task (page_id, type, title, description, max_mark, status) 
-              VALUES ($page_id, $this->type, \$antihype1\$$this->title\$antihype1\$, \$antihype1\$$this->description\$antihype1\$, $this->max_mark, $this->status)
+    $query = "INSERT INTO ax.ax_task (page_id, type, title, description, mark_type, max_mark, status) 
+              VALUES ($page_id, $this->type, \$antihype1\$$this->title\$antihype1\$, \$antihype1\$$this->description\$antihype1\$, '$this->mark_type', $this->max_mark, $this->status)
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -179,8 +203,8 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax.ax_task (page_id, type, status, max_mark) 
-              VALUES ($page_id, $this->type, $this->status, '$this->max_mark')
+    $query = "INSERT INTO ax.ax_task (page_id, type, status, mark_type, max_mark) 
+              VALUES ($page_id, $this->type, $this->status, '$this->mark_type', '$this->max_mark')
               RETURNING id;";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -193,7 +217,8 @@ class Task
     global $dbconnect;
 
     $query = "UPDATE ax.ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
-              description = \$antihype1\$$this->description\$antihype1\$, status = $this->status
+              description = \$antihype1\$$this->description\$antihype1\$, mark_type = '$this->mark_type', 
+              max_mark = '$this->max_mark', status = $this->status
               WHERE id = $this->id;
     ";
 
@@ -204,8 +229,8 @@ class Task
     global $dbconnect;
 
     $query = "UPDATE ax.ax_task SET type = $this->type, title = \$antihype1\$$this->title\$antihype1\$, 
-              description = \$antihype1\$$this->description\$antihype1\$, max_mark = '$this->max_mark', 
-              status = $this->status, checks = \$antihype1\$$this->checks\$antihype1\$
+              description = \$antihype1\$$this->description\$antihype1\$, mark_type = '$this->mark_type', 
+              max_mark = '$this->max_mark', status = $this->status, checks = \$antihype1\$$this->checks\$antihype1\$
               WHERE id = $this->id;
     ";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -234,6 +259,7 @@ class Task
     $this->type = $Task->type;
     $this->title = $Task->title;
     $this->description = $Task->description;
+    $this->mark_type = $Task->mark_type;
     $this->max_mark = $Task->max_mark;
     $this->status = $Task->status;
     $this->checks = $Task->checks;
@@ -243,9 +269,17 @@ class Task
     $this->addFiles($Task->getFiles());
   }
 
+
+  public function isMarkNumber()
+  {
+    if ($this->mark_type == "оценка")
+      return true;
+    return false;
+  }
+
   public function isDefault()
   {
-    if ($this->type == 1)
+    if ($this->type == 0)
       return true;
     return false;
   }

@@ -88,13 +88,39 @@ show_head("Добавление\Редактирование задания", ar
               <span id="error-input-title" class="error-input" aria-live="polite"></span>
             </div>
 
-            <div class="pt-3">
-              <label>Тип задания:</label>
-              <select id="task-type" class="form-select" aria-label=".form-select" name="task-type" <?= $Task->isConversation() ? "disabled" : "" ?>>
-                <option value="0" <?= (($Task->type == 0 || $Task->type == -1) ? "selected" : "") ?>>Обычное</option>
-                <option value="1" <?= (($Task->type == 1) ? "selected" : "") ?>>Программирование</option>
-                <option value="2" <?= (($Task->type == 2) ? "selected" : "") ?>>Беседа</option>
-              </select>
+            <div class="pt-3 d-flex">
+              <div class="w-25 me-3">
+                <label>Тип задания:</label>
+                <select id="task-type" class="form-select" aria-label=".form-select" name="task-type" <?= $Task->isConversation() ? "disabled" : "" ?>>
+                  <option value="0" <?= (($Task->isDefault()) ? "selected" : "") ?>>Обычное</option>
+                  <option value="1" <?= (($Task->isProgramming()) ? "selected" : "") ?>>Программирование</option>
+                  <option value="2" <?= (($Task->isConversation()) ? "selected" : "") ?>>Беседа</option>
+                </select>
+              </div>
+
+              <?php
+              $markType = "0";
+              ?>
+
+              <div id="div-mark-type" class="w-100 d-flex <?= (($Task->isConversation()) ? "d-none" : "") ?>">
+                <div>
+                  <label>Форма оценивания:</label>
+                  <div class="d-flex">
+                    <select id="select-markType" name="task-mark-type" class="form-select me-3" aria-label=".form-select" name="select-markType">
+                      <option value="0" <?= (($Task->isMarkNumber()) ? "selected" : "") ?>>Оценка</option>
+                      <option value="1" <?= ((!$Task->isMarkNumber()) ? "selected" : "") ?>>Зачёт</option>
+                    </select>
+                    <div id="div-markRange" class="d-flex align-items-center <?= ($Task->isMarkNumber()) ? "" : "d-none" ?> w-100">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="inputGroup-sizing-default">Максимальный балл</span>
+                        </div>
+                        <input id="input-maxMark" type="text" name="task-mark-max" class="form-control" value="<?= $Task->max_mark ?>" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="5...">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="pt-3">
@@ -296,6 +322,8 @@ show_head("Добавление\Редактирование задания", ar
 
   var original_title = $('#input-title').val();
   var original_type = $('#task-type').val();
+  var original_markType = $('#select-markType').val();
+  var original_maxMark = $('#input-maxMark').val();
   let easyMDE_value = easyMDE.value();
   var original_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
   var original_codeTest = $('#textArea-codeTest').val();
@@ -317,7 +345,7 @@ show_head("Добавление\Редактирование задания", ar
 
 
   function titleChange() {
-    if (checkTitle()) {
+    if (isTitleChanged()) {
       $('#div-border-title').children().css({
         "border-width": "4px"
       });
@@ -333,7 +361,7 @@ show_head("Добавление\Редактирование задания", ar
   }
 
   function typeChange() {
-    if (checkType()) {
+    if (isTypeChanged()) {
       $('#task-type').addClass("rounded-bottom bg-primary text-white");
       $('#task-type').children().css({
         "border-width": "4px"
@@ -347,7 +375,7 @@ show_head("Добавление\Редактирование задания", ar
   }
 
   function descriptionChange() {
-    if (checkDescription()) {
+    if (isDescriptionChanged()) {
       $('.editor-statusbar').addClass("rounded-bottom bg-primary text-white");
       $('.editor-statusbar > .autosave').text("(имеются несохранённые изменения)");
     } else {
@@ -357,7 +385,7 @@ show_head("Добавление\Редактирование задания", ar
   };
 
   function codeTestChange() {
-    if (checkCodeTest()) {
+    if (isCodeTestChanged()) {
       $('#div-border-codeTest').children().css({
         "border-width": "4px"
       });
@@ -373,7 +401,7 @@ show_head("Добавление\Редактирование задания", ar
   }
 
   function codeCheckTestChange() {
-    if (checkCodeCheck()) {
+    if (isCodeCheckChanged()) {
       $('#div-border-codeCheck').children().css({
         "border-width": "4px"
       });
@@ -389,7 +417,7 @@ show_head("Добавление\Редактирование задания", ar
   }
 
   function finishLimitChange() {
-    if (checkFinishLimit()) {
+    if (isFinishLimitChanged()) {
       $('#div-border-finishLimit').children().css({
         "border-width": "4px"
       });
@@ -412,6 +440,15 @@ show_head("Добавление\Редактирование задания", ar
     let new_files = document.getElementById("task-files").files;
     addFiles(new_files);
     $('#task-files').val("");
+
+  });
+
+  $('#select-markType').on('change', function() {
+    if ($(this).val() == 1) {
+      $('#div-markRange').addClass("d-none");
+    } else {
+      $('#div-markRange').removeClass("d-none");
+    }
 
   });
 
@@ -584,26 +621,34 @@ show_head("Добавление\Редактирование задания", ar
     if (task_id == -1)
       return;
 
-    let new_title = new_type = new_description = new_codeTest = new_codeCheck = null;
+    let new_title = new_type = new_mark_type = new_mark_max = new_description = new_codeTest = new_codeCheck = null;
 
-    if (checkTitle()) {
+    if (isTitleChanged()) {
       new_title = $('#input-title').val();
       original_title = new_title;
     }
-    if (checkType()) {
+    if (isTypeChanged()) {
       new_type = $('#task-type').val();
       original_type = new_type;
     }
-    if (checkDescription()) {
+    if (isMarkTypeChanged()) {
+      new_mark_type = $('#select-markType').val();
+      original_mark_type = new_mark_type;
+    }
+    if (isMaxMarkChanged()) {
+      new_mark_max = $('#input-maxMark').val();
+      original_mark_max = new_mark_max;
+    }
+    if (isDescriptionChanged()) {
       new_description = easyMDE.value();
       original_description = new_description.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
 
-    if (checkCodeTest()) {
+    if (isCodeTestChanged()) {
       new_codeTest = $('#textArea-codeTest').val();
       original_codeTest = new_codeTest;
     }
-    if (checkCodeCheck()) {
+    if (isCodeCheckChanged()) {
       new_codeCheck = $('#textArea-codeCheck').val();
       original_codeCheck = new_codeCheck;
     }
@@ -615,8 +660,7 @@ show_head("Добавление\Редактирование задания", ar
     // }
 
     $('#spinner-save').removeClass("d-none");
-
-    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_description, new_codeTest, new_codeCheck);
+    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_mark_type, new_mark_max, new_description, new_codeTest, new_codeCheck);
     $('#spinner-save').addClass("d-none");
 
     if (ajaxResponse != null) {
@@ -839,21 +883,21 @@ show_head("Добавление\Редактирование задания", ar
 
 
 
-  function checkTitle() {
+  function isTitleChanged() {
     let now_title = $('#input-title').val();
     if (original_title != now_title)
       return true
     return false;
   }
 
-  function checkType() {
+  function isTypeChanged() {
     let now_type = $('#task-type').val();
     if (original_type != now_type)
       return true;
     return false;
   }
 
-  function checkDescription() {
+  function isDescriptionChanged() {
     let easyMDE_value = easyMDE.value();
     let now_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     if (original_description != now_description)
@@ -862,7 +906,7 @@ show_head("Добавление\Редактирование задания", ar
     return false;
   }
 
-  function checkCodeTest() {
+  function isCodeTestChanged() {
     let now_codeTest = $('#textArea-codeTest').val();
     if (original_codeTest != now_codeTest) {
       return true;
@@ -870,7 +914,7 @@ show_head("Добавление\Редактирование задания", ar
     return false;
   }
 
-  function checkCodeCheck() {
+  function isCodeCheckChanged() {
     let now_codeCheck = $('#textArea-codeCheck').val();
     if (original_codeCheck != now_codeCheck) {
       return true;
@@ -878,7 +922,23 @@ show_head("Добавление\Редактирование задания", ar
     return false;
   }
 
-  function checkFinishLimit() {
+  function isMarkTypeChanged() {
+    let now_markType = $('#select-markType').val();
+    if (original_markType != now_markType) {
+      return true;
+    }
+    return false;
+  }
+
+  function isMaxMarkChanged() {
+    let now_maxMark = $('#input-maxMark').val();
+    if (original_maxMark != now_maxMark) {
+      return true;
+    }
+    return false;
+  }
+
+  function isFinishLimitChanged() {
     let now_finishLimit = $('#input-finishLimit').val();
     if (original_finishLimit != now_finishLimit) {
       return true;

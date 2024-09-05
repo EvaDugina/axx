@@ -101,7 +101,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'delete' && isset($_POST['tas
 
 if (isset($_POST['action']) && $_POST['action'] == "save") {
   if (isset($_POST['status'])) {
-    $Task->setStatus($_POST['status']);
+    $Task->status = $_POST['status'];
   }
 
   if (isset($_POST['title'])) {
@@ -110,6 +110,14 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
 
   if (isset($_POST['type'])) {
     $Task->type = $_POST['type'];
+  }
+
+  if (isset($_POST['markType'])) {
+    $Task->mark_type = $_POST['markType'];
+  }
+
+  if (isset($_POST['markMax'])) {
+    $Task->max_mark = $_POST['markMax'];
   }
 
   if (isset($_POST['description'])) {
