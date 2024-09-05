@@ -3,3 +3,5 @@ upload_files/
 dbparams.php
 launch.json
 .gitignore
+auth_ssh_global.class.php
+auth_ssh_dev.class.php
