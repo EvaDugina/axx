@@ -54,6 +54,7 @@ if (isset($_POST['action'])) {
 				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 			} else {
 				$query = insert_page($_POST);
+				echo $query;
 				$result = pg_query($dbconnect, $query);
 				$id = pg_fetch_all($result)[0]['id'] or die('Ошибка запроса: ' . pg_last_error());
 			}
