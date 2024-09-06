@@ -107,8 +107,8 @@ show_head("Добавление\Редактирование задания", ar
                   <label>Форма оценивания:</label>
                   <div class="d-flex">
                     <select id="select-markType" name="task-mark-type" class="form-select me-3" aria-label=".form-select" name="select-markType">
-                      <option value="0" <?= (($Task->isMarkNumber()) ? "selected" : "") ?>>Оценка</option>
-                      <option value="1" <?= ((!$Task->isMarkNumber()) ? "selected" : "") ?>>Зачёт</option>
+                      <option value="оценка" <?= (($Task->isMarkNumber()) ? "selected" : "") ?>>Оценка</option>
+                      <option value="зачёт" <?= ((!$Task->isMarkNumber()) ? "selected" : "") ?>>Зачёт</option>
                     </select>
                     <div id="div-markRange" class="d-flex align-items-center <?= ($Task->isMarkNumber()) ? "" : "d-none" ?> w-100">
                       <div class="input-group">
@@ -179,7 +179,7 @@ show_head("Добавление\Редактирование задания", ar
           </table>
 
           <div class="d-flex">
-            <button id="submit-save" class="btn btn-outline-success d-flex align-items-center" onclick="saveTask(true);">
+            <button class="btn btn-outline-success d-flex align-items-center" onclick="saveTask(true);">
               Сохранить &nbsp;
               <div id="spinner-save" class="spinner-border d-none" role="status" style="width: 1rem; height: 1rem;">
                 <span class="sr-only">Loading...</span>
