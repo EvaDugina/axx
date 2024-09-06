@@ -35,7 +35,7 @@ function parseBuildCheck($data, $enabled)
                 'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => $resFooter
             );
-        case 'skipped':
+        case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>Сборка</b><span id="build_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -50,7 +50,7 @@ function parseBuildCheck($data, $enabled)
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("build_body", "Не проверено."),
-                'footer' => ""
+                'footer' => $resFooter
             );
             break;
     }
@@ -103,7 +103,7 @@ function parseCppCheck($data, $enabled)
                 'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => $resFooter
             );
-        case 'skipped':
+        case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>CppCheck</b><span id="cppcheck_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -118,7 +118,7 @@ function parseCppCheck($data, $enabled)
                 'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("cppcheck_body", "Не проверено."),
-                'footer' => ""
+                'footer' => $resFooter
             );
             break;
     }
@@ -180,7 +180,7 @@ function parseClangFormat($data, $enabled)
                 'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => $resFooter
             );
-        case 'skipped':
+        case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>Clang-format</b><span id="clangformat_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -195,7 +195,7 @@ function parseClangFormat($data, $enabled)
                 'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("clangformat_body", "Не проверено."),
-                'footer' => ""
+                'footer' => $resFooter
             );
             break;
     }
@@ -252,7 +252,7 @@ function parseValgrind($data, $enabled)
                 'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => $resFooter
             );
-        case 'skipped':
+        case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>Valgrind</b><span id="valgrind_errors" class="rightbadge"></span><span id="valgrind_leaks" class="rightbadge"></span></div>',
                 'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -267,7 +267,7 @@ function parseValgrind($data, $enabled)
                 'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("valgrind_body", "Не проверено."),
-                'footer' => ""
+                'footer' => $resFooter
             );
             break;
     }
@@ -338,7 +338,7 @@ function parseAutoTests($data, $enabled)
                 'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => $resFooter
             );
-        case 'skipped':
+        case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>Автотесты</b><span id="autotests_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -353,7 +353,7 @@ function parseAutoTests($data, $enabled)
                 'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("autotests_body", "Не проверено."),
-                'footer' => ""
+                'footer' => $resFooter
             );
             break;
     }
@@ -407,7 +407,7 @@ function parseCopyDetect($data, $enabled)
                 'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => ''
             );
-        case 'skipped':
+        case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>Антиплагиат</b><span id="copydetect_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -441,7 +441,7 @@ function parseCopyDetect($data, $enabled)
         case 'reject':
             $boxColor = 'red';
             break;
-        case 'skipped':
+        case 'skip':
             $boxColor = 'grey';
             break;
     }

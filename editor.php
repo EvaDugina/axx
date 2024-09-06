@@ -540,7 +540,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 "reference_directory": "copydetect",
                 "autoreject": true,
                 "result": 44,
-                "outcome": "skipped"
+                "outcome": "skip"
               },
               "full_output": "output_copydetect.html",
               "outcome": "undefined"
