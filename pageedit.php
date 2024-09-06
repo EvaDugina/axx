@@ -166,18 +166,12 @@ else
 				<div class="col-lg-4 px-0">
 					<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right">
 						<select id="selectDiscipline" class="form-select" name="disc_id">
-							<option selected value="<?= ($disc_id == null) ? "null" : $disc_id ?>">
-								<?= $name ?>
-							</option>
 							<?php
-							foreach ($disciplines as $discipline) {
-								if ($discipline['name'] == $name)
-									continue; ?>
-								<option value="<?= $discipline['id'] ?>"><?= $discipline['name'] ?></option>
-							<?php }
-							if ($page_id == 0 || $Page->disc_id != null) { ?>
-								<option value="null">ДРУГОЕ</option>
+							foreach ($disciplines as $discipline) { ?>
+								<option <?= ($discipline['id'] == $Page->disc_id) ? "selected" : "" ?>
+									value="<?= $discipline['id'] ?>"><?= $discipline['name'] ?></option>
 							<?php } ?>
+							<option <?= ($discipline['id'] == $Page->disc_id) ? "selected" : "" ?> value="null">ДРУГОЕ</option>
 						</select>
 					</div>
 				</div>
