@@ -36,12 +36,11 @@ function findLanguage(file_ext) {
 
 export function determinFileLanguage(file_name) {
     let file_name_splitted = file_name.split(".");
-    if (file_name_splitted.length != 2)
-        throw new Error("не удалось определить язык файла: " + file_name + ". \nНекорректное имя файла!");
 
-    let file_ext = file_name_splitted[1];
+    let file_ext = null;
+    if (file_name_splitted.length == 2)
+        file_ext = file_name_splitted[1];
+    else
+        file_ext = "txt";
     return findLanguage(file_ext);
-
-
-
 }
