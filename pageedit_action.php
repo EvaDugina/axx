@@ -11,13 +11,6 @@ else {
 	header('Location:login.php');
 }
 
-
-
-function delete_discipline($discipline_id)
-{
-	return 'DELETE FROM ax.ax_page WHERE id =' . $discipline_id;
-}
-
 if (isset($_POST['flag-addColorTheme']) && isset($_POST['page_id']) && isset($_FILES['image-file'])) {
 	addFileToColorTheme($_POST['page_id'], $_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 22);
 	exit;
@@ -85,7 +78,11 @@ if (isset($_POST['action'])) {
 			}
 
 			$status = True;
+			break;
 
+		case "download":
+			downloadPage();
+			$status = True;
 			break;
 
 		case 'delete':
@@ -94,7 +91,6 @@ if (isset($_POST['action'])) {
 			$Page->deleteFromDB();
 
 			$status = True;
-
 			break;
 		default:
 			echo "Error: Некорректный action";
@@ -107,4 +103,54 @@ if (isset($_POST['action'])) {
 		else
 			header('Location: mainpage.php');
 	}
+}
+
+
+// 
+// FUNCTIONS
+// FUNCTIONS
+// 
+
+function downloadPage()
+{
+	$Page = new Page((int)$_POST['id']);
+
+	$zipPage = new ZipArchive();
+	$file_dir = getUploadFileDir();
+	$zip_file_path = $file_dir . time() . '.zip';
+	$simple_file_path = $file_dir . time() . '_1.zip';
+
+	$myfile = fopen($simple_file_path, "w") or die("Unable to open file!");
+	$txt = "$Page->name";
+	fwrite($myfile, $txt);
+	fclose($myfile);
+
+	if ($zipPage->open($zip_file_path, ZipArchive::CREATE) !== TRUE) {
+		exit("Невозможно открыть <$zip_file_path>");
+	}
+	$zipPage->addFile($simple_file_path, "page.txt");
+	$zipPage->close();
+
+	if (!file_exists($zip_file_path)) {
+		exit("Архива не существует");
+	}
+
+	// Даем пользователю скачать архив и удаляем его с сервера
+	header('Content-Description: File Transfer');
+	header('Content-type: application/zip');
+	header('Content-Disposition: attachment; filename=' . basename($zip_file_path));
+	header('Content-Transfer-Encoding: binary');
+	header('Content-Length: ' . filesize($zip_file_path));
+	readfile($zip_file_path);
+
+	unlink($zip_file_path);
+	unlink($simple_file_path);
+
+	exit();
+}
+
+
+function delete_discipline($discipline_id)
+{
+	return 'DELETE FROM ax.ax_page WHERE id =' . $discipline_id;
 }
