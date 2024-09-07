@@ -134,6 +134,20 @@ class Task
     return $count_success;
   }
 
+  public function getMainInfoAsTextForDowload()
+  {
+    $query_task = queryInsertTaskWithDeclaredVariablePageId($this);
+
+    $query_files = "";
+    foreach ($this->getFiles() as $File) {
+      $query_files .= "\n" . $File->getMainInfoAsTextForDowload();
+      $query_files .= "\n" . queryInsertFileToTaskDBWithDeclaredVariableTaskId();
+    }
+    $query_task .= $query_files;
+
+    return $query_task;
+  }
+
   // -- END GETTERS
 
 
@@ -190,9 +204,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax.ax_task (page_id, type, title, description, mark_type, max_mark, status) 
-              VALUES ($page_id, $this->type, \$antihype1\$$this->title\$antihype1\$, \$antihype1\$$this->description\$antihype1\$, '$this->mark_type', $this->max_mark, $this->status)
-              RETURNING id;";
+    $query = queryInsertTask($page_id, $this);
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
@@ -510,7 +522,7 @@ class Task
   {
     global $dbconnect;
 
-    $query = "INSERT INTO ax.ax_task_file (task_id, file_id) VALUES ($this->id, $file_id);";
+    $query = queryInsertFileToTaskDB($this->id, $file_id);
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
   private function pushFilesToTaskDB($Files)
@@ -651,4 +663,29 @@ function queryGetFilesByTask($task_id)
   ";
 }
 
+function queryInsertFileToTaskDB($task_id, $file_id)
+{
+  return "INSERT INTO ax.ax_task_file (task_id, file_id) VALUES ($task_id, $file_id);";
+}
+
+function queryInsertFileToTaskDBWithDeclaredVariableTaskId()
+{
+  return "INSERT INTO ax.ax_task_file (task_id, file_id) VALUES (current_task_id, current_file_id);";
+}
+
+function queryInsertTask($page_id, $Task)
+{
+  return "INSERT INTO ax.ax_task (page_id, type, title, description, mark_type, max_mark, status) 
+              VALUES ($page_id, $Task->type, \$antihype1\$$Task->title\$antihype1\$, 
+              \$antihype1\$$Task->description\$antihype1\$, \'$Task->mark_type\', $Task->max_mark, $Task->status)
+              RETURNING id;";
+}
+
+function queryInsertTaskWithDeclaredVariablePageId($Task)
+{
+  return "INSERT INTO ax.ax_task (page_id, type, title, description, mark_type, max_mark, status) 
+              VALUES (pageId, $Task->type, \$antihype1\$$Task->title\$antihype1\$, 
+              \$antihype1\$$Task->description\$antihype1\$, \'$Task->mark_type\', $Task->max_mark, $Task->status)
+              RETURNING id INTO current_task_id;";
+}
 ?>

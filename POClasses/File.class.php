@@ -112,6 +112,12 @@ class File
     }
   }
 
+  function getMainInfoAsTextForDowload()
+  {
+    $this->full_text = addslashes($this->getFullText());
+    return queryInsertFileWithFullTextWithDeclaredVariablePageId($this);
+  }
+
   function isVisible()
   {
     return $this->visibility == 1;
@@ -251,23 +257,7 @@ class File
   {
     global $dbconnect;
 
-    if ($this->full_text == null && $this->download_url != null) {
-      $query = "INSERT INTO ax.ax_file (type, visibility, file_name, download_url, status) 
-                VALUES ($this->type, $this->visibility, \$antihype1\$$this->name\$antihype1\$, '$this->download_url', $this->status) 
-                RETURNING id;
-      ";
-    } else if ($this->full_text != null && $this->download_url == null) {
-      $query = "INSERT INTO ax.ax_file (type, visibility, file_name, full_text, status) 
-                VALUES ($this->type, $this->visibility, \$antihype1\$$this->name_without_prefix\$antihype1\$, \$antihype1\$$this->full_text\$antihype1\$,
-                $this->status) 
-                RETURNING id;
-      ";
-    } else {
-      $query = "INSERT INTO ax.ax_file (type, visibility, file_name, status) 
-                VALUES ($this->type, $this->visibility, \$antihype1\$$this->name\$antihype1\$, $this->status) 
-                RETURNING id;
-      ";
-    }
+    $query = getQueryInsertFile($this);
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
@@ -463,7 +453,8 @@ function convertWebFilesToFiles($name_files)
       continue;
     } else {
       array_push($files, [
-        'name' => $_FILES[$name_files]['name'][$i], 'tmp_name' => $_FILES[$name_files]['tmp_name'][$i]
+        'name' => $_FILES[$name_files]['name'][$i],
+        'tmp_name' => $_FILES[$name_files]['tmp_name'][$i]
       ]);
     }
   }
@@ -558,4 +549,47 @@ function queryGetFileInfo($file_id)
 {
   return "SELECT * FROM ax.ax_file WHERE id = $file_id;
   ";
+}
+
+function getQueryInsertFile($File)
+{
+  if ($File->full_text == null && $File->download_url != null) {
+    return queryInsertFileWithDownloadUrl($File);
+  } else if ($File->full_text != null && $File->download_url == null) {
+    return queryInsertFileWithFullText($File);
+  } else {
+    return queryInsertFileEmpty($File);
+  }
+}
+
+function queryInsertFileWithDownloadUrl($File)
+{
+  return "INSERT INTO ax.ax_file (type, visibility, file_name, download_url, status) 
+                VALUES ($File->type, $File->visibility, \$antihype1\$$File->name\$antihype1\$, '$File->download_url', $File->status) 
+                RETURNING id;
+      ";
+}
+
+function queryInsertFileWithFullText($File)
+{
+  return "INSERT INTO ax.ax_file (type, visibility, file_name, full_text, status) 
+  VALUES ($File->type, $File->visibility, \$antihype1\$$File->name_without_prefix\$antihype1\$, \$antihype1\$$File->full_text\$antihype1\$,
+  $File->status) 
+  RETURNING id;";
+}
+
+function queryInsertFileEmpty($File)
+{
+  return "INSERT INTO ax.ax_file (type, visibility, file_name, status) 
+                VALUES ($File->type, $File->visibility, \$antihype1\$$File->name\$antihype1\$, $File->status) 
+                RETURNING id;
+      ";
+}
+
+function queryInsertFileWithFullTextWithDeclaredVariablePageId($File)
+{
+  return "INSERT INTO ax.ax_file (type, visibility, file_name, full_text, status) 
+  VALUES ($File->type, $File->visibility, \$antihype1\$$File->name_without_prefix\$antihype1\$, \$antihype1\$$File->full_text\$antihype1\$,
+  $File->status) 
+  RETURNING id INTO current_file_id;";
 }

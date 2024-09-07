@@ -177,6 +177,43 @@ class Page
       return $this->disc_name;
   }
 
+  public function getMainInfoAsTextForDowload()
+  {
+
+    //     DECLARE rowId integer;
+    // begin
+    //     INSERT INTO test_table (session_id)
+    // 	VALUES ('adsvasv') RETURNING id INTO rowId; 
+
+    // 	INSERT INTO test_table (step_num)
+    // 	VALUES (rowId); 
+    // end;
+    $query_page = "
+    CREATE procedure downloadPage$this->id() language plpgsql AS E'
+    DECLARE 
+      pageId  integer;
+      current_task_id  integer;
+      current_file_id  integer;  
+    BEGIN\n";
+
+    $query_page .= queryInsertMainPage($this);
+
+    $query_tasks = "";
+    foreach ($this->getTasks() as $Task) {
+      $query_tasks .= "\n" . $Task->getMainInfoAsTextForDowload();
+    }
+    $query_page .= $query_tasks;
+
+    $query_page .= "
+    END;
+    ';
+    CALL downloadPage$this->id();
+    DROP PROCEDURE downloadPage$this->id();";
+
+    return $query_page;
+  }
+
+
 
 
   // WORK WITH PAGE
@@ -185,53 +222,7 @@ class Page
   {
     global $dbconnect;
 
-    $disc_sql = "";
-    if ($this->disc_id == null) {
-      $disc_sql = "null";
-    } else {
-      $disc_sql = "$this->disc_id";
-    }
-
-    $name_sql = "";
-    if ($this->name == null) {
-      $name_sql = "null";
-    } else {
-      $name_sql = "\$antihype1\$$this->name\$antihype1\$";
-    }
-
-    $year_sql = "";
-    if ($this->year == null) {
-      $year_sql = "null";
-    } else {
-      $year_sql = "$this->year";
-    }
-
-    $semester_sql = "";
-    if ($this->semester == null) {
-      $semester_sql = "null";
-    } else {
-      $semester_sql = "$this->semester";
-    }
-
-    $color_theme_sql = "";
-    if ($this->color_theme_id == null) {
-      $color_theme_sql = "null";
-    } else {
-      $color_theme_sql = "$this->color_theme_id";
-    }
-
-    $description_sql = "";
-    if ($this->description == null) {
-      $description_sql = "null";
-    } else {
-      $description_sql = "\$antihype1\$$this->description\$antihype1\$";
-    }
-
-    $query = "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
-              creator_id, creation_date, description, type, status) 
-              VALUES ($disc_sql, $name_sql, $year_sql, $semester_sql, $color_theme_sql, 
-              $this->creator_id, now(), $description_sql, $this->type, $this->status) 
-              RETURNING id";
+    $query = queryInsertPage($this);
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $result = pg_fetch_assoc($pg_query);
@@ -771,4 +762,93 @@ function queryGetPagesByTeacher($teacher_id)
 function queryGetAllPages()
 {
   return "SELECT ax.ax_page.id FROM ax.ax_page";
+}
+
+
+function queryInsertPage($Page)
+{
+
+  $disc_sql = "";
+  if ($Page->disc_id == null) {
+    $disc_sql = "null";
+  } else {
+    $disc_sql = "$Page->disc_id";
+  }
+
+  $name_sql = "";
+  if ($Page->name == null) {
+    $name_sql = "null";
+  } else {
+    $name_sql = "\$antihype1\$$Page->name\$antihype1\$";
+  }
+
+  $year_sql = "";
+  if ($Page->year == null) {
+    $year_sql = "null";
+  } else {
+    $year_sql = "$Page->year";
+  }
+
+  $semester_sql = "";
+  if ($Page->semester == null) {
+    $semester_sql = "null";
+  } else {
+    $semester_sql = "$Page->semester";
+  }
+
+  $color_theme_sql = "";
+  if ($Page->color_theme_id == null) {
+    $color_theme_sql = "null";
+  } else {
+    $color_theme_sql = "$Page->color_theme_id";
+  }
+
+  $description_sql = "";
+  if ($Page->description == null) {
+    $description_sql = "null";
+  } else {
+    $description_sql = "\$antihype1\$$Page->description\$antihype1\$";
+  }
+
+  return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
+            creator_id, creation_date, description, type, status) 
+            VALUES ($disc_sql, $name_sql, $year_sql, $semester_sql, $color_theme_sql, 
+            $Page->creator_id, now(), $description_sql, $Page->type, $Page->status) 
+            RETURNING id;";
+}
+
+function queryInsertMainPage($Page)
+{
+  $name_sql = "";
+  if ($Page->name == null) {
+    $name_sql = "null";
+  } else {
+    $name_sql = "\$antihype1\$$Page->name (copy)\$antihype1\$";
+  }
+
+  $year_sql = "";
+  if ($Page->year == null) {
+    $year_sql = "null";
+  } else {
+    $year_sql = "$Page->year";
+  }
+
+  $semester_sql = "";
+  if ($Page->semester == null) {
+    $semester_sql = "null";
+  } else {
+    $semester_sql = "$Page->semester";
+  }
+
+  $description_sql = "";
+  if ($Page->description == null) {
+    $description_sql = "null";
+  } else {
+    $description_sql = "\$antihype1\$$Page->description\$antihype1\$";
+  }
+
+  return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
+  creator_id, creation_date, description, type, status)
+  VALUES (null, $name_sql, $year_sql, $semester_sql, 0, $Page->creator_id, now(), $description_sql, $Page->type, $Page->status) 
+  RETURNING id INTO pageId;";
 }

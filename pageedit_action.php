@@ -81,7 +81,7 @@ if (isset($_POST['action'])) {
 			break;
 
 		case "download":
-			downloadPage();
+			downloadPage((int)$_POST['id']);
 			$status = True;
 			break;
 
@@ -111,24 +111,23 @@ if (isset($_POST['action'])) {
 // FUNCTIONS
 // 
 
-function downloadPage()
+function downloadPage($page_id)
 {
-	$Page = new Page((int)$_POST['id']);
-
-	$zipPage = new ZipArchive();
 	$file_dir = getUploadFileDir();
-	$zip_file_path = $file_dir . time() . '.zip';
-	$simple_file_path = $file_dir . time() . '_1.zip';
+	$simple_file_path = $file_dir . time() . '_temp.txt';
 
+	$Page = new Page($page_id);
 	$myfile = fopen($simple_file_path, "w") or die("Unable to open file!");
-	$txt = "$Page->name";
+	$txt = $Page->getMainInfoAsTextForDowload();
 	fwrite($myfile, $txt);
 	fclose($myfile);
 
+	$zipPage = new ZipArchive();
+	$zip_file_path = $file_dir . time() . '_temp.zip';
 	if ($zipPage->open($zip_file_path, ZipArchive::CREATE) !== TRUE) {
 		exit("Невозможно открыть <$zip_file_path>");
 	}
-	$zipPage->addFile($simple_file_path, "page.txt");
+	$zipPage->addFile($simple_file_path, "insert_page.sql");
 	$zipPage->close();
 
 	if (!file_exists($zip_file_path)) {
@@ -140,10 +139,11 @@ function downloadPage()
 	header('Content-type: application/zip');
 	header('Content-Disposition: attachment; filename=' . basename($zip_file_path));
 	header('Content-Transfer-Encoding: binary');
-	header('Content-Length: ' . filesize($zip_file_path));
-	readfile($zip_file_path);
+	// header('Content-Length: ' . filesize($zip_file_path));
 
+	readfile($zip_file_path);
 	unlink($zip_file_path);
+
 	unlink($simple_file_path);
 
 	exit();
