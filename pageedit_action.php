@@ -127,7 +127,7 @@ function downloadPage($page_id)
 	if ($zipPage->open($zip_file_path, ZipArchive::CREATE) !== TRUE) {
 		exit("Невозможно открыть <$zip_file_path>");
 	}
-	$zipPage->addFile($simple_file_path, "insert_page.sql");
+	$zipPage->addFile($simple_file_path, time() . "_insertPage_$Page->id.sql");
 	$zipPage->close();
 
 	if (!file_exists($zip_file_path)) {
