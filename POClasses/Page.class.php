@@ -4,6 +4,7 @@ require_once("./settings.php");
 require_once("Task.class.php");
 require_once("User.class.php");
 require_once("Group.class.php");
+require_once("ColorTheme.class.php");
 
 
 class Page
@@ -12,7 +13,7 @@ class Page
   public $id;
   public $disc_id, $disc_name;
   public $name, $year, $semester;
-  public $color_theme_id;
+  public $ColorTheme;
   public $creator_id, $creation_date;
   public $description;
   public $type; // 0 - обычное, 1 - внесеместровое
@@ -51,7 +52,7 @@ class Page
       $this->year = $page['year'];
       $this->semester = $page['semester'];
 
-      $this->color_theme_id = $page['color_theme_id'];
+      $this->ColorTheme = new ColorTheme((int)$page['color_theme_id']);
 
       $this->creator_id = $page['creator_id'];
       $this->creation_date = $page['creation_date'];
@@ -73,7 +74,7 @@ class Page
       $this->disc_id = null;
       $this->name = null;
 
-      $this->color_theme_id = null;
+      $this->ColorTheme = new ColorTheme(-1);
       $this->creator_id = $args[0];
       $this->type = 1;
       $this->status = 1;
@@ -84,7 +85,7 @@ class Page
       $this->disc_id = $args[0];
       $this->name = $args[1];
 
-      $this->color_theme_id = $args[2];
+      $this->ColorTheme = new ColorTheme($args[2]);
       $this->creator_id = $args[3];
       $this->type = 1;
       $this->status = 1;
@@ -97,7 +98,7 @@ class Page
       $this->year = $args[2];
       $this->semester = $args[3];
 
-      $this->color_theme_id = $args[4];
+      $this->ColorTheme = new ColorTheme($args[4]);
       $this->creator_id = $args[5];
 
       $this->description = $args[6];
@@ -240,8 +241,10 @@ class Page
       $disc_sql = "disc_id = $this->disc_id";
     }
 
+    $color_theme_id = $this->ColorTheme->id;
+
     $query = "UPDATE ax.ax_page SET short_name =\$antihype1\$$this->name\$antihype1\$, " . $disc_sql . ", year=$this->year, semester=$this->semester,
-              color_theme_id=$this->color_theme_id, description=$this->description, type = $this->type, status=$this->status
+              color_theme_id=$color_theme_id, description=$this->description, type = $this->type, status=$this->status
               WHERE id =$this->id;
     ";
 
@@ -258,7 +261,7 @@ class Page
     $query = "DELETE FROM ax.ax_page_prep WHERE page_id = $this->id;";
     $query .= "DELETE FROM ax.ax_page_group WHERE page_id = $this->id;";
 
-    deleteColorThemeFromDB($this->id, $this->getColorThemeSrcUrl());
+    $this->ColorTheme->deleteFromDB();
 
     $query .= "DELETE FROM ax.ax_page WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -266,7 +269,7 @@ class Page
 
   function getColorThemeSrcUrl()
   {
-    return getColorThemeSrcUrlById($this->color_theme_id);
+    return $this->ColorTheme->getSrcUrl();
   }
 
   // -- END WORK WITH PAGE
@@ -572,29 +575,6 @@ class Page
   }
 }
 
-function getColorThemeSrcUrlById($color_theme_id)
-{
-  global $dbconnect;
-
-  $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl($color_theme_id));
-  $result = pg_fetch_assoc($pg_query);
-  if ($result)
-    return $result['src_url'];
-  else {
-    $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(-1)) or die('Ошибка запроса: ' . pg_last_error());
-    return pg_fetch_assoc($pg_query)['src_url'];
-  }
-}
-
-function deleteColorThemeFromDB($color_theme_id, $src_url)
-{
-  global $dbconnect;
-
-  deleteFile($src_url);
-  $query = "DELETE FROM ax.ax_color_theme WHERE id = $color_theme_id;";
-  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-}
-
 
 // TODO: Протестировать!
 function getTasksByPage($page_id)
@@ -681,18 +661,10 @@ function getPageByTask($task_id)
 
 function queryGetPageInfo($page_id)
 {
-  return "SELECT p.*, ax.ax_color_theme.bg_color, ax.ax_color_theme.src_url, d.name as disc_name
+  return "SELECT p.*, d.name as disc_name
           FROM ax.ax_page as p
-          LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           LEFT JOIN discipline d ON d.id = p.disc_id
           WHERE p.id = $page_id;
-  ";
-}
-
-function queryGetColorThemeSrcUrl($color_theme_id)
-{
-  return "SELECT src_url FROM ax.ax_color_theme 
-          WHERE id = $color_theme_id;
   ";
 }
 
@@ -731,24 +703,10 @@ function queryGetTeachersByPage($page_id)
   return "SELECT ax.ax_page_prep.prep_user_id as id FROM ax.ax_page_prep WHERE page_id = $page_id ORDER BY prep_user_id";
 }
 
-
-function querySetColorThemeId($page_id, $color_theme_id)
-{
-  return "UPDATE ax.ax_page SET color_theme_id = $color_theme_id WHERE id = $page_id;
-          SELECT src_url FROM ax.ax_color_theme WHERE id = $color_theme_id;";
-}
-
 function querySetDiscId($page_id, $disc_id)
 {
   return "UPDATE ax.ax_page SET disc_id = $disc_id WHERE id = $page_id;
   SELECT name FROM discipline WHERE id = $disc_id;";
-}
-
-function queryCreateColorTheme($page_id, $src_url)
-{
-  return "INSERT INTO ax.ax_color_theme (page_id, src_url, status)
-          VALUES ($page_id, '$src_url', 0) RETURNING id;
-  ";
 }
 
 function queryGetPagesByTeacher($teacher_id)
@@ -796,12 +754,7 @@ function queryInsertPage($Page)
     $semester_sql = "$Page->semester";
   }
 
-  $color_theme_sql = "";
-  if ($Page->color_theme_id == null) {
-    $color_theme_sql = "null";
-  } else {
-    $color_theme_sql = "$Page->color_theme_id";
-  }
+  $color_theme_id = $Page->ColorTheme->id;
 
   $description_sql = "";
   if ($Page->description == null) {
@@ -812,7 +765,7 @@ function queryInsertPage($Page)
 
   return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
             creator_id, creation_date, description, type, status) 
-            VALUES ($disc_sql, $name_sql, $year_sql, $semester_sql, $color_theme_sql, 
+            VALUES ($disc_sql, $name_sql, $year_sql, $semester_sql, $color_theme_id, 
             $Page->creator_id, now(), $description_sql, $Page->type, $Page->status) 
             RETURNING id;";
 }

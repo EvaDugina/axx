@@ -334,7 +334,7 @@ else
 											</svg>
 										</div>
 									</div>
-									<p class="text-black mb-0" style="font-size:xx-small;">Допустимые пропорции ширины к высоте: 4 к 3</p>
+									<p class="text-black mb-0" style="font-size:xx-small;">Рекомендуемая пропорция <strong>4 к 3</strong></p>
 								</div>
 							</div>
 
@@ -482,16 +482,14 @@ else
 			let img = new Image();
 			var objectUrl = _URL.createObjectURL(new_file);
 			img.onload = function() {
-				// alert(this.width + " " + this.height);
-				let size = this.height / this.width;
-				if (0.74 <= size && size <= 0.76) {
-					page_id = getPageId();
-					$('#input-pageId').val(page_id);
-					saveFieldsWithoutChecking();
-					ajaxAddColorTheme(new_file);
-				} else {
-					alert("Некорректные размеры картинки!");
-				}
+				page_id = getPageId();
+				$('#input-pageId').val(page_id);
+				saveFieldsWithoutChecking();
+				ajaxAddColorTheme(new_file);
+				// if (0.7 <= size && size <= 0.9) {
+				// } else {
+				// 	alert("Некорректные размеры картинки!");
+				// }
 			};
 			img.src = objectUrl;
 

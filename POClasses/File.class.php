@@ -533,9 +533,7 @@ function addFileToColorTheme($page_id, $file_name, $file_tmp_name, $type)
   if (move_uploaded_file($file_tmp_name, $file_path)) {
 
     $File->setDownloadUrl($file_path);
-    $query = queryCreateColorTheme($page_id, $File->download_url);
-    $result = pg_query($dbconnect, $query);
-    echo $result;
+    new ColorTheme($page_id, $File->download_url);
     return $File->id;
   } else {
     exit("Ошибка загрузки файла");

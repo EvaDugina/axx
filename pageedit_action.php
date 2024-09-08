@@ -17,7 +17,8 @@ if (isset($_POST['flag-addColorTheme']) && isset($_POST['page_id']) && isset($_F
 }
 
 if (isset($_POST['flag-deleteColorTheme']) && isset($_POST['color_theme_id'])) {
-	deleteColorThemeFromDB($_POST['color_theme_id'], getColorThemeSrcUrlById($_POST['color_theme_id']));
+	$ColorTheme = new ColorTheme((int)$_POST['color_theme_id']);
+	$ColorTheme->deleteFromDB();
 	exit;
 }
 
