@@ -136,6 +136,8 @@ class Task
 
   public function getMainInfoAsTextForDowload()
   {
+    $this->title = addslashes($this->title);
+    $this->description = addslashes($this->description);
     $query_task = queryInsertTaskWithDeclaredVariablePageId($this);
 
     $query_files = "";

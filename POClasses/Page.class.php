@@ -823,7 +823,7 @@ function queryInsertMainPage($Page)
   if ($Page->name == null) {
     $name_sql = "null";
   } else {
-    $name_sql = "\$antihype1\$$Page->name (copy)\$antihype1\$";
+    $name_sql = addslashes("\$antihype1\$$Page->name (copy)\$antihype1\$");
   }
 
   $year_sql = "";

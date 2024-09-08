@@ -115,6 +115,7 @@ class File
   function getMainInfoAsTextForDowload()
   {
     $this->full_text = addslashes($this->getFullText());
+    $this->name = addslashes($this->name);
     return queryInsertFileWithFullTextWithDeclaredVariablePageId($this);
   }
 
