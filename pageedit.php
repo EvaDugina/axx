@@ -168,10 +168,10 @@ else
 						<select id="selectDiscipline" class="form-select" name="disc_id">
 							<?php
 							foreach ($disciplines as $discipline) { ?>
-								<option <?= ($discipline['id'] == $Page->disc_id) ? "selected" : "" ?>
+								<option <?= ($Page != null && $discipline['id'] == $Page->disc_id) ? "selected" : "" ?>
 									value="<?= $discipline['id'] ?>"><?= $discipline['name'] ?></option>
 							<?php } ?>
-							<option <?= ($discipline['id'] == $Page->disc_id) ? "selected" : "" ?> value="null">ДРУГОЕ</option>
+							<option <?= ($Page == null || $discipline['id'] == $Page->disc_id) ? "selected" : "" ?> value="null">ДРУГОЕ</option>
 						</select>
 					</div>
 				</div>
@@ -353,7 +353,9 @@ else
 				</div>
 			</div>
 
-			<input name="creator_id" value="<?= $_SESSION['hash'] ?>" style="display: none;">
+			<?php if ($isNewPage) { ?>
+				<input name="creator_id" value="<?= $au->getUserId() ?>" style="display: none;">
+			<?php } ?>
 
 			<div class="row mx-2">
 				<div class="col-lg-2 row justify-content-left">

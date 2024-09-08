@@ -194,7 +194,7 @@ else if ($type == "save") {
 //-----------------------------------------------------------------NEW--------------------------------------------------------
 else if ($type == "new") {
 
-  // $result = pg_query($dbconnect, "select id from students where login='" . $_SESSION['login'] . "'");
+  // $result = pg_query($dbconnect, "select id from students where login='" . $au->getUserLogin() . "'");
   // $result = pg_fetch_all($result);
   // $user_id = $result[0]['id'];
 
@@ -204,7 +204,7 @@ else if ($type == "new") {
 
   // if ($commit_id == 0) {
   //   // создать первый коммит, если его нет
-  //   $result = pg_query($dbconnect, "select id from students where login='" . $_SESSION['login'] . "'");
+  //   $result = pg_query($dbconnect, "select id from students where login='" . $au->getUserLogin() . "'");
   //   $result = pg_fetch_all($result);
   //   $user_id = $result[0]['id'];
 
@@ -320,7 +320,7 @@ else if ($type == "oncheck") {
   // $new_id = 0;
 
   if (count($Commit->getFiles()) > 0) {
-    // $result = pg_query($dbconnect, "select id, role from students where login='" . $_SESSION['login'] . "'");
+    // $result = pg_query($dbconnect, "select id, role from students where login='" . $au->getUserLogin() . "'");
     // $result = pg_fetch_all($result);
     // $user_id = $result[0]['id'];
     // // $user_role = $result[0]['role'];

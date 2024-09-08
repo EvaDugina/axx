@@ -158,7 +158,7 @@ $disc_count = pg_fetch_all($result1);
                 $result = pg_query($dbconnect, $query);
                 $notify_count = pg_fetch_assoc($result);
 
-                $query = select_notify_by_page_for_mainpage($_SESSION['hash'], $page['id']);
+                $query = select_notify_by_page_for_mainpage($au->getUserId(), $page['id']);
                 $result = pg_query($dbconnect, $query);
                 $array_notify = pg_fetch_all($result);
 

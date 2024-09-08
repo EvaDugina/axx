@@ -24,7 +24,7 @@ if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
 $Page = new Page((int)$_GET['page']);
 
 // получение параметров запроса
-$user_id = $_SESSION['hash'];
+$user_id = $au->getUserId();
 $page_id = 0;
 
 if (array_key_exists('page', $_REQUEST) && isset($_GET['page']))
@@ -290,12 +290,6 @@ if ($scripts) echo $scripts;
                 </div>
 
               <?php } ?>
-
-              <?php
-              // $query = select_unchecked_by_page($_SESSION['hash'], $page_id);
-              // $result = pg_query($dbconnect, $query);
-              // $array_notify = pg_fetch_all($result);
-              ?>
 
               <div class="my-4 pt-2">
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -661,6 +655,8 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id)
 
 function show_preptable_message($message, $flag_marked_message = false)
 {
+  global $user_id;
+
   if ($message == null || $message['type'] == 0)
     return;
 
@@ -680,7 +676,7 @@ function show_preptable_message($message, $flag_marked_message = false)
     // is student message need to be checked
     $Message = new Message((int)$message['mid']);
     $Task = new Task((int)$message['tid']);
-    $message_text .= getPopoverContent($Message, $Task, $message['aid'], $_SESSION['hash']);
+    $message_text .= getPopoverContent($Message, $Task, $message['aid'], $user_id);
   } else {
     $message_text .= generate_message_for_student_task_commit($message['task']);
     if ($message['type'] != 1) {
