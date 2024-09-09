@@ -17,7 +17,7 @@ class Assignment
 
   public $delay = null; // не понятно, зачем нужно
   public $mark = null;
-  public $status = null; // -1 - недоступно для выполнения, 0 - ожидает выполнения, 1 - ожидает проверки, 2 - проверено
+  public $status = null; // -1 - недоступно для выполнения, 0 - ожидает выполнения, 1 - ожидает проверки, 2 / 4 - проверено
   public $checks = null;
   // public $new = false;
 
@@ -223,13 +223,23 @@ class Assignment
   {
     global $dbconnect;
 
+    if ($mark == "")
+      $mark = null;
+
     $this->mark = $mark;
 
-    $query = "UPDATE ax.ax_assignment SET mark = '$mark', status = 4, status_text = 'выполнено' 
+    if ($mark != null) {
+      $status = 4;
+      $query = "UPDATE ax.ax_assignment SET mark = '$mark', status = 4
               WHERE id = $this->id;";
+    } else {
+      $status = 0;
+      $query = "UPDATE ax.ax_assignment SET mark = null, status = 0
+              WHERE id = $this->id;";
+    }
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
-    $this->setStatus(4);
+    $this->setStatus($status);
   }
 
   // -- END SETTERS

@@ -248,7 +248,7 @@ if ($scripts) echo $scripts;
                                   $last_Message = $Assignment->getLastAnswerMessage();
                                   $last_message_Student = new User((int)$last_Message->sender_user_id);
                                 ?>
-                                  <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showTdPopover(this);" style="cursor: pointer;" data-toggle="popover" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id) ?>">
+                                  <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showTdPopover(this);" style="cursor: pointer;" data-toggle="popover" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id, $Assignment->mark) ?>">
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
                                       <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
                                       else getSVGByAssignmentStatus(4); ?>
@@ -268,7 +268,7 @@ if ($scripts) echo $scripts;
                                     </span>
                                   </td>
                                 <?php } else { ?>
-                                  <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,'<?= $Task->mark_type ?>',<?= $Task->max_mark ?>);" style="cursor: pointer;" data-title="Оценить задание">
+                                  <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,'<?= $Task->mark_type ?>',<?= $Task->max_mark ?>, '<?= $Assignment->mark ?>');" style="cursor: pointer;" data-title="Оценить задание">
 
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
                                       <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
@@ -562,6 +562,21 @@ if ($scripts) echo $scripts;
             </button>
           </div>
 
+          <div id="dialogCheckTask-div-reject-check" class="d-flex flex-row justify-content-end my-1">
+            <button id="button-reject-check" class="btn btn-danger d-flex justify-content-center" target="_blank" type="submit" name="reject-check" style="width: 100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+              </svg>
+              <div class="d-flex align-items-center">
+                &nbsp;&nbsp;Отменить оценку&nbsp;
+                <div id="spinner-reject-check" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -620,7 +635,7 @@ if ($scripts) echo $scripts;
 <?php } ?>
 
 <?php
-function getPopoverContent($Message, $Task, $assignment_id, $user_id)
+function getPopoverContent($Message, $Task, $assignment_id, $user_id, $current_mark)
 {
   $data_mdb_content = "";
 
@@ -630,11 +645,11 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id)
   $data_mdb_content .= "
   <div class='d-flex flex-column mt-1'>
     <div class='d-flex w-100 justify-content-between mb-1'>
-      <a href=&quot;javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", &#39;" . $Task->mark_type . "&#39;, " . $Task->max_mark . ");&quot;
+      <a href=&quot;javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", &#39;" . $Task->mark_type . "&#39;, " . $Task->max_mark . ", &#39;$current_mark&#39;);&quot;
       type='message' class='btn btn-outline-success w-100 me-1'>
         Зачесть
       </a> 
-      <a href='javascript:answerPress(0," . $Message->id . ", " . $assignment_id . ", " . $user_id . ")' 
+      <a href='javascript:answerPress(0," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", &#39;$current_mark&#39;)' 
       type='message' class='btn btn-outline-dark w-100'>
         Ответить
       </a>
@@ -744,6 +759,12 @@ function generate_message_for_student_task_commit($task_title)
       alert("Не выбрана оценка!");
   });
 
+
+
+  $('#button-reject-check').on('click', function() {
+    markAssignment(CHOOSED_ASSIGNMENT_ID, "");
+  });
+
   $('#button-check-word').on('click', function() {
     markAssignment(CHOOSED_ASSIGNMENT_ID, "зачтено");
   });
@@ -752,8 +773,9 @@ function generate_message_for_student_task_commit($task_title)
     if (assignment_id != null) {
 
       let spinner_id = "";
-      if (mark != "зачтено") spinner_id = "spinner-mark";
-      else spinner_id = 'spinner-check-word';
+      if (mark == "зачтено") spinner_id = 'spinner-check-word';
+      else if (mark != "") spinner_id = "spinner-mark";
+      else spinner_id = "reject-check";
 
       $('#' + spinner_id).removeClass("d-none");
       let ajaxResponse = ajaxAssignmentMark(assignment_id, mark, USER_ID);

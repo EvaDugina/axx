@@ -215,7 +215,7 @@ var user_id = null;
 var sender_user_type = null;
 var reply_id = null;
 
-function answerPress(answer_type, message_id, f_assignment_id, f_user_id, mark_type = null, max_mark = null) {
+function answerPress(answer_type, message_id, f_assignment_id, f_user_id, mark_type = null, max_mark = null, current_mark = null) {
   assignment_id = f_assignment_id;
   user_id = f_user_id;
   reply_id = message_id;
@@ -224,12 +224,10 @@ function answerPress(answer_type, message_id, f_assignment_id, f_user_id, mark_t
   if (answer_type == 2) { // mark
     //const dialog = document.getElementById('dialogMark');
 
-    // document.getElementById('dialogMarkMessageId').value = message_id;
-    // if (max_mark == null)
-    //   max_mark = 5;
-    // document.getElementById('dialogMarkMarkInput').max = max_mark;
-    // document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
-    // $('#dialogMark').modal('show');
+    if (current_mark != null && current_mark.trim() != "") {
+      $('#dialogCheckTask-div-reject-check').removeClass("d-none");
+    } else
+      $('#dialogCheckTask-div-reject-check').addClass("d-none");
 
     if (mark_type == "оценка") {
       $('#dialogCheckTask-div-check-word').addClass("d-none");
