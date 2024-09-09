@@ -86,6 +86,11 @@ if (isset($_POST['action'])) {
 			$status = True;
 			break;
 
+		case "clone":
+			clonePage((int)$_POST['id']);
+			$status = True;
+			break;
+
 		case 'delete':
 			var_dump($_POST['id']);
 			$Page = new Page($_POST['id']);
@@ -148,6 +153,15 @@ function downloadPage($page_id)
 	unlink($simple_file_path);
 
 	exit();
+}
+
+function clonePage($page_id)
+{
+	global $dbconnect;
+
+	$Page = new Page($page_id);
+	$query = $Page->getMainInfoAsTextForDowload();
+	pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 }
 
 
