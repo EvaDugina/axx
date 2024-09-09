@@ -4,7 +4,6 @@
 
 require_once("common.php");
 require_once("utilities.php");
-require_once("strings.php");
 
 if (isset($_POST['changeVisibility'])) {
 

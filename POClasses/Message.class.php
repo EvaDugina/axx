@@ -428,7 +428,18 @@ class Message
 
 
 
+// 
+// 
+// 
+// 
 
+function getMessageAssignmentCompleted($mark)
+{
+  if ($mark != "зачтено")
+    return "Задание оценено! \nОценка: $mark";
+  else
+    return "Задание зачтено!";
+}
 
 
 function getCommitByMessage($message_id)

@@ -968,7 +968,7 @@ $task_number = explode('.', $task_title)[0];
       let message_text = "";
       $.ajax({
         type: "POST",
-        url: 'strings.php#content',
+        url: 'messageHandler.php#content',
         cache: false,
         async: false,
         contentType: false,
