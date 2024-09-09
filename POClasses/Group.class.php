@@ -89,6 +89,12 @@ class Group
       return true;
     return false;
   }
+  public function isElseType()
+  {
+    if ($this->type == 3)
+      return true;
+    return false;
+  }
 }
 
 

@@ -242,7 +242,7 @@ else
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
 								foreach ($Groups as $Group) { ?>
-									<option value="<?= $Group->id ?>" class="d-flex justify-content-between"><?= $Group->name ?>, <?= $Group->getTextType() ?> &nbsp;<?= ($Group->isOld()) ? "| &nbsp; (выпущенная)" : "" ?></option>
+									<option value="<?= $Group->id ?>" class="d-flex justify-content-between"><?= $Group->name ?><?= (!$Group->isElseType()) ? ", " . $Group->getTextType() . "&nbsp;" : "" ?> <?= ($Group->isOld()) ? "| &nbsp; (выпущенная)" : "" ?></option>
 								<?php }
 								echo "<option>Нет учебной группы</option>";
 								?>
