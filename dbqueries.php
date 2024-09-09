@@ -537,10 +537,6 @@ function select_discipline_name_by_page($page_id)
 
 
 // ДЕЙСТВИЯ С ГРУППАМИ
-function select_groups()
-{
-  return 'SELECT * FROM groups';
-}
 
 function select_ax_page_group($page_id, $group_id)
 {

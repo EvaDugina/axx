@@ -76,9 +76,7 @@ $query = select_all_teachers();
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $teachers = pg_fetch_all($result);
 
-$query = select_groups();
-$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-$groups = pg_fetch_all($result);
+$Groups = getAllGroups();
 
 $page = null;
 $Page = null;
@@ -234,7 +232,7 @@ else
 			<div id="div-students-groups" class="mb-4 <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "d-none" : "" ?>">
 				<div class="row align-items-center mx-3 pe-group-upper">
 					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
-					<div id="groups_container" class="col-lg-10 px-0" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
+					<div id="groups_container" class="col-lg-10 d-flex align-items-center flex-wrap px-0" style="background: #fff8e0;"></div>
 				</div>
 
 				<div class="row align-items-center mx-3 pe-group-lower mb-4">
@@ -243,8 +241,8 @@ else
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
-								foreach ($groups as $page_group) { ?>
-									<option value="<?= $page_group['id'] ?>"><?= $page_group['name'] ?></option>
+								foreach ($Groups as $Group) { ?>
+									<option value="<?= $Group->id ?>" class="d-flex justify-content-between"><?= $Group->name ?>, <?= $Group->getTextType() ?> &nbsp;<?= ($Group->isOld()) ? "| &nbsp; (выпущенная)" : "" ?></option>
 								<?php }
 								echo "<option>Нет учебной группы</option>";
 								?>
@@ -647,7 +645,7 @@ else
 		let element = document.createElement("div");
 
 		//element.classList.add("col-lg-2");
-		element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 badge badge-primary text-wrap teacher-element");
+		element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 my-1 badge badge-primary text-wrap teacher-element");
 		element.id = "t-" + id;
 
 		let text = document.createElement("span");
