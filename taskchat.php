@@ -302,35 +302,38 @@ $task_number = explode('.', $task_title)[0];
 
               <?php if ($au->isAdminOrPrep()) { // Оценить отправленное на проверку задание 
               ?>
-                <div class="d-flex flex-row justify-content-end my-1">
-                  <div class="file-input-wrapper me-1">
-                    <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
-                      <option hidden value="-1"></option>
-                      <?php for ($i = 1; $i <= $task_max_mark; $i++) { ?>
-                        <option value="<?= $i ?>"><?= $i ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                  <button id="button-check" class="btn btn-success" target="_blank" type="button" name="submit-check" style="width: 100%;" onclick="markAssignment($('#select-mark').val())">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
-                      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
-                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-                    </svg>&nbsp;&nbsp;Оценить ответ</button>
-                </div>
-                <div class="d-flex flex-row justify-content-end my-1">
-                  <button id="button-check-word" class="btn btn-primary d-flex justify-content-center" target="_blank" type="button" name="submit-check" style="width: 100%;" onclick="markAssignment('зачтено')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
-                      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
-                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-                    </svg>
-                    <div class="d-flex align-items-center">
-                      &nbsp;&nbsp;Зачесть&nbsp;
-                      <div id="spinner-check-word" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
-                        <span class="sr-only">Loading...</span>
-                      </div>
+                <?php if ($Task->isMarkNumber()) { ?>
+                  <div id="div-mark" class="d-flex flex-row justify-content-end my-1">
+                    <div class="file-input-wrapper me-1">
+                      <select id="select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+                        <option hidden value="-1"></option>
+                        <?php for ($i = 1; $i <= $task_max_mark; $i++) { ?>
+                          <option value="<?= $i ?>"><?= $i ?></option>
+                        <?php } ?>
+                      </select>
                     </div>
-                  </button>
-                </div>
+                    <button id="button-check" class="btn btn-success" target="_blank" type="button" name="submit-check" style="width: 100%;" onclick="markAssignment($('#select-mark').val())">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                        <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                      </svg>&nbsp;&nbsp;Оценить ответ</button>
+                  </div>
+                <?php } else { ?>
+                  <div id="div-check-word" class="d-flex flex-row justify-content-end my-1">
+                    <button id="button-check-word" class="btn btn-primary d-flex justify-content-center" target="_blank" type="button" name="submit-check" style="width: 100%;" onclick="markAssignment('зачтено')">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                        <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                      </svg>
+                      <div class="d-flex align-items-center">
+                        &nbsp;&nbsp;Зачесть&nbsp;
+                        <div id="spinner-check-word" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                <?php } ?>
               <?php } else if ($Assignment->isCompleteable()) { // Отправить задание на проверку 
               ?>
                 <form id="form-send-answer" action="taskchat_action.php" method="POST">
@@ -640,9 +643,7 @@ $task_number = explode('.', $task_title)[0];
 
     function markAssignment(mark) {
       if (mark != -1) {
-        if (mark != "зачтено") var userMessage = "Задание оценено! \nОценка: " + mark;
-        else var userMessage = "Задание зачтено!";
-
+        var userMessage = ajaxGetMarkMessage(mark);
         if (sendMessage(userMessage, null, 2, mark)) {
           document.location.reload();
         }
@@ -775,7 +776,7 @@ $task_number = explode('.', $task_title)[0];
           data: formData,
           dataType: 'html',
           success: function(response) {
-            $("#chat-box").html(response);
+            // $("#chat-box").html(response);
           },
           complete: function() {
             // Скролим чат вниз после отправки сообщения
@@ -956,8 +957,31 @@ $task_number = explode('.', $task_title)[0];
         }
       });
 
-
       return true;
+    }
+
+    function ajaxGetMarkMessage(mark) {
+      var formData = new FormData();
+      formData.append('flag', "GetMarkMessage");
+      formData.append('mark', mark);
+
+      let message_text = "";
+      $.ajax({
+        type: "POST",
+        url: 'strings.php#content',
+        cache: false,
+        async: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType: 'html',
+        success: function(response) {
+          message_text = response.trim();
+        },
+        complete: function() {}
+      });
+
+      return message_text;
     }
   </script>
 
