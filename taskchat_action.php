@@ -72,7 +72,8 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
           continue;
         } else {
           array_push($files, [
-            'name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i],
+            'name' => $_FILES['files']['name'][$i],
+            'tmp_name' => $_FILES['files']['tmp_name'][$i],
             'size' => $_FILES['files']['size'][$i]
           ]);
         }
@@ -101,7 +102,8 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
           continue;
         } else {
           array_push($files, [
-            'name' => $_FILES['files']['name'][$i], 'tmp_name' => $_FILES['files']['tmp_name'][$i],
+            'name' => $_FILES['files']['name'][$i],
+            'tmp_name' => $_FILES['files']['tmp_name'][$i],
             'size' => $_FILES['files']['size'][$i]
           ]);
         }
@@ -115,10 +117,8 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
 
 
 if (isset($_POST['mark'])) {
-  // Оценивание задания
   // echo "ОЦЕНИВАНИЕ ЗАДАНИЯ";
-  $query = update_ax_assignment_mark($assignment_id, $_POST['mark']);
-  $result = pg_query($dbconnect, $query);
+  $Assignment->setMark($_POST['mark']);
 }
 
 

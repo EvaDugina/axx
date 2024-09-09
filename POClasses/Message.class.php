@@ -435,10 +435,12 @@ class Message
 
 function getMessageAssignmentCompleted($mark)
 {
-  if ($mark != "зачтено")
+  if ($mark == "зачтено")
+    return "Задание зачтено!";
+  else if ($mark != "" && $mark != null)
     return "Задание оценено! \nОценка: $mark";
   else
-    return "Задание зачтено!";
+    return "Оценка отменена!";
 }
 
 

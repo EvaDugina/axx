@@ -334,6 +334,22 @@ $task_number = explode('.', $task_title)[0];
                     </button>
                   </div>
                 <?php } ?>
+                <?php if ($Assignment->isCompleted()) { ?>
+                  <div id="div-reject-check" class="d-flex flex-row justify-content-end my-1">
+                    <button id="button-reject-check" class="btn btn-danger d-flex justify-content-center" target="_blank" type="submit" name="reject-check" style="width: 100%;" onclick="markAssignment('')">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                        <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+                      </svg>
+                      <div class="d-flex align-items-center">
+                        &nbsp;&nbsp;Отменить оценку&nbsp;
+                        <div id="spinner-reject-check" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                <?php } ?>
               <?php } else if ($Assignment->isCompleteable()) { // Отправить задание на проверку 
               ?>
                 <form id="form-send-answer" action="taskchat_action.php" method="POST">
@@ -756,7 +772,7 @@ $task_number = explode('.', $task_title)[0];
             flag = false;
           }
         });
-      } else if (typeMessage == 2 && mark) {
+      } else if (typeMessage == 2) {
         formData.append('mark', mark);
       }
 
