@@ -215,7 +215,7 @@ var user_id = null;
 var sender_user_type = null;
 var reply_id = null;
 
-function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_mark = null) {
+function answerPress(answer_type, message_id, f_assignment_id, f_user_id, mark_type = null, max_mark = null) {
   assignment_id = f_assignment_id;
   user_id = f_user_id;
   reply_id = message_id;
@@ -231,8 +231,14 @@ function answerPress(answer_type, message_id, f_assignment_id, f_user_id, max_ma
     // document.getElementById('dialogMarkMarkLabel').innerText = 'Оценка (максимум ' + max_mark + ')';
     // $('#dialogMark').modal('show');
 
-    if (max_mark == null)
-      max_mark = 5;
+    if (mark_type == "оценка") {
+      $('#dialogCheckTask-div-check-word').addClass("d-none");
+      $('#dialogCheckTask-div-mark').removeClass("d-none");
+    } else if (mark_type == "зачёт") {
+      $('#dialogCheckTask-div-check-word').removeClass("d-none");
+      $('#dialogCheckTask-div-mark').addClass("d-none");
+    }
+
     $('#dialogCheckTask-select-mark').empty();
 
     let option = document.createElement("option");

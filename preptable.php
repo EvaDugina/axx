@@ -268,7 +268,7 @@ if ($scripts) echo $scripts;
                                     </span>
                                   </td>
                                 <?php } else { ?>
-                                  <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,<?= $Task->max_mark ?>);" style="cursor: pointer;" data-title="Оценить задание">
+                                  <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,'<?= $Task->mark_type ?>',<?= $Task->max_mark ?>);" style="cursor: pointer;" data-title="Оценить задание">
 
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
                                       <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
@@ -528,7 +528,7 @@ if ($scripts) echo $scripts;
           <button type="button" class="btn-close me-2" data-mdb-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="d-flex flex-row justify-content-end my-1">
+          <div id="dialogCheckTask-div-mark" class="d-flex flex-row justify-content-end my-1">
             <div class="file-input-wrapper me-1">
               <select id="dialogCheckTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
               </select>
@@ -547,7 +547,7 @@ if ($scripts) echo $scripts;
             </button>
           </div>
 
-          <div class="d-flex flex-row justify-content-end my-1">
+          <div id="dialogCheckTask-div-check-word" class="d-flex flex-row justify-content-end my-1">
             <button id="button-check-word" class="btn btn-primary d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%;">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
                 <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
@@ -630,7 +630,7 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id)
   $data_mdb_content .= "
   <div class='d-flex flex-column mt-1'>
     <div class='d-flex w-100 justify-content-between mb-1'>
-      <a href='javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", " . $Task->max_mark . ");'
+      <a href=&quot;javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", &#39;" . $Task->mark_type . "&#39;, " . $Task->max_mark . ");&quot;
       type='message' class='btn btn-outline-success w-100 me-1'>
         Зачесть
       </a> 
