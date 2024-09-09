@@ -665,6 +665,22 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                         </button>
                       </div>
                     <?php } ?>
+                    <?php if ($Assignment->isCompleted()) { ?>
+                      <div id="div-reject-check" class="d-flex flex-row justify-content-end my-1">
+                        <button id="button-reject-check" class="btn btn-danger d-flex justify-content-center" target="_blank" type="submit" name="reject-check" style="width: 100%;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, '')">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                            <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+                          </svg>
+                          <div class="d-flex align-items-center">
+                            &nbsp;&nbsp;Отменить оценку&nbsp;
+                            <div id="spinner-reject-check" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    <?php } ?>
                   </div>
 
                 <?php } ?>
@@ -914,6 +930,20 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 </button>
               </div>
             <?php } ?>
+            <div id="div-reject-check" class="d-flex flex-row justify-content-end my-1 <?= ($Assignment->isCompleted()) ? "" : "d-none" ?>">
+              <button id="button-reject-check" class="btn btn-danger d-flex justify-content-center" target="_blank" type="submit" name="reject-check" style="width: 100%;" onclick="markAssignmentWithReload(<?= $Assignment->id ?>, <?= $User->id ?>, '')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                  <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+                </svg>
+                <div class="d-flex align-items-center">
+                  &nbsp;&nbsp;Отменить оценку&nbsp;
+                  <div id="spinner-reject-check" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </div>
+              </button>
+            </div>
           </div>
         <?php } ?>
       </div>
@@ -953,6 +983,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
     function markAssignmentWithoutReload(assignment_id, user_id, mark) {
       $('#spinner-mark').removeClass("d-none");
       let status = markAssignment(assignment_id, user_id, mark);
+      if (mark != null && mark != "") {
+        $('#div-reject-check').removeClass("d-none");
+      } else
+        $('#div-reject-check').addClass("d-none");
       $('#spinner-mark').addClass("d-none");
       if (status) {
         loadChatLog(true);
