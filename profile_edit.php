@@ -13,7 +13,7 @@ if (isset($_POST['changeSubgroup'])) {
   exit;
 }
 
-$User = new User((int)$au->getUserId());
+$User = new User((int)$_SESSION['hash']);
 if (isset($_FILES['image-file']) && isset($_POST['set-image'])) {
   addFileToObject($User, $_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 21);
   header('Location: profile.php');

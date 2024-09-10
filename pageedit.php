@@ -352,7 +352,7 @@ else
 			</div>
 
 			<?php if ($isNewPage) { ?>
-				<input name="creator_id" value="<?= $au->getUserId() ?>" style="display: none;">
+				<input name="creator_id" value="<?= $_SESSION['hash'] ?>" style="display: none;">
 			<?php } ?>
 
 			<div class="row mx-2">

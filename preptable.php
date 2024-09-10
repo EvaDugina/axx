@@ -24,7 +24,7 @@ if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
 $Page = new Page((int)$_GET['page']);
 
 // получение параметров запроса
-$user_id = $au->getUserId();
+$user_id = $_SESSION['hash'];
 $page_id = 0;
 
 if (array_key_exists('page', $_REQUEST) && isset($_GET['page']))
@@ -691,7 +691,7 @@ function show_preptable_message($message, $flag_marked_message = false)
     // is student message need to be checked
     $Message = new Message((int)$message['mid']);
     $Task = new Task((int)$message['tid']);
-    $message_text .= getPopoverContent($Message, $Task, $message['aid'], $user_id);
+    $message_text .= getPopoverContent($Message, $Task, $message['aid'], $_SESSION['hash'], $message['amark']);
   } else {
     $message_text .= generate_message_for_student_task_commit($message['task']);
     if ($message['type'] != 1) {

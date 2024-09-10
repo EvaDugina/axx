@@ -7,6 +7,7 @@ require_once("POClasses/User.class.php");
 
 $pageurl = explode('/', $_SERVER['REQUEST_URI']);
 $pageurl = $pageurl[count($pageurl) - 1];
+$_SESSION['username'] = '';
 
 if ($pageurl != 'login.php') {
   include_once('auth_ssh.class.php');
@@ -14,6 +15,13 @@ if ($pageurl != 'login.php') {
   if (!$au->loggedIn()) {
     header('Location:login.php');
     exit;
+  } else {
+    $query = get_user_name($au->getUserId());
+    $result = pg_query($dbconnect, $query);
+    if ($row = pg_fetch_assoc($result))
+      $_SESSION['username'] = $row['first_name'];
+    if (isset($row['middle_name']))
+      $_SESSION['username'] .= " " . $row['middle_name'];
   }
 }
 
@@ -210,7 +218,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                   <span class="text-reset ms-2">
                     <?php // [x]: убрать // TODO: Проверить
                     if ($user != null) echo $user->getFIOspecial();
-                    else echo $au->getUserLogin(); ?>
+                    else echo $_SESSION['username']; ?>
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
