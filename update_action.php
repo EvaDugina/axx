@@ -6,7 +6,7 @@
 	require("auth_ssh.class.php");
 
 	$au = new auth_ssh();
-	if ($au->isAdmin($_SESSION['hash'])) {
+	if ($au->isAdmin($au->getUserId())) {
 		exec("git reset --hard", $out, $ret);
 		echo "reset<br>" . implode("<br>", $out) . "<br>ret code = " . $ret . "<br>";
 		unset($out);
