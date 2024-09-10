@@ -536,11 +536,11 @@ else if ($type == "tools") {
     array_push($files_codeTest, "accel_autotest.cpp");
   }
 
-  if (count($files_codeTest) < 1) {
-    echo "Не найдены файлы теста!" . $Task->id;
-    http_response_code(400);
-    exit;
-  }
+  // if (count($files_codeTest) < 1) {
+  //   echo "Не найдены файлы теста!" . $Task->id;
+  //   http_response_code(400);
+  //   exit;
+  // }
 
   @unlink($folder . '/copydetect_input');
   mkdir($folder . '/copydetect_input', 0777, true);
