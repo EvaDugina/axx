@@ -43,6 +43,13 @@ $Group = new Group((int)$group_id);
   <?php show_header($dbconnect, 'Дашборд студента', array(), $User); ?>
   <main class="justify-content-start overflow-hidden mb-5 pt-3">
     <?php
+
+    if (count($pages) < 1) { ?>
+      <div class="d-flex justify-content-center align-items-center pt-5 mt-5">
+        <h3 class="mt-5 pt-5">Пока здесь пусто, но скоро здесь появятся доступные дисциплины!</h3>
+      </div>
+      <?php }
+
     $array_year = 0;
     $array_semester = 0;
     foreach ($pages as $page_id) {
