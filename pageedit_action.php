@@ -156,7 +156,15 @@ function downloadPage($page_id)
 
 function getAllTasksAsFiles($tmp_file_dir, $Page)
 {
-	$TaskFiles = [];
+	$comparison_file_name = "Соответствия.txt";
+	$comparison_file = fopen($tmp_file_dir . $comparison_file_name, "w") or die("Unable to open file!");
+	foreach ($Page->getTasks() as $Task) {
+		$title = addslashes($Task->title);
+		fwrite($comparison_file, "$Task->id - $title\r\n");
+	}
+	fclose($comparison_file);
+
+	$TaskFiles = [$comparison_file_name];
 	foreach ($Page->getTasks() as $Task) {
 		$main_file_name = "Task_$Task->id.md";
 		$main_file = fopen($tmp_file_dir . $main_file_name, "w") or die("Unable to open file!");
@@ -167,7 +175,12 @@ function getAllTasksAsFiles($tmp_file_dir, $Page)
 		array_push($TaskFiles, $main_file_name);
 
 		foreach ($Task->getFiles() as $File) {
-			$file_code_name = "Task_$Task->id" . "_$File->name_without_prefix";
+			$file_name = $File->name_without_prefix;
+			$str_pos = strpos($file_name, "accel_");
+			if (($File->isCodeTest() || $File->isCodeCheckTest()) && ($str_pos !== false)) {
+				$file_name = str_replace("accel_", "", $file_name);
+			}
+			$file_code_name = "Task_$Task->id" . "_$file_name";
 			$file_code = fopen($tmp_file_dir . $file_code_name, "w") or die("Unable to open file!");
 			$text = $File->getFullText();
 			fwrite($file_code, $text);
