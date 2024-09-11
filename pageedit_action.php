@@ -31,7 +31,6 @@ if (isset($_POST['flag-createPage'])) {
 
 if (isset($_POST['action'])) {
 	$action = $_POST['action'];
-	var_dump($_POST);
 	$status = False;
 	switch ($action) {
 		case 'save':
@@ -86,11 +85,6 @@ if (isset($_POST['action'])) {
 			$status = True;
 			break;
 
-		case "clone":
-			clonePage((int)$_POST['id']);
-			$status = True;
-			break;
-
 		case 'delete':
 			var_dump($_POST['id']);
 			$Page = new Page($_POST['id']);
@@ -119,50 +113,72 @@ if (isset($_POST['action'])) {
 
 function downloadPage($page_id)
 {
-	$file_dir = getUploadFileDir();
-	$simple_file_path = $file_dir . time() . '_temp.txt';
+	$tmp_file_dir = getUploadFileDir() . time() . "_";
 
 	$Page = new Page($page_id);
-	$myfile = fopen($simple_file_path, "w") or die("Unable to open file!");
-	$txt = $Page->getMainInfoAsTextForDowload();
-	fwrite($myfile, $txt);
-	fclose($myfile);
 
 	$zipPage = new ZipArchive();
-	$zip_file_path = $file_dir . time() . '_temp.zip';
+	$zip_file_path = $tmp_file_dir . "$Page->id.zip";
 	if ($zipPage->open($zip_file_path, ZipArchive::CREATE) !== TRUE) {
 		exit("Невозможно открыть <$zip_file_path>");
 	}
-	$zipPage->addFile($simple_file_path, time() . "_insertPage_$Page->id.sql");
+
+	// $directory_path = "Page_$Page->id/";
+	// if ($zipPage->addEmptyDir($directory_path)) {
+	$TaskFiles = getAllTasksAsFiles($tmp_file_dir, $Page);
+	foreach ($TaskFiles as $TaskFileName) {
+		$zipPage->addFile($tmp_file_dir . $TaskFileName, $TaskFileName);
+	}
+	// } else {
+	// echo 'Could not create the directory';
+	// }
 	$zipPage->close();
 
 	if (!file_exists($zip_file_path)) {
 		exit("Архива не существует");
 	}
 
-	// Даем пользователю скачать архив и удаляем его с сервера
-	header('Content-Description: File Transfer');
-	header('Content-type: application/zip');
-	header('Content-Disposition: attachment; filename=' . basename($zip_file_path));
-	header('Content-Transfer-Encoding: binary');
-	// header('Content-Length: ' . filesize($zip_file_path));
+	ob_clean();
 
+	header('Content-Type: application/zip');
+	header('Content-disposition: attachment; filename=Page_' . $Page->id . ".zip");
+	header('Content-Length: ' . filesize($zip_file_path));
 	readfile($zip_file_path);
+
 	unlink($zip_file_path);
 
-	unlink($simple_file_path);
+	foreach ($TaskFiles as $TaskFileName) {
+		unlink($tmp_file_dir . $TaskFileName);
+	}
 
 	exit();
 }
 
-function clonePage($page_id)
+function getAllTasksAsFiles($tmp_file_dir, $Page)
 {
-	global $dbconnect;
+	$TaskFiles = [];
+	foreach ($Page->getTasks() as $Task) {
+		$main_file_name = "Task_$Task->id.md";
+		$main_file = fopen($tmp_file_dir . $main_file_name, "w") or die("Unable to open file!");
+		$text = $Task->title . "\r\n\r\n" . $Task->description;
+		fwrite($main_file, $text);
+		fclose($main_file);
 
-	$Page = new Page($page_id);
-	$query = $Page->getMainInfoAsTextForDowload();
-	pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+		array_push($TaskFiles, $main_file_name);
+
+		foreach ($Task->getFiles() as $File) {
+			$file_code_name = "Task_$Task->id" . "_$File->name_without_prefix";
+			$file_code = fopen($tmp_file_dir . $file_code_name, "w") or die("Unable to open file!");
+			$text = $File->getFullText();
+			fwrite($file_code, $text);
+			fclose($file_code);
+			array_push($TaskFiles, $file_code_name);
+		}
+	}
+	return $TaskFiles;
 }
+
+function unlinkFiles() {}
 
 
 function delete_discipline($discipline_id)
