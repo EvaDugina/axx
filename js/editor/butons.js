@@ -515,7 +515,7 @@ function parseBuild(results) {
     if (!("outcome" in results.tools.build)) {
         document.querySelector("#build_result").className =
             document.querySelector("#build_result").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
         document.querySelector("#build_result").innerHTML = 'Сборка не удалась';
         document.querySelector("#build_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
         return;
@@ -526,14 +526,14 @@ function parseBuild(results) {
         case 'fail':
             document.querySelector("#build_result").className =
                 document.querySelector("#build_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
             document.querySelector("#build_result").innerHTML = 'Ошибка исполнения';
             document.querySelector("#build_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
             return;
         case 'skip':
             document.querySelector("#build_result").className =
                 document.querySelector("#build_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#build_result").innerHTML = '';
             document.querySelector("#build_body").innerHTML = 'Проверка пропущена.';
             return;
@@ -564,7 +564,7 @@ function parseBuild(results) {
 
     document.querySelector("#build_result").className =
         document.querySelector("#build_result").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
     document.querySelector("#build_result").innerHTML = boxText;
     document.querySelector("#build_body").innerHTML = bodyText;
 }
@@ -574,7 +574,7 @@ function parseCppCheck(results) {
     if (!("outcome" in results.tools.cppcheck)) {
         document.querySelector("#cppcheck_result").className =
             document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
         document.querySelector("#cppcheck_result").innerHTML = 'Сборка не удалась';
         document.querySelector("#cppcheck_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
         return;
@@ -586,14 +586,14 @@ function parseCppCheck(results) {
         case 'fail':
             document.querySelector("#cppcheck_result").className =
                 document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
             document.querySelector("#cppcheck_result").innerHTML = 'Ошибка исполнения';
             document.querySelector("#cppcheck_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
             return;
         case 'skip':
             document.querySelector("#cppcheck_result").className =
                 document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#cppcheck_result").innerHTML = '';
             document.querySelector("#cppcheck_body").innerHTML = 'Проверка пропущена.';
             return;
@@ -626,7 +626,7 @@ function parseCppCheck(results) {
 
     document.querySelector("#cppcheck_result").className =
         document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
     document.querySelector("#cppcheck_result").innerHTML = sumOfErrors;
     document.querySelector("#cppcheck_body").innerHTML = bodyText;
 }
@@ -637,7 +637,7 @@ function parseClangFormat(results) {
     if (!("outcome" in clang_format)) {
         document.querySelector("#clangformat_result").className =
             document.querySelector("#clangformat_result").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
         document.querySelector("#clangformat_result").innerHTML = 'Сборка не удалась';
         document.querySelector("#clangformat_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
         return;
@@ -649,14 +649,14 @@ function parseClangFormat(results) {
         case 'fail':
             document.querySelector("#clangformat_result").className =
                 document.querySelector("#clangformat_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
             document.querySelector("#clangformat_result").innerHTML = 'Ошибка исполнения';
             document.querySelector("#clangformat_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
             return;
         case 'skip':
             document.querySelector("#clangformat_result").className =
                 document.querySelector("#clangformat_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#clangformat_result").innerHTML = '';
             document.querySelector("#clangformat_body").innerHTML = 'Проверка пропущена.';
             return;
@@ -679,7 +679,7 @@ function parseClangFormat(results) {
 
     document.querySelector("#clangformat_result").className =
         document.querySelector("#clangformat_result").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
     document.querySelector("#clangformat_result").innerHTML = check_struct.result;
     document.querySelector("#clangformat_body").innerHTML = 'Замечаний линтера: ' + check_struct.result + '<br>';
 }
@@ -689,11 +689,11 @@ function parseValgrind(results) {
     if (!("outcome" in results.tools.valgrind)) {
         document.querySelector("#valgrind_leaks").className =
             document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
         document.querySelector("#valgrind_leaks").innerHTML = '';
         document.querySelector("#valgrind_errors").className =
             document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
         document.querySelector("#valgrind_errors").innerHTML = 'Сборка не удалась';
         document.querySelector("#valgrind_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
         return;
@@ -705,22 +705,22 @@ function parseValgrind(results) {
         case 'fail':
             document.querySelector("#valgrind_leaks").className =
                 document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#valgrind_leaks").innerHTML = '';
             document.querySelector("#valgrind_errors").className =
                 document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
             document.querySelector("#valgrind_errors").innerHTML = 'Ошибка исполнения';
             document.querySelector("#valgrind_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
             return;
         case 'skip':
             document.querySelector("#valgrind_leaks").className =
                 document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#valgrind_leaks").innerHTML = '';
             document.querySelector("#valgrind_errors").className =
                 document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#valgrind_errors").innerHTML = '';
             document.querySelector("#valgrind_body").innerHTML = 'Проверка пропущена.';
             return;
@@ -762,11 +762,11 @@ function parseValgrind(results) {
 
     document.querySelector("#valgrind_leaks").className =
         document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + leaksColor;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + leaksColor;
     document.querySelector("#valgrind_leaks").innerHTML = leaks.result;
     document.querySelector("#valgrind_errors").className =
         document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + errorsColor;;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + errorsColor;;
     document.querySelector("#valgrind_errors").innerHTML = errors.result;
     document.querySelector("#valgrind_body").innerHTML = resBody;
 }
@@ -776,7 +776,7 @@ function parseAutoTests(results) {
     if (!("outcome" in results.tools.autotests)) {
         document.querySelector("#autotests_result").className =
             document.querySelector("#autotests_result").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
         document.querySelector("#autotests_result").innerHTML = 'Сборка не удалась';
         document.querySelector("#autotests_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
         return;
@@ -788,14 +788,14 @@ function parseAutoTests(results) {
         case 'fail':
             document.querySelector("#autotests_result").className =
                 document.querySelector("#autotests_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
             document.querySelector("#autotests_result").innerHTML = 'Ошибка исполнения';
             document.querySelector("#autotests_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
             return;
         case 'skip':
             document.querySelector("#autotests_result").className =
                 document.querySelector("#autotests_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#autotests_result").innerHTML = '';
             document.querySelector("#autotests_body").innerHTML = 'Проверка пропущена.';
             return;
@@ -827,7 +827,7 @@ function parseAutoTests(results) {
 
     document.querySelector("#autotests_result").className =
         document.querySelector("#autotests_result").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
     document.querySelector("#autotests_result").innerHTML = boxText;
     document.querySelector("#autotests_body").innerHTML = bodyText;
 }
@@ -837,7 +837,7 @@ function parseCopydetect(results) {
     if (!("outcome" in results.tools.copydetect)) {
         document.querySelector("#copydetect_result").className =
             document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-                eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
+                replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-gray";
         document.querySelector("#copydetect_result").innerHTML = 'Сборка не удалась';
         document.querySelector("#copydetect_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
         return;
@@ -849,14 +849,14 @@ function parseCopydetect(results) {
         case 'fail':
             document.querySelector("#copydetect_result").className =
                 document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-red";
             document.querySelector("#copydetect_result").innerHTML = 'Ошибка исполнения';
             document.querySelector("#copydetect_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
             return;
         case 'skip':
             document.querySelector("#copydetect_result").className =
                 document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-                    eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
+                    replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "");
             document.querySelector("#copydetect_result").innerHTML = '';
             document.querySelector("#copydetect_body").innerHTML = 'Проверка пропущена.';
             return;
@@ -884,7 +884,7 @@ function parseCopydetect(results) {
 
     document.querySelector("#copydetect_result").className =
         document.querySelector("#copydetect_result").className.replace(" rb-red", "").
-            eplace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
+            replace(" rb-yellow", "").replace(" rb-green", "").replace(" rb-gray", "") + " rb-" + boxColor;
     document.querySelector("#copydetect_result").innerHTML = boxText;
     document.querySelector("#copydetect_body").innerHTML = bodyText;
 }
