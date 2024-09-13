@@ -24,6 +24,16 @@ function parseBuildCheck($data, $enabled)
     $resFooter = '<label for="build" id="buildlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="build" class="axconsole">Загрузка...</pre>';
 
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>Сборка</b>' . generateColorBox('red', 'Ошибка получения результатов', 'build_result') . '</div>',
+            'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
+
     switch ($data['outcome']) {
         case 'pass':
             break;
@@ -92,6 +102,16 @@ function parseCppCheck($data, $enabled)
     $resFooter = '<label for="cppcheck" id="cppchecklabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="cppcheck" class="axconsole">Загрузка...</pre>';
 
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('red', 'Ошибка получения результатов', 'cppcheck_result') . '</div>',
+            'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
+
     switch ($data['outcome']) {
         case 'pass':
             break;
@@ -122,6 +142,7 @@ function parseCppCheck($data, $enabled)
             );
             break;
     }
+
 
     $resBody = '';
     $sumOfErrors = 0;
@@ -169,6 +190,16 @@ function parseClangFormat($data, $enabled)
     $resFooter = '<label for="format" id="formatlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="format" class="axconsole">Загрузка...</pre>';
 
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('red', 'Ошибка получения результатов', 'clangformat_result') . '</div>',
+            'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
+
     switch ($data['outcome']) {
         case 'pass':
             break;
@@ -199,6 +230,7 @@ function parseClangFormat($data, $enabled)
             );
             break;
     }
+
 
     $resBody = $data['outcome'];
     $check = $data['check'];
@@ -240,6 +272,16 @@ function parseValgrind($data, $enabled)
 {
     $resFooter = '<label for="valgrind" id="valgrindlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="valgrind" class="axconsole">Загрузка...</pre>';
+
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('red', 'Ошибка получения результатов', 'valgrind_errors') . '</div>',
+            'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
 
     switch ($data['outcome']) {
         case 'pass':
@@ -327,6 +369,16 @@ function parseAutoTests($data, $enabled)
     $resFooter = '<label for="tests" id="testslabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="tests" class="axconsole">Загрузка...</pre>';
 
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('red', 'Ошибка получения результатов', 'autotests_result') . '</div>',
+            'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
+
     switch ($data['outcome']) {
         case 'pass':
             break;
@@ -357,6 +409,7 @@ function parseAutoTests($data, $enabled)
             );
             break;
     }
+
 
     $result = 0;
     $check = $data['check'];
@@ -396,6 +449,16 @@ function parseAutoTests($data, $enabled)
 // Разбор и преобразования результата проверки антиплагиатом в элемент массива для генерации аккордеона
 function parseCopyDetect($data, $enabled)
 {
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('red', 'Ошибка получения результатов', 'copydetect_result') . '</div>',
+            'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => ''
+        );
+    }
+
     switch ($data['outcome']) {
         case 'pass':
             break;
@@ -426,6 +489,7 @@ function parseCopyDetect($data, $enabled)
             );
             break;
     }
+
 
     $check = $data['check'];
     $result = $check['result'] . '%';

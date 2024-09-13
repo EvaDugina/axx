@@ -511,6 +511,15 @@ function getCheckInfo(checks, checkname) {
 }
 
 function parseBuild(results) {
+
+    if (!("outcome" in results.tools.build)) {
+        document.querySelector("#build_result").className =
+            document.querySelector("#build_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+        document.querySelector("#build_result").innerHTML = 'Ошибка получения результатов';
+        document.querySelector("#build_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+        return;
+    }
     switch (results.tools.build.outcome) {
         case 'pass':
             break;
@@ -561,6 +570,16 @@ function parseBuild(results) {
 }
 
 function parseCppCheck(results) {
+
+    if (!("outcome" in results.tools.cppcheck)) {
+        document.querySelector("#cppcheck_result").className =
+            document.querySelector("#cppcheck_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+        document.querySelector("#cppcheck_result").innerHTML = 'Ошибка получения результатов';
+        document.querySelector("#cppcheck_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+        return;
+    }
+
     switch (results.tools.cppcheck.outcome) {
         case 'pass':
             break;
@@ -615,6 +634,15 @@ function parseCppCheck(results) {
 function parseClangFormat(results) {
     var clang_format = (new Map(Object.entries(results.tools))).get("clang-format");
 
+    if (!("outcome" in clang_format)) {
+        document.querySelector("#clangformat_result").className =
+            document.querySelector("#clangformat_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+        document.querySelector("#clangformat_result").innerHTML = 'Ошибка получения результатов';
+        document.querySelector("#clangformat_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+        return;
+    }
+
     switch (clang_format.outcome) {
         case 'pass':
             break;
@@ -657,6 +685,20 @@ function parseClangFormat(results) {
 }
 
 function parseValgrind(results) {
+
+    if (!("outcome" in results.tools.valgrind)) {
+        document.querySelector("#valgrind_leaks").className =
+            document.querySelector("#valgrind_leaks").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "");
+        document.querySelector("#valgrind_leaks").innerHTML = '';
+        document.querySelector("#valgrind_errors").className =
+            document.querySelector("#valgrind_errors").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+        document.querySelector("#valgrind_errors").innerHTML = 'Ошибка получения результатов';
+        document.querySelector("#valgrind_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+        return;
+    }
+
     switch (results.tools.valgrind.outcome) {
         case 'pass':
             break;
@@ -730,6 +772,16 @@ function parseValgrind(results) {
 }
 
 function parseAutoTests(results) {
+
+    if (!("outcome" in results.tools.autotests)) {
+        document.querySelector("#autotests_result").className =
+            document.querySelector("#autotests_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+        document.querySelector("#autotests_result").innerHTML = 'Ошибка получения результатов';
+        document.querySelector("#autotests_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+        return;
+    }
+
     switch (results.tools.autotests.outcome) {
         case 'pass':
             break;
@@ -781,6 +833,16 @@ function parseAutoTests(results) {
 }
 
 function parseCopydetect(results) {
+
+    if (!("outcome" in results.tools.copydetect)) {
+        document.querySelector("#copydetect_result").className =
+            document.querySelector("#copydetect_result").className.replace(" rb-red", "").
+                replace(" rb-yellow", "").replace(" rb-green", "") + " rb-red";
+        document.querySelector("#copydetect_result").innerHTML = 'Ошибка получения результатов';
+        document.querySelector("#copydetect_body").innerHTML = 'При выполнении проверки произошла критическая ошибка.';
+        return;
+    }
+
     switch (results.tools.copydetect.outcome) {
         case 'pass':
             break;
