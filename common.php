@@ -136,7 +136,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
 
             <div class="d-flex flex-row align-items-center justify-content-end">
 
-              <?php if (hasSecondRole($user->login)) { ?>
+              <!-- <?php if (hasSecondRole($user->login)) { ?>
                 <form action="auth.php" method="POST" class="me-4 mb-0">
                   <input type="hidden" name="action" value="login">
                   <input type="hidden" name="login" value="<?= $user->login ?>">
@@ -146,7 +146,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                     Зайти как <?= ($user->isTeacher()) ? "студент" : "преподаватель" ?>
                   </button>
                 </form>
-              <?php } ?>
+              <?php } ?> -->
 
               <!-- Icons -->
               <ul class="navbar-nav me-1">
