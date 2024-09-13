@@ -766,8 +766,15 @@ else if ($type == "console") {
     exit;
   }
 
-  $responce = htmlspecialchars(fread($myfile, filesize($filename)));
+  $text = htmlspecialchars(fread($myfile, filesize($filename)));
   fclose($myfile);
+
+  $text = mb_convert_encoding($text, "UTF-8", "auto");
+  $len_char = strlen(htmlspecialchars("'"));
+  if ($tool == "build" && $text[0] == 'b') {
+    $text = substr($text, 1 + $len_char, strlen($text) - 1 - $len_char * 2);
+  }
+  $responce = $text;
 
   header('Content-Type: text/plain');
 }
