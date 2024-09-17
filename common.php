@@ -113,7 +113,11 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
       <!-- Container wrapper -->
       <div class="container-fluid">
         <!-- Navbar brand -->
-        <a class="navbar-brand" href="index.php"><b>536 Акселератор</b></a>
+        <?php $version_json = json_decode(file_get_contents("version.json")); ?>
+        <a class="navbar-brand" href="index.php">
+          <b>536 Акселератор</b>&nbsp;
+          <span class="text-muted"><small>v<?= (!($version_json === null)) ? $version_json->version : "?" ?></small></span>
+        </a>
 
         <!-- Toggle button -->
         <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
