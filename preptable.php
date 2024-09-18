@@ -670,7 +670,7 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id, $current_m
 
 function show_preptable_message($message, $flag_marked_message = false)
 {
-  global $user_id;
+  global $au;
 
   if ($message == null || $message['type'] == 0)
     return;
