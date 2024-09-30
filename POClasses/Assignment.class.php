@@ -390,6 +390,7 @@ class Assignment
       $this->deleteStudentFromAssignmentDB($student_id);
       $this->Students[$index]->deleteFromDB();
       unset($this->Students[$index]);
+      $this->Students = array_values($this->Students);
     }
   }
   private function findStudentById($student_id)
@@ -477,7 +478,7 @@ class Assignment
   public function addMessage($message_id)
   {
     $Message = new Message((int)$message_id);
-    // $this->pushNewToDeliveryDB($Message);
+    $this->pushNewToDeliveryDB($Message);
     array_push($this->Messages, $Message);
   }
   public function deleteMessage($message_id)
@@ -485,7 +486,9 @@ class Assignment
     $index = $this->findMessageById($message_id);
     if ($index != -1) {
       $this->Messages[$index]->deleteFromDB();
+      $this->deleteMessageFromDelivery($message_id);
       unset($this->Messages[$index]);
+      $this->Messages = array_values($this->Messages);
     }
   }
   private function findMessageById($message_id)
@@ -510,10 +513,10 @@ class Assignment
   {
     global $dbconnect;
 
-    $User = new User((int)$user_id);
-
-    $query = "SELECT min(ax_message.id) as min_message_id FROM ax.ax_message WHERE assignment_id = $this->id
-              AND status = 0 AND ax.ax_message.sender_user_type != $User->role LIMIT 1;";
+    $query = "SELECT min(message_id) as min_message_id FROM ax.ax_message_delivery 
+              INNER JOIN ax.ax_message ON ax.ax_message.id = ax.ax_message_delivery.message_id
+              WHERE ax.ax_message.assignment_id = $this->id AND ax_message_delivery.recipient_user_id = $user_id
+              AND ax.ax_message_delivery.status = 0 LIMIT 1;";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     return pg_fetch_assoc($pg_query)['min_message_id'];
   }
@@ -524,25 +527,17 @@ class Assignment
         return $this->Messages[$i];
     }
   }
-  public function getUnreadedMessagesForTeacher()
-  {
-    $unreadedMessages = array();
-    foreach ($this->Messages as $Message) {
-      if (!$Message->isReadedByTeacher())
-        array_push($unreadedMessages, $Message);
-    }
-    return $unreadedMessages;
-  }
-  public function getUnreadedMessagesForStudent()
-  {
-    $unreadedMessages = array();
-    foreach ($this->Messages as $Message) {
-      if (!$Message->isReadedByStudent())
-        array_push($unreadedMessages, $Message);
-    }
-    return $unreadedMessages;
-  }
 
+
+  public function getUnreadedMessage($user_id)
+  {
+    $unreadedMessages = array();
+    foreach ($this->Messages as $Message) {
+      if (!$Message->isReadedByUser($user_id))
+        array_push($unreadedMessages, $Message);
+    }
+    return $unreadedMessages;
+  }
 
 
   function pushNewToDeliveryDB($Message)
@@ -553,7 +548,7 @@ class Assignment
     foreach ($this->Students as $Student) {
       if ($Student->id != $Message->sender_user_id) {
         $query .= "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
-                  VALUES ($Message->id, $Student->id, 0)";
+        VALUES ($Message->id, $Student->id, 0);";
       }
     }
 
@@ -561,31 +556,30 @@ class Assignment
     foreach ($Teachers as $Teacher) {
       if ($Teacher->id != $Message->sender_user_id) {
         $query .= "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
-                  VALUES ($Message->id, $Teacher->id, 0)";
+        VALUES ($Message->id, $Teacher->id, 0);";
       }
     }
 
-    $query = "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
-              VALUES ($Message->id, $Message->sender_user_id, 1)";
+    $query .= "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status)
+    VALUES ($Message->id, $Message->sender_user_id, 1);";
 
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  // function getNewMessagesByUser($user_id) {
-  //   $new_messages = array();
-  //   foreach ($this->Messages as $Message) {
-  //     if ($Message->getDeliveryStatus($user_id) == 0)
-  //       array_push($new_messages, $Message);
-  //   }
-  //   return $new_messages;
-  // }
+  function deleteMessageFromDelivery($message_id)
+  {
+    global $dbconnect;
+
+    $query = "DELETE FROM ax.ax_message_delivery WHERE message_id = $message_id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
 
   function getNewMessagesByUser($user_id)
   {
     $new_messages = array();
     $User = new User($user_id);
     foreach ($this->Messages as $Message) {
-      if ($Message->status == 0 && $User->role != $Message->sender_user_type)
+      if (!$Message->isReadedByUser($user_id))
         array_push($new_messages, $Message);
     }
     return $new_messages;
@@ -596,7 +590,7 @@ class Assignment
   {
     $count_unreaded = 0;
     foreach ($this->Messages as $Message) {
-      if ($Message->status == 0)
+      if (!$Message->isReadedByUser($user_id))
         $count_unreaded++;
     }
     return $count_unreaded;
@@ -619,6 +613,7 @@ class Assignment
     if ($index != -1) {
       $this->Commits[$index]->deleteFromDB();
       unset($this->Commits[$index]);
+      $this->Commits = array_values($this->Commits);
     }
   }
   private function findCommitById($commit_id)

@@ -290,6 +290,7 @@ class Page
     if ($index != -1) {
       $this->Tasks[$index]->deleteFromDB();
       unset($this->Tasks[$index]);
+      $this->Tasks = array_values($this->Tasks);
     }
   }
   private function findTaskById($task_id)
@@ -393,6 +394,7 @@ class Page
     if ($index != -1) {
       $this->deleteGroupFromPageDB($group_id);
       unset($this->Groups[$index]);
+      $this->Groups = array_values($this->Groups);
     }
   }
   private function findGroupById($group_id)
@@ -470,6 +472,7 @@ class Page
     if ($index != -1) {
       $this->deleteTeacherFromPageDB($teacher_id);
       unset($this->Teachers[$index]);
+      $this->Teachers = array_values($this->Teachers);
     }
   }
   private function findTeacherById($teacher_id)

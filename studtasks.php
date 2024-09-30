@@ -94,8 +94,9 @@ show_head("Страница предмета " . $Page->name, array('https://cdn
 
   <?php function generateTaskLine($Task, $student_id)
   {
+
     foreach ($Task->getVisibleAssignmemntsByStudent((int)$student_id) as $Assignment) {
-      $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
+      $unreadedMessages = $Assignment->getUnreadedMessage($student_id);
       if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
         $date_finish = "до $Assignment->finish_limit";
       else

@@ -12,7 +12,7 @@ class Message
   public $type = null; // 0 - обычное сообщение (в т. ч. с приложениями), 1 - коммит, 2 - оценка, 3 - ссылка
   public $sender_user_id = null, $sender_user_type = null;
   public $date_time = null, $reply_to_id = null, $full_text = null;
-  public $status = null; // 0 - новое, 1 - прочитанное, 2 - удаленное
+  public $status = null; // 0 - активное, 2 - удаленное
   public $visibility = null; // 0 - видимо всем, 1 - видимо только админу, 2 - видимо только преподавателю, 3 - видимо только студенту
   public $resended_from_id = null;
 
@@ -62,11 +62,38 @@ class Message
 
       $this->full_text = "";
 
-      $this->status = 0;
       $this->visibility = 0;
+      $this->status = 0;
 
       $this->pushNewToDB($assignment_id);
-    } else if ($count_args == 8) { // всё, кроме commit_id + assignment_id
+    } else if ($count_args == 5) {
+      $assignment_id = $args[0];
+
+      $this->type = $args[1];
+      $this->sender_user_id = $args[2];
+      $this->sender_user_type = $args[3];
+
+      $this->full_text = $args[4];
+
+      $this->visibility = 0;
+      $this->status = 0;
+
+      $this->pushNewToDB($assignment_id);
+    } else if ($count_args == 6) {
+      $assignment_id = $args[0];
+
+      $this->type = $args[1];
+      $this->sender_user_id = $args[2];
+      $this->sender_user_type = $args[3];
+
+      $this->reply_to_id = $args[4];
+      $this->full_text = $args[5];
+
+      $this->visibility = 0;
+      $this->status = 0;
+
+      $this->pushNewToDB($assignment_id);
+    } else if ($count_args == 7) { // всё, кроме commit_id + assignment_id
       $assignment_id = $args[0];
 
       // TODO: убрать отсюда status, тк новое сообщение по умоляанию со статусом = 0
@@ -78,8 +105,8 @@ class Message
       $this->reply_to_id = $args[4];
       $this->full_text = $args[5];
 
-      $this->status = $args[6];
-      $this->visibility = $args[7];
+      $this->visibility = $args[6];
+      $this->status = 0;
 
       $this->pushNewToDB($assignment_id);
     } else {
@@ -102,6 +129,11 @@ class Message
   public function getConvertedDateTime()
   {
     return getConvertedDateTime($this->date_time);
+  }
+
+  public function getMainResendedMessage()
+  {
+    return getMainResendedMessage($this);
   }
 
 
@@ -151,8 +183,6 @@ class Message
   {
     global $dbconnect;
 
-    // $this->date_time = getNowTimestamp();
-
     if ($this->reply_to_id != null) {
       $query = "INSERT INTO ax.ax_message (assignment_id, type, sender_user_id, sender_user_type, 
                 date_time, reply_to_id, full_text, status, visibility) 
@@ -171,9 +201,6 @@ class Message
     $result = pg_fetch_assoc($pg_query);
     $this->id = $result['id'];
     $this->date_time = $result['date_time'];
-
-    // $this->pushSelfToDeliveryDB();
-
   }
   public function pushChangesToDB()
   {
@@ -225,43 +252,22 @@ class Message
     return $this->visibility == 0 || $this->visibility == $user_role;
   }
 
-  // -- END WORK WITH MESSAGE
-
-
-  // WORK WITH DELIVERY
-
-  public function isReadedByTeacher()
-  {
-    if (!isTeacher($this->sender_user_type) && $this->status == 1)
-      return true;
-    else if (isTeacher($this->sender_user_type))
-      return true;
-    return false;
-  }
-  public function isReadedByStudent()
-  {
-    if (!isStudent($this->sender_user_type) && $this->status == 1)
-      return true;
-    else if (isStudent($this->sender_user_type))
-      return true;
-    return false;
-  }
-
-  public function getDeliveryStatus($user_id)
+  public function isReadedByUser($user_id)
   {
     global $dbconnect;
-
-    $query = "SELECT status FROM ax.ax_message_delivery WHERE recipient_user_id = $user_id AND message_id = $this->id";
+    $query = "SELECT status FROM ax.ax_message_delivery WHERE message_id = $this->id AND recipient_user_id = $user_id;";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $status = pg_fetch_assoc($pg_query)['status'];
-
-    return $status;
+    $result = pg_fetch_assoc($pg_query);
+    if ($result)
+      return $result['status'] == 1;
+    return false;
   }
-  public function isReadedAtLeastByOne()
+
+  public function isReadedBySombody()
   {
     global $dbconnect;
 
-    $query = "SELECT COUNT(status) as count FROM ax.ax_message_delivery WHERE message_id = $this->id";
+    $query = "SELECT COUNT(status) as count FROM ax.ax_message_delivery WHERE message_id = $this->id AND status = 1;";
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $count = pg_fetch_assoc($pg_query)['count'];
 
@@ -270,6 +276,31 @@ class Message
 
     return false;
   }
+
+
+  // -- END WORK WITH MESSAGE
+
+
+  // WORK WITH DELIVERY
+
+
+  public function setReadedDeliveryStatus($user_id)
+  {
+    global $dbconnect;
+
+    $query = "SELECT COUNT(*) as count FROM ax.ax_message_delivery WHERE recipient_user_id = $user_id AND message_id = $this->id;";
+    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $count = pg_fetch_assoc($pg_query)['count'];
+
+    if ($count < 1)
+      $query = "INSERT INTO ax.ax_message_delivery (message_id, recipient_user_id, status) 
+      VALUES($this->id, $user_id, 1);";
+    else
+      $query = "UPDATE ax.ax_message_delivery SET status = 1 WHERE recipient_user_id = $user_id AND message_id = $this->id;";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+
   // public function isFirstUnreaded($user_id) {
   //   global $dbconnect; 
 
@@ -283,16 +314,6 @@ class Message
 
   //   return false;
   // }
-  public function setReadedDeliveryStatus($user_id)
-  {
-    global $dbconnect;
-
-    $query = "UPDATE ax.ax_message_delivery SET status = 1 WHERE recipient_user_id = $user_id AND message_id = $this->id";
-    $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-    $status = pg_fetch_assoc($pg_query)['status'];
-
-    return $status;
-  }
 
   // public function pushSelfToDeliveryDB() {
   //   global $dbconnect;
@@ -328,6 +349,7 @@ class Message
       $this->deleteFileFromMessageDB($file_id);
       $this->Files[$index]->deleteFromDB();
       unset($this->Files[$index]);
+      $this->Files = array_values($this->Files);
     }
   }
   private function findFileById($file_id)
@@ -421,9 +443,6 @@ class Message
   }
 
   // -- END WORK WITH COMMIT
-
-
-
 }
 
 
@@ -432,6 +451,21 @@ class Message
 // 
 // 
 // 
+
+function getMainResendedMessage($Message)
+{
+  if (!$Message->isResended() || $Message->resended_from_id == null)
+    return $Message;
+  $resendedMessage = new Message((int)$Message->resended_from_id);
+  return getMainResendedMessage($resendedMessage);
+}
+
+function getCountUnreadedMessagesByUser($user_id)
+{
+  global $dbconnect;
+  $query = "SELECT COUNT(*) FROM ax.ax_message_delivery WHERE recipient_user_id = $user_id;";
+  pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+}
 
 function getMessageAssignmentCompleted($mark)
 {

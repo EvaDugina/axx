@@ -23,15 +23,16 @@ if (isset($_POST['resendMessages'])) {
   $selected_messages = json_decode($_POST['selected_messages']);
   foreach ($selected_messages as $message) {
     $Message = new Message((int)$Assignment->id, 0, $User->id, $User->role);
-    $Message->setResendedFromId((int)$message);
+    $Assignment->addMessage($Message->id);
+    $resendedMessage = new Message((int)$message);
+    $Message->setResendedFromId((int)$resendedMessage->getMainResendedMessage()->id);
   }
 }
 
 if (isset($_POST['deleteMessages'])) {
   $selected_messages = json_decode($_POST['selected_messages']);
   foreach ($selected_messages as $message) {
-    $Message = new Message((int)$message);
-    $Message->deleteFromDB();
+    $Assignment->deleteMessage((int)$message);
   }
 }
 
@@ -48,11 +49,11 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
 
     $Commit = new Commit((int)$assignment_id, null, (int)$user_id, 1, null);
 
-    $Message_answer = new Message((int)$assignment_id, 1, $User->id, $User->role, null, $full_text, 0, 0);
+    $Message_answer = new Message((int)$assignment_id, 1, $User->id, $User->role, $full_text);
     $Assignment->addMessage($Message_answer->id);
     $Message_answer->setCommit($Commit->id);
 
-    $Message_link = new Message((int)$assignment_id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$Commit->id", 0, 2);
+    $Message_link = new Message((int)$assignment_id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$Commit->id", 2);
     $Assignment->addMessage($Message_link->id);
 
     $Assignment->setStatus(1);
@@ -84,15 +85,18 @@ if (isset($_POST['type']) && isset($_POST['message_text'])) {
     // Оценивание задания
 
     $Message_last_answer = $Assignment->getLastAnswerMessage();
-    $Message = new Message((int)$assignment_id, 2, $User->id, $User->role, $Message_last_answer->id, $full_text, 0, 0);
+    $Message = new Message((int)$assignment_id, 2, $User->id, $User->role, $Message_last_answer->id, $full_text);
+    $Assignment->addMessage($Message->id);
   } else if ($_POST['type'] == 0) {
     // ОБЫЧНОЕ СООБЩЕНИЕ
 
 
     if (isset($_POST['flag-preptable'])) {
-      $Message = new Message((int)$assignment_id, 0, $User->id, $User->role, $POST['reply_id'], $full_text, 0, 0);
+      $Message = new Message((int)$assignment_id, 0, $User->id, $User->role, $POST['reply_id'], $full_text);
+      $Assignment->addMessage($Message->id);
     } else {
-      $Message = new Message((int)$assignment_id, 0, $User->id, $User->role, null, $full_text, 0, 0);
+      $Message = new Message((int)$assignment_id, 0, $User->id, $User->role, $full_text);
+      $Assignment->addMessage($Message->id);
     }
 
     $files = array();
@@ -135,8 +139,8 @@ if (isset($_POST['flag_preptable']) && $_POST['flag_preptable']) {
 // if (isset($_POST['load_status']) && $_POST['load_status'] == 'new_only')
 //   updateNewMessages($assignment_id, $sender_user_type, $user_id);
 // else
-if (isset($_POST['selected_messages']) && !isset($_POST['resendMessages']))
-  update_chat($assignment_id, $user_id, json_decode($_POST['selected_messages']));
+if (!isset($_POST['resendMessages']))
+  update_chat($assignment_id, $user_id);
 else
   update_chat($assignment_id, $user_id);
 
@@ -160,42 +164,42 @@ else
 // Делает запись сообщения и вложений в БД
 // type: 0 - переговоры, 2 - оценка
 // Возвращает id добавленного сообщения
-function update_chat($assignment_id, $user_id, $selected_messages = array())
+function update_chat($assignment_id, $user_id)
 {
   echo '<div id="content">';
   $Assignment = new Assignment((int)$assignment_id);
-  showMessages($Assignment->getMessages(), $Assignment->getFirstUnreadedMessage($user_id), $selected_messages);
+  showMessages($Assignment, $user_id, $Assignment->getMessages(), $Assignment->getFirstUnreadedMessage($user_id));
   echo '</div>';
 }
 
-function showMessages($messages, $min_new_message_id, $selected_messages = array())
+function showMessages($Assignment, $user_id, $messages, $min_new_message_id)
 {
-  global $user_id;
 
   $User = new User((int)$user_id);
   foreach ($messages as $message) {
-    showMessage($message, $User, $selected_messages, $min_new_message_id);
+    showMessage($message, $User, $min_new_message_id);
   }
+?>
+
+  <?php
 }
 
-function showMessage($Message, $User, $selected_messages, $min_new_message_id, $isResended = false)
+function showMessage($Message, $User, $min_new_message_id, $isResended = false)
 {
 
   $sender_User = new User((int)$Message->sender_user_id);
   $senderUserFI = $sender_User->getFI();
   $isNewMessage = $Message->id == $min_new_message_id;
-  $isSelected = in_array($Message->id, $selected_messages);
   $isAuthor = $Message->sender_user_id == $User->id;
   $isVisible = $Message->isVisible($User->role);
-  $readable = $Message->sender_user_type != $User->role;
 
   // Прижимаем сообщения текущего пользователя к правой части экрана
   $float_class = $isAuthor ? 'float-right' : '';
   // Если студент написал сообщение, то у всех студентов сообщение подсвечивается синим, 
   // пока один из преподов его не прочитает(прочитать = прогрузить страницу с чатом). И наоборот
-  $message_delivery_status = $Message->status;
-  // $message_delivery_status = $message->isReadedAtLeastByOne();
-  $background_color_class = ($message_delivery_status == 0) ? 'background-color-blue' : '';
+  $isReadedBySelf = $Message->isReadedByUser($User->id);
+  $isReadedBySomebody = $Message->isReadedBySombody($User->id);
+  $background_color_class = (!$isReadedBySomebody) ? 'background-color-blue' : '';
 
   // if ($message->isFirstUnreaded($user_id)) {
 
@@ -205,7 +209,7 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
     <?php } ?>
     <div id="message-<?= $Message->id ?>" class="d-flex flex-column p-2 align-items-<?= ($isAuthor) ? "end" : "start" ?>">
       <div id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
-        d-flex flex-column h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> align-items-<?= ($isAuthor) ? "end" : "start" ?>" style="height: fit-content;" onclick="selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_type ?>)">
+        d-flex flex-column h-auto mb-1 align-items-<?= ($isAuthor) ? "end" : "start" ?>" style="height: fit-content;" oncontextmenu="onContextMenu(event, <?= $Message->id ?>, <?= $Message->sender_user_id == $User->id ?>)" onclick=" selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_id == $User->id ?>)">
         <div class="d-flex align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1">
           <div class="d-flex align-items-center align-self-<?= ($isAuthor) ? "end" : "start" ?>">
             <i>переслано от &nbsp;</i>
@@ -215,44 +219,57 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
           </div>
         </div>
         <?php $resendedMessage = new Message((int)$Message->resended_from_id);
-        showMessage($resendedMessage, $User, array(), $min_new_message_id, true); ?>
+        showMessage($resendedMessage, $User, $min_new_message_id, true); ?>
       </div>
       <div class="mb-2 align-self-<?= ($isAuthor) ? "end" : "start" ?>">
-        <?= $Message->getConvertedDateTime() ?>
+        <p class="p-0 m-0 "><small class="d-flex align-items-center">
+            <?= $Message->getConvertedDateTime() ?>
+            <?php if (!$isReadedBySomebody) { ?>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check align-self-center" viewBox="0 0 16 16">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
+              </svg>
+            <?php } else { ?>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-all align-self-center" viewBox="0 0 16 16">
+                <path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486z" />
+              </svg>
+            <?php } ?>
+          </small></p>
       </div>
     </div>
   <?php } else if ($isResended) { ?>
     <div id="message-<?= $Message->id ?>" class="d-flex flex-column p-2">
       <div id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
-      d-flex flex-column w-100 h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> " style="<?php if ($Message->type == 1) echo "border-color: green;";
-                                                                                          else if ($Message->type == 2) echo "border-color: red;" ?>">
+      d-flex flex-column w-100 h-auto mb-1 " style="<?php if ($Message->type == 1) echo "border-color: green;";
+                                                    else if ($Message->type == 2) echo "border-color: red;" ?>">
         <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1" style="text-transform: uppercase;">
           <p class="m-0 p-0"><strong>
               <?= $senderUserFI ?>
             </strong> </p>
         </div>
-        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?>">
-          <?php
-          if ($Message->full_text != '') {
-            if ($Message->type == 3) { // если ссылка
-          ?>
-              <p class="p-0 m-0 р6 text-start">
-                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
-              </p>
-            <?php } else { ?>
-              <p class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
-                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
-                <br>
-              </p>
-          <?php }
-          } ?>
-        </div>
         <div class="align-self-<?= ($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap" ?>" style="<?= ($Message->type == 3) ? "text-transform: uppercase;" : "" ?>">
           <?php showMessageFiles($Message->getFiles(), $isAuthor); ?>
         </div>
+        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?>">
+          <?php
+          if ($Message->full_text != '') {
+          ?>
+            <p id="p-message-<?= $Message->id ?>-text" class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
+              <?php
+              if ($Message->type == 3) { // если ссылка
+              ?>
+                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
+              <?php } else { ?>
+                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
+                <br>
+              <?php }
+              ?>
+            </p>
+          <?php
+          } ?>
+        </div>
       </div>
       <div class="mb-2 align-self-<?= ($isAuthor) ? "start" : "end" ?>">
-        <p class="p-0 m-0 "><small>
+        <p class="p-0 m-0 "><small class="d-flex align-items-center">
             <?= $Message->getConvertedDateTime() ?>
           </small></p>
       </div>
@@ -263,36 +280,47 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
     <?php } ?>
     <div id="message-<?= $Message->id ?>" class="<?= $float_class ?> d-flex flex-column p-2" style="height: fit-content; max-width: 75%; min-width: 30%;">
       <button id="btn-message-<?= $Message->id ?>" class="btn btn-outline-<?= ($isAuthor) ? "primary" : "dark" ?> shadow-none text-black <?= $background_color_class ?> 
-      d-flex flex-column w-100 h-auto mb-1 <?= ($isSelected) ? "bg-info" : "" ?> " style="<?php if ($Message->type == 1) echo "border-color: green;";
-                                                                                          else if ($Message->type == 2) echo "border-color: red;" ?> text-transform: unset;" onclick="selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_type ?>)">
+      d-flex flex-column w-100 h-auto mb-1 " style="<?php if ($Message->type == 1) echo "border-color: green;";
+                                                    else if ($Message->type == 2) echo "border-color: red;" ?> text-transform: unset;" oncontextmenu="onContextMenu(event, <?= $Message->id ?>, <?= $Message->sender_user_id == $User->id ?>)" onclick=" selectMessage(<?= $Message->id ?>, <?= $Message->sender_user_id == $User->id ?>)">
         <div class="d-flex align-self-<?= ($isAuthor) ? "end" : "start" ?> mb-1" style="text-transform: uppercase;">
           <p class="m-0 p-0"><strong>
               <?= $senderUserFI ?>
             </strong> </p>
         </div>
-        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?>">
-          <?php
-          if ($Message->full_text != '') {
-            if ($Message->type == 3) { // если ссылка
-          ?>
-              <p class="p-0 m-0 h6 text-start">
-                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
-              </p>
-            <?php } else { ?>
-              <p class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
-                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
-                <br>
-              </p>
-          <?php }
-          } ?>
-        </div>
         <div class="align-self-<?= ($isAuthor) ? "end d-flex flex-row-reverse flex-wrap" : "start d-flex flex-wrap" ?>" style="<?= ($Message->type == 3) ? "text-transform: uppercase;" : "" ?>">
           <?php showMessageFiles($Message->getFiles(), $isAuthor); ?>
         </div>
+        <div class="align-self-<?= ($isAuthor) ? "end" : "start" ?>">
+          <?php
+          if ($Message->full_text != '') {
+          ?>
+            <p id="p-message-<?= $Message->id ?>-text" class="p-0 m-0 h6 text-<?= ($isAuthor) ? "end" : "start" ?>">
+              <?php
+              if ($Message->type == 3) { // если ссылка
+              ?>
+                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
+              <?php } else { ?>
+                <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
+                <br>
+              <?php }
+              ?>
+            </p>
+          <?php
+          } ?>
+        </div>
       </button>
       <div class="mb-2 align-self-<?= ($isAuthor) ? "start" : "end" ?>">
-        <p class="p-0 m-0 "><small>
+        <p class="p-0 m-0 "><small class="d-flex align-items-center">
             <?= $Message->getConvertedDateTime() ?>
+            <?php if (!$isReadedBySomebody) { ?>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
+              </svg>
+            <?php } else { ?>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-all" viewBox="0 0 16 16">
+                <path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486z" />
+              </svg>
+            <?php } ?>
           </small></p>
       </div>
     </div>
@@ -300,21 +328,20 @@ function showMessage($Message, $User, $selected_messages, $min_new_message_id, $
 
   <?php
   }
-  if ($message_delivery_status == 0 && $readable) {
-    // $message->setReadedDeliveryStatus($user_id);
-    $Message->setStatus(1);
+  if (!$isReadedBySelf) {
+    $Message->setReadedDeliveryStatus($User->id);
   }
 }
 
 
 
 
-function updateNewMessages($assignment_id, $sender_user_type, $user_id)
-{
-  // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
-  $Assignment = new Assignment((int)$assignment_id);
-  visualNewMessages($Assignment->getNewMessagesByUser($user_id));
-}
+// function updateNewMessages($assignment_id, $sender_user_type, $user_id)
+// {
+//   // Содержимое этого div'а JS вставляет в окно чата на taskchat.php 
+//   $Assignment = new Assignment((int)$assignment_id);
+//   visualNewMessages($Assignment->getNewMessagesByUser($user_id));
+// }
 // TODO: Объединить ф-ции
 function visualNewMessages($Messages)
 {

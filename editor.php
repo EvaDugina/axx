@@ -1362,9 +1362,9 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
         }
       });
       if (flag)
-        $('#a-messages-delete').removeClass("disabled");
+        $('#a-messages-delete').removeClass("d-none");
       else
-        $('#a-messages-delete').addClass("disabled");
+        $('#a-messages-delete').addClass("d-none");
     }
 
     function resendMessages(assignment_id, user_id, this_chat) {

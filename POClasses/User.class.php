@@ -102,43 +102,65 @@ class User
     while ($page_id = pg_fetch_assoc($result)) {
       $Page = new Page((int)$page_id['id']);
 
-      if ($this->isTeacher()) { // Уведомления для преподавателя 
-        foreach ($Page->getTasks() as $Task) {
-          foreach ($Task->getActiveAssignments() as $Assignment) {
-            $unreadedMessages = $Assignment->getUnreadedMessagesForTeacher();
-            if (count($unreadedMessages) > 0) {
-              $notify = array(
-                "task_id" => $Task->id,
-                "taskTitle" => $Task->title,
-                "countUnreaded" => count($unreadedMessages),
-                "assignment_id" => $Assignment->id,
-                "students" => $Assignment->getStudents(),
-                "page_name" => $Page->name,
-                "needToCheck" => ($Assignment->isWaitingCheck()) ? true : false
-              );
-              array_push($notifies, $notify);
-            }
-          }
-        }
-      } else if ($this->isStudent()) { // Уведомления для студента
-        foreach ($Page->getTasks() as $Task) {
-          foreach ($Task->getVisibleAssignmemntsByStudent($this->id) as $Assignment) {
-            $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
-            if (count($unreadedMessages) > 0) {
-              $notify = array(
-                "task_id" => $Task->id,
-                "taskTitle" => $Task->title,
-                "countUnreaded" => count($unreadedMessages),
-                "assignment_id" => $Assignment->id,
-                "teachers" => $Page->getTeachers(),
-                "page_name" => $Page->name,
-                "completed" => ($Assignment->isCompleted()) ? true : false
-              );
-              array_push($notifies, $notify);
-            }
+      foreach ($Page->getTasks() as $Task) {
+        foreach ($Task->getActiveAssignments() as $Assignment) {
+          $unreadedMessages = $Assignment->getUnreadedMessage($this->id);
+          if (count($unreadedMessages) > 0) {
+            $notify = array(
+              "task_id" => $Task->id,
+              "taskTitle" => $Task->title,
+              "countUnreaded" => count($unreadedMessages),
+              "assignment_id" => $Assignment->id,
+              "students" => $Assignment->getStudents(),
+              "teachers" => $Page->getTeachers(),
+              "page_name" => $Page->name,
+              "needToCheck" => ($Assignment->isWaitingCheck()) ? true : false,
+              "completed" => ($Assignment->isCompleted()) ? true : false
+            );
+            array_push($notifies, $notify);
           }
         }
       }
+
+      // if ($this->isTeacher()) { // Уведомления для преподавателя 
+      //   foreach ($Page->getTasks() as $Task) {
+      //     foreach ($Task->getActiveAssignments() as $Assignment) {
+      //       $unreadedMessages = $Assignment->getUnreadedMessagesForTeacher();
+      //       if (count($unreadedMessages) > 0) {
+      //         $notify = array(
+      //           "task_id" => $Task->id,
+      //           "taskTitle" => $Task->title,
+      //           "countUnreaded" => count($unreadedMessages),
+      //           "assignment_id" => $Assignment->id,
+      //           "students" => $Assignment->getStudents(),
+      //           "page_name" => $Page->name,
+      //           "needToCheck" => ($Assignment->isWaitingCheck()) ? true : false
+      //         );
+      //         array_push($notifies, $notify);
+      //       }
+      //     }
+      //   }
+      // } else if ($this->isStudent()) { // Уведомления для студента
+      //   foreach ($Page->getTasks() as $Task) {
+      //     foreach ($Task->getVisibleAssignmemntsByStudent($this->id) as $Assignment) {
+      //       $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
+      //       if (count($unreadedMessages) > 0) {
+      //         $notify = array(
+      //           "task_id" => $Task->id,
+      //           "taskTitle" => $Task->title,
+      //           "countUnreaded" => count($unreadedMessages),
+      //           "assignment_id" => $Assignment->id,
+      //           "teachers" => $Page->getTeachers(),
+      //           "page_name" => $Page->name,
+      //           "completed" => ($Assignment->isCompleted()) ? true : false
+      //         );
+      //         array_push($notifies, $notify);
+      //       }
+      //     }
+      //   }
+      // }
+
+
     }
 
     return $notifies;

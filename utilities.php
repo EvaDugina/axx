@@ -1,5 +1,5 @@
 <?php
-require_once("settings.php");
+require_once("./settings.php");
 require_once("dbqueries.php");
 require_once("POClasses/Message.class.php");
 require_once("POClasses/Task.class.php");

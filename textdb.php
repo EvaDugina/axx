@@ -363,13 +363,14 @@ else if ($type == "oncheck") {
     //   pg_query($dbconnect, "UPDATE ax.ax_assignment SET status=4, status_code=2 where id=$assignment");
 
     if ($User->isStudent()) {
-      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, null, "Отправлено на проверку", 0, 0);
+      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "Отправлено на проверку");
+      $Assignment->addMessage($Message->id);
       $Message->setCommit($answerCommit->id);
       $File = new File(10, 'проверить', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
       $Message->addFile($File->id);
 
       // Отправка сообщения-ссылки для преподавателя
-      $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 0, 2);
+      $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 2);
       $Assignment->addMessage($linkMessage->id);
 
       // $result2 = pg_query($dbconnect, "insert into ax.ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
@@ -385,11 +386,11 @@ else if ($type == "oncheck") {
       // pg_query($dbconnect, "update ax.ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
 
     } else {
-      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, null, "Проверено", 0, 0);
+      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "Проверено");
+      $Assignment->addMessage($Message);
       $Message->setCommit($answerCommit->id);
       $File = new File(10, 'проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
       $Message->addFile($File->id);
-      $Assignment->addMessage($Message);
 
       // $result2 = pg_query($dbconnect, "insert into ax.ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
       //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");

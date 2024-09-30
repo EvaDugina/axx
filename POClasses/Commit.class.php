@@ -251,9 +251,7 @@ class Commit
       array_push($this->Files, $File);
     }
   }
-  public function copyFiles()
-  {
-  }
+  public function copyFiles() {}
   public function deleteFile($file_id)
   {
     $index = $this->findFileById($file_id);
@@ -261,6 +259,7 @@ class Commit
       $this->deleteFileFromCommitDB($file_id);
       $this->Files[$index]->deleteFromDB();
       unset($this->Files[$index]);
+      $this->Files = array_values($this->Files);
     }
   }
   private function findFileById($file_id)

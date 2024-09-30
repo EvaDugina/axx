@@ -339,6 +339,7 @@ class Task
     if ($index != -1) {
       $this->Assignments[$index]->deleteFromDB();
       unset($this->Assignments[$index]);
+      $this->Assignments = array_values($this->Assignments);
     }
   }
   private function findAssignmentById($assignment_id)
@@ -461,6 +462,7 @@ class Task
       $this->deleteFileFromTaskDB($file_id);
       $this->Files[$index]->deleteFromDB();
       unset($this->Files[$index]);
+      $this->Files = array_values($this->Files);
     }
   }
   private function findFileById($file_id)

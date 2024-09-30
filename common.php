@@ -170,7 +170,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                         <div class="d-flex justify-content-between align-items-center">
                           <div class="me-2">
                             <span style="border-bottom: 1px solid;">
-                              <?php if ($user->isTeacher()) {
+                              <?php /*if ($user->isTeacher()) {
                                 foreach ($notify['students'] as $i => $Student) { ?>
                                   <?= $Student->getFI() ?> <?= ($i + 1 < count($notify['students'])) ? "| " : "" ?>
                                 <?php
@@ -179,12 +179,15 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                                 <?php foreach ($notify['teachers'] as $i => $Teacher) { ?>
                                   <?= $Teacher->getFIOspecial() ?> <?= ($i + 1 < count($notify['teachers'])) ? "| " : "" ?>
                               <?php }
-                              } ?>
-                              (<?= $notify['page_name'] ?>)
+                              } */ ?>
+                              <?= $notify['page_name'] ?>
                             </span>
                             <br><?php echo $notify['taskTitle']; ?>
                           </div>
-                          <span class="badge badge-primary badge-pill" <?php if ($user->isTeacher() && $notify['needToCheck']) { ?> style="background: red; color: white;" <?php } else if ($user->isStudent() && $notify['completed']) { ?> style="background: green; color: white;" <?php } ?>>
+                          <span class="badge badge-primary badge-pill"
+                            <?php if ($user->isTeacher() && $notify['needToCheck']) { ?>
+                            style="background: red; color: white;"
+                            <?php } ?>>
                             <?= $notify['countUnreaded'] ?>
                           </span>
                         </div>
