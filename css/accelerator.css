@@ -199,6 +199,11 @@
   background-color: #f4849a;
 }
 
+.rb-gray {
+  background-color: #7f7f7f;
+  color:white;
+}
+
 .axconsole {
   border: #505050 4px solid;
   background: #505050;

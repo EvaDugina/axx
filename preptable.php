@@ -385,7 +385,7 @@ if ($scripts) echo $scripts;
 
                                         if ($Assignment->isMarked()) { ?>
                                           <span class="badge badge-primary badge-pill bg-success text-white">
-                                            Выполнено
+                                            Выполнено: <?= $Assignment->mark ?>
                                           </span>
                                         <?php } else if ($Assignment->isCompleted()) { ?>
                                           <span class="badge badge-primary badge-pill bg-primary text-white">
@@ -647,7 +647,7 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id, $current_m
     <div class='d-flex w-100 justify-content-between mb-1'>
       <a href=&quot;javascript:answerPress(2," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", &#39;" . $Task->mark_type . "&#39;, " . $Task->max_mark . ", &#39;$current_mark&#39;);&quot;
       type='message' class='btn btn-outline-success w-100 me-1'>
-        Зачесть
+        Оценить
       </a> 
       <a href='javascript:answerPress(0," . $Message->id . ", " . $assignment_id . ", " . $user_id . ", &#39;$current_mark&#39;)' 
       type='message' class='btn btn-outline-dark w-100'>
@@ -670,7 +670,7 @@ function getPopoverContent($Message, $Task, $assignment_id, $user_id, $current_m
 
 function show_preptable_message($message, $flag_marked_message = false)
 {
-  global $user_id;
+  global $au;
 
   if ($message == null || $message['type'] == 0)
     return;
@@ -763,6 +763,7 @@ function generate_message_for_student_task_commit($task_title)
 
   $('#button-reject-check').on('click', function() {
     markAssignment(CHOOSED_ASSIGNMENT_ID, "");
+    document.location.reload();
   });
 
   $('#button-check-word').on('click', function() {
@@ -802,10 +803,10 @@ function generate_message_for_student_task_commit($task_title)
           if (accordionStatusElements.length == 0) {
             let span = document.createElement("span");
             span.setAttribute("class", "badge badge-primary badge-pill bg-success text-white");
-            span.innerText = "Выполнено";
+            span.innerText = "Выполнено: " + mark;
             $(this).append(span);
           } else if (accordionStatusElements.length == 1) {
-            if (accordionStatusElements[0].innerText.trim() == "Выполнено")
+            if (accordionStatusElements[0].innerText.trim().includes("Выполнено"))
               flagNotPlus = true;
             else {
               accordionStatusElements[0].classList = ["badge badge-primary badge-pill bg-success text-white"];
