@@ -113,7 +113,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
       <!-- Container wrapper -->
       <div class="container-fluid">
         <!-- Navbar brand -->
-        <?php $version_json = json_decode(file_get_contents("version.json")); ?>
+        <?php $version_json = json_decode(file_get_contents("./Version/version.json")); ?>
         <a class="navbar-brand" href="index.php">
           <b>536 Акселератор</b>&nbsp;
           <span class="text-muted"><small>v<?= (!($version_json === null)) ? $version_json->version : "?" ?></small></span>
