@@ -8,12 +8,18 @@ repos:
 #     stages:
 #     - prepare-commit-msg
 #   repo: local
+
+# Хук проверяющий отсутствие файлов au и update в истории изменений
 - hooks:
-  - id: commitizen
+  - entry: .hooks/pre-commit-no-au-no-update-hook.py
+    id: pre-commit-no-au-no-update
+    language: python
+    name: No au no update
     stages:
-    - commit-msg
-  repo: https://github.com/commitizen-tools/commitizen
-  rev: v3.29.1
+    - pre-commit
+  repo: local
+
+# Хук для дампа версий
 - hooks:
   - entry: .hooks/pre-push-commitizen-bump
     id: pre-push-commitizen-bump
@@ -22,3 +28,10 @@ repos:
     stages:
     - pre-push
   repo: local
+
+- hooks:
+  - id: commitizen
+    stages:
+    - commit-msg
+  repo: https://github.com/commitizen-tools/commitizen
+  rev: v3.29.1
