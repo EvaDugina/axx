@@ -9,15 +9,15 @@ repos:
 #     - prepare-commit-msg
 #   repo: local
 
-# Хук проверяющий отсутствие файлов au и update в истории изменений
-- hooks:
-  - entry: .hooks/pre-commit-no-au-no-update-hook.py
-    id: pre-commit-no-au-no-update
-    language: python
-    name: No au no update
-    stages:
-    - pre-commit
-  repo: local
+# Локальный Хук проверяющий отсутствие файлов au и update в истории изменений
+# - hooks:
+#   - entry: .hooks/_localHooks/pre-commit
+#     id: pre-commit-no-au-no-update
+#     language: script
+#     name: No au No update
+#     stages:
+#     - pre-commit
+#   repo: local
 
 # Хук для дампа версий
 - hooks:

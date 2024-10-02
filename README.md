@@ -9,6 +9,7 @@
 
 ```console
 pip install pre-commit
+pre-commit install
 ```
 
 #### Commitizen: Versioning & Commit Conventional Hook
