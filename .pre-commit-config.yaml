@@ -1,0 +1,24 @@
+repos:
+# Хук проверки соответствия сообщения коммита стандратам Conventional Commits
+# - hooks:
+#   - entry: .hooks/prepare-commit-conventional-hook.py
+#     id: prepare-commit-conventional
+#     language: python
+#     name: Conventional Commit
+#     stages:
+#     - prepare-commit-msg
+#   repo: local
+- hooks:
+  - id: commitizen
+    stages:
+    - commit-msg
+  repo: https://github.com/commitizen-tools/commitizen
+  rev: v3.29.1
+- hooks:
+  - entry: .hooks/pre-push-commitizen-bump
+    id: pre-push-commitizen-bump
+    language: script
+    name: Commitizen Bump
+    stages:
+    - pre-push
+  repo: local
