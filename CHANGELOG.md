@@ -1,3 +1,9 @@
+## 0.2.1 (2024-10-02)
+
+### Fix
+
+- Semantic Versioning with Local Git Hooks
+
 ## 0.2.0 (2024-10-02)
 
 ### Feat
