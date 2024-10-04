@@ -1,3 +1,15 @@
+## 0.3.2 (2024-10-04)
+
+### Fix
+
+- pre-push-commitizen-bump
+
+## 0.3.2 (2024-10-04)
+
+### Fix
+
+- pre-push-commitizen-bump
+
 ## 0.3.1 (2024-10-04)
 
 ### Fix
