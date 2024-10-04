@@ -25,6 +25,15 @@ if ($pageurl != 'login.php') {
   }
 }
 
+function getCurrentVersion()
+{
+  $commitizen_config_file_path = "./.cz.json";
+  $config_json = json_decode(file_get_contents($commitizen_config_file_path));
+  if (!isset($config_json->commitizen))
+    return null;
+  return $config_json->commitizen->version;
+}
+
 function show_breadcrumbs(&$breadcrumbs)
 {
   if (count($breadcrumbs) < 1)
@@ -113,10 +122,10 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
       <!-- Container wrapper -->
       <div class="container-fluid">
         <!-- Navbar brand -->
-        <?php $version_json = json_decode(file_get_contents("./Versioning/version.json")); ?>
+        <?php $version = getCurrentVersion(); ?>
         <a class="navbar-brand" href="index.php">
           <b>536 Акселератор</b>&nbsp;
-          <span class="text-muted"><small>v<?= (!($version_json === null)) ? $version_json->version : "?" ?></small></span>
+          <span class="text-muted"><small>v<?= (($version != null)) ? $version : "?" ?></small></span>
         </a>
 
         <!-- Toggle button -->
