@@ -1,3 +1,10 @@
+## 0.3.0 (2024-10-04)
+
+### Feat
+
+- **common**: Modal dialog with changelog
+- **common-header**: Получение текущей версии из конфига commitizen
+
 ## 0.2.2 (2024-10-04)
 
 ### Fix
