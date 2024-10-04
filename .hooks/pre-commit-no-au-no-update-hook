@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+python .hooks/pre-commit-no-au-no-update-hook.py

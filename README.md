@@ -5,7 +5,7 @@
 для работы редактора необходимо поставить node.js и https://github.com/microsoft/monaco-editor
 
 
-### ИСПОЛЬЗОВАНИЕ GIT-HOOKS
+### ЛОКАЛЬНОЕ ИСПОЛЬЗОВАНИЕ GIT-HOOKS
 
 ```console
 pip install pre-commit
@@ -20,6 +20,7 @@ https://github.com/commitizen-tools/commitizen
 pip install --user pipenv
 pipenv install --dev pre-commit Commitizen toml
 pipenv run cz init
+pre-commit autoupdate
 pre-commit install
 pre-commit autoupdate
 ```
