@@ -115,6 +115,10 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
     $(document).ready(function() {
       $('main').css("margin-top", parseFloat($('#header').css("height")) + parseFloat($('main').css("margin-top")));
     });
+
+    function showChangeLogModal() {
+      $('#div-dialog-changelog').modal('show');
+    }
   </script>
   <header id="header" class="header header--fixed js-header is-show">
     <!-- Navbar -->
@@ -122,11 +126,20 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
       <!-- Container wrapper -->
       <div class="container-fluid">
         <!-- Navbar brand -->
-        <?php $version = getCurrentVersion(); ?>
-        <a class="navbar-brand" href="index.php">
-          <b>536 Акселератор</b>&nbsp;
-          <span class="text-muted"><small>v<?= (($version != null)) ? $version : "?" ?></small></span>
-        </a>
+        <div class="d-flex align-items-center me-3">
+          <a class="navbar-brand p-0 me-0" href="index.php">
+            <b>536 Акселератор</b>&nbsp;
+          </a>
+          <?php $version = getCurrentVersion(); ?>
+          <span class="text-muted mt-1"><small>v<?= (($version != null)) ? $version : "?" ?></small></span>
+          &nbsp;
+          <button type="button" class="btn text-muted mt-1 p-0" onclick="showChangeLogModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-square" viewBox="0 0 16 16">
+              <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"></path>
+              <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"></path>
+            </svg>
+          </button>
+        </div>
 
         <!-- Toggle button -->
         <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -250,7 +263,24 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
         </div>
 
     </nav>
+
   </header>
+
+  <div class="modal" id="div-dialog-changelog" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">ИСТОРИЯ ИЗМЕНЕНИЙ</h5>
+          <button type="button" class="close" data-mdb-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <?= getChangeLogHtml() ?>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <?php
 }
