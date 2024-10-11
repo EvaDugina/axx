@@ -223,6 +223,38 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
           "autoreject" => str2bool(@$_POST["clang_errors_reject"])
         )
       ),
+      "pylint" => array(
+        "enabled" => str2bool(@$_POST["pylint_enabled"]),
+        "show_to_student" => str2bool(@$_POST["pylint_show"]),
+        "bin" => "pylint",
+        "arguments" => @$_POST["pylint_arg"],
+        "checks" => array(
+          array(
+            "check" => "error",
+            "enabled" => str2bool(@$_POST["pylint_error"]),
+            "limit" => str2int(@$_POST["pylint_error_limit"]),
+            "autoreject" => str2bool(@$_POST["pylint_error_reject"])
+          ),
+          array(
+            "check" => "warning",
+            "enabled" => str2bool(@$_POST["pylint_warning"]),
+            "limit" => str2int(@$_POST["pylint_warning_limit"]),
+            "autoreject" => str2bool(@$_POST["pylint_warning_reject"])
+          ),
+          array(
+            "check" => "refactor",
+            "enabled" => str2bool(@$_POST["pylint_refactor"]),
+            "limit" => str2int(@$_POST["pylint_refactor_limit"]),
+            "autoreject" => str2bool(@$_POST["pylint_refactor_reject"])
+          ),
+          array(
+            "check" => "convention",
+            "enabled" => str2bool(@$_POST["pylint_convention"]),
+            "limit" => str2int(@$_POST["pylint_convention_limit"]),
+            "autoreject" => str2bool(@$_POST["pylint_convention_reject"])
+          )
+        )
+      ),
       "autotests" => array(
         "enabled" => str2bool(@$_POST["test_enabled"]),
         "show_to_student" => str2bool(@$_POST["test_show"]),
