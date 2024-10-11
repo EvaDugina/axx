@@ -1,3 +1,15 @@
+## 0.4.0 (2024-10-11)
+
+### Feat
+
+- **editor**: Отображение проверки Pylint
+- **taskassign**: Добавлено поле конфигураций для pylint
+
+### Fix
+
+- **taskassign**: Сохранение конфигураций pylint
+- **pre-push-commitizen-bump**: Добавлен fetch origin
+
 ## 0.3.3 (2024-10-11)
 
 ### Fix
