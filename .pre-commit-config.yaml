@@ -1,10 +1,9 @@
 default_install_hook_types:
   - commit-msg
-  - pre-commit
   - pre-push
 
 repos:
-# Хук проверки соответствия сообщения коммита стандратам Conventional Commits
+# Вручную написанный хук проверки соответствия сообщения коммита стандратам Conventional Commits
   # - repo: local
   #   hooks:
   #     - entry: .hooks/prepare-commit-conventional-hook.py
@@ -13,16 +12,6 @@ repos:
   #       name: Conventional Commit
   #       stages:
   #         - commit-msg
-
-# Локальный Хук проверяющий отсутствие файлов au и update в истории изменений
-  # - repo: local
-  #   hooks:
-  #     - entry: .hooks/pre-commit-no-au-no-update-hook
-  #       id: pre-commit-no-au-no-update
-  #       language: script
-  #       name: No au No update
-  #       stages:
-  #         - pre-commit
   
 # Хук проверки соответствия Conventional Commits от Commitizen
   - repo: https://github.com/commitizen-tools/commitizen
