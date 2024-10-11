@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 
+git fetch origin
+
 # https://github.com/commitizen-tools/commitizen/blob/master/docs/commands/bump.md
 pipenv run cz bump --changelog
