@@ -531,7 +531,6 @@ function getChangeLogHtml()
 {
   include "./parsedown-1.7.4/Parsedown.php";
 
-
   $change_log_file_path = "./CHANGELOG.md";
   $change_log_md = file_get_contents($change_log_file_path);
 
