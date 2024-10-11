@@ -319,7 +319,159 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
               if ($checks == null)
                 $checks = $Task->checks;
               if ($checks == null)
-                $checks = '{"tools":{"build":{"enabled":true,"show_to_student":false,"language":"C++","check":{"autoreject":true}},"valgrind":{"enabled":"false","show_to_student":"false","bin":"valgrind","arguments":"","compiler":"gcc","checks":[{"check":"errors","enabled":"true","limit":"0","autoreject":"false"},{"check":"leaks","enabled":"true","limit":"0","autoreject":"false"}]},"cppcheck":{"enabled":"false","show_to_student":"false","bin":"cppcheck","arguments":"","checks":[{"check":"error","enabled":"true","limit":"0","autoreject":"false"},{"check":"warning","enabled":"true","limit":"3","autoreject":"false"},{"check":"style","enabled":"true","limit":"3","autoreject":"false"},{"check":"performance","enabled":"true","limit":"2","autoreject":"false"},{"check":"portability","enabled":"true","limit":"0","autoreject":"false"},{"check":"information","enabled":"true","limit":"0","autoreject":"false"},{"check":"unusedFunction","enabled":"true","limit":"0","autoreject":"false"},{"check":"missingInclude","enabled":"true","limit":"0","autoreject":"false"}]},"clang-format":{"enabled":"false","show_to_student":"false","bin":"clang-format","arguments":"","check":{"level":"strict","file":"","limit":"5","autoreject":"true"}},"copydetect":{"enabled":"false","show_to_student":"false","bin":"copydetect","arguments":"","check":{"type":"with_all","limit":"80","autoreject":"false"}},"autotests": {"enabled": false,"show_to_student": false,"test_path": "accel_autotest.cpp","check": {"limit": 0,"autoreject": true}}}}';
+                $checks = '{
+  "tools": {
+    "build": {
+      "enabled": true,
+      "show_to_student": false,
+      "language": "C++",
+      "check": {
+        "autoreject": true
+      }
+    },
+    "valgrind": {
+      "enabled": "false",
+      "show_to_student": "false",
+      "bin": "valgrind",
+      "arguments": "",
+      "compiler": "gcc",
+      "checks": [
+        {
+          "check": "errors",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "leaks",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        }
+      ]
+    },
+    "cppcheck": {
+      "enabled": "false",
+      "show_to_student": "false",
+      "bin": "cppcheck",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "warning",
+          "enabled": "true",
+          "limit": "3",
+          "autoreject": "false"
+        },
+        {
+          "check": "style",
+          "enabled": "true",
+          "limit": "3",
+          "autoreject": "false"
+        },
+        {
+          "check": "performance",
+          "enabled": "true",
+          "limit": "2",
+          "autoreject": "false"
+        },
+        {
+          "check": "portability",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "information",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "unusedFunction",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "missingInclude",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        }
+      ]
+    },
+    "clang-format": {
+      "enabled": "false",
+      "show_to_student": "false",
+      "bin": "clang-format",
+      "arguments": "",
+      "check": {
+        "level": "strict",
+        "file": "",
+        "limit": "5",
+        "autoreject": "true"
+      }
+    },
+    "pylint": {
+      "enabled": "false",
+      "show_to_student": "false",
+      "bin": "pylint",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "warning",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false"
+        },
+        {
+          "check": "refactor",
+          "enabled": "true",
+          "limit": "3",
+          "autoreject": "false"
+        },
+        {
+          "check": "convention",
+          "enabled": "true",
+          "limit": "3",
+          "autoreject": "false"
+        }
+      ]
+    },
+    "copydetect": {
+      "enabled": "false",
+      "show_to_student": "false",
+      "bin": "copydetect",
+      "arguments": "",
+      "check": {
+        "type": "with_all",
+        "limit": "80",
+        "autoreject": "false"
+      }
+    },
+    "autotests": {
+      "enabled": false,
+      "show_to_student": false,
+      "test_path": "accel_autotest.cpp",
+      "check": {
+        "limit": 0,
+        "autoreject": true
+      }
+    }
+  }
+}';
 
               $checks = json_decode($checks, true);
 
@@ -352,12 +504,14 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                   $limit = @$checks['tools']['autotests']['check']['limit'];
                   $reject = @$checks['tools']['autotests']['check']['autoreject'];
                 } else {
-                  $arr = @$checks['tools'][$group]['checks'];
-                  foreach ($arr as $a) {
-                    if (@$a['check'] == $param) {
-                      $enabled = $a['enabled'];
-                      $limit = $a['limit'];
-                      $reject = $a['autoreject'];
+                  if (isset($checks['tools'][$group])) {
+                    $arr = @$checks['tools'][$group]['checks'];
+                    foreach ($arr as $a) {
+                      if (@$a['check'] == $param) {
+                        $enabled = $a['enabled'];
+                        $limit = $a['limit'];
+                        $reject = $a['autoreject'];
+                      }
                     }
                   }
                 }
@@ -467,6 +621,25 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     '<input id="clang_file" name="clang_file" value="' . @$checks['tools']['clang-format']['file'] .
                     '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
                     add_check_param('clang', 'errors', 'нарушения', $checks)
+                ),
+                array(
+                  'header' => '<b>Pylint</b>',
+
+                  'label'   => '<input id="pylint_enabled" name="pylint_enabled" ' . checked(@$checks['tools']['pylint']['enabled']) .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+                    '<label class="form-check-label" for="pylint_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+                    '<input id="pylint_show" name="pylint_show" ' . checked(@$checks['tools']['pylint']['show_to_student']) .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+                    '<label class="form-check-label" for="pylint_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+                  'body'   => '<div><label class="form-check-label" for="pylint_arg" style="width:20%;">аргументы</label>' .
+                    '<input id="pylint_arg" name="pylint_arg" value="' . @$checks['tools']['pylint']['arguments'] .
+                    '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+
+                    add_check_param('pylint', 'error', 'errors', $checks) .
+                    add_check_param('pylint', 'warning', 'warnings', $checks) .
+                    add_check_param('pylint', 'refactor', 'refactor', $checks) .
+                    add_check_param('pylint', 'convention', 'convention', $checks)
                 ),
                 array(
                   'header' => '<b>Автотесты</b>',
