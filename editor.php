@@ -529,6 +529,48 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "full_output": "output_format.xml",
               "outcome": "undefined"
             },
+            "pylint": {
+              "enabled": "false",
+              "show_to_student": "false",
+              "bin": "pylint",
+              "arguments": "",
+              "checks": [
+                {
+                  "check": "error",
+                  "enabled": "true",
+                  "limit": "0",
+                  "autoreject": "false",
+                  "result": 0,
+                  "outcome": "pass"
+                },
+                {
+                  "check": "warning",
+                  "enabled": "true",
+                  "limit": "0",
+                  "autoreject": "false",
+                  "result": 0,
+                  "outcome": "pass"
+                },
+                {
+                  "check": "refactor",
+                  "enabled": "true",
+                  "limit": "3",
+                  "autoreject": "false",
+                                    "result": 0,
+                  "outcome": "pass"
+                },
+                {
+                  "check": "convention",
+                  "enabled": "true",
+                  "limit": "3",
+                  "autoreject": "false",
+                                    "result": 0,
+                  "outcome": "pass"
+                }
+              ],
+              "full_output": "output_pylint.xml",
+              "outcome": "undefined"
+            },
             "copydetect": {
               "enabled": true,
               "show_to_student": false,
@@ -589,26 +631,34 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               //  line-height: 20px; color: #fff; text-align: center;
               $accord = array();
               if (!$User->isStudent()) {
-                $accord = array(
-                  parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']),
-                  parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']),
-                  parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']),
-                  parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']),
-                  parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']),
-                  parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled'])
-                );
-              } else {
-                if ($checks['tools']['build']['show_to_student'])
+                if (isset($checks['tools']['build']))
                   array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']));
-                if ($checks['tools']['cppcheck']['show_to_student'])
+                if (isset($checks['tools']['cppcheck']))
                   array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']));
-                if ($checks['tools']['clang-format']['show_to_student'])
+                if (isset($checks['tools']['clang-format']))
                   array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']));
-                if ($checks['tools']['valgrind']['show_to_student'])
+                if (isset($checks['tools']['valgrind']))
                   array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
-                if ($checks['tools']['autotests']['show_to_student'])
+                if (isset($checks['tools']['pylint']))
+                  array_push($accord, parsePylint(@$checkres['tools']['pylint'], $checks['tools']['pylint']['enabled']));
+                if (isset($checks['tools']['autotests']))
                   array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
-                if ($checks['tools']['copydetect']['show_to_student'])
+                if (isset($checks['tools']['copydetect']))
+                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled']));
+              } else {
+                if (isset($checks['tools']['build']) && $checks['tools']['build']['show_to_student'])
+                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']));
+                if (isset($checks['tools']['cppcheck']) && $checks['tools']['cppcheck']['show_to_student'])
+                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']));
+                if (isset($checks['tools']['clang-format']) && $checks['tools']['clang-format']['show_to_student'])
+                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']));
+                if (isset($checks['tools']['valgrind']) && $checks['tools']['valgrind']['show_to_student'])
+                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
+                if (isset($checks['tools']['pylint']) && $checks['tools']['pylint']['show_to_student'])
+                  array_push($accord, parsePylint(@$checkres['tools']['pylint'], $checks['tools']['pylint']['enabled']));
+                if (isset($checks['tools']['autotests']) && $checks['tools']['autotests']['show_to_student'])
+                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
+                if (isset($checks['tools']['copydetect']) && $checks['tools']['copydetect']['show_to_student'])
                   array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled']));
               }
               show_accordion('checkres', $accord, "5px");

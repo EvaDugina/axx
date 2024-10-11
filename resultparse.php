@@ -363,6 +363,94 @@ function parseValgrind($data, $enabled)
     return $resArr;
 }
 
+// Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
+function parsePylint($data, $enabled)
+{
+    $resFooter = '<label for="pylint" id="pylintlabel" class="switchcon">+ показать полный вывод</label>' .
+        '<pre id="pylint" class="axconsole">Загрузка...</pre>';
+
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>pylint</b>' . generateColorBox('gray', 'Сборка не удалась', 'pylint_result') . '</div>',
+            'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
+
+    switch ($data['outcome']) {
+        case 'pass':
+            break;
+        case 'fail':
+            return array(
+                'header' => '<div class="w-100"><b>Pylint</b>' . generateColorBox('red', 'Ошибка исполнения', 'pylint_result') . '</div>',
+                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
+                'footer' => $resFooter
+            );
+        case 'skip':
+            return array(
+                'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pylint_body", "Проверка пропущена или инструмент проверки не установлен."),
+                'footer' => $resFooter
+            );
+            break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pylint_body", "Не проверено."),
+                'footer' => $resFooter
+            );
+            break;
+    }
+
+
+    $resBody = '';
+    $sumOfErrors = 0;
+
+    foreach ($data['checks'] as $check) {
+        $resBody .= @$check['check'] . ' : ' . @$check['result'] . '<br>';
+        $sumOfErrors += @$check['result'];
+    }
+
+    $boxColor = 'green';
+    $boxText = $sumOfErrors;
+
+    foreach ($data['checks'] as $check) {
+        switch ($check['outcome']) {
+            case 'fail':
+                $boxColor = 'yellow';
+                break;
+            case 'reject':
+                $boxColor = 'red';
+                break;
+        }
+        if ($check['outcome'] == 'reject') {
+            break;
+        }
+    }
+
+    $resColorBox = generateColorBox($boxColor, $boxText, 'pylint_result');
+
+    $resArr = array(
+        'header' => '<div class="w-100"><b>Pylint</b>' . $resColorBox . '</div>',
+
+        'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+
+        'body'   => generateTaggedValue("pylint_body", $resBody),
+        'footer' => $resFooter
+    );
+
+    return $resArr;
+}
+
 // Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
 function parseAutoTests($data, $enabled)
 {
