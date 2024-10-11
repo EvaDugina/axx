@@ -446,6 +446,10 @@ else if ($type == "tools") {
     $checks['tools']['valgrind']['enabled'] = str2bool(@$_REQUEST['valgrind']);
     $checks['tools']['valgrind']['bin'] = "valgrind";
   }
+  if (array_key_exists('pylint', $_REQUEST)) {
+    $checks['tools']['pylint']['enabled'] = str2bool(@$_REQUEST['pylint']);
+    $checks['tools']['pylint']['bin'] = "pylint";
+  }
   if (array_key_exists('copy', $_REQUEST)) {
     $checks['tools']['copydetect']['enabled'] = str2bool(@$_REQUEST['copy']);
     $checks['tools']['copydetect']['bin'] = "copydetect";
@@ -703,7 +707,8 @@ else if ($type == "tools") {
   //exec('docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
   exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
   //echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
-
+  if ($checks['tools']['pylint']['enabled'])
+    exec("docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox python_code_check -c config.json " . implode(' ', $files) . ' 2>&1', $output, $retval);
   /* Получение результатов проверки из БД
 	$result = pg_query($dbconnect,  "select autotest_results from ax.ax_solution_commit where id = ".$commit_id);
 	if (!($row = pg_fetch_assoc($result))) {
