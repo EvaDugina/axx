@@ -428,24 +428,48 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
           "check": "error",
           "enabled": "true",
           "limit": "0",
-          "autoreject": "false"
+          "autoreject": "false",
+          "disableErrorCodes": []
         },
         {
           "check": "warning",
           "enabled": "true",
-          "limit": "0",
-          "autoreject": "false"
+          "limit": "6",
+          "autoreject": "false",
+          "disableErrorCodes": []
         },
         {
           "check": "refactor",
-          "enabled": "true",
+          "enabled": "false",
           "limit": "3",
-          "autoreject": "false"
+          "autoreject": "false",
+          "disableErrorCodes": []
         },
         {
           "check": "convention",
           "enabled": "true",
-          "limit": "3",
+          "limit": "7",
+          "autoreject": "false",
+          "disableErrorCodes": ["C0111", "C0112"]
+        }
+      ]
+    },
+    "pytest": {
+      "enabled": "true",
+      "show_to_student": "false",
+      "bin": "pytest",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "base",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "true"
+        },
+        {
+          "check": "base2",
+          "enabled": "false",
+          "limit": "0",
           "autoreject": "false"
         }
       ]
@@ -483,6 +507,17 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
               function selected($src, $option)
               {
                 return ($src == $option) ? "selected" : "";
+              }
+
+              function add_check_params($group, $param, $checks)
+              {
+                if (!isset($checks['tools'][$group][$param]))
+                  return "";
+                $output = '';
+                foreach ($checks['tools'][$group][$param] as $check) {
+                  $output .= add_check_param($group, $check['check'], $check['check'], $checks);
+                }
+                return $output;
               }
 
               function add_check_param($group, $param, $caption, $checks)
@@ -640,6 +675,22 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     add_check_param('pylint', 'warning', 'warnings', $checks) .
                     add_check_param('pylint', 'refactor', 'refactor', $checks) .
                     add_check_param('pylint', 'convention', 'convention', $checks)
+                ),
+                array(
+                  'header' => '<b>Pytest</b>',
+
+                  'label'   => '<input id="pytest_enabled" name="pytest_enabled" ' . checked(@$checks['tools']['pytest']['enabled']) .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+                    '<label class="form-check-label" for="pytest_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+                    '<input id="pytest_show" name="pytest_show" ' . checked(@$checks['tools']['pytest']['show_to_student']) .
+                    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+                    '<label class="form-check-label" for="pytest_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+                  'body'   => '<div><label class="form-check-label" for="pytest_arg" style="width:20%;">аргументы</label>' .
+                    '<input id="pytest_arg" name="pytest_arg" value="' . @$checks['tools']['pytest']['arguments'] .
+                    '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+
+                    add_check_params('pytest', 'checks', $checks)
                 ),
                 array(
                   'header' => '<b>Автотесты</b>',
