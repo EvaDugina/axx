@@ -571,6 +571,21 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "full_output": "output_pylint.xml",
               "outcome": "undefined"
             },
+            "pytest": {
+              "enabled": true,
+              "show_to_student": false,
+              "test_path": "autotest.py",
+              "bin": "pytest",
+              "check": {
+                "limit": 0,
+                "autoreject": true,
+                "outcome": "fail",
+                "errors": 0,
+                "failures": 3
+              },
+              "full_output": "output_pytest.txt",
+              "outcome": "undefined"
+            },
             "copydetect": {
               "enabled": true,
               "show_to_student": false,
@@ -641,6 +656,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                   array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
                 if (isset($checks['tools']['pylint']))
                   array_push($accord, parsePylint(@$checkres['tools']['pylint'], $checks['tools']['pylint']['enabled']));
+                if (isset($checks['tools']['pytest']))
+                  array_push($accord, parsePytest(@$checkres['tools']['pytest'], $checks['tools']['pytest']['enabled']));
                 if (isset($checks['tools']['autotests']))
                   array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
                 if (isset($checks['tools']['copydetect']))
@@ -656,6 +673,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                   array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
                 if (isset($checks['tools']['pylint']) && $checks['tools']['pylint']['show_to_student'])
                   array_push($accord, parsePylint(@$checkres['tools']['pylint'], $checks['tools']['pylint']['enabled']));
+                if (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['show_to_student'])
+                  array_push($accord, parsePytest(@$checkres['tools']['pytest'], $checks['tools']['pytest']['enabled']));
                 if (isset($checks['tools']['autotests']) && $checks['tools']['autotests']['show_to_student'])
                   array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
                 if (isset($checks['tools']['copydetect']) && $checks['tools']['copydetect']['show_to_student'])

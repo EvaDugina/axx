@@ -26,7 +26,7 @@ function parseBuildCheck($data, $enabled)
 
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>Сборка</b>' . generateColorBox('gray', 'Сборка не удалась', 'build_result') . '</div>',
+            'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . generateColorBox('gray', 'Build не удался', 'build_result') . '</div>',
             'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
@@ -39,7 +39,7 @@ function parseBuildCheck($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Сборка</b>' . generateColorBox('red', 'Ошибка исполнения', 'build_result') . '</div>',
+                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . generateColorBox('red', 'Ошибка исполнения', 'build_result') . '</div>',
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
@@ -47,7 +47,7 @@ function parseBuildCheck($data, $enabled)
             );
         case 'skip':
             return array(
-                'header' => '<div class="w-100"><b>Сборка</b><span id="build_result" class="rightbadge"></span></div>',
+                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b><span id="build_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("build_body", "Проверка пропущена или инструмент проверки не установлен."),
@@ -56,7 +56,7 @@ function parseBuildCheck($data, $enabled)
             break;
         case 'undefined':
             return array(
-                'header' => '<div class="w-100"><b>Сборка</b><span id="build_result" class="rightbadge"></span></div>',
+                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b><span id="build_result" class="rightbadge"></span></div>',
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("build_body", "Не проверено."),
@@ -85,7 +85,7 @@ function parseBuildCheck($data, $enabled)
 
     $resColorBox = generateColorBox($boxColor, $boxText, 'build_result');
     $resArr = array(
-        'header' => '<div class="w-100"><b>Сборка</b>' . $resColorBox . '</div>',
+        'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . $resColorBox . '</div>',
 
         'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
@@ -104,7 +104,7 @@ function parseCppCheck($data, $enabled)
 
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('gray', 'Сборка не удалась', 'cppcheck_result') . '</div>',
+            'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('gray', 'Build не удался', 'cppcheck_result') . '</div>',
             'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
@@ -192,7 +192,7 @@ function parseClangFormat($data, $enabled)
 
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('gray', 'Сборка не удалась', 'clangformat_result') . '</div>',
+            'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('gray', 'Build не удался', 'clangformat_result') . '</div>',
             'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
@@ -275,7 +275,7 @@ function parseValgrind($data, $enabled)
 
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('gray', 'Сборка не удалась', 'valgrind_errors') . generateColorBox('red', '', 'valgrind_leaks') . '</div>',
+            'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('gray', 'Build не удался', 'valgrind_errors') . generateColorBox('red', '', 'valgrind_leaks') . '</div>',
             'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
@@ -371,7 +371,7 @@ function parsePylint($data, $enabled)
 
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>pylint</b>' . generateColorBox('gray', 'Сборка не удалась', 'pylint_result') . '</div>',
+            'header' => '<div class="w-100"><b>pylint</b>' . generateColorBox('gray', 'Build не удался', 'pylint_result') . '</div>',
             'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
@@ -451,6 +451,88 @@ function parsePylint($data, $enabled)
     return $resArr;
 }
 
+function parsePytest($data, $enabled)
+{
+    $resFooter = '<label for="pytest" id="pytestlabel" class="switchcon">+ показать полный вывод</label>' .
+        '<pre id="pytest" class="axconsole">Загрузка...</pre>';
+
+    if (!array_key_exists('outcome', $data)) {
+        return array(
+            'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Build не удался', 'pytest_result') . '</div>',
+            'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
+            'footer' => $resFooter
+        );
+    }
+
+    switch ($data['outcome']) {
+        case 'pass':
+            break;
+        case 'fail':
+            return array(
+                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('red', 'Ошибка исполнения', 'pytest_result') . '</div>',
+                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
+                'footer' => $resFooter
+            );
+        case 'skip':
+            return array(
+                'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pytest_body", "Проверка пропущена или инструмент проверки не установлен."),
+                'footer' => $resFooter
+            );
+            break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
+                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pytest_body", "Не проверено."),
+                'footer' => $resFooter
+            );
+            break;
+    }
+
+
+    $result = 0;
+    $check = $data['check'];
+
+    switch ($check['outcome']) {
+        case 'pass':
+            $boxColor = 'green';
+            $boxText = 'Успех';
+            break;
+        case 'reject':
+            $boxColor = 'red';
+            $boxText = 'Неудача';
+            break;
+        case 'fail':
+            $boxColor = 'yellow';
+            $boxText = 'Неудача';
+            break;
+    }
+
+    $resBody = 'Тестов провалено: ' . $check['errors'] . '<br>';
+    $resBody .= 'Проверок провалено: ' . $check['failures'] . '<br>';
+    $resColorBox = generateColorBox($boxColor, $boxText, 'pytest_result');
+
+    $resArr = array(
+        'header' => '<div class="w-100"><b>Pytest</b>' . $resColorBox . '</div>',
+
+        'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+
+        'body'   => generateTaggedValue("pytest_body", $resBody),
+        'footer' => $resFooter
+    );
+
+    return $resArr;
+}
+
 // Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
 function parseAutoTests($data, $enabled)
 {
@@ -459,7 +541,7 @@ function parseAutoTests($data, $enabled)
 
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('gray', 'Сборка не удалась', 'autotests_result') . '</div>',
+            'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('gray', 'Build не удался', 'autotests_result') . '</div>',
             'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
@@ -539,7 +621,7 @@ function parseCopyDetect($data, $enabled)
 {
     if (!array_key_exists('outcome', $data)) {
         return array(
-            'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('gray', 'Сборка не удалась', 'copydetect_result') . '</div>',
+            'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('gray', 'Build не удался', 'copydetect_result') . '</div>',
             'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),

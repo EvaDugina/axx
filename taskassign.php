@@ -458,6 +458,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
       "enabled": "true",
       "show_to_student": "false",
       "bin": "pytest",
+      "test_path": "autotest.py",
       "arguments": "",
       "check": {
         "limit": "0",
@@ -478,7 +479,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
     "autotests": {
       "enabled": false,
       "show_to_student": false,
-      "test_path": "accel_autotest.cpp",
+      "test_path": "autotest.cpp",
       "check": {
         "limit": 0,
         "autoreject": true
