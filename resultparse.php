@@ -379,17 +379,23 @@ function parsePylint($data, $enabled)
         );
     }
 
+    $resColorBox = "";
     switch ($data['outcome']) {
         case 'pass':
             break;
         case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>Pylint</b>' . generateColorBox('red', 'Проверка не пройдена', 'pylint_result') . '</div>',
-                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => $resFooter
-            );
+            $resColorBox .= generateColorBox('yellow', 'Проверка не пройдена', 'pylint_result');
+            // return array(
+            //     'header' => '<div class="w-100"><b>Pylint</b>' . generateColorBox('red', 'Проверка не пройдена', 'pylint_result') . '</div>',
+            //     'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+            //         ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            //     'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
+            //     'footer' => $resFooter
+            // );
+            break;
+        case 'reject':
+            $resColorBox .= generateColorBox('red', 'Проверка не пройдена', 'pylint_result');
+            break;
         case 'skip':
             return array(
                 'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
@@ -410,40 +416,82 @@ function parsePylint($data, $enabled)
             break;
     }
 
+    $errors = getcheckinfo($data['checks'], 'error');
+    $warnings = getcheckinfo($data['checks'], 'warning');
+    $refactors = getcheckinfo($data['checks'], 'refactor');
+    $conventions = getcheckinfo($data['checks'], 'convention');
 
     $resBody = '';
-    $sumOfErrors = 0;
 
-    foreach ($data['checks'] as $check) {
-        $resBody .= @$check['check'] . ' : ' . @$check['result'] . '<br>';
-        $sumOfErrors += @$check['result'];
-    }
-
-    $boxColor = 'green';
-    $boxText = $sumOfErrors;
-
-    foreach ($data['checks'] as $check) {
-        switch ($check['outcome']) {
-            case 'fail':
-                $boxColor = 'yellow';
+    if ($errors['enabled'] && $errors['outcome'] != "skip") {
+        switch ($errors['outcome']) {
+            case 'pass':
+                $errorsColor = 'green';
                 break;
             case 'reject':
-                $boxColor = 'red';
+                $errorsColor = 'red';
+                break;
+            case 'fail':
+                $errorsColor = 'yellow';
                 break;
         }
-        if ($check['outcome'] == 'reject') {
-            break;
-        }
+        $resBody .= 'Ошибки: ' . @$errors['result'] . '<br>';
+        $resColorBox = generateColorBox($errorsColor, $errors['result'], 'pylint_errors') . $resColorBox;
     }
 
-    $resColorBox = generateColorBox($boxColor, $boxText, 'pylint_result');
+    if ($warnings['enabled'] && $warnings['outcome'] != "skip") {
+        switch ($warnings['outcome']) {
+            case 'pass':
+                $warningsColor = 'green';
+                break;
+            case 'reject':
+                $warningsColor = 'red';
+                break;
+            case 'fail':
+                $warningsColor = 'yellow';
+                break;
+        }
+        $resBody .= 'Предупреждения: ' . @$warnings['result'] . '<br>';
+        $resColorBox = generateColorBox($warningsColor, $warnings['result'], 'pylint_warnings') . $resColorBox;
+    }
+
+    if ($refactors['enabled'] && $refactors['outcome'] != "skip") {
+        switch ($refactors['outcome']) {
+            case 'pass':
+                $refactorsColor = 'green';
+                break;
+            case 'reject':
+                $refactorsColor = 'red';
+                break;
+            case 'fail':
+                $refactorsColor = 'yellow';
+                break;
+        }
+        $resBody .= 'Предложения по оформлению: ' . @$refactors['result'] . '<br>';
+        $resColorBox = generateColorBox($refactorsColor, $refactors['result'], 'pylint_refactors') . $resColorBox;
+    }
+
+    if ($conventions['enabled'] && $conventions['outcome'] != "skip") {
+        switch ($conventions['outcome']) {
+            case 'pass':
+                $conventionsColor = 'green';
+                break;
+            case 'reject':
+                $conventionsColor = 'red';
+                break;
+            case 'fail':
+                $conventionsColor = 'yellow';
+                break;
+        }
+        $resBody .= 'Нарушения соглашений: ' . @$conventions['result'] . '<br>';
+        $resColorBox = generateColorBox($conventionsColor, $conventions['result'], 'pylint_conventions') . $resColorBox;
+    }
 
     $resArr = array(
         'header' => '<div class="w-100"><b>Pylint</b>' . $resColorBox . '</div>',
 
         'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-
         'body'   => generateTaggedValue("pylint_body", $resBody),
         'footer' => $resFooter
     );
@@ -479,11 +527,11 @@ function parsePytest($data, $enabled)
             );
         case 'skip':
             return array(
-                'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
+                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Проверка не пропущена', 'pytest_result') . '</div>',
                 'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("pytest_body", "Проверка пропущена или инструмент проверки не установлен."),
-                'footer' => $resFooter
+                'footer' => ""
             );
             break;
         case 'undefined':
@@ -516,8 +564,9 @@ function parsePytest($data, $enabled)
             break;
     }
 
-    $resBody = 'Тестов провалено: ' . $check['errors'] . '<br>';
-    $resBody .= 'Проверок провалено: ' . $check['failures'] . '<br>';
+    $resBody = 'Тестов провалено: ' . $check['failed'] . '<br>';
+    $resBody .= 'Тестов пройдено: ' . $check['passed'] . '<br>';
+    $resBody .= 'Время выполнения: ' . $check['seconds'] . 's<br>';
     $resColorBox = generateColorBox($boxColor, $boxText, 'pytest_result');
 
     $resArr = array(
