@@ -409,7 +409,7 @@ function getUploadFileDir()
 
 function getSpecialFileTypes()
 {
-  return array('cpp', 'c', 'h', 'txt');
+  return array('cpp', 'c', 'h', 'txt', 'py');
 }
 
 function getImageFileTypes()
