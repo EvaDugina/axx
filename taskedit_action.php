@@ -74,9 +74,6 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
   if ($File->isInUploadDir() && $file_type == 1) {
     echo "ERROR: EXT_FOR_CODE_PROJECT";
     exit();
-  } else if ($File->isInUploadDir() && ($file_type == 2 || $file_type == 3)) {
-    echo "ERROR: EXT_FOR_CODE_TEST";
-    exit();
   }
 
   $File->setType($file_type);
