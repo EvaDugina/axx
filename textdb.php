@@ -602,13 +602,8 @@ else if ($type == "tools") {
       "test_path": "autotest.py",
       "check": {
         "limit": 0,
-        "autoreject": true,
-        "outcome": "fail",
-        "errors": 0,
-        "failures": 3
-      },
-      "full_output": "output_pytest.txt",
-      "outcome": "undefined"
+        "autoreject": true
+      }
     },
     "copydetect": {
       "enabled": true,
