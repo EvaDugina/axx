@@ -112,6 +112,11 @@ class File
     }
   }
 
+  function getNameWithoutPrefixAndExt()
+  {
+    return preg_replace("/\.[^.]+$/", "", $this->name_without_prefix);
+  }
+
   function getMainInfoAsTextForDowload()
   {
     $this->full_text = addslashes($this->getFullText());
@@ -405,6 +410,16 @@ function randPrefix()
 function getUploadFileDir()
 {
   return 'upload_files/';
+}
+
+function getAvailableCodeTestsExtsWithNames()
+{
+  return array('cpp' => "C++", 'c' => "C", 'py' => "Python");
+}
+
+function getAvailableCodeTestsFilesExts()
+{
+  return array('cpp', 'c', 'py');
 }
 
 function getSpecialFileTypes()

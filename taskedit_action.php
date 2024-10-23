@@ -126,7 +126,7 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
     $Files = $Task->getFilesByType(2);
     if ($_POST['codeTest'] != "") {
       if (empty($Files)) {
-        $File = new File(2, "accel_autotest.cpp", null, $_POST['codeTest']);
+        $File = new File(2, "autotest.cpp", null, $_POST['codeTest']);
         $Task->addFile($File->id);
       } else {
         foreach ($Files as $File) {
@@ -141,10 +141,16 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
     }
   }
 
+  if (isset($_POST['extCodeTest'])) {
+    $newExt = $_POST['extCodeTest'];
+    $codeTestFile = $Task->getCodeTestFiles()[0];
+    $codeTestFile->setName(true, $codeTestFile->getNameWithoutPrefixAndExt() . ".$newExt");
+  }
+
   if (isset($_POST['codeCheck'])) {
     $Files = $Task->getFilesByType(3);
     if (empty($Files)) {
-      $File = new File(3, "accel_checktest.cpp", null, $_POST['codeCheck']);
+      $File = new File(3, "checktest.cpp", null, $_POST['codeCheck']);
       $Task->addFile($File->id);
     } else {
       foreach ($Files as $File) {
@@ -337,7 +343,7 @@ function save_test_files($dbconnect, $task_id)
     $result = pg_query($dbconnect, $query);
     $file = pg_fetch_all($result);
     if (empty($file))
-      $query = insert_file(2, $task_id, "accel_autotest.cpp", $_POST['full_text_test']);
+      $query = insert_file(2, $task_id, "autotest.cpp", $_POST['full_text_test']);
     else
       $query = update_file(2, $task_id, $_POST['full_text_test']);
 
@@ -347,7 +353,7 @@ function save_test_files($dbconnect, $task_id)
     $result = pg_query($dbconnect, $query);
     $file = pg_fetch_all($result);
     if (empty($file))
-      $query = insert_file(3, $task_id, "accel_checktest.cpp", $_POST['full_text_test_of_test']);
+      $query = insert_file(3, $task_id, "checktest.cpp", $_POST['full_text_test_of_test']);
     else
       $query = update_file(3, $task_id, $_POST['full_text_test_of_test']);
 

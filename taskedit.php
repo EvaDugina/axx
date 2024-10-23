@@ -148,13 +148,20 @@ show_head("Добавление\Редактирование задания", ar
                 $textArea_codeTest = $TestFiles[0]->getFullText();
               ?>
 
-              <div class="form-outline col-5">
-                <textarea id="textArea-codeTest" class="form-control <?= ($textArea_codeTest != "") ? "active" : "" ?>" rows="5" name="full_text_test" style="resize: none;" onkeyup="codeTestChange()"><?= $textArea_codeTest ?></textarea>
-                <label id="label-codeTest" class="form-label" for="textArea-codeTest">Код теста</label>
-                <div id="div-border-codeTest" class="form-notch">
-                  <div class="form-notch-leading" style="width: 9px;"></div>
-                  <div class="form-notch-middle" style="width: 114.4px;"></div>
-                  <div class="form-notch-trailing"></div>
+              <div class="col-5">
+                <select id="select-codeTestFiles-ext" class="form-select" aria-label=".form-select">
+                  <?php foreach (getAvailableCodeTestsExtsWithNames() as $ext => $language) { ?>
+                    <option value="<?= $ext ?>" <?= (isset($TestFiles[0]) && $TestFiles[0]->getExt() == $ext) ? "selected" : "" ?>><?= $language ?></option>
+                  <?php } ?>
+                </select>
+                <div class="form-outline mt-2">
+                  <textarea id="textArea-codeTest" class="form-control <?= ($textArea_codeTest != "") ? "active" : "" ?>" rows="5" name="full_text_test" style="resize: none;" onkeyup="codeTestChange()"><?= $textArea_codeTest ?></textarea>
+                  <label id="label-codeTest" class="form-label" for="textArea-codeTest">Код теста</label>
+                  <div id="div-border-codeTest" class="form-notch">
+                    <div class="form-notch-leading" style="width: 9px;"></div>
+                    <div class="form-notch-middle" style="width: 69px;"></div>
+                    <div class="form-notch-trailing"></div>
+                  </div>
                 </div>
               </div>
 
@@ -326,6 +333,7 @@ show_head("Добавление\Редактирование задания", ar
   var original_maxMark = $('#input-maxMark').val();
   let easyMDE_value = easyMDE.value();
   var original_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+  var original_extCodeTest = $('#select-codeTestFiles-ext').val();
   var original_codeTest = $('#textArea-codeTest').val();
   var original_codeCheck = $('#textArea-codeCheck').val();
   var original_finishLimit = $('#input-finishLimit').val();
@@ -465,6 +473,7 @@ show_head("Добавление\Редактирование задания", ar
     let now_type = $('#task-type').val();
     let easyMDE_value = easyMDE.value();
     let now_description = easyMDE_value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");;
+    let now_extCodeTest = $('#select-codeTestFiles-ext').val();
     let now_codeTest = $('#textArea-codeTest').val();
     let now_codeCheck = $('#textArea-codeCheck').val();
 
@@ -482,7 +491,10 @@ show_head("Добавление\Редактирование задания", ar
       name_unsaveFields += "'Описание задания' ";
       flag = true;
     }
-
+    if (original_extCodeTest != now_extCodeTest) {
+      name_unsaveFields += "'Язык файла кода теста' ";
+      flag = true;
+    }
     if (original_codeTest != now_codeTest) {
       name_unsaveFields += "'Код теста' ";
       flag = true;
@@ -621,7 +633,7 @@ show_head("Добавление\Редактирование задания", ar
     if (task_id == -1)
       return;
 
-    let new_title = new_type = new_mark_type = new_mark_max = new_description = new_codeTest = new_codeCheck = null;
+    let new_title = new_type = new_mark_type = new_mark_max = new_description = newExtCodeTest = new_codeTest = new_codeCheck = null;
 
     if (isTitleChanged()) {
       new_title = $('#input-title').val();
@@ -644,6 +656,10 @@ show_head("Добавление\Редактирование задания", ar
       original_description = new_description.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
 
+    if (isExtCodeTestChanged()) {
+      newExtCodeTest = $('#select-codeTestFiles-ext').val();
+      original_extCodeTest = newExtCodeTest;
+    }
     if (isCodeTestChanged()) {
       new_codeTest = $('#textArea-codeTest').val();
       original_codeTest = new_codeTest;
@@ -660,7 +676,7 @@ show_head("Добавление\Редактирование задания", ar
     // }
 
     $('#spinner-save').removeClass("d-none");
-    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_mark_type, new_mark_max, new_description, new_codeTest, new_codeCheck);
+    let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_mark_type, new_mark_max, new_description, newExtCodeTest, new_codeTest, new_codeCheck);
     $('#spinner-save').addClass("d-none");
 
     if (ajaxResponse != null) {
@@ -841,11 +857,11 @@ show_head("Добавление\Редактирование задания", ar
         if (new_type == 2 || new_type == 3) {
           let empty = saveTask();
           if (empty == "EMPTY")
-            document.location.href = "taskedit.php?task=" + task_id;
+            document.location.reload();
         } else if (array_files[index].type == 2 || array_files[index].type == 3) {
           let empty = saveTask();
           if (empty == "EMPTY")
-            document.location.href = "taskedit.php?task=" + task_id;
+            document.location.reload();
         }
 
         $('#span-fileType-' + file_id).html(response['svg']);
@@ -867,12 +883,8 @@ show_head("Добавление\Редактирование задания", ar
               alert("В задании не может быть двух файлов Кода теста.");
             else
               alert("В задании не может быть двух файлов Кода проверки.");
-
           }
         }
-
-
-
       }
     } else {
       alert("Не удалость сменить тип файла.");
@@ -903,6 +915,14 @@ show_head("Добавление\Редактирование задания", ar
     if (original_description != now_description)
       return true;
 
+    return false;
+  }
+
+  function isExtCodeTestChanged() {
+    let now_extCodeTest = $('#select-codeTestFiles-ext').val();
+    if (original_extCodeTest != now_extCodeTest) {
+      return true;
+    }
     return false;
   }
 
