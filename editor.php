@@ -576,6 +576,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "show_to_student": false,
               "test_path": "autotest.py",
               "bin": "pytest",
+              "arguments": "",
               "check": {
                 "limit": 0,
                 "autoreject": true,

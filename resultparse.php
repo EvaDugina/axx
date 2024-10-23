@@ -39,7 +39,7 @@ function parseBuildCheck($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . generateColorBox('red', 'Ошибка исполнения', 'build_result') . '</div>',
+                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . generateColorBox('red', 'Проверка не пройдена', 'build_result') . '</div>',
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
@@ -117,7 +117,7 @@ function parseCppCheck($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('red', 'Ошибка исполнения', 'cppcheck_result') . '</div>',
+                'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('red', 'Проверка не пройдена', 'cppcheck_result') . '</div>',
                 'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
@@ -205,7 +205,7 @@ function parseClangFormat($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('red', 'Ошибка исполнения', 'clangformat_result') . '</div>',
+                'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('red', 'Проверка не пройдена', 'clangformat_result') . '</div>',
                 'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
@@ -288,7 +288,7 @@ function parseValgrind($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('red', 'Ошибка исполнения', 'valgrind_errors') . generateColorBox('red', 'Ошибка исполнения', 'valgrind_leaks') . '</div>',
+                'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('red', 'Проверка не пройдена', 'valgrind_errors') . generateColorBox('red', 'Проверка не пройдена', 'valgrind_leaks') . '</div>',
                 'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
@@ -384,7 +384,7 @@ function parsePylint($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Pylint</b>' . generateColorBox('red', 'Ошибка исполнения', 'pylint_result') . '</div>',
+                'header' => '<div class="w-100"><b>Pylint</b>' . generateColorBox('red', 'Проверка не пройдена', 'pylint_result') . '</div>',
                 'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
@@ -471,7 +471,7 @@ function parsePytest($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('red', 'Ошибка исполнения', 'pytest_result') . '</div>',
+                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('red', 'Проверка не пройдена', 'pytest_result') . '</div>',
                 'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
@@ -554,7 +554,7 @@ function parseAutoTests($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('red', 'Ошибка исполнения', 'autotests_result') . '</div>',
+                'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('red', 'Проверка не пройдена', 'autotests_result') . '</div>',
                 'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
@@ -634,7 +634,7 @@ function parseCopyDetect($data, $enabled)
             break;
         case 'fail':
             return array(
-                'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('red', 'Ошибка исполнения', 'copydetect_result') . '</div>',
+                'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('red', 'Проверка не пройдена', 'copydetect_result') . '</div>',
                 'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),

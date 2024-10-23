@@ -259,6 +259,8 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
         "enabled" => str2bool(@$_POST["pytest_enabled"]),
         "show_to_student" => str2bool(@$_POST["pytest_show"]),
         "test_path" => "autotest.py",
+        "bin" => "pytest",
+        "arguments" => @$_POST["pytest_arg"],
         "check" => array(
           "limit" => str2int(@$_POST["pytest_check_limit"]),
           "autoreject" => str2bool(@$_POST["pytest_check_reject"])

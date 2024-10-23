@@ -598,8 +598,9 @@ else if ($type == "tools") {
     "pytest": {
       "enabled": true,
       "show_to_student": false,
-      "bin": "pytest",
       "test_path": "autotest.py",
+      "bin": "pytest",
+      "arguments": "",
       "check": {
         "limit": 0,
         "autoreject": true
