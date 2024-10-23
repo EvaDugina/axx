@@ -429,7 +429,210 @@ else if ($type == "tools") {
   if ($checks == null)
     $checks = $row['tchecks'];
   if ($checks == null)
-    $checks = '{"tools": {"build":{"enabled":true,"show_to_student":false,"language":"C++","check":{"autoreject":true}},"valgrind": {"enabled": true,"show_to_student": false,"bin": "valgrind","arguments": "","compiler": "gcc","checks": [{"check": "errors","enabled": true,"limit": 3,"autoreject": true,"result": 6,"outcome": "pass"},{"check": "leaks","enabled": true,"limit": 0,"autoreject": true,"result": 10,"outcome": "reject"}],"output": ""},"cppcheck": {"enabled": true,"show_to_student": false,"bin": "cppcheck","arguments": "","checks": [{"check": "error","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "warning","enabled": true,"limit": 3,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "style","enabled": true,"limit": 3,"autoreject": false,"result": 1,"outcome": "pass"},{"check": "performance","enabled": true,"limit": 2,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "portability","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "information","enabled": true,"limit": 1,"autoreject": false,"result": 1,"outcome": "fail"},{"check": "unusedFunction","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"},{"check": "missingInclude","enabled": true,"limit": 0,"autoreject": false,"result": 0,"outcome": "pass"}],"output": ""},"clang-format": {"enabled": true,"show_to_student": false,"bin": "clang-format","arguments": "","check": {"name": "strict","file": ".clang-format","limit": 5,"autoreject": true,"result": 3,"outcome": "reject"},"output": ""},"copydetect": {"enabled": true,"show_to_student": false,"bin": "copydetect","arguments": "","check": {"type": "with_all","limit": 50,"autoreject": true,"reference_directory": "copydetect_input"}},  "autotests": {"enabled": true,"show_to_student": false,"test_path": "accel_autotest.cpp","check": {"limit": 0,"autoreject": true}}}}';
+    $checks = '{
+  "tools": {
+    "build": {
+      "enabled": true,
+      "show_to_student": false,
+      "language": "C++",
+      "check": {
+        "autoreject": true
+      }
+    },
+    "valgrind": {
+      "enabled": true,
+      "show_to_student": false,
+      "bin": "valgrind",
+      "arguments": "",
+      "compiler": "gcc",
+      "checks": [
+        {
+          "check": "errors",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": true,
+          "result": 6,
+          "outcome": "pass"
+        },
+        {
+          "check": "leaks",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": true,
+          "result": 10,
+          "outcome": "reject"
+        }
+      ],
+      "output": ""
+    },
+    "cppcheck": {
+      "enabled": true,
+      "show_to_student": false,
+      "bin": "cppcheck",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": true,
+          "limit": 1,
+          "autoreject": false,
+          "result": 1,
+          "outcome": "fail"
+        },
+        {
+          "check": "warning",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "style",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 1,
+          "outcome": "pass"
+        },
+        {
+          "check": "performance",
+          "enabled": true,
+          "limit": 2,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "portability",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "information",
+          "enabled": true,
+          "limit": 1,
+          "autoreject": false,
+          "result": 1,
+          "outcome": "fail"
+        },
+        {
+          "check": "unusedFunction",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "missingInclude",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        }
+      ],
+      "output": ""
+    },
+    "clang-format": {
+      "enabled": true,
+      "show_to_student": false,
+      "bin": "clang-format",
+      "arguments": "",
+      "check": {
+        "name": "strict",
+        "file": ".clang-format",
+        "limit": 5,
+        "autoreject": true,
+        "result": 3,
+        "outcome": "reject"
+      },
+      "output": ""
+    },
+    "pylint": {
+      "enabled": "false",
+      "show_to_student": "false",
+      "bin": "pylint",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false",
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "warning",
+          "enabled": "true",
+          "limit": "0",
+          "autoreject": "false",
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "refactor",
+          "enabled": "true",
+          "limit": "3",
+          "autoreject": "false",
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "convention",
+          "enabled": "true",
+          "limit": "3",
+          "autoreject": "false",
+          "result": 0,
+          "outcome": "pass"
+        }
+      ],
+      "full_output": "output_pylint.xml",
+      "outcome": "undefined"
+    },
+    "pytest": {
+      "enabled": true,
+      "show_to_student": false,
+      "bin": "pytest",
+      "test_path": "autotest.py",
+      "check": {
+        "limit": 0,
+        "autoreject": true,
+        "outcome": "fail",
+        "errors": 0,
+        "failures": 3
+      },
+      "full_output": "output_pytest.txt",
+      "outcome": "undefined"
+    },
+    "copydetect": {
+      "enabled": true,
+      "show_to_student": false,
+      "bin": "copydetect",
+      "arguments": "",
+      "check": {
+        "type": "with_all",
+        "limit": 50,
+        "autoreject": true,
+        "reference_directory": "copydetect_input"
+      }
+    },
+    "autotests": {
+      "enabled": true,
+      "show_to_student": false,
+      "test_path": "autotest.cpp",
+      "check": {
+        "limit": 0,
+        "autoreject": true
+      }
+    }
+  }
+}';
 
   $checks = json_decode($checks, true);
 
@@ -468,7 +671,15 @@ else if ($type == "tools") {
     //else
 
     $checks['tools']['autotests']['enabled'] = str2bool(@$_REQUEST['test']);
-    $checks['tools']['autotests']['test_path'] = "accel_autotest.cpp";
+    $checks['tools']['autotests']['test_path'] = "autotest.cpp";
+  }
+  if (array_key_exists('pytest', $_REQUEST)) {
+    //if (!array_key_exists('autotests', $checks['tools'])) 
+    //	; //$checks['tools']['autotests'] = array();  
+    //else
+
+    $checks['tools']['pytest']['enabled'] = str2bool(@$_REQUEST['pytest']);
+    $checks['tools']['pytest']['test_path'] = "autotest.py";
   }
 
   /*echo $checks; exit;*/
@@ -530,7 +741,7 @@ else if ($type == "tools") {
   $files_codeTest = array();
   $Task = new Task((int)getTaskByAssignment((int)$assignment));
   foreach ($Task->getCodeTestFiles() as $File) {
-    $myfile = fopen($folder . '/' . "accel_autotest.cpp", "w");
+    $myfile = fopen($folder . '/' . "autotest." . $File->getExt(), "w");
     if (!$myfile) {
       echo "Невозможно открыть файл ($File->name) автотеста!";
       http_response_code(500);
@@ -538,7 +749,7 @@ else if ($type == "tools") {
     }
     fwrite($myfile, $File->getFullText());
     fclose($myfile);
-    array_push($files_codeTest, "accel_autotest.cpp");
+    array_push($files_codeTest, "autotest." . $File->getExt());
   }
 
   // if (count($files_codeTest) < 1) {
