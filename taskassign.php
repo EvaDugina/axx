@@ -459,20 +459,10 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
       "show_to_student": "false",
       "bin": "pytest",
       "arguments": "",
-      "checks": [
-        {
-          "check": "base",
-          "enabled": "true",
-          "limit": "0",
-          "autoreject": "true"
-        },
-        {
-          "check": "base2",
-          "enabled": "false",
-          "limit": "0",
-          "autoreject": "false"
-        }
-      ]
+      "check": {
+        "limit": "0",
+        "autoreject": "true"
+      }
     },
     "copydetect": {
       "enabled": "false",
@@ -509,16 +499,16 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                 return ($src == $option) ? "selected" : "";
               }
 
-              function add_check_params($group, $param, $checks)
-              {
-                if (!isset($checks['tools'][$group][$param]))
-                  return "";
-                $output = '';
-                foreach ($checks['tools'][$group][$param] as $check) {
-                  $output .= add_check_param($group, $check['check'], $check['check'], $checks);
-                }
-                return $output;
-              }
+              // function add_check_params($group, $param, $checks)
+              // {
+              //   if (!isset($checks['tools'][$group][$param]))
+              //     return "";
+              //   $output = '';
+              //   foreach ($checks['tools'][$group][$param] as $check) {
+              //     $output .= add_check_param($group, $check['check'], $check['check'], $checks);
+              //   }
+              //   return $output;
+              // }
 
               function add_check_param($group, $param, $caption, $checks)
               {
@@ -538,6 +528,10 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                   $enabled = @$checks['tools']['autotests']['enabled'];
                   $limit = @$checks['tools']['autotests']['check']['limit'];
                   $reject = @$checks['tools']['autotests']['check']['autoreject'];
+                } else if ($group == 'pytest') {
+                  $enabled = @$checks['tools']['pytest']['enabled'];
+                  $limit = @$checks['tools']['pytest']['check']['limit'];
+                  $reject = @$checks['tools']['pytest']['check']['autoreject'];
                 } else {
                   if (isset($checks['tools'][$group])) {
                     $arr = @$checks['tools'][$group]['checks'];
@@ -564,7 +558,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
 
               $accord = array(
                 array(
-                  'header' => '<b>Сборка</b>',
+                  'header' => '<b>' . $checks['tools']['build']['language'] . ' Build</b>',
 
                   'label'   => '<input id="build_enabled" name="build_enabled" ' . checked(@$checks['tools']['build']['enabled']) .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
@@ -581,7 +575,6 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                     ' class="form-select mb-2" aria-label=".form-select" style="width:50%; display: inline-block;">' .
                     '  <option value="C" ' . selected(@$checks['tools']['build']['language'], 'C') . '>C</option>' .
                     '  <option value="C++" ' . selected(@$checks['tools']['build']['language'], 'C++') . '>C++</option>' .
-                    '  <option value="Python" ' . selected(@$checks['tools']['build']['language'], 'Python') . '>Python</option>' .
                     '</select></div>' .
                     '<div><input id="build_autoreject" name="build_autoreject" ' . checked(@$checks['tools']['build']['check']['autoreject']) .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
@@ -689,8 +682,7 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
                   'body'   => '<div><label class="form-check-label" for="pytest_arg" style="width:20%;">аргументы</label>' .
                     '<input id="pytest_arg" name="pytest_arg" value="' . @$checks['tools']['pytest']['arguments'] .
                     '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
-
-                    add_check_params('pytest', 'checks', $checks)
+                    add_check_param('pytest', 'check', 'проверять', $checks)
                 ),
                 array(
                   'header' => '<b>Автотесты</b>',
