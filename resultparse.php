@@ -525,9 +525,18 @@ function parsePytest($data, $enabled)
                 'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
                 'footer' => $resFooter
             );
+        case 'reject':
+            return array(
+                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Проверка не пройдена', 'pytest_result') . '</div>',
+                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
+                'footer' => $resFooter
+            );
+            break;
         case 'skip':
             return array(
-                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Проверка не пропущена', 'pytest_result') . '</div>',
+                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Проверка пропущена', 'pytest_result') . '</div>',
                 'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("pytest_body", "Проверка пропущена или инструмент проверки не установлен."),
