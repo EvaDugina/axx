@@ -1,5 +1,46 @@
 <?php
 
+function getAccordionToolsHtml($checks, $checkres, $User)
+{
+    $accord = array();
+    if (!$User->isStudent()) {
+        if (isset($checks['tools']['build']))
+            array_push($accord, parseBuildCheck(@$checkres['tools']['build']));
+        if (isset($checks['tools']['cppcheck']))
+            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck']));
+        if (isset($checks['tools']['clang-format']))
+            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format']));
+        if (isset($checks['tools']['valgrind']))
+            array_push($accord, parseValgrind(@$checkres['tools']['valgrind']));
+        if (isset($checks['tools']['pylint']))
+            array_push($accord, parsePylint(@$checkres['tools']['pylint']));
+        if (isset($checks['tools']['pytest']))
+            array_push($accord, parsePytest(@$checkres['tools']['pytest']));
+        if (isset($checks['tools']['autotests']))
+            array_push($accord, parseAutoTests(@$checkres['tools']['autotests']));
+        if (isset($checks['tools']['copydetect']))
+            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect']));
+    } else {
+        if (isset($checks['tools']['build']) && $checks['tools']['build']['show_to_student'])
+            array_push($accord, parseBuildCheck(@$checkres['tools']['build']));
+        if (isset($checks['tools']['cppcheck']) && $checks['tools']['cppcheck']['show_to_student'])
+            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck']));
+        if (isset($checks['tools']['clang-format']) && $checks['tools']['clang-format']['show_to_student'])
+            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format']));
+        if (isset($checks['tools']['valgrind']) && $checks['tools']['valgrind']['show_to_student'])
+            array_push($accord, parseValgrind(@$checkres['tools']['valgrind']));
+        if (isset($checks['tools']['pylint']) && $checks['tools']['pylint']['show_to_student'])
+            array_push($accord, parsePylint(@$checkres['tools']['pylint']));
+        if (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['show_to_student'])
+            array_push($accord, parsePytest(@$checkres['tools']['pytest']));
+        if (isset($checks['tools']['autotests']) && $checks['tools']['autotests']['show_to_student'])
+            array_push($accord, parseAutoTests(@$checkres['tools']['autotests']));
+        if (isset($checks['tools']['copydetect']) && $checks['tools']['copydetect']['show_to_student'])
+            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect']));
+    }
+    return $accord;
+}
+
 function getcheckinfo($checkarr, $checkname)
 {
     foreach ($checkarr as $c)
@@ -19,8 +60,9 @@ function generateTaggedValue($tag, $val)
 }
 
 // Разбор и преобразования результата проверки сборки в элемент массива для генерации аккордеона
-function parseBuildCheck($data, $enabled)
+function parseBuildCheck($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="build" id="buildlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="build" class="axconsole">Загрузка...</pre>';
 
@@ -97,8 +139,9 @@ function parseBuildCheck($data, $enabled)
 }
 
 // Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
-function parseCppCheck($data, $enabled)
+function parseCppCheck($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="cppcheck" id="cppchecklabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="cppcheck" class="axconsole">Загрузка...</pre>';
 
@@ -185,8 +228,9 @@ function parseCppCheck($data, $enabled)
 }
 
 // Разбор и преобразования результата проверки корректного форматирования кода в элемент массива для генерации аккордеона
-function parseClangFormat($data, $enabled)
+function parseClangFormat($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="format" id="formatlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="format" class="axconsole">Загрузка...</pre>';
 
@@ -268,8 +312,9 @@ function parseClangFormat($data, $enabled)
 }
 
 // Разбор и преобразования результата проверки ошибок работы с памятью в элемент массива для генерации аккордеона
-function parseValgrind($data, $enabled)
+function parseValgrind($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="valgrind" id="valgrindlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="valgrind" class="axconsole">Загрузка...</pre>';
 
@@ -364,8 +409,9 @@ function parseValgrind($data, $enabled)
 }
 
 // Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
-function parsePylint($data, $enabled)
+function parsePylint($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="pylint" id="pylintlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="pylint" class="axconsole">Загрузка...</pre>';
 
@@ -499,8 +545,9 @@ function parsePylint($data, $enabled)
     return $resArr;
 }
 
-function parsePytest($data, $enabled)
+function parsePytest($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="pytest" id="pytestlabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="pytest" class="axconsole">Загрузка...</pre>';
 
@@ -592,8 +639,9 @@ function parsePytest($data, $enabled)
 }
 
 // Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
-function parseAutoTests($data, $enabled)
+function parseAutoTests($data)
 {
+    $enabled = $data['enabled'];
     $resFooter = '<label for="tests" id="testslabel" class="switchcon">+ показать полный вывод</label>' .
         '<pre id="tests" class="axconsole">Загрузка...</pre>';
 
@@ -675,8 +723,9 @@ function parseAutoTests($data, $enabled)
 }
 
 // Разбор и преобразования результата проверки антиплагиатом в элемент массива для генерации аккордеона
-function parseCopyDetect($data, $enabled)
+function parseCopyDetect($data)
 {
+    $enabled = $data['enabled'];
     if (!array_key_exists('outcome', $data)) {
         return array(
             'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('gray', 'Build не удался', 'copydetect_result') . '</div>',

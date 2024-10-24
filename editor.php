@@ -396,9 +396,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </div>
 
             <div id="Test" class="tabcontent">
-              <?php
+              <div id="div-check-results">
+                <?php
 
-              $checkres = json_decode('{
+                $checkres = json_decode('{
           "tools": {
             "build": {
               "enabled": true,
@@ -620,69 +621,37 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           }
         }', true);
 
-              if (!$last_commit_id || $last_commit_id == "") {
-                $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
-                $last_commit_id = pg_fetch_assoc($resAC)['id'];
-              }
-
-              if ($last_commit_id && $last_commit_id != "") {
-                $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
-                if ($resultC && pg_num_rows($resultC) > 0) {
-                  $rowC = pg_fetch_assoc($resultC);
-                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
-                    $checkres = json_decode($rowC['res'], true);
+                if (!$last_commit_id || $last_commit_id == "") {
+                  $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+                  $last_commit_id = pg_fetch_assoc($resAC)['id'];
                 }
-              }
 
-              $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
-                " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
-              $row = pg_fetch_assoc($result);
-              $checks = $row['achecks'];
-              if ($checks == null)
-                $checks = $row['tchecks'];
-              if ($checks == null)
-                $checks = json_encode($checkres);
-              $checks = json_decode($checks, true);
+                if ($last_commit_id && $last_commit_id != "") {
+                  $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
+                  if ($resultC && pg_num_rows($resultC) > 0) {
+                    $rowC = pg_fetch_assoc($resultC);
+                    if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
+                      $checkres = json_decode($rowC['res'], true);
+                  }
+                }
 
-              //  line-height: 20px; color: #fff; text-align: center;
-              $accord = array();
-              if (!$User->isStudent()) {
-                if (isset($checks['tools']['build']))
-                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']));
-                if (isset($checks['tools']['cppcheck']))
-                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']));
-                if (isset($checks['tools']['clang-format']))
-                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']));
-                if (isset($checks['tools']['valgrind']))
-                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
-                if (isset($checks['tools']['pylint']))
-                  array_push($accord, parsePylint(@$checkres['tools']['pylint'], $checks['tools']['pylint']['enabled']));
-                if (isset($checks['tools']['pytest']))
-                  array_push($accord, parsePytest(@$checkres['tools']['pytest'], $checks['tools']['pytest']['enabled']));
-                if (isset($checks['tools']['autotests']))
-                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
-                if (isset($checks['tools']['copydetect']))
-                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled']));
-              } else {
-                if (isset($checks['tools']['build']) && $checks['tools']['build']['show_to_student'])
-                  array_push($accord, parseBuildCheck(@$checkres['tools']['build'], $checks['tools']['build']['enabled']));
-                if (isset($checks['tools']['cppcheck']) && $checks['tools']['cppcheck']['show_to_student'])
-                  array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], $checks['tools']['cppcheck']['enabled']));
-                if (isset($checks['tools']['clang-format']) && $checks['tools']['clang-format']['show_to_student'])
-                  array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], $checks['tools']['clang-format']['enabled']));
-                if (isset($checks['tools']['valgrind']) && $checks['tools']['valgrind']['show_to_student'])
-                  array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], $checks['tools']['valgrind']['enabled']));
-                if (isset($checks['tools']['pylint']) && $checks['tools']['pylint']['show_to_student'])
-                  array_push($accord, parsePylint(@$checkres['tools']['pylint'], $checks['tools']['pylint']['enabled']));
-                if (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['show_to_student'])
-                  array_push($accord, parsePytest(@$checkres['tools']['pytest'], $checks['tools']['pytest']['enabled']));
-                if (isset($checks['tools']['autotests']) && $checks['tools']['autotests']['show_to_student'])
-                  array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], $checks['tools']['autotests']['enabled']));
-                if (isset($checks['tools']['copydetect']) && $checks['tools']['copydetect']['show_to_student'])
-                  array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], $checks['tools']['copydetect']['enabled']));
-              }
-              show_accordion('checkres', $accord, "5px");
-              ?>
+                $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+                  " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
+                $row = pg_fetch_assoc($result);
+                $checks = $row['achecks'];
+                if ($checks == null)
+                  $checks = $row['tchecks'];
+                if ($checks == null)
+                  $checks = json_encode($checkres);
+                $checks = json_decode($checks, true);
+
+                echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
+
+                $accord = getAccordionToolsHtml($checks, @$checkres, $User);
+                echo show_accordion('checkres', $accord, "5px");
+                ?>
+
+              </div>
 
               <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
 
