@@ -920,7 +920,7 @@ else if ($type == "tools") {
   if ((isset($checks['tools']['pylint']) && $checks['tools']['pylint']['enabled'])
     || (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['enabled'])
   )
-    exec("docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox python_code_check -c config.json " . implode(' ', $files) . ' 2>&1', $output, $retval);
+    exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox python_code_check -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
   else
     exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
 
