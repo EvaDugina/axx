@@ -755,7 +755,7 @@ else if ($type == "tools") {
   // }
 
   @unlink($folder . '/copydetect_input');
-  mkdir($folder . '/copydetect_input', 0777, true);
+  @mkdir($folder . '/copydetect_input', 0777, true);
   $prev_files = get_prev_files($assignment);
   foreach ($prev_files as $pf) {
     $cyr = [

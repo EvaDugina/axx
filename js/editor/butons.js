@@ -284,6 +284,10 @@ if (startTools != null) {
             request_text += "&clang=" + document.querySelector("#clangformat_enabled").checked;
         if (document.querySelector("#valgrind_enabled"))
             request_text += "&valgrind=" + document.querySelector("#valgrind_enabled").checked;
+        if (document.querySelector("#pylint_enabled"))
+            request_text += "&pylint=" + document.querySelector("#pylint_enabled").checked;
+        if (document.querySelector("#pytest_enabled"))
+            request_text += "&pytest=" + document.querySelector("#pytest_enabled").checked;
         if (document.querySelector("#autotests_enabled"))
             request_text += "&test=" + document.querySelector("#autotests_enabled").checked;
         if (document.querySelector("#copydetect_enabled"))
@@ -508,6 +512,30 @@ function getCheckInfo(checks, checkname) {
             return check_struct;
         }
     }
+}
+
+function parseCheckResult(results) {
+    var formData = new FormData();
+    formData.append('flag', "flag-getToolsHtml");
+    formData.append('config-tools', JSON.stringify(CONFIG_TOOLS));
+    formData.append('output-tools', JSON.stringify(results));
+    $.ajax({
+        type: "POST",
+        url: 'codeCheckHandler.php#content',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType: 'html',
+        success: function (response) {
+            // console.log(response);
+            $('#div-check-results').html(response.trim());
+        },
+        complete: function () {
+            // Скролим чат вниз при появлении новых сообщений
+            // $('#chat-box').scrollTop($('#chat-box').prop('scrollHeight'));
+        }
+    });
 }
 
 function parseBuild(results) {
@@ -893,19 +921,21 @@ function showCheckResults(jsonResults) {
 
     var results = JSON.parse(jsonResults);
 
-    parseBuild(results);
-    parseCppCheck(results);
-    parseClangFormat(results);
-    parseValgrind(results);
-    parseAutoTests(results);
-    parseCopydetect(results);
+    parseCheckResult(results);
+
+    // parseBuild(results);
+    // parseCppCheck(results);
+    // parseClangFormat(results);
+    // parseValgrind(results);
+    // parseAutoTests(results);
+    // parseCopydetect(results);
 }
 
 function alertContentsTools(httpRequest) {
     try {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
-                showCheckResults(httpRequest.responseText);
+                showCheckResults(httpRequest.responseText.trim());
             } else {
                 alert('С запросом возникла проблема: ' + httpRequest.status);
                 console.log(httpRequest.responseText.trim());
