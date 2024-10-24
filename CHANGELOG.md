@@ -1,3 +1,22 @@
+## 0.6.0 (2024-10-24)
+
+### Feat
+
+- Dynamic parsing python_code_check output
+- **editor**: Static python_code_check output parser
+- **editor**: Pytest
+- **taskassign**: Pytest & Pylint configuration
+- **taskedit**: Добавлена возможность прикреплять Python-файл кода теста
+- **taskedit**: Добавлена возможность прикреплять к заданию несколько файлов автоматических тестов
+- **taskassign**: Pytest configuretion
+
+### Fix
+
+- Static parsing python_code_check output
+- Config pytest tools
+- **textdb**: Исправление accel_ в начале файла с тестами
+- **taskassgin**: Saving Pytest configuration
+
 ## 0.5.0 (2024-10-11)
 
 ### Feat
