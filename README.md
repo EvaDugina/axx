@@ -44,3 +44,5 @@ git add .
 git push
 git restore -- .cz.json CHANGELOG.md
 ```
+
+Изменение ради изменения
