@@ -23,13 +23,16 @@ listItems.forEach(element => {
     array_files.push(element.querySelector(".validationCustom").value);
 });
 
-
-var conlist = document.querySelectorAll(".switchcon");
-for (var i = 0; i < conlist.length; i++) {
-    conlist[i].addEventListener('click', async e => {
-        if (e.target.className == 'switchcon')
-            switchCon(e.target.id);
-    });
+var conlist = [];
+setSwitchCon();
+function setSwitchCon() {
+    conlist = document.querySelectorAll(".switchcon");
+    for (var i = 0; i < conlist.length; i++) {
+        conlist[i].addEventListener('click', async e => {
+            if (e.target.className == 'switchcon')
+                switchCon(e.target.id);
+        });
+    }
 }
 
 function updateListItems() {
@@ -530,6 +533,7 @@ function parseCheckResult(results) {
         success: function (response) {
             // console.log(response);
             $('#div-check-results').html(response.trim());
+            setSwitchCon();
         },
         complete: function () {
             // Скролим чат вниз при появлении новых сообщений
