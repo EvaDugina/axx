@@ -362,5 +362,22 @@ if (isset($_POST['flag-markAssignment']) && isset($_POST['assignment_id']) && is
   exit();
 }
 
+if (isset($_POST['flag-loadChecksPreset']) && isset($_POST['language_key']) && isset($_POST['current_checks'])) {
+  $language_key = $_POST['language_key'];
+
+  $checkParams = getLanguagesChecksParams();
+  if ($language_key == "current") {
+    $checks = $_POST['current_checks'];
+  } else if (isset($checkParams[$language_key])) {
+    $checks = $checkParams[$language_key]['checks_preset'];
+  } else
+    exit;
+
+  $checks = json_decode($checks, true);
+  $accord = getChecksAccordion($checks);
+  show_accordion('checks', $accord, "310px");
+  exit;
+}
+
 header('Location:' . $_SERVER['HTTP_REFERER']);
 exit();

@@ -40,6 +40,16 @@ function getEditorLanguages()
   ];
 }
 
+function getLanguagesChecksParams()
+{
+  return [
+    "CPP" => ["checks_preset" => getGNUChecksPreset()],
+    "C" => ["checks_preset" => getGNUChecksPreset()],
+    "PYTHON" => ["checks_preset" => getPYChecksPreset()],
+    "DEFAULT" => ["checks_preset" => getDefaultChecksPreset()],
+  ];
+}
+
 
 
 // Работа с TIMESTAMP
@@ -547,6 +557,767 @@ function getChangeLogHtml()
   $Parsedown = new Parsedown();
   $changelog_html = $Parsedown->text($change_log_md);
   return $changelog_html;
+}
+
+
+// 
+// 
+// 
+// 
+
+function getDefaultChecksPreset()
+{
+  return '{
+    "tools": {
+      "build": {
+        "enabled": false,
+        "show_to_student": false,
+        "language": "C++",
+        "check": {
+          "autoreject": true
+        }
+      },
+      "valgrind": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "valgrind",
+        "arguments": "",
+        "compiler": "gcc",
+        "checks": [
+          {
+            "check": "errors",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "leaks",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          }
+        ]
+      },
+      "cppcheck": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "cppcheck",
+        "arguments": "",
+        "checks": [
+          {
+            "check": "error",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "warning",
+            "enabled": "true",
+            "limit": "3",
+            "autoreject": "false"
+          },
+          {
+            "check": "style",
+            "enabled": "true",
+            "limit": "3",
+            "autoreject": "false"
+          },
+          {
+            "check": "performance",
+            "enabled": "true",
+            "limit": "2",
+            "autoreject": "false"
+          },
+          {
+            "check": "portability",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "information",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "unusedFunction",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "missingInclude",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          }
+        ]
+      },
+      "clang-format": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "clang-format",
+        "arguments": "",
+        "check": {
+          "level": "strict",
+          "file": "",
+          "limit": "5",
+          "autoreject": "true"
+        }
+      },
+      "pylint": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "pylint",
+        "arguments": "",
+        "checks": [
+          {
+            "check": "error",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "warning",
+            "enabled": "true",
+            "limit": "6",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "refactor",
+            "enabled": "false",
+            "limit": "3",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "convention",
+            "enabled": "true",
+            "limit": "7",
+            "autoreject": "false",
+            "disableErrorCodes": ["C0111", "C0112"]
+          }
+        ]
+      },
+      "pytest": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "pytest",
+        "test_path": "autotest.py",
+        "arguments": "",
+        "check": {
+          "limit": "0",
+          "autoreject": "true"
+        }
+      },
+      "copydetect": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "copydetect",
+        "arguments": "",
+        "check": {
+          "type": "with_all",
+          "limit": "80",
+          "autoreject": "false"
+        }
+      },
+      "autotests": {
+        "enabled": false,
+        "show_to_student": false,
+        "test_path": "autotest.cpp",
+        "check": {
+          "limit": 0,
+          "autoreject": true
+        }
+      }
+    }
+  }';
+}
+
+function getGNUChecksPreset()
+{
+  return '{
+    "tools": {
+      "build": {
+        "enabled": true,
+        "show_to_student": false,
+        "language": "C++",
+        "check": {
+          "autoreject": true
+        }
+      },
+      "valgrind": {
+        "enabled": "true",
+        "show_to_student": "false",
+        "bin": "valgrind",
+        "arguments": "",
+        "compiler": "gcc",
+        "checks": [
+          {
+            "check": "errors",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "leaks",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          }
+        ]
+      },
+      "cppcheck": {
+        "enabled": "true",
+        "show_to_student": "false",
+        "bin": "cppcheck",
+        "arguments": "",
+        "checks": [
+          {
+            "check": "error",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "warning",
+            "enabled": "true",
+            "limit": "3",
+            "autoreject": "false"
+          },
+          {
+            "check": "style",
+            "enabled": "true",
+            "limit": "3",
+            "autoreject": "false"
+          },
+          {
+            "check": "performance",
+            "enabled": "true",
+            "limit": "2",
+            "autoreject": "false"
+          },
+          {
+            "check": "portability",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "information",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "unusedFunction",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "missingInclude",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          }
+        ]
+      },
+      "clang-format": {
+        "enabled": "true",
+        "show_to_student": "false",
+        "bin": "clang-format",
+        "arguments": "",
+        "check": {
+          "level": "strict",
+          "file": "",
+          "limit": "5",
+          "autoreject": "true"
+        }
+      },
+      "pylint": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "pylint",
+        "arguments": "",
+        "checks": [
+          {
+            "check": "error",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "warning",
+            "enabled": "true",
+            "limit": "6",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "refactor",
+            "enabled": "false",
+            "limit": "3",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "convention",
+            "enabled": "true",
+            "limit": "7",
+            "autoreject": "false",
+            "disableErrorCodes": ["C0111", "C0112"]
+          }
+        ]
+      },
+      "pytest": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "pytest",
+        "test_path": "autotest.py",
+        "arguments": "",
+        "check": {
+          "limit": "0",
+          "autoreject": "true"
+        }
+      },
+      "copydetect": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "copydetect",
+        "arguments": "",
+        "check": {
+          "type": "with_all",
+          "limit": "80",
+          "autoreject": "false"
+        }
+      },
+      "autotests": {
+        "enabled": false,
+        "show_to_student": false,
+        "test_path": "autotest.cpp",
+        "check": {
+          "limit": 0,
+          "autoreject": true
+        }
+      }
+    }
+  }';
+}
+
+function getPYChecksPreset()
+{
+  return '{
+    "tools": {
+      "build": {
+        "enabled": false,
+        "show_to_student": false,
+        "language": "C++",
+        "check": {
+          "autoreject": true
+        }
+      },
+      "valgrind": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "valgrind",
+        "arguments": "",
+        "compiler": "gcc",
+        "checks": [
+          {
+            "check": "errors",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "leaks",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          }
+        ]
+      },
+      "cppcheck": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "cppcheck",
+        "arguments": "",
+        "checks": [
+          {
+            "check": "error",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "warning",
+            "enabled": "true",
+            "limit": "3",
+            "autoreject": "false"
+          },
+          {
+            "check": "style",
+            "enabled": "true",
+            "limit": "3",
+            "autoreject": "false"
+          },
+          {
+            "check": "performance",
+            "enabled": "true",
+            "limit": "2",
+            "autoreject": "false"
+          },
+          {
+            "check": "portability",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "information",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "unusedFunction",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          },
+          {
+            "check": "missingInclude",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false"
+          }
+        ]
+      },
+      "clang-format": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "clang-format",
+        "arguments": "",
+        "check": {
+          "level": "strict",
+          "file": "",
+          "limit": "5",
+          "autoreject": "true"
+        }
+      },
+      "pylint": {
+        "enabled": "true",
+        "show_to_student": "false",
+        "bin": "pylint",
+        "arguments": "",
+        "checks": [
+          {
+            "check": "error",
+            "enabled": "true",
+            "limit": "0",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "warning",
+            "enabled": "true",
+            "limit": "6",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "refactor",
+            "enabled": "false",
+            "limit": "3",
+            "autoreject": "false",
+            "disableErrorCodes": []
+          },
+          {
+            "check": "convention",
+            "enabled": "true",
+            "limit": "7",
+            "autoreject": "false",
+            "disableErrorCodes": ["C0111", "C0112"]
+          }
+        ]
+      },
+      "pytest": {
+        "enabled": "true",
+        "show_to_student": "false",
+        "bin": "pytest",
+        "test_path": "autotest.py",
+        "arguments": "",
+        "check": {
+          "limit": "0",
+          "autoreject": "true"
+        }
+      },
+      "copydetect": {
+        "enabled": "false",
+        "show_to_student": "false",
+        "bin": "copydetect",
+        "arguments": "",
+        "check": {
+          "type": "with_all",
+          "limit": "80",
+          "autoreject": "false"
+        }
+      },
+      "autotests": {
+        "enabled": false,
+        "show_to_student": false,
+        "test_path": "autotest.cpp",
+        "check": {
+          "limit": 0,
+          "autoreject": true
+        }
+      }
+    }
+  }';
+}
+
+
+
+function checked($src)
+{
+  return ($src == "true") ? "checked" : "";
+}
+
+function selected($src, $option)
+{
+  return ($src == $option) ? "selected" : "";
+}
+
+// function add_check_params($group, $param, $checks)
+// {
+//   if (!isset($checks['tools'][$group][$param]))
+//     return "";
+//   $output = '';
+//   foreach ($checks['tools'][$group][$param] as $check) {
+//     $output .= add_check_param($group, $check['check'], $check['check'], $checks);
+//   }
+//   return $output;
+// }
+
+function add_check_param($group, $param, $caption, $checks)
+{
+  $enabled = "true";
+  $limit = "0";
+  $reject = "false";
+
+  if ($group == 'clang') {
+    $enabled = @$checks['tools']['clang-format']['enabled'];
+    $limit = @$checks['tools']['clang-format']['check']['limit'];
+    $reject = @$checks['tools']['clang-format']['check']['autoreject'];
+  } else if ($group == 'plug') {
+    $enabled = @$checks['tools']['copydetect']['enabled'];
+    $limit = @$checks['tools']['copydetect']['check']['limit'];
+    $reject = @$checks['tools']['copydetect']['check']['autoreject'];
+  } else if ($group == 'test') {
+    $enabled = @$checks['tools']['autotests']['enabled'];
+    $limit = @$checks['tools']['autotests']['check']['limit'];
+    $reject = @$checks['tools']['autotests']['check']['autoreject'];
+  } else if ($group == 'pytest') {
+    $enabled = @$checks['tools']['pytest']['enabled'];
+    $limit = @$checks['tools']['pytest']['check']['limit'];
+    $reject = @$checks['tools']['pytest']['check']['autoreject'];
+  } else {
+    if (isset($checks['tools'][$group])) {
+      $arr = @$checks['tools'][$group]['checks'];
+      foreach ($arr as $a) {
+        if (@$a['check'] == $param) {
+          $enabled = $a['enabled'];
+          $limit = $a['limit'];
+          $reject = $a['autoreject'];
+        }
+      }
+    }
+  }
+
+  return  '<div><input id="' . $group . '_' . $param . '" name="' . $group . '_' . $param . '" ' . checked($enabled) .
+    ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+    '<label class="form-check-label" for="' . $group . '_' . $param . '" style="width:20%;">' . $caption . '</label>' .
+    '<label class="form-check-label me-3" for="' . $group . '_' . $param . '_limit">порог</label>' .
+    '<input id="' . $group . '_' . $param . '_limit" name="' . $group . '_' . $param . '_limit" value="' . $limit .
+    '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:10%;">' .
+    '<input id="' . $group . '_' . $param . '_reject" name="' . $group . '_' . $param . '_reject" ' . checked($reject) .
+    ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" style="float: none; margin-left:56px!important;margin-top:6px;">' .
+    '<label class="form-check-label" for="' . $group . '_' . $param . '_reject" style="width:40%;">автоматически отклонять при нарушении</label></div>';
+}
+
+function getChecksAccordion($checks)
+{
+  return array(
+    array(
+      'header' => '<b>' . $checks['tools']['build']['language'] . ' Build</b>',
+
+      'label'   => '<input id="build_enabled" name="build_enabled" ' . checked(@$checks['tools']['build']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="build_enabled" style="color:#4f4f4f;">выполнять сборку</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' .
+        '<input id="build_show" name="build_show" ' . checked(@$checks['tools']['build']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="build_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => //'<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>'.
+      //'<input id="valgrind_arg" name="valgrind_arg" value="'.@$checks['tools']['valgrind']['arguments'].
+      //'" style="width:50%;" class="accordion-input-item mb-2" wrap="off" rows="1"></div>'.
+      '<div><label class="form-check-label" for="build_language" style="width:20%;">Язык</label>' .
+        '<select id="build_language" name="build_language"' .
+        ' class="form-select mb-2" aria-label=".form-select" style="width:50%; display: inline-block;">' .
+        '  <option value="C" ' . selected(@$checks['tools']['build']['language'], 'C') . '>C</option>' .
+        '  <option value="C++" ' . selected(@$checks['tools']['build']['language'], 'C++') . '>C++</option>' .
+        '</select></div>' .
+        '<div><input id="build_autoreject" name="build_autoreject" ' . checked(@$checks['tools']['build']['check']['autoreject']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="build_autoreject" style="color:#4f4f4f;">автоматически отклонять при нарушении</label></div>'
+    ),
+    array(
+      'header' => '<b>Valgrind</b>',
+
+      'label'   => '<input id="valgrind_enabled" name="valgrind_enabled" ' . checked(@$checks['tools']['valgrind']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="valgrind_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="valgrind_show" name="valgrind_show" ' . checked(@$checks['tools']['valgrind']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="valgrind_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => '<div><label class="form-check-label" for="valgrind_arg" style="width:20%;">аргументы</label>' .
+        '<input id="valgrind_arg" name="valgrind_arg" value="' . @$checks['tools']['valgrind']['arguments'] .
+        '" style="width:50%;" class="accordion-input-item mb-2" wrap="off" rows="1"></div>' .
+        '<div><label class="form-check-label" for="valgrind_compiler" style="width:20%;">компилятор</label>' .
+        '<select id="valgrind_compiler" name="valgrind_compiler"' .
+        ' class="form-select mb-2" aria-label=".form-select" style="width:50%; display: inline-block;">' .
+        '  <option value="gcc" ' . selected(@$checks['tools']['valgrind']['compiler'], 'gcc') . '>gcc</option>' .
+        '  <option value="g++" ' . selected(@$checks['tools']['valgrind']['compiler'], 'g++') . '>g++</option>' .
+        '</select></div>' .
+        add_check_param('valgrind', 'errors', 'ошибки памяти', $checks) .
+        add_check_param('valgrind', 'leaks', 'утечки памяти', $checks)
+    ),
+    array(
+      'header' => '<b>CppCheck</b>',
+
+      'label'   => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . checked(@$checks['tools']['cppcheck']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="cppcheck_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="cppcheck_show" name="cppcheck_show" ' . checked(@$checks['tools']['cppcheck']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="cppcheck_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => '<div><label class="form-check-label" for="cppcheck_arg" style="width:20%;">аргументы</label>' .
+        '<input id="cppcheck_arg" name="cppcheck_arg" value="' . @$checks['tools']['cppcheck']['arguments'] .
+        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+
+        add_check_param('cppcheck', 'error', 'error', $checks) .
+        add_check_param('cppcheck', 'warning', 'warnings', $checks) .
+        add_check_param('cppcheck', 'style', 'style', $checks) .
+        add_check_param('cppcheck', 'performance', 'performance', $checks) .
+        add_check_param('cppcheck', 'portability', 'portability', $checks) .
+        add_check_param('cppcheck', 'information', 'information', $checks) .
+        add_check_param('cppcheck', 'unused', 'unused functions', $checks) .
+        add_check_param('cppcheck', 'include', 'missing include', $checks)
+    ),
+    array(
+      'header' => '<b>Clang-format</b>',
+      'label'   => '<input id="clang_enabled" name="clang_enabled" ' . checked(@$checks['tools']['clang-format']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="clang_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="clang_show" name="clang_show" ' . checked(@$checks['tools']['clang-format']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="clang_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => '<div><label class="form-check-label" for="clang_arg" style="width:20%;">аргументы</label>' .
+        '<input id="clang_arg" name="clang_arg" value="' . @$checks['tools']['clang-format']['arguments'] .
+        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+        '<div><label class="form-check-label" for="clang_compiler" style="width:20%;">соответствие</label>' .
+        '<select id="clang_config" name="clang-config" class="form-select mb-2" aria-label=".form-select" style="width:50%; display: inline-block;">' .
+        '  <option value="strict" ' . selected(@$checks['tools']['clang-format']['level'], 'strict') . '>strict - need-to-comment</option>' .
+        '  <option value="less" ' . selected(@$checks['tools']['clang-format']['level'], 'less') . '>less - need-to-comment</option>' .
+        '  <option value="minimal" ' . selected(@$checks['tools']['clang-format']['level'], 'minimal') . '>minimal - need-to-comment</option>' .
+        '  <option value="so on" ' . selected(@$checks['tools']['clang-format']['level'], 'so on') . '>so on - need-to-complete</option>' .
+        '  <option value="specific" ' . selected(@$checks['tools']['clang-format']['level'], 'specific') . '>specific - укажите свой файл с правилами оформления</option>' .
+        '</select></div>' .
+        '<div><label class="form-check-label mb-2" for="clang_file" style="width:20%;">файл с правилами</label>' .
+        '<input id="clang_file" name="clang_file" value="' . @$checks['tools']['clang-format']['file'] .
+        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+        add_check_param('clang', 'errors', 'нарушения', $checks)
+    ),
+    array(
+      'header' => '<b>Pylint</b>',
+
+      'label'   => '<input id="pylint_enabled" name="pylint_enabled" ' . checked(@$checks['tools']['pylint']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="pylint_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="pylint_show" name="pylint_show" ' . checked(@$checks['tools']['pylint']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="pylint_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => '<div><label class="form-check-label" for="pylint_arg" style="width:20%;">аргументы</label>' .
+        '<input id="pylint_arg" name="pylint_arg" value="' . @$checks['tools']['pylint']['arguments'] .
+        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+
+        add_check_param('pylint', 'error', 'errors', $checks) .
+        add_check_param('pylint', 'warning', 'warnings', $checks) .
+        add_check_param('pylint', 'refactor', 'refactor', $checks) .
+        add_check_param('pylint', 'convention', 'convention', $checks)
+    ),
+    array(
+      'header' => '<b>Pytest</b>',
+
+      'label'   => '<input id="pytest_enabled" name="pytest_enabled" ' . checked(@$checks['tools']['pytest']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="pytest_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="pytest_show" name="pytest_show" ' . checked(@$checks['tools']['pytest']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="pytest_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => '<div><label class="form-check-label" for="pytest_arg" style="width:20%;">аргументы</label>' .
+        '<input id="pytest_arg" name="pytest_arg" value="' . @$checks['tools']['pytest']['arguments'] .
+        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+        add_check_param('pytest', 'check', 'проверять', $checks)
+    ),
+    array(
+      'header' => '<b>Автотесты</b>',
+      'label'   => '<input id="test_enabled" name="test_enabled" ' . checked(@$checks['tools']['autotests']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="test_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="test_show" name="test_show" ' . checked(@$checks['tools']['autotests']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="test_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => //'<div><label class="form-check-label" for="test_lang" style="width:20%;">сравнивать</label>'.
+      //'<select id="test_lang" class="form-select mb-2" aria-label=".form-select" name="test_lang" style="width:50%; display: inline-block;">'.
+      //'  <option value="С" '.selected(@$checks['tools']['autotests']['language'], 'C').'>C</option>'.
+      //'  <option value="С++" '.selected(@$checks['tools']['autotests']['language'], 'C++').'>C++</option>'.
+      //'  <option value="Python" '.selected(@$checks['tools']['autotests']['language'], 'Python').'>Python</option>'.
+      //'</select></div>'.
+      add_check_param('test', 'check', 'проверять', $checks)
+    ),
+    array(
+      'header' => '<b>Антиплагиат</b>',
+      'label'   => '<input id="plug_enabled" name="plug_enabled" ' . checked(@$checks['tools']['copydetect']['enabled']) .
+        ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
+        '<label class="form-check-label" for="plug_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
+        '<input id="plug_show" name="plug_show" ' . checked(@$checks['tools']['copydetect']['show_to_student']) .
+        ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
+        '<label class="form-check-label" for="plug_show" style="color:#4f4f4f;">отображать студенту</label>',
+
+      'body'   => '<div><label class="form-check-label" for="plug_arg" style="width:20%;">аргументы</label>' .
+        '<input id="plug_arg" name="plug_arg" value="' . @$checks['tools']['copydetect']['arguments'] .
+        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+        '<div><label class="form-check-label" for="plug_config" style="width:20%;">сравнивать</label>' .
+        '<select id="plug_config" class="form-select mb-2" aria-label=".form-select" name="plug_config" style="width:50%; display: inline-block;">' .
+        '  <option value="with_all" ' . selected(@$checks['tools']['copydetect']['with_all'], 'gcc') . '>со всеми ранее сданными работами</option>' .
+        //'  <option value="group" '.selected(@$checks['tools']['copydetect']['group'], 'gcc').'>с работами студентов своей группы</option>'.
+        '</select></div>' .
+        add_check_param('plug', 'check', 'проверять', $checks)
+    )
+
+  );
 }
 
 ?>
