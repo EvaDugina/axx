@@ -43,7 +43,7 @@ function updateListItems() {
     }
 }
 
-function getActiveFileName() {
+export function getActiveFileName() {
     if (Editor.getEditorId()) {
         // for (var i = 0; i < listItems.length; i++) {
         //     listItems[i].className = listItems[i].className.replace(" active_file", "");
@@ -120,7 +120,7 @@ function openFile(event = null, listItem = null) {
         let input_file = listItems[index].querySelector("#div-fileName > input");
 
         let new_file_name = input_file.value;
-        let new_file_language = FileHandler.determinFileLanguage(new_file_name);
+        let new_file_language = FileHandler.getFileLanguage(new_file_name);
         changeEditorLanguage(new_file_language);
 
         var param = document.location.href.split("?")[1].split("#")[0];

@@ -34,13 +34,34 @@ function findLanguage(file_ext) {
 }
 
 
-export function determinFileLanguage(file_name) {
+export function getFileExt(file_name) {
     let file_name_splitted = file_name.split(".");
-
-    let file_ext = null;
     if (file_name_splitted.length == 2)
-        file_ext = file_name_splitted[1];
-    else
-        file_ext = "txt";
-    return findLanguage(file_ext);
+        return file_name_splitted[1];
+    return "txt";
+}
+
+export function getFileLanguage(file_name) {
+    return findLanguage(getFileExt(file_name));
+}
+
+export function getCMDCompilationCommand(file_ext) {
+    if (isGNUCompilation(file_ext))
+        return "make";
+    if (isPYCompilation(file_ext))
+        return "python3";
+    return null;
+
+}
+
+function isGNUCompilation(file_ext) {
+    if (file_ext == "cpp" || file_ext == "c" || file_ext == "h")
+        return true;
+    return false;
+}
+
+function isPYCompilation(file_ext) {
+    if (file_ext == "py")
+        return true;
+    return false;
 }

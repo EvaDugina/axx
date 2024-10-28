@@ -1,5 +1,6 @@
 import editor from "./editor.js";
-import { makeRequest, saveEditedFile, saveActiveFile, openFile } from "./butons.js";
+import { makeRequest, saveEditedFile, saveActiveFile, openFile, getActiveFileName } from "./butons.js";
+import { getCMDCompilationCommand, getFileExt } from "../FileHandler.js";
 import apiUrl from "../api.js";
 import Sandbox from "../../src/js/sandbox.js";
 //import alertify from "./alertifyjs/alertify.js";
@@ -26,6 +27,16 @@ function saveAll() {
     }
 }
 
+function getProjectCompilationCommandThroughProjectFiles(file_names) {
+    for (var i = 0; i < file_names.length; i++) {
+        let fileExt = getFileExt(file_names[i]);
+        let cmdCommand = getCMDCompilationCommand(fileExt);
+        if (cmdCommand != null)
+            return cmdCommand;
+    }
+    return null;
+}
+
 document.querySelector("#run").addEventListener('click', async e => {
     saveActiveFile();
     saveAll();
@@ -35,16 +46,25 @@ document.querySelector("#run").addEventListener('click', async e => {
     var items = list.querySelectorAll(".validationCustom");
     var name = "";
     var t = 0;
+    let file_names = [];
     for (var i = 0; i < items.length - 1; i++) {
         //if(items[i].value.split(".")[items[i].value.split(".").length-1] == "makefile" ^ items[i].value.split(".")[items[i].value.split(".").length-1] == "make"){
         //    t = i;
         //}
         makeRequest(['textdb.php?' + param + "&type=open&id=" + items[i].id, items[i].value], "get");
+        file_names.push(items[i].value);
     }
+
+    let activeFileExt = getFileExt(getActiveFileName());
+    let cmdCommand = getCMDCompilationCommand(activeFileExt);
+    if (cmdCommand == null)
+        cmdCommand = getProjectCompilationCommandThroughProjectFiles(file_names);
+    if (cmdCommand == null)
+        alert("Не удалось определить команду консоли для сборки проекта!")
 
     //if(t){
     //var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make -f "+items[t].value}), headers: {'Content-Type': 'application/json'}})).json();
-    var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, { method: "POST", body: JSON.stringify({ cmd: "make " }), headers: { 'Content-Type': 'application/json' } })).json();
+    var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, { method: "POST", body: JSON.stringify({ cmd: cmdCommand + " " }), headers: { 'Content-Type': 'application/json' } })).json();
     //}
     //alert(resp['stdout']+",\n"+resp['stderr']+",\n"+resp['exitCode']);
     //alert(t);
