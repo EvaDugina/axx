@@ -544,8 +544,9 @@ function checkPylintOutputDataStructure($pylintOutputData)
         return false;
     foreach ($pylintOutputData['checks'] as $check) {
         if (
-            !array_key_exists('outcome', $check) || !array_key_exists('enabled', $check)
-            || !array_key_exists('result', $check)
+            $check['outcome'] != "skip" &&
+            (!array_key_exists('outcome', $check) || !array_key_exists('enabled', $check)
+                || !array_key_exists('result', $check))
         )
             return false;
     }
@@ -641,8 +642,9 @@ function checkPytestOutputDataStructure($pytestOutputData)
         return false;
     $check = $pytestOutputData['check'];
     if (
-        !array_key_exists('error', $check) || !array_key_exists('failed', $check)
-        || !array_key_exists('passed', $check) || !array_key_exists('seconds', $check)
+        $pytestOutputData['outcome'] != "skip" && (
+            !array_key_exists('error', $check) || !array_key_exists('failed', $check)
+            || !array_key_exists('passed', $check) || !array_key_exists('seconds', $check))
     )
         return false;
     return true;
