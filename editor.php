@@ -397,7 +397,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 $checkres = json_decode('{
           "tools": {
             "build": {
-              "enabled": true,
+              "enabled": false,
               "show_to_student": false,
               "language": "C++",
               "check": {
@@ -408,7 +408,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "valgrind": {
-              "enabled": true,
+              "enabled": false,
               "show_to_student": false,
               "bin": "valgrind",
               "arguments": "",
@@ -435,7 +435,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "cppcheck": {
-              "enabled": true,
+              "enabled": false,
               "show_t_student": false,
               "bin": "cppcheck",
               "arguments": "",
@@ -509,7 +509,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "clang-format": {
-              "enabled": true,
+              "enabled": false,
               "show_to_student": false,
               "bin": "clang-format",
               "arguments": "",
@@ -568,7 +568,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "pytest": {
-              "enabled": true,
+              "enabled": false,
               "show_to_student": false,
               "test_path": "autotest.py",
               "bin": "pytest",
@@ -584,7 +584,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "copydetect": {
-              "enabled": true,
+              "enabled": false,
               "show_to_student": false,
               "bin": "copydetect",
               "arguments": "",
@@ -600,7 +600,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "autotests": {
-              "enabled": true,
+              "enabled": false,
               "show_to_student": false,
               "test_path": "test_example.cpp",
               "check": {
