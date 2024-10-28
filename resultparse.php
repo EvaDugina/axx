@@ -410,6 +410,16 @@ function parsePylint($data, $enabled)
     $resFooter = '<label for="pylint" id="pylintlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
         '<pre id="pylint" class="axconsole">Загрузка...</pre>';
 
+    if (!$enabled) {
+        return array(
+            'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
+            'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("pylint_body", "Проверка пропущена или инструмент проверки не установлен."),
+            'footer' => $resFooter
+        );
+    }
+
     if (!checkPylintOutputDataStructure($data)) {
         return array(
             'header' => '<div class="w-100"><b>pylint</b>' . generateColorBox('gray', 'Внутрення ошибка!', 'pylint_result') . '</div>',
@@ -558,6 +568,16 @@ function parsePytest($data, $enabled)
     $resFooter = '<label for="pytest" id="pytestlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
         '<pre id="pytest" class="axconsole">Загрузка...</pre>';
 
+    if (!$enabled) {
+        return array(
+            'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
+            'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+            'body'   => generateTaggedValue("pytest_body", "Проверка пропущена или инструмент проверки не установлен."),
+            'footer' => $resFooter
+        );
+    }
+
     if (!checkPytestOutputDataStructure($data)) {
         return array(
             'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Внутрення ошибка!', 'pytest_result') . '</div>',
@@ -572,13 +592,13 @@ function parsePytest($data, $enabled)
 
     switch ($data['outcome']) {
         case 'pass':
-            $resColorBox .= generateColorBox('green', 'Проверка пройдена', 'pylint_result');
+            $resColorBox .= generateColorBox('green', 'Проверка пройдена', 'pytest_result');
             break;
         case 'fail':
-            $resColorBox .= generateColorBox('red', 'Проверки не пройдены', 'pylint_result');
+            $resColorBox .= generateColorBox('red', 'Проверки не пройдены', 'pytest_result');
             break;
         case 'reject':
-            $resColorBox .= generateColorBox('red', 'Ошибка', 'pylint_result');
+            $resColorBox .= generateColorBox('red', 'Ошибка', 'pytest_result');
             break;
         case 'skip':
             return array(
@@ -624,11 +644,11 @@ function parsePytest($data, $enabled)
 
 
     $resArr = array(
-        'header' => '<div class="w-100"><b>Pylint</b>' . $resColorBox . '</div>',
+        'header' => '<div class="w-100"><b>Pytest</b>' . $resColorBox . '</div>',
 
-        'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+        'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-        'body'   => generateTaggedValue("pylint_body", $resBody),
+        'body'   => generateTaggedValue("pytest_body", $resBody),
         'footer' => $resFooter
     );
 
