@@ -294,14 +294,9 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           <div class="d-flex mb-1">
             <div class="w-100 me-1">
               <select class="form-select" aria-label=".form-select" id="language">
-                <option value="cpp" selected>C++</option>
-                <option value="c">C</option>
-                <option value="python">Python</option>
-                <option value="javascript">Java</option>
-                <option value="php">Php</option>
-                <option value="html">Html</option>
-                <option value="css">Css</option>
-                <option value="plaintext" class="text-secondary">Txt</option>
+                <?php foreach (getEditorLanguages() as $language) { ?>
+                  <option value="<?= $language["monaco_editor_name"] ?>"><?= $language["name"] ?></option>
+                <?php } ?>
               </select>
             </div>
             <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>

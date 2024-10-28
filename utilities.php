@@ -30,6 +30,16 @@ function getPGQuotationMarks()
   return "\$antihype1\$";
 }
 
+function getEditorLanguages()
+{
+  return [
+    "CPP" => ["cmd" => 'make', "exts" => ['cpp', 'h'], "name" => 'C++', "monaco_editor_name" => 'cpp'],
+    "C" => ["cmd" => 'make', "exts" => ['c'], "name" => 'C', "monaco_editor_name" => 'c'],
+    "PYTHON" => ["cmd" => 'python3', "exts" => ['py'], "name" => 'Python', "monaco_editor_name" => 'python'],
+    "DEFAULT" => ["cmd" => null, "exts" => [], "name" => 'Text', "monaco_editor_name" => 'plaintext']
+  ];
+}
+
 
 
 // Работа с TIMESTAMP

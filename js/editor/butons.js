@@ -120,7 +120,7 @@ function openFile(event = null, listItem = null) {
         let input_file = listItems[index].querySelector("#div-fileName > input");
 
         let new_file_name = input_file.value;
-        let new_file_language = FileHandler.getFileLanguage(new_file_name);
+        let new_file_language = FileHandler.getFileLanguageForMonacoEditor(new_file_name);
         changeEditorLanguage(new_file_language);
 
         var param = document.location.href.split("?")[1].split("#")[0];
@@ -524,7 +524,7 @@ function parseCheckResult(results) {
     formData.append('output-tools', JSON.stringify(results));
     $.ajax({
         type: "POST",
-        url: 'codeCheckHandler.php#content',
+        url: 'editor_action.php#content',
         cache: false,
         contentType: false,
         processData: false,
