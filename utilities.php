@@ -53,7 +53,7 @@ function getLanguagesChecksParams()
 
 
 // Работа с TIMESTAMP
-$date_time_offset = 6 - date("H", date("Z"));
+// $date_time_offset = 6 - date("H", date("Z"));
 // здесь 6 (те. UTC+6) - это время на сервере
 
 date_default_timezone_set('Europe/Moscow');
@@ -66,10 +66,12 @@ function getNowTimestamp()
 
 function convertServerDateTimeToCurrent($date_time, $format = "Y-m-d H:i")
 {
-  global $date_time_offset;
+  // global $date_time_offset;
   if ($date_time == null)
     return null;
-  return date($format, strtotime($date_time . " - $date_time_offset hour"));
+  // Смещал время на некоторое количество часов, тк на сервере время не совпадало с реальным
+  // return date($format, strtotime($date_time . " - $date_time_offset hour"));
+  return date($format, strtotime($date_time));
 }
 
 function convertCurrentDateTimeToServer($date_time, $format = "Y-m-d H:i")
