@@ -124,19 +124,13 @@ if (isset($_POST['action']) && $_POST['action'] == "save") {
 
   if (isset($_POST['codeTest'])) {
     $Files = $Task->getFilesByType(2);
-    if ($_POST['codeTest'] != "") {
-      if (empty($Files)) {
-        $File = new File(2, "autotest.cpp", null, $_POST['codeTest']);
-        $Task->addFile($File->id);
-      } else {
-        foreach ($Files as $File) {
-          $File->setFullText($_POST['codeTest']);
-          $File->pushChangesToDB();
-        }
-      }
+    if (empty($Files)) {
+      $File = new File(2, "autotest.cpp", null, $_POST['codeTest']);
+      $Task->addFile($File->id);
     } else {
       foreach ($Files as $File) {
-        $Task->deleteFile($File->id);
+        $File->setFullText($_POST['codeTest']);
+        $File->pushChangesToDB();
       }
     }
   }

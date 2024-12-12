@@ -152,6 +152,9 @@ show_head("Добавление\Редактирование задания", ar
                 <select id="select-codeTestFiles-ext" class="form-select" aria-label=".form-select">
                   <?php foreach (getAvailableCodeTestsExtsWithNames() as $ext => $language) { ?>
                     <option value="<?= $ext ?>" <?= (isset($TestFiles[0]) && $TestFiles[0]->getExt() == $ext) ? "selected" : "" ?>><?= $language ?></option>
+                  <?php }
+                  if (!isset($TestFiles[0])) { ?>
+                    <option value="-1" selected>Выберите язык файлов автотеста</option>
                   <?php } ?>
                 </select>
                 <div class="form-outline mt-2">
@@ -659,6 +662,7 @@ show_head("Добавление\Редактирование задания", ar
     if (isExtCodeTestChanged()) {
       newExtCodeTest = $('#select-codeTestFiles-ext').val();
       original_extCodeTest = newExtCodeTest;
+      new_codeTest = "";
     }
     if (isCodeTestChanged()) {
       new_codeTest = $('#textArea-codeTest').val();

@@ -63,10 +63,14 @@ class File
       else
         $this->visibility = 1;
       $this->name_without_prefix = $args[1];
-      $this->name = addRandomPrefix($this->name_without_prefix);
-
       $this->download_url = $args[2];
       $this->full_text = $args[3];
+
+      if ($this->download_url != null)
+        $this->name = addRandomPrefix($this->name_without_prefix);
+      else
+        $this->name = $this->name_without_prefix;
+
       $this->status = 0;
 
       $this->pushNewToDB();
