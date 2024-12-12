@@ -45,9 +45,6 @@ function ajaxTaskSave(task_id, new_title = null, new_type = null, new_mark_type 
     formData.append('task_id', task_id);
     formData.append('action', 'save');
 
-    if (new_title == null && new_type == null && new_mark_type == null && new_mark_max == null && new_description == null && new_extCodeTest == null && new_codeTest == null && new_codeCheck == null)
-        return "EMPTY";
-
     if (new_title != null)
         formData.append('title', new_title);
     if (new_type != null)

@@ -669,12 +669,6 @@ show_head("Добавление\Редактирование задания", ar
       original_codeCheck = new_codeCheck;
     }
 
-    // if (new_title == null && new_type == null && new_description == null && new_codeTest == null && new_codeCheck == null) {
-    //   if (flagButtonSave)
-    //     document.location.href = 'preptasks.php?page=<?= $Page->id ?>';
-    //   return "EMPTY";
-    // }
-
     $('#spinner-save').removeClass("d-none");
     let ajaxResponse = ajaxTaskSave(task_id, new_title, new_type, new_mark_type, new_mark_max, new_description, newExtCodeTest, new_codeTest, new_codeCheck);
     $('#spinner-save').addClass("d-none");
@@ -682,21 +676,20 @@ show_head("Добавление\Редактирование задания", ar
     if (ajaxResponse != null) {
       if (flagButtonSave)
         document.location.href = 'preptasks.php?page=<?= $Page->id ?>';
-      else if (ajaxResponse != "EMPTY")
+      else
         document.location.href = "taskedit.php?task=" + task_id;
-      return;
     } else {
       alert("Не удалось сохранить изменения. Попробуйте ещё раз.")
-      return;
     }
 
-    if (ajaxResponse != "EMPTY") {
-      titleChange();
-      typeChange();
-      descriptionChange();
-      codeTestChange();
-      codeCheckTestChange();
-    }
+    // для отмены выделения синим фоном
+    // titleChange();
+    // typeChange();
+    // descriptionChange();
+    // codeTestChange();
+    // codeCheckTestChange();
+
+    return;
 
   }
 
@@ -854,14 +847,11 @@ show_head("Добавление\Редактирование задания", ar
     $('#select-taskFileType-' + file_id).blur();
     if (response != null) {
       if ("svg" in response) {
-        if (new_type == 2 || new_type == 3) {
-          let empty = saveTask();
-          if (empty == "EMPTY")
-            document.location.reload();
-        } else if (array_files[index].type == 2 || array_files[index].type == 3) {
-          let empty = saveTask();
-          if (empty == "EMPTY")
-            document.location.reload();
+        if (new_type == 2 || new_type == 3 ||
+          array_files[index].type == 2 || array_files[index].type == 3
+        ) {
+          saveTask();
+          document.location.reload();
         }
 
         $('#span-fileType-' + file_id).html(response['svg']);
