@@ -679,7 +679,7 @@ $task_number = explode('.', $task_title)[0];
       // Первое обновление лога чата
       loadChatLog(true);
       // Обновление лога чата раз в 1 секунд
-      setInterval(loadChatLog, 100000);
+      setInterval(loadChatLog, 1000);
 
 
       // Показывает количество прикрепленных для отправки файлов
