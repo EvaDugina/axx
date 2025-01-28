@@ -1,6 +1,6 @@
 import * as Editor from "./editor.js";
-import apiUrl from "../api.js";
-import Sandbox from "../../src/js/sandbox.js";
+import httpApiUrl from "../api.js";
+import Sandbox from "../sandbox.js";
 import * as FileHandler from "../FileHandler.js";
 
 export { makeRequest, saveEditedFile, saveActiveFile, openFile };
@@ -235,7 +235,6 @@ function saveFile(name, id) {
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
-
 }
 
 function saveEditedFile() {
@@ -382,6 +381,7 @@ function makeRequest(url, type) {
         httpRequest.send(null);
     }
     else if (type == "tools") {
+        // alert(encodeURI(url))
         httpRequest.onreadystatechange = function () { alertContentsTools(httpRequest, url); };
         httpRequest.open('POST', encodeURI(url), true);
         httpRequest.send(null);
@@ -496,7 +496,7 @@ async function alertContentsGet(httpRequest, name) {
                 const body = new FormData();
                 body.append('files', content, name);
                 const user = "sandbox";
-                await fetch(`${apiUrl}/sandbox/${Sandbox.id}/upload/${user}`, { method: "POST", body });
+                await fetch(`${httpApiUrl}/sandbox/${Sandbox.id}/upload/${user}`, { method: "POST", body });
             } else {
                 alert('С запросом возникла проблема.');
             }
@@ -505,7 +505,6 @@ async function alertContentsGet(httpRequest, name) {
     catch (e) {
         alert('Произошло исключение: ' + e.description);
     }
-
 }
 
 function getCheckInfo(checks, checkname) {

@@ -444,7 +444,7 @@ else if ($type == "tools") {
       "show_to_student": false,
       "bin": "valgrind",
       "arguments": "",
-      "compiler": "gcc",
+      "compiler": "g++",
       "checks": [
         {
           "check": "errors",
@@ -681,7 +681,7 @@ else if ($type == "tools") {
   /*echo $checks; exit;*/
 
   $sid = session_id();
-  $folder = "/var/app/share/" . (($sid == false) ? "unknown" : $sid);
+  $folder = "/var/www/html/share/" . (($sid == false) ? "unknown" : $sid);
   if (!file_exists($folder))
     mkdir($folder, 0777, true);
 
@@ -693,7 +693,7 @@ else if ($type == "tools") {
   else if (array_key_exists('autotests', $checks['tools'])) {
     $checks["tools"]["autotests"]["test_path"] = $result["file_name"];
     @unlink($folder . '/' . $result['file_name']);
-    $myfile = fopen($folder . '/' . $result['file_name'], "w") or die("Невозможно открыть файл ($File->name) кода теста!");
+    $myfile = fopen($folder . '/' . 'autotest.cpp', "w") or die("Невозможно открыть файл ($File->name) кода теста!");
     fwrite($myfile, $result['full_text']);
     fclose($myfile);
   }
@@ -734,19 +734,19 @@ else if ($type == "tools") {
     exit;
   }
 
-  $files_codeTest = array();
-  $Task = new Task((int)getTaskByAssignment((int)$assignment));
-  foreach ($Task->getCodeTestFiles() as $File) {
-    $myfile = fopen($folder . '/' . "autotest." . $File->getExt(), "w");
-    if (!$myfile) {
-      echo "Невозможно открыть файл ($File->name) автотеста!";
-      http_response_code(500);
-      exit;
-    }
-    fwrite($myfile, $File->getFullText());
-    fclose($myfile);
-    array_push($files_codeTest, "autotest." . $File->getExt());
-  }
+  // $files_codeTest = array();
+  // $Task = new Task((int)getTaskByAssignment((int)$assignment));
+  // foreach ($Task->getCodeTestFiles() as $File) {
+  //   $myfile = fopen($folder . '/' . "autotest." . $File->getExt(), "w");
+  //   if (!$myfile) {
+  //     echo "Невозможно открыть файл ($File->name) автотеста!";
+  //     http_response_code(500);
+  //     exit;
+  //   }
+  //   fwrite($myfile, $File->getFullText());
+  //   fclose($myfile);
+  //   array_push($files_codeTest, "autotest." . $File->getExt());
+  // }
 
   // if (count($files_codeTest) < 1) {
   //   echo "Не найдены файлы теста!" . $Task->id;
@@ -915,14 +915,18 @@ else if ($type == "tools") {
   // chdir($folder);
   // exec("python -m python_code_check -c config.json " . implode(' ', $files) . ' 2>&1', $output, $retval);
 
+  $folder_for_docker = getenv('HOST_DIR');
+  if ($hostScriptDir === false) {
+      die('Переменная HOST_DIR не задана');
+  }
 
   $checks = json_decode($checks, true);
   if ((isset($checks['tools']['pylint']) && $checks['tools']['pylint']['enabled'])
     || (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['enabled'])
   )
-    exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox python_code_check -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
+    exec('docker run --net=host --rm -v ' . $folder_for_docker . '/share/' . $sid . ':/tmp -v ' . $folder_for_docker . '/utility:/stable -w=/tmp nitori_sandbox python_code_check -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
   else
-    exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
+    exec('docker run --net=host --rm -v ' . $folder_for_docker . '/share/' . $sid . ':/tmp -v ' . $folder_for_docker . '/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
 
   //$responce = 'docker run -it --net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
   //exec('docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
@@ -951,6 +955,7 @@ else if ($type == "tools") {
     http_response_code(500);
     exit;
   }
+  
   $myfile = fopen($folder . '/output.json', "r");
   if (!$myfile) {
     echo "Не удалось получить результаты проверки из файла:<br>";
@@ -963,7 +968,7 @@ else if ($type == "tools") {
 
   pg_query($dbconnect, 'update ax.ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $Commit->id);
   /**/
-
+  
   header('Content-Type: application/json');
 }
 
@@ -977,7 +982,7 @@ else if ($type == "console") {
   }
   $tool =  $_REQUEST['tool'];
 
-  $folder = "/var/app/share/" . (($sid == false) ? "unknown" : $sid);
+  $folder = "/var/www/html/share/" . (($sid == false) ? "unknown" : $sid);
   if (!file_exists($folder)) {
     echo "Перезапустите проверку!";
     http_response_code(200);

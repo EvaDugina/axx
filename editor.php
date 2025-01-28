@@ -117,10 +117,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
 <link rel="stylesheet" href="css/mdb/rdt.css" />
 
-<link rel="stylesheet" href="https://vega.mirea.ru/sandbox/node_modules/xterm/css/xterm.css" />
-<script src="https://vega.mirea.ru/sandbox/node_modules/xterm/lib/xterm.js"></script>
-<script src="https://vega.mirea.ru/sandbox/node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
-<script src="https://vega.mirea.ru/sandbox/node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<link rel="stylesheet" href="../node_modules/xterm/css/xterm.css" />
+<script src="../node_modules/xterm/lib/xterm.js"></script>
+<script src="../node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
+<script src="../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 
 <body style="overflow-x:hidden">
 
@@ -322,8 +322,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <?php } ?>
           </div>
           <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
-            <div id="container" class="embed-responsive-item"></div>
+            <div id="container" class="embed-responsive-item"> 
+              
+          
           </div>
+          </div>
+          
+          <!--ТЕСТ РЕДАКТОРА -->
+          <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
 
           <div class="d-flex justify-content-between mt-1">
             <!--<button type="button" class="btn btn-outline-primary" id="check" style="width: 50%;"> Отправить на проверку</button>-->
@@ -606,7 +612,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "check": {
                 "limit": 0,
                 "autoreject": true,
-                "outcome": "fail",
+                "outcome": "skip",
                 "errors": 0,
                 "failures": 3
               },
@@ -641,7 +647,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 $checks = json_decode($checks, true);
 
                 echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
-
                 $accord = getAccordionToolsHtml($checks, @$checkres, $User);
                 echo show_accordion('checkres', $accord, "5px");
                 ?>
@@ -984,11 +989,15 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
     </div>
   </div>
 
-  <script type="module" src="./src/js/sandbox.js"></script>
+  <!-- <script type="module" src="./js/sandbox.js"></script>-->
+
   <script src="js/drag.js"></script>
   <script src="js/tab.js"></script>
-  <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
-  <script src="js/editorloader.js" type="module"></script>
+  <!-- <script src="dist/bundle.js"></script> -->
+
+  <script type="module" src="./js/dist/index.js"></script>
+  <!-- <script src="js/editor/node_modules/monaco-editor/min/vs/loader.js"></script> -->
+  <!-- <script src="js/editorloader.js" type="module"></script> -->
 
   <!-- Handlers -->
   <script type="text/javascript" src="js/AssignmentHandler.js"></script>
