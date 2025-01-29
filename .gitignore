@@ -3,6 +3,7 @@ node_modules/
 upload_files/
 launch.json
 .idea/
+share/
 auth_ssh_global.class.php
 auth_ssh_dev.class.php
 ISSUES.txt
