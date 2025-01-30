@@ -463,7 +463,23 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
       let end_date = new Date($('#input-endDate').val());
       let end_time = $('#input-endTime').val();
 
-      if (start_date > end_date) {
+      console.log(start_time, end_time)
+
+      if (!(start_date instanceof Date && !isNaN(start_date))) {
+        start_date = "";
+      } else if (start_time == "") {
+        alert("Неверно указано время начала приема работ!")
+        return;
+      }
+      if (!(end_date instanceof Date && !isNaN(end_date))) {
+        end_date = "";
+      } else if (end_time == "") {
+        alert("Неверно указано время окончания приема работ!")
+        return;
+      }
+
+
+      if (start_date != "" && end_date != "" && start_date > end_date) {
         alert("Неверно указаны даты!");
         return;
       } else if (start_date == end_date) {

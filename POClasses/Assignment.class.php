@@ -185,6 +185,16 @@ class Assignment
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  public function deleteFinishLimit()
+  {
+    global $dbconnect;
+
+    $this->finish_limit = null;
+
+    $query = "UPDATE ax.ax_assignment SET finish_limit = null WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
   public function setStartLimit($start_limit)
   {
     global $dbconnect;
@@ -192,6 +202,16 @@ class Assignment
     $this->start_limit = $start_limit;
 
     $query = "UPDATE ax.ax_assignment SET start_limit = to_timestamp('$this->start_limit', 'YYYY-MM-DD HH24:MI:SS') WHERE id = $this->id";
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  public function deleteStartLimit()
+  {
+    global $dbconnect;
+
+    $this->start_limit = null;
+
+    $query = "UPDATE ax.ax_assignment SET start_limit = null WHERE id = $this->id";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 

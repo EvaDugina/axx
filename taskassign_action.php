@@ -301,24 +301,32 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   //   $result = pg_query($dbconnect, $query);
 
 
-  if (isset($_POST['fromtime']) && $_POST['fromtime'] != "") {
-    $date = strtotime($_POST['fromtime']);
-    if (isset($_POST['start_time'])) {
-      $str = $_POST['fromtime'] . " " . $_POST['start_time'] . ":00";
-      $date = strtotime($str);
+  if (isset($_POST['fromtime'])) {
+    if ($_POST['fromtime'] == "")
+      $Assignment->deleteFinishLimit();
+    else {
+      $date = strtotime($_POST['fromtime']);
+      if (isset($_POST['start_time'])) {
+        $str = $_POST['fromtime'] . " " . $_POST['start_time'] . ":00";
+        $date = strtotime($str);
+      }
+      $date_start = date("Y-m-d H:i:s", $date);
+      $Assignment->setStartLimit($date_start);
     }
-    $date_start = date("Y-m-d H:i:s", $date);
-    $Assignment->setStartLimit($date_start);
   }
 
 
-  if (isset($_POST['tilltime']) && $_POST['tilltime'] != "") {
-    $date = strtotime($_POST['tilltime']);
-    if (isset($_POST['end_time'])) {
-      $str = $_POST['tilltime'] . " " . $_POST['end_time'] . ":00";
-      $date = strtotime($str);
+  if (isset($_POST['tilltime'])) {
+    if ($_POST['tilltime'] == "")
+      $Assignment->deleteStartLimit();
+    else {
+      $date = strtotime($_POST['tilltime']);
+      if (isset($_POST['end_time'])) {
+        $str = $_POST['tilltime'] . " " . $_POST['end_time'] . ":00";
+        $date = strtotime($str);
+      }
+      $Assignment->setFinishLimit(date("Y-m-d H:i:s", $date));
     }
-    $Assignment->setFinishLimit(date("Y-m-d H:i:s", $date));
   }
 
   if (isset($_POST['variant']) && $_POST['variant'] != "")
