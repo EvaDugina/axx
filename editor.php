@@ -819,7 +819,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             if ($Assignment->finish_limit && checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") { ?>
 
               <div id="deadline-message" class="deadline-message m-3">
-                Время и стекло!
+                Время выполнения истекло!
               </div>
 
               <div id="countdown" class="countdown">
@@ -907,7 +907,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               </script>
 
             <?php
-            } ?>
+            } else { ?>
+              <div class="m-3">
+                Время окончания приема работы не задано!
+              </div>
+            <?php } ?>
 
           </div>
 
