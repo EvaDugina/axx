@@ -873,10 +873,26 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                       return true;
                     }
 
-                    daysSpan.innerHTML = t.days + "д.";
-                    hoursSpan.innerHTML = ("0" + t.hours).slice(-2) + "ч.";
-                    minutesSpan.innerHTML = ("0" + t.minutes).slice(-2) + "м.";
-                    secondsSpan.innerHTML = ("0" + t.seconds).slice(-2) + "с.";
+                    refresh_clock_element(daysSpan, null, t.days, t.days + "д.");
+                    refresh_clock_element(hoursSpan, daysSpan, t.hours, ("0" + t.hours).slice(-2) + "ч.");
+                    refresh_clock_element(minutesSpan, hoursSpan, t.minutes, ("0" + t.minutes).slice(-2) + "м.");
+                    refresh_clock_element(secondsSpan, minutesSpan, t.seconds, ("0" + t.seconds).slice(-2) + "с.");
+
+
+                    // hoursSpan.innerHTML = ("0" + t.hours).slice(-2) + "ч.";
+                    // minutesSpan.innerHTML = ("0" + t.minutes).slice(-2) + "м.";
+                    // secondsSpan.innerHTML = ("0" + t.seconds).slice(-2) + "с.";
+
+                    function refresh_clock_element(span, previous_span, value, value_str) {
+                      if (value <= 0) {
+                        if (previous_span === null || previous_span.parentElement.classList.contains('d-none')) {
+                          span.parentElement.classList.add("d-none");
+                        }
+                      } else {
+                        span.parentElement.classList.remove("d-none");
+                      }
+                      span.innerHTML = value_str;
+                    }
                   }
 
                   updateClock();
