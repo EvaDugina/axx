@@ -5,38 +5,38 @@ function getAccordionToolsHtml($checks, $checkres, $User)
     $accord = array();
     if (!$User->isStudent()) {
         if (isset($checks['tools']['build']))
-            array_push($accord, parseBuildCheck(@$checkres['tools']['build'], @$checkres['tools']['build']['enabled']));
+            array_push($accord, parseBuildCheck(@$checkres['tools']['build'], @$checks['tools']['build']['enabled']));
         if (isset($checks['tools']['cppcheck']))
-            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], @$checkres['tools']['cppcheck']['enabled']));
+            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], @$checks['tools']['cppcheck']['enabled']));
         if (isset($checks['tools']['clang-format']))
-            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], @$checkres['tools']['clang-format']['enabled']));
+            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], @$checks['tools']['clang-format']['enabled']));
         if (isset($checks['tools']['valgrind']))
-            array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], @$checkres['tools']['valgrind']['enabled']));
+            array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], @$checks['tools']['valgrind']['enabled']));
         if (isset($checks['tools']['pylint']))
-            array_push($accord, parsePylint(@$checkres['tools']['pylint'], @$checkres['tools']['pylint']['enabled']));
+            array_push($accord, parsePylint(@$checkres['tools']['pylint'], @$checks['tools']['pylint']['enabled']));
         if (isset($checks['tools']['pytest']))
-            array_push($accord, parsePytest(@$checkres['tools']['pytest'], @$checkres['tools']['pytest']['enabled']));
+            array_push($accord, parsePytest(@$checkres['tools']['pytest'], @$checks['tools']['pytest']['enabled']));
         if (isset($checks['tools']['autotests']))
-            array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], @$checkres['tools']['autotests']['enabled']));
+            array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], @$checks['tools']['autotests']['enabled']));
         if (isset($checks['tools']['copydetect']))
-            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], @$checkres['tools']['copydetect']['enabled']));
+            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], @$checks['tools']['copydetect']['enabled']));
     } else {
         if (isset($checks['tools']['build']) && $checks['tools']['build']['show_to_student'])
-            array_push($accord, parseBuildCheck(@$checkres['tools']['build'], @$checkres['tools']['build']['enabled']));
+            array_push($accord, parseBuildCheck(@$checkres['tools']['build'], @$checks['tools']['build']['enabled']));
         if (isset($checks['tools']['cppcheck']) && $checks['tools']['cppcheck']['show_to_student'])
-            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], @$checkres['tools']['cppcheck']['enabled']));
+            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], @$checks['tools']['cppcheck']['enabled']));
         if (isset($checks['tools']['clang-format']) && $checks['tools']['clang-format']['show_to_student'])
-            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], @$checkres['tools']['clang-format']['enabled']));
+            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], @$checks['tools']['clang-format']['enabled']));
         if (isset($checks['tools']['valgrind']) && $checks['tools']['valgrind']['show_to_student'])
-            array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], @$checkres['tools']['valgrind']['enabled']));
+            array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], @$checks['tools']['valgrind']['enabled']));
         if (isset($checks['tools']['pylint']) && $checks['tools']['pylint']['show_to_student'])
-            array_push($accord, parsePylint(@$checkres['tools']['pylint'], @$checkres['tools']['pylint']['enabled']));
+            array_push($accord, parsePylint(@$checkres['tools']['pylint'], @$checks['tools']['pylint']['enabled']));
         if (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['show_to_student'])
-            array_push($accord, parsePytest(@$checkres['tools']['pytest'], @$checkres['tools']['pytest']['enabled']));
+            array_push($accord, parsePytest(@$checkres['tools']['pytest'], @$checks['tools']['pytest']['enabled']));
         if (isset($checks['tools']['autotests']) && $checks['tools']['autotests']['show_to_student'])
-            array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], @$checkres['tools']['autotests']['enabled']));
+            array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], @$checks['tools']['autotests']['enabled']));
         if (isset($checks['tools']['copydetect']) && $checks['tools']['copydetect']['show_to_student'])
-            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], @$checkres['tools']['copydetect']['enabled']));
+            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], @$checks['tools']['copydetect']['enabled']));
     }
     return $accord;
 }
@@ -410,7 +410,7 @@ function parsePylint($data, $enabled)
     $resFooter = '<label for="pylint" id="pylintlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
         '<pre id="pylint" class="axconsole">Загрузка...</pre>';
 
-    if (!$enabled) {
+    if (!array_key_exists('outcome', $data)) {
         return array(
             'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
             'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
@@ -448,6 +448,15 @@ function parsePylint($data, $enabled)
                 'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
                 'body'   => generateTaggedValue("pylint_body", "Проверка пропущена или инструмент проверки не установлен."),
+                'footer' => $resFooter
+            );
+            break;
+        case 'undefined':
+            return array(
+                'header' => '<div class="w-100"><b>Pylint</b></div>',
+                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pylint_body", "Не проверено."),
                 'footer' => $resFooter
             );
             break;
@@ -568,7 +577,7 @@ function parsePytest($data, $enabled)
     $resFooter = '<label for="pytest" id="pytestlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
         '<pre id="pytest" class="axconsole">Загрузка...</pre>';
 
-    if (!$enabled) {
+    if (!array_key_exists('outcome', $data)) {
         return array(
             'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
             'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . ((@$enabled == 'true') ? 'checked' : '') .

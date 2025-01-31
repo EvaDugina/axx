@@ -526,41 +526,41 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               "outcome": "undefined"
             },
             "pylint": {
-              "enabled": "false",
-              "show_to_student": "false",
+              "enabled": false,
+              "show_to_student": false,
               "bin": "pylint",
               "arguments": "",
               "checks": [
                 {
                   "check": "error",
-                  "enabled": "true",
-                  "limit": "0",
-                  "autoreject": "false",
+                  "enabled": true,
+                  "limit": 0,
+                  "autoreject": false,
                   "result": 0,
                   "outcome": "pass"
                 },
                 {
                   "check": "warning",
-                  "enabled": "true",
-                  "limit": "0",
-                  "autoreject": "false",
+                  "enabled": true,
+                  "limit": 0,
+                  "autoreject": false,
                   "result": 0,
                   "outcome": "pass"
                 },
                 {
                   "check": "refactor",
-                  "enabled": "true",
-                  "limit": "3",
-                  "autoreject": "false",
-                                    "result": 0,
+                  "enabled": true,
+                  "limit": 3,
+                  "autoreject": false,
+                  "result": 0,
                   "outcome": "pass"
                 },
                 {
                   "check": "convention",
-                  "enabled": "true",
-                  "limit": "3",
-                  "autoreject": "false",
-                                    "result": 0,
+                  "enabled": true,
+                  "limit": 3,
+                  "autoreject": false,
+                  "result": 0,
                   "outcome": "pass"
                 }
               ],
@@ -570,15 +570,17 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             "pytest": {
               "enabled": false,
               "show_to_student": false,
-              "test_path": "autotest.py",
               "bin": "pytest",
               "arguments": "",
+              "test_path": "autotest.py",
               "check": {
-                "limit": 0,
-                "autoreject": true,
-                "outcome": "fail",
-                "errors": 0,
-                "failures": 3
+                  "limit": 0,
+                  "autoreject": true,
+                  "error": 0,
+                  "failed": 0,
+                  "passed": 0,
+                  "seconds": 0,
+                  "outcome": "fail"
               },
               "full_output": "output_pytest.txt",
               "outcome": "undefined"
