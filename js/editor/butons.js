@@ -78,6 +78,10 @@ function addNewIntermediateCommit() {
     makeRequest('textdb.php?' + param + "&type=commit&commit_type=intermediate&status=empty", "commit");
 }
 
+function getLanguageByFileName(file_name) {
+    return FileHandler.getFileLanguageForMonacoEditor(file_name);
+}
+
 function changeEditorLanguage(new_file_language) {
     Editor.setEditorLanguage(new_file_language);
     document.querySelector("#language").value = new_file_language;
@@ -120,8 +124,7 @@ function openFile(event = null, listItem = null) {
         let input_file = listItems[index].querySelector("#div-fileName > input");
 
         let new_file_name = input_file.value;
-        let new_file_language = FileHandler.getFileLanguageForMonacoEditor(new_file_name);
-        changeEditorLanguage(new_file_language);
+        changeEditorLanguage(getLanguageByFileName(new_file_name));
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
@@ -173,7 +176,7 @@ function renameFile(event) {
     let last_name = input.value;
 
     input.type = "text";
-    input.className = "form-control validationCustom";
+    input.className = "form-control validationCustom input-file editing";
     input.style.cursor = "text";
     input.setSelectionRange(last_name.length, last_name.length);
     input.focus();
@@ -188,12 +191,13 @@ var eventListenerLastName = "";
 
 function handleInputFileName(event) {
 
-    if ((event.key == "Enter" && this.type == "keydown") || this.type == "blur") {
+    if (((event.key == "Enter" && this.type == "keydown") || this.type == "blur") && this.input.classList.contains("editing")) {
 
         let li_id = parseInt(this.li_id);
         let input = this.input;
         let last_name = this.last_name;
 
+        input.value = input.value.trim();
         let new_name = input.value;
         event.preventDefault();
         event.stopPropagation();
@@ -204,8 +208,7 @@ function handleInputFileName(event) {
             eventListenerLastName = new_name;
         } else {
             input.type = "button";
-            input.className = "form-control-plaintext form-control-sm validationCustom";
-            input.style.cursor = "pointer";
+            input.className = "form-control-plaintext form-control-sm validationCustom input-file not-editing";
             return;
         }
 
@@ -213,9 +216,7 @@ function handleInputFileName(event) {
             alert("Введите оригинальное имя файла!");
         } else {
             input.type = "button";
-            input.className = "form-control-plaintext form-control-sm validationCustom";
-            input.style.cursor = "pointer";
-
+            input.className = "form-control-plaintext form-control-sm validationCustom input-file not-editing";
             var id = input.id;
             var param = document.location.href.split("?")[1].split("#")[0];
             if (param == '') param = 'void';
@@ -225,6 +226,10 @@ function handleInputFileName(event) {
 
             array_files[li_id] = new_name;
         }
+
+        // Смена языка окна редактора кода в зависимости от расширения
+        changeEditorLanguage(getLanguageByFileName(new_name));
+
     }
 }
 

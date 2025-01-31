@@ -34,3 +34,15 @@
   border: 4px solid grey;
   border-radius: 5px;
 }
+
+.input-file {
+  outline: none;
+}
+
+.input-file .not-editing{
+  cursor: pointer; 
+}
+
+.input-file .editing{
+  cursor: text; 
+}

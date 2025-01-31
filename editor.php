@@ -169,7 +169,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                     <?= getSVGByFileType($File->type) ?>
                   </div>
                   <div id="div-fileName" class="px-1" style="width: 55%;">
-                    <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom" value="<?= $File->name_without_prefix ?>" style="cursor: pointer; outline:none;">
+                    <input id="<?= $File->id ?>" type="button" class="form-control-plaintext form-control-sm validationCustom input-file not-editing" value="<?= $File->name_without_prefix ?>">
                   </div>
                   <!-- <button type="button" class="btn btn-sm ms-0 me-1 float-right" id="openFile">
                   getSVGByCommitType($nowCommit->type)
