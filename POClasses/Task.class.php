@@ -322,6 +322,15 @@ class Task
     return false;
   }
 
+  public function hasProjectTemplateFiles()
+  {
+    foreach ($this->Files as $File) {
+      if ($File->isProjectTemplate())
+        return true;
+    }
+    return false;
+  }
+
   // -- END WORK WITH TASK
 
 
@@ -520,6 +529,11 @@ class Task
         array_push($Files, $File);
     }
     return $Files;
+  }
+
+  public function getProjectTemplateFiles()
+  {
+    return $this->getFilesByType(1);
   }
 
   private function pushFileToTaskDB($file_id)

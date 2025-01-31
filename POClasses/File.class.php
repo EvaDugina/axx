@@ -138,6 +138,11 @@ class File
     return $this->type == 0;
   }
 
+  function isProjectTemplate()
+  {
+    return $this->type == 1;
+  }
+
   function isCodeTest()
   {
     return $this->type == 2;
