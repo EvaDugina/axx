@@ -307,7 +307,7 @@ function specialForTaskeditPage($File, $task_id)
 { ?>
 
   <div class="d-inline-flex justify-content-between align-items-center form-statusTaskFiles">
-    <select id="select-taskFileType-<?= $File->id ?>" class="form-select me-2 select-taskFileType" id="select-statusFile" onchange="changeFileType(event, <?= $task_id ?>, <?= $File->id ?>, '<?= $File->name_without_prefix ?>')">
+    <select id="select-taskFileType-<?= $File->id ?>" class="form-select me-2 select-taskFileType" onchange="changeFileType(event, <?= $task_id ?>, <?= $File->id ?>, '<?= $File->name_without_prefix ?>')">
       <?php
       $captions = array("вложение", "исходный код", "код теста", "код проверки теста");
       for ($i = 0; $i < count($captions); $i++) { ?>

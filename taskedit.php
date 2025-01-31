@@ -855,7 +855,7 @@ show_head("Добавление\Редактирование задания", ar
           array_files[index].type == 2 || array_files[index].type == 3
         ) {
           saveTask();
-          document.location.reload();
+          // document.location.reload();
         }
 
         $('#span-fileType-' + file_id).html(response['svg']);
