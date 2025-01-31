@@ -78,12 +78,12 @@ document.querySelector("#run").addEventListener('click', async e => {
 });
 
 document.querySelector("#check").addEventListener('click', async e => {
-
+    saveActiveFile();
     $('#check').prop("disabled", true);
     // setTimeout(function () {
     //     endAnimationButtonCheck();
     // }, 2000);
-    saveEditedFile();
+    // saveEditedFile();
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
     makeRequest('textdb.php?' + param + "&type=oncheck", "oncheck");
