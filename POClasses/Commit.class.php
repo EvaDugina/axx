@@ -36,7 +36,7 @@ class Commit
       if (isset($commit['student_user_id']))
         $this->student_user_id = $commit['student_user_id'];
       if (isset($commit['type']))
-        $this->type = $commit['type'];
+        $this->type = (int)$commit['type'];
       if (isset($commit['autotest_results']))
         $this->autotest_results = $commit['autotest_results'];
       if (isset($commit['date_time']))
@@ -57,7 +57,7 @@ class Commit
       if ($args[3] === null)
         $this->type = 0;
       else
-        $this->type = $args[3];
+        $this->type = (int)$args[3];
 
       if ($args[4] === null)
         $this->autotest_results = "null";

@@ -80,7 +80,6 @@ if (array_key_exists('commit', $_GET)) {
 }
 
 $nowCommit = null;
-$readOnly = "false";
 if ($last_commit_id != -1) {
   $nowCommit = $lastCommit;
 } else {
@@ -93,6 +92,7 @@ $nowCommitUser = new User($nowCommit->student_user_id);
 
 $solutionFiles = $nowCommit->getFiles();
 
+$readOnly = "false";
 if ($nowCommit->isNotEdit())
   $readOnly = "true";
 echo "<script>var read_only=$readOnly;</script>";
@@ -321,7 +321,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               </button>
             <?php } ?>
           </div>
-          <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid grey">
+          <div class="embed-responsive embed-responsive-4by3 <?= ($readOnly == "true") ? "monaco-border-not-editable" : "monaco-border-editable" ?>">
             <div id="container" class="embed-responsive-item"></div>
           </div>
 
