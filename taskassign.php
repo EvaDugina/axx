@@ -30,7 +30,7 @@ if (isset($_GET['assignment_id'])) {
 } else {
   $isNewAssignment = true;
   $Task = new Task((int)$_GET['task_id']);
-  $Assignment = new Assignment();
+  $Assignment = null;
 }
 
 
@@ -38,8 +38,13 @@ if (isset($_GET['assignment_id'])) {
 
 $Page = new Page((int)getPageByTask($Task->id));
 
+$page_title = getTaskassignPageTitle($Task, $Assignment);
+$previous_page_title = getPreptasksPageTitle($Page);
+$previous_page_url = 'preptasks.php?page=' . $Page->id;
 
-show_head("Назначение задания", array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
+show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
+
+$Assignment = new Assignment();
 
 ?>
 
@@ -48,10 +53,10 @@ show_head("Назначение задания", array('https://cdn.jsdelivr.net
   <?php
   show_header(
     $dbconnect,
-    'Редактор заданий',
+    $page_title,
     array(
-      "Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page=' . $Page->id,
-      "Редактор заданий" => $_SERVER['REQUEST_URI']
+      $previous_page_title  => $previous_page_url,
+      $page_title => $_SERVER['REQUEST_URI']
     ),
     $User
   );

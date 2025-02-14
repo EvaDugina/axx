@@ -14,6 +14,7 @@ $student_id = $au->getUserId();
 if (isset($_GET['page']) && is_numeric($_GET['page'])) {
   $page_id = $_GET['page'];
   $Page = new Page((int)$page_id);
+  $page_title = getStudtasksPageTitle($Page);
 } else {
   header('Location:mainpage_student.php');
   exit;
@@ -28,13 +29,13 @@ $count_tasks = $Page->getCountActiveAssignments($student_id);
 <html lang="en">
 
 <?php
-show_head("Страница предмета " . $Page->name, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
+show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
 ?>
 
 <body style="overflow-x: hidden;">
 
   <?php
-  show_header($dbconnect, 'Задания по дисциплине', array($Page->name => 'studtasks.php?page=' . $page_id), $User);
+  show_header($dbconnect, $page_title, array($page_title => 'studtasks.php?page=' . $Page->id), $User);
   ?>
 
   <main class="container-fluid overflow-hidden">

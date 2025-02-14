@@ -49,7 +49,7 @@ function show_breadcrumbs(&$breadcrumbs)
             <svg style="height: inherit;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
             </svg>
-            <li class="px-2" style="font-size: 1.10rem;">
+            <li class="d-flex justify-content-between align-items-center px-2" style="font-size: smaller; font-weight: 600;">
               <a class="text-reset" href="<?php echo $link; ?>"><?php echo $name ?></a>
             </li>
           <?php
@@ -125,10 +125,10 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light">
       <!-- Container wrapper -->
-      <div class="container-fluid">
+      <div class="container-fluid mt-1">
         <!-- Navbar brand -->
         <div class="d-flex align-items-center me-3">
-          <a class="navbar-brand p-0 me-0" href="index.php">
+          <a class="navbar-brand p-0 me-0 mb-1" href="index.php">
             <b>536 Акселератор</b>&nbsp;
           </a>
           <?php $version = getCurrentVersion(); ?>

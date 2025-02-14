@@ -111,7 +111,9 @@ $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result)['short_name'];
 
 
-$page_title = "Онлайн редактор кода";
+$page_title = getEditorPageTitle();
+$previous_page_title = getTaskchatPageTitle($Task);
+$previous_page_url = 'taskchat.php?assignment=' . $assignment_id;
 show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
 ?>
 
@@ -125,28 +127,16 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 <body style="overflow-x:hidden">
 
   <?php
-  if ($User->isTeacher() || $User->isAdmin())
-    // XXX: ПРОВЕРИТЬ
-    show_header(
-      $dbconnect,
-      $page_title,
-      array(
-        'Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id,
-        $task_title => 'taskchat.php?assignment=' . $assignment_id,
-        $page_title => ''
-      ),
-      $User
-    );
-  else
-    show_header(
-      $dbconnect,
-      $page_title,
-      array(
-        $page_name => 'studtasks.php?page=' . $page_id,
-        $task_title => "taskchat.php?assignment=$assignment_id"
-      ),
-      $User
-    );
+  // XXX: ПРОВЕРИТЬ
+  show_header(
+    $dbconnect,
+    $page_title,
+    array(
+      $previous_page_title => $previous_page_url,
+      $page_title => $_SERVER['REQUEST_URI']
+    ),
+    $User
+  );
   ?>
 
   <main class="container-fluid overflow-hidden">

@@ -23,9 +23,8 @@ if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
 }
 
 // получение параметров запроса
-$page_id = 0;
-if (isset($_GET['page']))
-  $page_id = $_GET['page'];
+$page_id = (int)$_GET['page'];
+$Page = new Page($page_id);
 
 echo "<script>var page_id=" . $page_id . ";</script>";
 
@@ -40,11 +39,12 @@ if (!$result || pg_num_rows($result) < 1) {
 }
 $row = pg_fetch_assoc($result);
 
-show_head("Задания по дисциплине: " . $row['disc_name'], array('js/preptasks.js'));
+$page_title = getPreptasksPageTitle($Page);
+show_head($page_title, array('js/preptasks.js'));
 ?>
 
 <body onload="enableOps(false);">
-  <?php show_header($dbconnect, 'Задания по дисциплине', array("Задания по дисциплине: " . $row['disc_name']  => $_SERVER['REQUEST_URI']), $User); ?>
+  <?php show_header($dbconnect, $page_title, array($page_title => $_SERVER['REQUEST_URI']), $User); ?>
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">
       <div class="row gy-5">

@@ -43,7 +43,7 @@ if (isset($_GET['task'])) {
 
   $Page = new Page((int)$_REQUEST['page']);
   // $Task = new Task($Page->id, 0, 1);
-  $Task = new Task();
+  $Task = null;
   // $Task->title = "Задание " . (count($Page->getTasks()) + 1) . ".";
   echo "<script>var TASK_ID=null;</script>";
   echo "<script>var PAGE_ID=" . $Page->id . ";</script>";
@@ -52,7 +52,11 @@ if (isset($_GET['task'])) {
   exit;
 }
 
-show_head("Добавление\Редактирование задания", array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
+$page_title = getTaskeditPageTitle($Task);
+$previous_page_title = getPreptasksPageTitle($Page);
+$previous_page_url = 'preptasks.php?page=' . $Page->id;
+
+show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
 ?>
 
 <main class="pt-2">
@@ -62,11 +66,13 @@ show_head("Добавление\Редактирование задания", ar
     $dbconnect,
     'Редактор заданий',
     array(
-      "Задания по дисциплине: " . $Page->disc_name  => 'preptasks.php?page=' . $Page->id,
-      "Редактор заданий" => $_SERVER['REQUEST_URI']
+      $previous_page_title  => $previous_page_url,
+      $page_title => $_SERVER['REQUEST_URI']
     ),
     $User
   );
+
+  $Task = new Task();
   ?>
 
   <div class="container-fluid overflow-hidden mb-5">
@@ -524,96 +530,6 @@ show_head("Добавление\Редактирование задания", ar
 </script>
 
 <script type="text/javascript">
-  // document.querySelectorAll("#div-task-files div").forEach(function(div) {
-  //   let form = div.getElementsByClassName("form-statusTaskFiles")[0];
-  //   let select = form.getElementsByClassName("select-taskFileType")[0];
-  //   var previous = 0;
-  //   select.addEventListener('focus', function() {
-  //     previous = this.value;
-  //   });
-  //   select.addEventListener('change', function(e) {
-  //     let unsaved_fields = checkFields();
-  //     if (unsaved_fields != "") {
-  //       e.preventDefault();
-  //       var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-  //       if (!confirm_answer) {
-  //         select.value = previous;
-  //         return;
-  //       }
-  //     }
-  //     console.log("SELECT CHANGED!");
-  //     var value = e.target.value;
-  //     console.log("OPTION: " + value);;
-  //     console.log("FORM-StatusTaskFiles: " + form);
-
-  //     let input = document.createElement("input");
-  //     input.setAttribute("type", "hidden");
-  //     input.setAttribute("value", value);
-  //     input.setAttribute("name", 'task-file-status');
-  //     console.log(input);
-
-  //     form.append(input);
-  //     form.submit();
-  //   });
-  // });
-
-  // document.querySelectorAll("#form-deleteTaskFile").forEach(function(form) {
-  //   form.addEventListener("submit", function(e) {
-  //     let unsaved_fields = checkFields();
-  //     if (unsaved_fields != "") {
-  //       e.preventDefault();
-  //       var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-  //       if (!confirm_answer)
-  //         return;
-  //     }
-  //     form.submit();
-  //   })
-  // });
-
-  // document.querySelectorAll("#form-changeVisibilityTaskFile").forEach(function(form) {
-  //   form.addEventListener("submit", function(e) {
-  //     let unsaved_fields = checkFields();
-  //     if (unsaved_fields != "") {
-  //       e.preventDefault();
-  //       var confirm_answer = confirm("Изменения в полях: " + unsaved_fields + " - остались не сохранёнными. Продолжить без сохранения?");
-  //       if (!confirm_answer)
-  //         return;
-  //     }
-  //     form.submit();
-  //   })
-  // });
-
-
-
-  // function ajaxSetFinishLimit() {
-  //   var formData = new FormData();
-
-  //   let finish_limit = $('#input-finishLimit').val();
-
-  //   if (finish_limit == "")
-  //     return;
-
-  //   formData.append('task_id', <?= $Task->id ?>);
-  //   formData.append('finish_limit', finish_limit);
-  //   formData.append('action', 'editFinishLimit');
-
-  //   $('#spinner-finishLimit').removeClass("d-none");
-
-  //   $.ajax({
-  //     type: "POST",
-  //     url: 'taskedit_action.php#content',
-  //     cache: false,
-  //     contentType: false,
-  //     processData: false,
-  //     data: formData,
-  //     dataType: 'html',
-  //     success: function(response) {},
-  //     complete: function() {
-  //       $('#spinner-finishLimit').addClass("d-none");
-  //     }
-  //   });
-  // }
-
   function getTaskId(initiator = "") {
     if (TASK_ID != null)
       return TASK_ID;

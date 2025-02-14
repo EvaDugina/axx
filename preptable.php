@@ -37,32 +37,8 @@ else if (isset($_POST['select-discipline'])) {
   exit;
 }
 
-// отправка сообщения
-/*if (array_key_exists('message', $_REQUEST) && array_key_exists('text', $_REQUEST)) {
-  $mark = (array_key_exists('mark', $_REQUEST)) ? $_REQUEST['mark'] : null;
-  $query = insert_message_reply($_REQUEST['message'], $_REQUEST['text'], $user_id, $mark);
-  $result = pg_query($dbconnect, $query);
-  echo pg_result_error($result);
-  if (!$result) {
-    echo "Ошибка запроса";
-    http_response_code(500);
-    exit;
-  }
-  $scripts .= "<script>window.history.replaceState(null, document.title, '" . $_SERVER['PHP_SELF'] . "?page=" . $page_id . "');</script>\n";
-  // OR remove &message=N in $_SERVER['REQUEST_URI'] 
-}*/
-
-// TODO: check prep access rights to page
-
-$query = select_page_name($page_id);
-$result = pg_fetch_row(pg_query($dbconnect, $query));
-if ($result) {
-  $discipline_name = $result[1];
-} else {
-  $discipline_name = "ДРУГОЕ";
-}
-
-show_head("Посылки по дисциплине: " . $discipline_name);
+$page_title = getPreptablePageTitle($Page);
+show_head($page_title);
 if ($scripts) echo $scripts;
 
 ?>
@@ -71,7 +47,7 @@ if ($scripts) echo $scripts;
 
 <body>
 
-  <?php show_header($dbconnect, 'Посылки по дисциплине', array($discipline_name => 'preptable.php?page=' . $page_id), $User); ?>
+  <?php show_header($dbconnect, $page_title, array($page_title => 'preptable.php?page=' . $page_id), $User); ?>
 
   <main class="pt-2">
     <div class="container-fluid overflow-hidden">

@@ -1322,4 +1322,56 @@ function getChecksAccordion($checks)
   );
 }
 
+// 
+// For history url backup
+// 
+
+// function getBasePageNameFromUrl($url)
+// {
+//   $url_splitted = explode("/", $url);
+//   if (count($url_splitted) <= 1)
+//     return null;
+//   $base_request = $url_splitted[count($url_splitted) - 1];
+//   $request_splitted = explode(".php", $base_request);
+//   if (count($request_splitted) <= 1)
+//     return null;
+//   return $request_splitted[count($request_splitted) - 1];
+// }
+
+// function getPageTitleByUrl($url)
+// {
+//   $page_name = getBasePageNameFromUrl($url);
+//   if ($page_name == "editor") {
+//     return getEditorPageTitle(null);
+//   } else if ($page_name == "pageedit") {
+//     return getPageeditPageTitle(null);
+//   } else if ($page_name == "preptable") {
+//     return getPreptablePageTitle(null);
+//   } else if ($page_name == "preptasks") {
+//     return getPreptasksPageTitle(null);
+//   } else if ($page_name == "profile") {
+//     return getProfilePageTitle(null);
+//   } else if ($page_name == "studtasks") {
+//     return getStudtasksPageTitle(null);
+//   } else if ($page_name == "taskassign") {
+//     return getTaskassignPageTitle(null, null);
+//   } else if ($page_name == "taskchat") {
+//     return getTaskchatPageTitle(null);
+//   } else if ($page_name == "taskedit") {
+//     return getTaskeditPageTitle(null);
+//   }
+//   return null;
+// }
+
+// function setCurrentPageUrl($url)
+// {
+//   $page_name = getBasePageNameFromUrl($url);
+//   $previous_page_name = getBasePageNameFromUrl($_SESSION['urls'][0]);
+//   if ($page_name == $previous_page_name)
+//     return;
+//   array_unshift($_SESSION['urls'], $url);
+//   while (count($_SESSION['urls']) > 3)
+//     array_pop($_SESSION['urls']);
+// }
+
 ?>

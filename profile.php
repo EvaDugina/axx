@@ -12,24 +12,25 @@ checkAuLoggedIN($au);
 $realUser = new User((int)$au->getUserId());
 
 if (isset($_GET['user_id'])) {
-  $User = new User((int)$_GET['user_id']);
+  $profileUser = new User((int)$_GET['user_id']);
 } else {
-  $User = new User((int)$au->getUserId());
+  $profileUser = new User((int)$au->getUserId());
 }
-$group = new Group((int)$User->group_id);
+$group = new Group((int)$profileUser->group_id);
 
 ?>
 
 <html lang="en">
 
 <?php
-show_head('Профиль'); ?>
+$page_title = getProfilePageTitle($profileUser);
+show_head($page_title); ?>
 
 <body>
 
   <?php
-  show_header($dbconnect, 'Профиль', ($realUser->isAdmin() || $realUser->isTeacher()) ? array('Профиль' => 'profile.php')
-    : array('Профиль' => 'profile.php'), $realUser);
+  show_header($dbconnect, $page_title, ($realUser->isAdmin() || $realUser->isTeacher()) ? array($page_title => 'profile.php')
+    : array($page_title => 'profile.php'), $realUser);
   ?>
 
   <main style="max-width: 1000px; width:100%; margin: 0 auto;">
@@ -37,12 +38,12 @@ show_head('Профиль'); ?>
       <div class="row">
         <div class="pt-5 px-5 d-flex">
           <div class="col-md-3 me-4">
-            <?php if ($User->getImageFile()) { ?>
+            <?php if ($profileUser->getImageFile()) { ?>
               <div class="row mb-3">
                 <div class="col-12">
                   <div class="embed-responsive embed-responsive-1by1 text-center">
                     <div class="embed-responsive-item">
-                      <img class="w-100 h-100 p-0 m-0  rounded-circle user-icon" src="<?= $User->getImageFile()->download_url ?>" />
+                      <img class="w-100 h-100 p-0 m-0  rounded-circle user-icon" src="<?= $profileUser->getImageFile()->download_url ?>" />
                     </div>
                   </div>
                 </div>
@@ -54,12 +55,12 @@ show_head('Профиль'); ?>
               </svg>
             <?php } ?>
 
-            <?php if ((int)$au->getUserId() == (int)$User->id) { ?>
+            <?php if ((int)$au->getUserId() == (int)$profileUser->id) { ?>
               <form id="form-EditImage" name="image" action="profile_edit.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="set-image" value="true"></input>
                 <label class="btn btn-outline-primary py-2 px-4">
                   <input id="input-image" type="file" name="image-file" style="display: none;">
-                  &nbsp; <?= ($User->getImageFile() != null) ? 'Изменить фотографию' : 'Добавить фотографию' ?>
+                  &nbsp; <?= ($profileUser->getImageFile() != null) ? 'Изменить фотографию' : 'Добавить фотографию' ?>
                 </label>
               </form>
             <?php } ?>
@@ -67,39 +68,39 @@ show_head('Профиль'); ?>
           </div>
 
           <form clacc="col-md-4 form-check" style="width:inherit;" action="profile_edit.php" method="POST">
-            <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?= $User->getFIO() ?></span> </p>
-            <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?= $User->login ?></span> </p>
+            <p> <span class="font-weight-bold">ФИО: </span> <span class="font-weight-normal"><?= $profileUser->getFIO() ?></span> </p>
+            <p> <span class="font-weight-bold">ЛОГИН: </span> <span class="font-weight-normal"><?= $profileUser->login ?></span> </p>
             <p> <span class="font-weight-bold">ГРУППА: </span> <span class="font-weight-normal"><?= $group->name ?></span> </p>
 
-            <?php if ($User->isStudent()) { ?>
-              <p> <span class="font-weight-bold">ПОДГРУППА: </span> <span class="font-weight-normal"><?= $User->subgroup ?></span> </p>
+            <?php if ($profileUser->isStudent()) { ?>
+              <p> <span class="font-weight-bold">ПОДГРУППА: </span> <span class="font-weight-normal"><?= $profileUser->subgroup ?></span> </p>
             <?php } ?>
 
-            <?php if ((int)$au->getUserId() == (int)$User->id) { ?>
+            <?php if ((int)$au->getUserId() == (int)$profileUser->id) { ?>
               <p class="d-flex align-items-center mb-0">
                 <span class="font-weight-bold">ПОЧТА:</span> &nbsp; &nbsp;
-                <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?= $User->email ?>">
+                <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" value="<?= $profileUser->email ?>">
               </p>
               <p class="d-flex align-items-center mb-0">
                 <span class="font-weight-bold">GITHUB:</span> &nbsp; &nbsp;
-                <input type="url" name="github_url" class="form-control" id="exampleFormControlInput1" placeholder="https://github.com/" value="<?= $User->github_url ?>">
+                <input type="url" name="github_url" class="form-control" id="exampleFormControlInput1" placeholder="https://github.com/" value="<?= $profileUser->github_url ?>">
               </p>
-              <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" <?php if ($User->notify_status == 1) echo "checked"; ?>> <span class="font-weight-normal">
+              <p> <input class="form-check-input" type="checkbox" id="profile_checkbox" name="checkbox_notify" <?php if ($profileUser->notify_status == 1) echo "checked"; ?>> <span class="font-weight-normal">
                   Получать уведомления на почту</span> </p>
 
               <button type="submit" class="btn btn-primary">CОХРАНИТЬ</button>
 
             <?php } else { ?>
 
-              <?php if (($realUser->isAdmin() || $realUser->isTeacher()) && $User->email != null) { ?>
-                <p> <span class="font-weight-bold">ПОЧТА: </span> <span class="font-weight-normal"><?= $User->email ?></span> </p>
+              <?php if (($realUser->isAdmin() || $realUser->isTeacher()) && $profileUser->email != null) { ?>
+                <p> <span class="font-weight-bold">ПОЧТА: </span> <span class="font-weight-normal"><?= $profileUser->email ?></span> </p>
               <?php } ?>
 
-              <?php if ($User->github_url != null) { ?>
+              <?php if ($profileUser->github_url != null) { ?>
                 <div>
                   <span class="font-weight-bold">GITHUB: </span>
-                  <a href="<?= $User->github_url ?>" target="_blank" rel="noopener noreferrer">
-                    <?= $User->github_url ?>
+                  <a href="<?= $profileUser->github_url ?>" target="_blank" rel="noopener noreferrer">
+                    <?= $profileUser->github_url ?>
                   </a>
                 </div>
               <?php } ?>

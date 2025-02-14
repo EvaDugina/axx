@@ -30,6 +30,8 @@ if (isset($_REQUEST['assignment'])) {
   exit;
 }
 
+$Page = new Page((int)getPageByAssignment((int)$Assignment->id));
+
 $au = new auth_ssh();
 if ($au->isAdmin() && isset($_REQUEST['id_student'])) {
   // Если на страницу чата зашёл АДМИН
@@ -154,26 +156,31 @@ $task_number = explode('.', $task_title)[0];
 <!DOCTYPE html>
 <html lang="en">
 
-<?php show_head('Чат с преподавателем', array('https://cdn.jsdelivr.net/npm/marked/marked.min.js')); ?>
+<?php
+$page_title = getTaskchatPageTitle($Task);
+if ($au->isAdminOrPrep()) {
+  $previous_page_title = getPreptablePageTitle($Page);
+  $previous_page_url = 'preptable.php?page=' . $Page->id;
+} else {
+  $previous_page_title = getStudtasksPageTitle($Page);
+  $previous_page_url = 'studtasks.php?page=' . $Page->id;
+}
+
+show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js')); ?>
 <link rel="stylesheet" href="taskchat.css">
 
 
 <body style="overflow-x:hidden;">
   <?php
-  if ($au->isAdminOrPrep())
-    show_header(
-      $dbconnect,
-      'Чат c перподавателем',
-      array('Посылки по дисциплине: ' . $page_name => 'preptable.php?page=' . $page_id, $task_title => ''),
-      $User
-    );
-  else
-    show_header(
-      $dbconnect,
-      'Чат c перподавателем',
-      array($page_name => 'studtasks.php?page=' . $page_id, $task_title => ''),
-      $User
-    );
+  show_header(
+    $dbconnect,
+    $page_title,
+    array(
+      $previous_page_title => $previous_page_url,
+      $page_title => $_SERVER['REQUEST_URI']
+    ),
+    $User
+  );
   ?>
 
   <main class="container pt-3 mt-5">
@@ -404,7 +411,6 @@ $task_number = explode('.', $task_title)[0];
           Переслать в текущий диалог
         </a>
         <?php
-        $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
         $Task = new Task((int)getTaskByAssignment((int)$Assignment->id));
         $conversationTask = $Page->getConversationTask();
         if ($conversationTask && !$Task->isConversation() && $conversationTask->getConversationAssignment() != null) { ?>
@@ -440,7 +446,6 @@ $task_number = explode('.', $task_title)[0];
                 </svg>
               </a> -->
               <?php
-              $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
               $conversationTask = $Page->getConversationTask();
               if ($conversationTask && !$Task->isConversation() && $conversationTask->getConversationAssignment() != null) { ?>
             <li>
@@ -456,7 +461,6 @@ $task_number = explode('.', $task_title)[0];
           </li>
           <!-- <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
                 <?php
-                $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
                 $conversationTask = $Page->getConversationTask();
                 if ($conversationTask && !$Task->isConversation() && $conversationTask->getConversationAssignment() != null) { ?>
                   <li>

@@ -250,6 +250,23 @@ class User
   }
 }
 
+// 
+// GETTERS PAGES TITLES
+// 
+
+function getProfilePageTitle($User)
+{
+  if ($User != null) {
+    $user_fi = $User->getFi();
+    return "$user_fi / Профиль";
+  }
+  return "Профиль пользователя";
+}
+
+// 
+// 
+// 
+
 function isAdmin($role)
 {
   if ($role == 1)

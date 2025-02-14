@@ -578,6 +578,43 @@ class Page
   }
 }
 
+// 
+// GETTERS PAGES TITLES
+// 
+
+function getPreptablePageTitle($Page)
+{
+  if ($Page != null)
+    return "$Page->name / Посылки";
+  return "Посылки по разделу";
+}
+
+function getPreptasksPageTitle($Page)
+{
+  if ($Page != null)
+    return "$Page->name / Задания и Назначения";
+  return "Задания и Назначения по разделу";
+}
+
+function getPageeditPageTitle($Page)
+{
+  if ($Page != null)
+    return "$Page->name / Редактор раздела";
+  return "Добавление раздела";
+}
+
+function getStudtasksPageTitle($Page)
+{
+  if ($Page != null)
+    return "$Page->name / Задания";
+  return "Задания по разделу";
+}
+
+// 
+// 
+// 
+
+
 
 // TODO: Протестировать!
 function getTasksByPage($page_id)

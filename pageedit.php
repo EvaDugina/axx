@@ -111,6 +111,8 @@ if (array_key_exists('page', $_REQUEST)) {
 		$semester = $_REQUEST['year'] . "/" . convert_sem_from_number($_REQUEST['sem']);
 }
 
+$page_title = getPageeditPageTitle($Page);
+
 
 echo "<script>var user_id=" . $User->id . ";</script>";
 if ($User->isAdmin())
@@ -126,14 +128,16 @@ else
 
 <html lang="en">
 
-<?php show_head("Добавление/Редактирование раздела", array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css')); ?>
+<?php
+show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
+
+?>
 
 <body>
 
-	<?php if ($short_name)
-		show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела: ' . $short_name  => $_SERVER['REQUEST_URI']), $User);
-	else
-		show_header($dbconnect, 'Добавление/Редактирование раздела', array('Редактор раздела' => $_SERVER['REQUEST_URI']), $User); ?>
+	<?php
+	show_header($dbconnect, $page_title, array($page_title  => $_SERVER['REQUEST_URI']), $User);
+	?>
 
 	<main class="px-5 pt-3 pb-5" aria-hidden="true">
 		<form class="container-fluid overflow-hidden" action="pageedit_action.php" id="pageedit_action" name="action" method="post">

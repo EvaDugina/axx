@@ -586,6 +586,42 @@ class Task
 
 }
 
+// 
+// GETTERS PAGES TITLES
+// 
+
+function getTaskeditPageTitle($Task)
+{
+  if ($Task != null)
+    return "$Task->title / Редактор задания";
+  return "Добавление задания";
+}
+
+function getTaskassignPageTitle($Task, $Assignment)
+{
+  if ($Task != null) {
+    if ($Assignment != null)
+      return "$Task->title / Редактор назначения";
+    return "$Task->title / Добавление назначения";
+  }
+  return "Назначение по заданию";
+}
+
+function getTaskchatPageTitle($Task)
+{
+  if ($Task != null)
+    return "$Task->title / Чат";
+  return "Чат по заданию";
+}
+
+function getEditorPageTitle()
+{
+  return "Онлайн редактор кода";
+}
+
+// 
+// 
+// 
 
 function getTaskByAssignment($assignment_id)
 {
