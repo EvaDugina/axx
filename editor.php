@@ -257,7 +257,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
                       <div class="flex-column">
                         <p class="p-0 m-0"><?= $Commit->getConvertedDateTime() ?> </p>
-                        <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getFIOspecial() ?></p>
+                        <p class="p-0 m-0" style="font-weight: bold;"><?= $commitUser->getOfficialFIO() ?></p>
                       </div>
                       <?php
                       // if ($Commit->id == $last_commit_id)

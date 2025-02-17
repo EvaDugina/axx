@@ -204,7 +204,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                                 }
                               } else { ?>
                                 <?php foreach ($notify['teachers'] as $i => $Teacher) { ?>
-                                  <?= $Teacher->getFIOspecial() ?> <?= ($i + 1 < count($notify['teachers'])) ? "| " : "" ?>
+                                  <?= $Teacher->getOfficialFIO() ?> <?= ($i + 1 < count($notify['teachers'])) ? "| " : "" ?>
                               <?php }
                               } */ ?>
                               <?= $notify['page_name'] ?>
@@ -247,7 +247,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                   </button>
                   <span class="text-reset ms-2">
                     <?php // [x]: убрать // TODO: Проверить
-                    if ($user != null) echo $user->getFIOspecial();
+                    if ($user != null) echo $user->getOfficialFIO();
                     else echo $_SESSION['username']; ?>
                   </span>
                 </a>

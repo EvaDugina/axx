@@ -57,7 +57,6 @@ $disc_id = 0;
 $semester = "";
 $short_name = "";
 
-$actual_teachers = [];
 $page_groups = [];
 
 $query = select_all_disciplines();
@@ -72,15 +71,18 @@ $query = select_discipline_years();
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $years = pg_fetch_assoc($result);
 
-$query = select_all_teachers();
-$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-$teachers = pg_fetch_all($result);
+$Teachers = getAllTeachers();
+$all_teachers = [];
+foreach ($Teachers as $Teacher) {
+	array_push($all_teachers, array('id' => $Teacher->id, 'fio' => $Teacher->getOfficialFIO()));
+}
 
 $Groups = getAllGroups();
 
 $page = null;
 $Page = null;
 
+$actual_teachers = [];
 if (array_key_exists('page', $_REQUEST)) {
 	$page_id = $_REQUEST['page'];
 	$Page = new Page((int)$page_id);
@@ -92,9 +94,10 @@ if (array_key_exists('page', $_REQUEST)) {
 	$name = $Page->getDisciplineName();
 	$short_name = $Page->name;
 
-	$query = select_page_prep_name($page_id);
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$actual_teachers = pg_fetch_all($result);
+	$pageTeachers = $Page->getTeachers();
+	foreach ($pageTeachers as $Teacher) {
+		array_push($actual_teachers, array('id' => $Teacher->id, 'fio' => $Teacher->getOfficialFIO()));
+	}
 
 	$query = select_discipline_groups($page_id);
 	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -219,8 +222,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 					<div class="btn-group shadow-0">
 						<select class="form-select" id="select_teacher">
 							<?php
-							foreach ($teachers as $teacher) { ?>
-								<option value="<?= $teacher['id'] ?>"><?= $teacher['first_name'] . ' ' . $teacher['middle_name'] ?></option>;
+							foreach ($all_teachers as $teacher) { ?>
+								<option value="<?= $teacher['id'] ?>"><?= $teacher['fio'] ?></option>;
 							<?php }
 							?>
 						</select>&nbsp;
@@ -443,8 +446,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 
 		if (actual_teachers_json) {
 			actual_teachers_json.forEach(function(r) {
-				let name = r.first_name + ' ' + r.middle_name;
-				add_element(document.getElementById("teachers_container"), name, "teachers[]", "t", r.id);
+				let fio = r.fio;
+				add_element(document.getElementById("teachers_container"), fio, "teachers[]", "t", r.id);
 				teachers.add(r.id);
 			});
 		}

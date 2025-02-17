@@ -79,9 +79,9 @@ class User
       return $this->first_name . " " . $this->last_name;
     return $this->middle_name . " " . $this->first_name . " " . $this->last_name;
   }
-  public function getFIOspecial()
+  public function getOfficialFIO()
   {
-    return $this->middle_name . " " . mb_substr($this->first_name, 0, 1, "UTF-8") . "." . mb_substr($this->last_name, 0, 1, "UTF-8") . ".";
+    return convertFIOToOfficial($this->first_name, $this->middle_name, $this->last_name);
   }
 
   public function getNotifications()
@@ -286,6 +286,26 @@ function isStudent($role)
   return false;
 }
 
+// 
+// 
+// 
+
+function getAllTeachers()
+{
+  global $dbconnect;
+
+  $query = queryGetAllTeachers();
+  $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  $teachers_ids = pg_fetch_all_assoc($result);
+
+  $Teachers = array();
+  foreach ($teachers_ids as $teacher) {
+    array_push($Teachers, new User($teacher['id']));
+  }
+
+  return $Teachers;
+}
+
 
 function getGroupByStudent($student_id)
 {
@@ -324,9 +344,6 @@ function hasSecondRole($login)
 
 
 
-
-
-
 function queryUserByLoginAndRole($login, $role)
 {
   return "SELECT id, login, role FROM students
@@ -362,8 +379,22 @@ function queryGetGroupByStudent($student_id)
   return "SELECT group_id FROM students_to_groups WHERE student_id = $student_id;";
 }
 
+function queryGetAllTeachers()
+{
+  return 'SELECT id FROM students
+            WHERE role = 2 ORDER BY middle_name, first_name, last_name;';
+}
 
 
+
+function convertFIOToOfficial($first_name, $middle_name, $last_name)
+{
+  return $middle_name . " " . mb_substr($first_name, 0, 1, "UTF-8") . "." . mb_substr($last_name, 0, 1, "UTF-8") . ".";
+}
+
+// 
+// 
+// 
 
 function querySetGroupId($user_id, $group_id)
 {
