@@ -192,31 +192,33 @@ if ($scripts) echo $scripts;
                             </th>
                             <?php
                             foreach ($Page->getActiveTasks() as $Task) {
-                              $Assignment = $Task->getLastAssignmentByStudent((int)$Student->id); ?>
-                              <?php
+                              $Assignment = $Task->getLastAssignmentByStudent((int)$Student->id);
                               if ($Assignment != null) {
-
-                                // TODO: Изменить логику отрисовки таблицы в зависимости от того, стоит ли оценка или нет
                                 if (!$Assignment->isVisible()) { ?>
                                   <td onclick="unblockAssignment(<?= $Assignment->id ?>)" style="background: var(--mdb-gray-100);">
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
-                                      <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
-                                      else echo getSVGByAssignmentStatus($Assignment->status); ?>
+                                      <?php
+                                      if ($Assignment->mark == null)
+                                        echo getSVGByAssignmentStatus(-2);
+                                      else if ($Assignment->mark != "зачтено")
+                                        echo $Assignment->mark;
+                                      else
+                                        echo getSVGByAssignmentStatus($Assignment->status); ?>
                                     </span>
 
-                                    <!-- <button id="btn-assignment-visibility-<?= $Assignment->id ?>" class="btn px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>" 
-                              onclick="ajaxChangeVisibility(<?= $Assignment->id ?>, <?= $Assignment->getNextAssignmentVisibility() ?>)"
-                              style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
-                              data-title="<?= 'Изменить ВИДМОСТЬ назначения на:' ?> '<?= visibility_to_text($Assignment->getNextAssignmentVisibility()) ?>'">
-                                  <?php getSVGByAssignmentVisibility($Assignment->visibility); ?>
-                              </button>
-                              <button id="btn-assignment-status-<?= $Assignment->id ?>" class="btn px-3 me-1 btn-assignment-status-<?= $Task->id ?>" 
-                              onclick="ajaxChangeStatus(<?= $Assignment->id ?>, <?= $Assignment->getNextAssignmentStatus() ?>)"
-                              style="cursor: pointer;" data-toggle="tooltip" data-placement="down" 
-                              data-title="<?= 'Изменить СТАТУС назначения на:' ?> '<?= status_to_text($Assignment->getNextAssignmentStatus()) ?>'"
-                              <?= ($Assignment->status == -1 || $Assignment->status == 0) ? "" : "disabled" ?>>
-                                  <?php getSVGByAssignmentStatus($Assignment->status); ?>
-                              </button> -->
+                                    <!-- <button id="btn-assignment-visibility-<?= $Assignment->id ?>" class="btn px-3 me-1 btn-assignment-visibility-<?= $Task->id ?>"
+                                      onclick="ajaxChangeVisibility(<?= $Assignment->id ?>, <?= $Assignment->getNextAssignmentVisibility() ?>)"
+                                      style="cursor: pointer;" data-toggle="tooltip" data-placement="down"
+                                      data-title="<?= 'Изменить ВИДМОСТЬ назначения на:' ?> '<?= visibility_to_text($Assignment->getNextAssignmentVisibility()) ?>'">
+                                      <?php getSVGByAssignmentVisibility($Assignment->visibility); ?>
+                                    </button>
+                                    <button id="btn-assignment-status-<?= $Assignment->id ?>" class="btn px-3 me-1 btn-assignment-status-<?= $Task->id ?>"
+                                      onclick="ajaxChangeStatus(<?= $Assignment->id ?>, <?= $Assignment->getNextAssignmentStatus() ?>)"
+                                      style="cursor: pointer;" data-toggle="tooltip" data-placement="down"
+                                      data-title="<?= 'Изменить СТАТУС назначения на:' ?> '<?= status_to_text($Assignment->getNextAssignmentStatus()) ?>'"
+                                      <?= ($Assignment->status == -1 || $Assignment->status == 0) ? "" : "disabled" ?>>
+                                      <?php getSVGByAssignmentStatus($Assignment->status); ?>
+                                    </button> -->
 
 
                                   </td>
@@ -226,8 +228,13 @@ if ($scripts) echo $scripts;
                                 ?>
                                   <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showTdPopover(this);" style="cursor: pointer;" data-toggle="popover" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id, $Assignment->mark) ?>">
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
-                                      <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
-                                      else getSVGByAssignmentStatus(4); ?>
+                                      <?php
+                                      if ($Assignment->mark == null)
+                                        echo getSVGByAssignmentStatus(-2);
+                                      else if ($Assignment->mark != "зачтено")
+                                        echo $Assignment->mark;
+                                      else
+                                        echo getSVGByAssignmentStatus(4); ?>
 
                                       <?php if ($Assignment->isMarked()) { ?>
                                         <span class="badge rounded-pill badge-notification text-danger m-0" style="font-size:.5rem">
@@ -247,8 +254,13 @@ if ($scripts) echo $scripts;
                                   <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,'<?= $Task->mark_type ?>',<?= $Task->max_mark ?>, '<?= $Assignment->mark ?>');" style="cursor: pointer;" data-title="Оценить задание">
 
                                     <span id="span-assignmentMark-<?= $Assignment->id ?>">
-                                      <?php if ($Assignment->mark != "зачтено") echo $Assignment->mark;
-                                      else echo getSVGByAssignmentStatus($Assignment->status); ?>
+                                      <?php
+                                      if ($Assignment->mark == null)
+                                        echo getSVGByAssignmentStatus(-2);
+                                      else if ($Assignment->mark != "зачтено")
+                                        echo $Assignment->mark;
+                                      else
+                                        echo getSVGByAssignmentStatus($Assignment->status); ?>
                                     </span>
                                   </td>
                                 <?php }
