@@ -4,4 +4,4 @@ git fetch origin
 
 # https://github.com/commitizen-tools/commitizen/blob/master/docs/commands/bump.md
 # Список ошибок Commitizen: https://commitizen-tools.github.io/commitizen/exit_codes/
-pipenv run cz --no-raise 3,21 bump --changelog --retry
+pipenv run cz --no-raise 3,6,21 bump --changelog --retry
