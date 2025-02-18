@@ -18,9 +18,12 @@ $("#div-history-commit-btns").children().each(function () {
 
 });
 
-var array_files = [];
+var ARRAY_FILES = [];
 listItems.forEach(element => {
-    array_files.push(element.querySelector(".validationCustom").value);
+    let name = element.querySelector(".validationCustom").value;
+    let id = element.querySelector(".validationCustom").id;
+    ARRAY_FILES.push(name);
+    Editor.createFilePosition(id);
 });
 
 var conlist = [];
@@ -105,6 +108,9 @@ function openFile(event = null, listItem = null) {
         $('#check').prop("disabled", false);
     var id = thisListItem.querySelector(".validationCustom").id;
     let editor_id = Editor.getEditorId();
+    if (editor_id != null)
+        Editor.updateCurrentFilePosition(editor_id);
+
     if (id != editor_id) {
 
         Editor.blockEditor();
@@ -133,6 +139,8 @@ function openFile(event = null, listItem = null) {
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
+    } else {
+        Editor.setFocusToCurrent();
     }
 }
 
@@ -155,7 +163,8 @@ function delFile(event) {
     if (id == Editor.getEditorId())
         Editor.blockEditor();
 
-    array_files.splice(parseInt(li.dataset.orderid), 1);
+    ARRAY_FILES.splice(parseInt(li.dataset.orderid), 1);
+    Editor.removeFilePosition(id);
 
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
@@ -172,6 +181,7 @@ function delFile(event) {
         if (user_role == 3)
             $('#check').prop("disabled", true);
     }
+    Editor.setFocusToCurrent();
 
 }
 
@@ -230,7 +240,7 @@ function handleInputFileName(event) {
 
             listItems = list.querySelectorAll(".tasks__item");
 
-            array_files[li_id] = new_name;
+            ARRAY_FILES[li_id] = new_name;
         }
 
         // Смена языка окна редактора кода в зависимости от расширения
@@ -417,8 +427,10 @@ function alertContents(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
                 Editor.setEditorValue(httpRequest.responseText.trim());
-                if (!Editor.isReadOnly())
+                if (!Editor.isReadOnly()) {
                     Editor.unblockEditor();
+                    Editor.setFocusToCurrent();
+                }
             } else {
                 alert('С запросом возникла проблема.');
             }
@@ -487,6 +499,7 @@ function alertContentsNew(httpRequest) {
                 listItems[listItems.length - 1].querySelector(".validationCustom").id = response.file_id;
                 listItems[listItems.length - 1].querySelector(".validationCustom").disabled = false;
                 listItems[listItems.length - 1].querySelector(".a-save-file").href = response.download_url;
+                Editor.createFilePosition(response.file_id);
                 listItems[listItems.length - 1].click();
             } else {
                 alert('С запросом возникла проблема.' + httpRequest.status);
@@ -981,7 +994,7 @@ function newFile() {
         entry.id = "openFile";
         entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
         entry.style.cursor = "pointer";
-        entry.dataset.orderid = array_files.length;
+        entry.dataset.orderid = ARRAY_FILES.length;
         entry.innerHTML = '\
         <div class="px-1 align-items-center text-primary">\
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">\
@@ -1030,7 +1043,7 @@ function newFile() {
         document.getElementById("div-add-new-file").insertAdjacentElement('beforebegin', entry);
         listItems = list.querySelectorAll(".tasks__item");
 
-        array_files.push(nameFile);
+        ARRAY_FILES.push(nameFile);
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
@@ -1063,7 +1076,7 @@ function checkNameField() {
 function checkOriginalFileName(nameFile, skipElementInOrder = null) {
     let flag = true;
     let index = 0;
-    array_files.forEach(name => {
+    ARRAY_FILES.forEach(name => {
         if (name == nameFile) {
             if (skipElementInOrder != null || skipElementInOrder != index) {
                 flag = false;
@@ -1081,7 +1094,7 @@ if (document.querySelector("#newFile")) {
         document.querySelector("#newFile").parentNode.querySelector(".validationCustom").value = "Новый файл";
         var entry = document.createElement('li');
         entry.className = "tasks__item list-group-item w-100 d-flex justify-content-between px-0";
-        entry.dataset.orderid = array_files.length;
+        entry.dataset.orderid = ARRAY_FILES.length;
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
