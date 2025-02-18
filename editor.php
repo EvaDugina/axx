@@ -92,11 +92,11 @@ $nowCommitUser = new User($nowCommit->student_user_id);
 
 $solutionFiles = $nowCommit->getFiles();
 
-$readOnly = "false";
-if ($nowCommit->isNotEdit())
-  $readOnly = "true";
-echo "<script>var read_only=$readOnly;</script>";
-
+$readOnly = $nowCommit->isNotEdit();
+if ($readOnly)
+  echo "<script>const IS_EDITABLE=true;</script>";
+else
+  echo "<script>const IS_EDITABLE=false;</script>";
 
 $query = select_page_by_task_id($task_id);
 $result = pg_query($dbconnect, $query);
@@ -311,7 +311,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               </button>
             <?php } ?>
           </div>
-          <div class="embed-responsive embed-responsive-4by3 <?= ($readOnly == "true") ? "monaco-border-not-editable" : "monaco-border-editable" ?>">
+          <div id="div-shell-editor" class="embed-responsive embed-responsive-4by3 monaco-border-not-editable">
             <div id="container" class="embed-responsive-item"></div>
           </div>
 

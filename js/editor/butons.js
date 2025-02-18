@@ -95,6 +95,7 @@ function changeEditorLanguage(new_file_language) {
 // }
 
 function openFile(event = null, listItem = null) {
+
     let thisListItem = listItem;
     if (thisListItem == null)
         thisListItem = this;
@@ -105,6 +106,9 @@ function openFile(event = null, listItem = null) {
     var id = thisListItem.querySelector(".validationCustom").id;
     let editor_id = Editor.getEditorId();
     if (id != editor_id) {
+
+        Editor.blockEditor();
+
         var items = list.querySelectorAll(".validationCustom");
 
         if (editor_id) {
@@ -147,6 +151,10 @@ function delFile(event) {
     var li = this.parentNode;
     var id = li.querySelector(".validationCustom").id;
 
+    // Блокируем редактор, когда удаление текущего файла
+    if (id == Editor.getEditorId())
+        Editor.blockEditor();
+
     array_files.splice(parseInt(li.dataset.orderid), 1);
 
     var param = document.location.href.split("?")[1].split("#")[0];
@@ -156,16 +164,14 @@ function delFile(event) {
 
     listItems = list.querySelectorAll(".tasks__item");
     if (listItems.length > 0) {
-        openFile(null, listItems[0]);
-
+        if (id == Editor.getEditorId())
+            openFile(null, listItems[0]);
     }
     else {
         $('#container').addClass("d-none");
         if (user_role == 3)
             $('#check').prop("disabled", true);
     }
-
-
 
 }
 
@@ -411,6 +417,8 @@ function alertContents(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
                 Editor.setEditorValue(httpRequest.responseText.trim());
+                if (!Editor.isReadOnly())
+                    Editor.unblockEditor();
             } else {
                 alert('С запросом возникла проблема.');
             }
