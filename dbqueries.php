@@ -552,12 +552,6 @@ function select_group_id_by_student_id($student_id)
   ";
 }
 
-// группы у конкретной дисциплины
-function select_discipline_groups($page_id)
-{
-  return 'SELECT groups.id, name FROM groups INNER JOIN ax.ax_page_group ON groups.id = ax.ax_page_group.group_id WHERE page_id =' . $page_id;
-}
-
 // удаление из таблицы дисциплины-группы
 function delete_page_group($page_id)
 {

@@ -57,6 +57,15 @@ class Group
     }
   }
 
+  public function getTitle()
+  {
+    $title = $this->name;
+    if ($this->isOld()) {
+      $title .= "&nbsp; (выпущенная)";
+    }
+    return $title;
+  }
+
 
   public function getTextStatus()
   {
@@ -97,6 +106,9 @@ class Group
   }
 }
 
+// 
+// 
+// 
 
 function getStudentsByGroup($group_id)
 {
@@ -119,7 +131,7 @@ function getAllGroups()
 {
   global $dbconnect;
 
-  $query = querySelectGroups();
+  $query = queryGetAllGroups();
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $groups = pg_fetch_all($result);
 
@@ -131,10 +143,13 @@ function getAllGroups()
   return $Groups;
 }
 
+// 
+// ЗАПРОСЫ В БД
+// 
 
-function querySelectGroups()
+function queryGetAllGroups()
 {
-  return 'SELECT * FROM groups';
+  return 'SELECT * FROM groups ORDER BY name';
 }
 
 function queryGetGroupInfo($group_id)

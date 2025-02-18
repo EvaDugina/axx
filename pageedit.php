@@ -57,8 +57,6 @@ $disc_id = 0;
 $semester = "";
 $short_name = "";
 
-$page_groups = [];
-
 $query = select_all_disciplines();
 $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 $disciplines = pg_fetch_all($result);
@@ -82,7 +80,8 @@ $Groups = getAllGroups();
 $page = null;
 $Page = null;
 
-$actual_teachers = [];
+$page_teachers = [];
+$page_groups = [];
 if (array_key_exists('page', $_REQUEST)) {
 	$page_id = $_REQUEST['page'];
 	$Page = new Page((int)$page_id);
@@ -96,12 +95,14 @@ if (array_key_exists('page', $_REQUEST)) {
 
 	$pageTeachers = $Page->getTeachers();
 	foreach ($pageTeachers as $Teacher) {
-		array_push($actual_teachers, array('id' => $Teacher->id, 'fio' => $Teacher->getOfficialFIO()));
+		array_push($page_teachers, array('id' => $Teacher->id, 'fio' => $Teacher->getOfficialFIO()));
 	}
 
-	$query = select_discipline_groups($page_id);
-	$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-	$page_groups = pg_fetch_all($result);
+	$pageGroups = $Page->getGroups();
+	foreach ($pageGroups as $Group) {
+		array_push($page_groups, array('id' => $Group->id, 'name' => $Group->name));
+	}
+
 	echo "<script>var isNewPage=false;</script>";
 	echo "<script>var PAGE_ID=$Page->id;</script>";
 } else {
@@ -249,7 +250,9 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
 								foreach ($Groups as $Group) { ?>
-									<option value="<?= $Group->id ?>" class="d-flex justify-content-between"><?= $Group->name ?><?= (!$Group->isElseType()) ? ",&nbsp;" . $Group->getTextType() : "" ?> <?= ($Group->isOld()) ? "&nbsp; | &nbsp; (выпущенная)" : "" ?></option>
+									<option value="<?= $Group->id ?>" class="d-flex justify-content-between">
+										<?= $Group->getTitle() ?>
+									</option>
 								<?php }
 								echo "<option>Нет учебной группы</option>";
 								?>
@@ -404,7 +407,7 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 	let teachers = new Set();
 	let groups = new Set();
 
-	var actual_teachers_json = <?php echo json_encode($actual_teachers); ?>;
+	var actual_teachers_json = <?php echo json_encode($page_teachers); ?>;
 	var page_groups_json = <?php echo json_encode($page_groups); ?>;
 
 
