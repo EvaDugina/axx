@@ -6,10 +6,7 @@ require("./resultparse.php");
 require_once("POClasses/Commit.class.php");
 
 $au = new auth_ssh();
-if (!$au->loggedIn()) {
-    header('Location:login.php');
-    exit();
-}
+checkAuLoggedIN($au);
 
 $User = new User((int)$au->getUserId());
 

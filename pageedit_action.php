@@ -5,11 +5,7 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 
 $au = new auth_ssh();
-if ($au->isAdminOrPrep());
-else {
-	$au->logout();
-	header('Location:login.php');
-}
+checkAuIsNotStudent($au);
 
 if (isset($_POST['flag-addColorTheme']) && isset($_POST['page_id']) && isset($_FILES['image-file'])) {
 	addFileToColorTheme($_POST['page_id'], $_FILES['image-file']['name'], $_FILES['image-file']['tmp_name'], 22);

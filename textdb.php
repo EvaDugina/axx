@@ -15,6 +15,7 @@ $file_id = 0;
 
 
 $au = new auth_ssh();
+checkAuLoggedIN($au);
 
 $User = new User((int)$au->getUserId());
 

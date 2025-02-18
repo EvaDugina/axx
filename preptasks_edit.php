@@ -6,10 +6,7 @@ require_once("utilities.php");
 
 // защита от случайного перехода
 $au = new auth_ssh();
-if (!$au->isAdminOrPrep()) {
-  $au->logout();
-  header('Location:login.php');
-}
+checkAuIsNotStudent($au);
 
 if (isset($_GET['task_id']) && isset($_GET['page_id'])) {
   // TODO: ПРОВЕРИТь!

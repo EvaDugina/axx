@@ -4,6 +4,9 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("POClasses/User.class.php");
 
+// защита от случайного перехода
+$au = new auth_ssh();
+checkAuLoggedIN($au);
 
 if (isset($_POST['changeSubgroup'])) {
   $User = new User((int)$_POST['student_id']);

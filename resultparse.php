@@ -1,5 +1,9 @@
 <?php
 
+// защита от случайного перехода
+$au = new auth_ssh();
+checkAuLoggedIN($au);
+
 function getAccordionToolsHtml($checks, $checkres, $User)
 {
     $accord = array();

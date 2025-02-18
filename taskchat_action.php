@@ -4,6 +4,10 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("POClasses/Commit.class.php");
 
+$au = new auth_ssh();
+checkAuLoggedIN($au);
+
+
 if (!isset($_POST['assignment_id']) || !isset($_POST['user_id'])) {
   exit();
 }

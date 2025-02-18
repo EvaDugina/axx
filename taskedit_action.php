@@ -8,6 +8,10 @@ require_once("POClasses/Task.class.php");
 require_once("POClasses/File.class.php");
 
 
+$au = new auth_ssh();
+checkAuLoggedIN($au);
+
+
 if (isset($_POST['flag-editFileVisibility']) && isset($_POST['file_id'])) {
   $File = new File((int)$_POST['file_id']);
   if (isset($_POST['new_visibility']))

@@ -1,9 +1,9 @@
 <?php
-/*	var_dump($_POST);
-	exit; */
-
 require_once("common.php");
 require_once("utilities.php");
+
+$au = new auth_ssh();
+checkAuLoggedIN($au);
 
 if (isset($_POST['changeVisibility'])) {
 

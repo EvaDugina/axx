@@ -56,7 +56,7 @@ function getLanguagesChecksParams()
 // $date_time_offset = 6 - date("H", date("Z"));
 // здесь 6 (те. UTC+6) - это время на сервере
 
-date_default_timezone_set('Europe/Moscow');
+// date_default_timezone_set('Europe/Moscow');
 
 function getNowTimestamp()
 {
