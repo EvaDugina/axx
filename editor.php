@@ -243,16 +243,12 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                   $commitUser = new User($Commit->student_user_id); ?>
                   <div class="d-flex <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?>">
                     <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
-                                                                                            if ($commitUser->id == $User->id) {
-                                                                                              echo "dark";
-                                                                                            } else {
-                                                                                              echo "success";
-                                                                                            }
+                                                                                            echo "success";
                                                                                           } else {
                                                                                             echo "primary";
                                                                                           } ?> 
-                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? " btn-light border border-dark text-dark" : "btn-outline-success" ?> 
-                       d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-outline-primary
+                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn btn-outline-success
+                      d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-outline-primary
                         d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
 
                       <div class="flex-column">
