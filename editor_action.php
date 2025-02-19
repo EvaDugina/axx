@@ -24,7 +24,7 @@ if (
     isset($_POST['flag']) && $_POST['flag'] == "flag-getToolsHtml"
     && isset($_POST['config-tools']) && isset($_POST['output-tools'])
 ) {
-    $accord = getAccordionToolsHtml(json_decode($_POST['config-tools'], true), json_decode($_POST['output-tools'], true), $User);
+    $accord = getAutotestsAccordionHtml(json_decode($_POST['config-tools'], true), json_decode($_POST['output-tools'], true), $User);
     echo show_accordion('checkres', $accord, "5px");
     exit;
 }
