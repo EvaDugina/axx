@@ -244,15 +244,15 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                   <div class="d-flex <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?>">
                     <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
                                                                                             if ($commitUser->id == $User->id) {
-                                                                                              echo "primary";
+                                                                                              echo "dark";
                                                                                             } else {
                                                                                               echo "success";
                                                                                             }
                                                                                           } else {
-                                                                                            echo "dark";
+                                                                                            echo "primary";
                                                                                           } ?> 
-                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? "btn-outline-primary" : "btn-outline-success" ?> 
-                       d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-light border border-dark text-dark 
+                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn <?= ($commitUser->id == $User->id) ? " btn-light border border-dark text-dark" : "btn-outline-success" ?> 
+                       d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-outline-primary
                         d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
 
                       <div class="flex-column">
@@ -634,7 +634,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
                 echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
 
-                $accord = getAccordionToolsHtml($checks, @$checkres, $User);
+                $accord = getAutotestsAccordionHtml($checks, @$checkres, $User);
                 echo show_accordion('checkres', $accord, "5px");
                 ?>
 
