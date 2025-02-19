@@ -89,7 +89,7 @@ function parseBuildCheck($data, $enabled)
                 'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . generateColorBox('red', 'Проверка не пройдена', 'build_result') . '</div>',
                 'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
+                'body'   => generateTaggedValue("build_body", "Программный код не удовлетворяет требованиям задания программного кода."),
                 'footer' => $resFooter
             );
         case 'skip':
@@ -168,7 +168,7 @@ function parseCppCheck($data, $enabled)
                 'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('red', 'Проверка не пройдена', 'cppcheck_result') . '</div>',
                 'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
+                'body'   => generateTaggedValue("cppcheck_body", "Программный код не удовлетворяет требованиям задания."),
                 'footer' => $resFooter
             );
         case 'skip':
@@ -257,7 +257,7 @@ function parseClangFormat($data, $enabled)
                 'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('red', 'Проверка не пройдена', 'clangformat_result') . '</div>',
                 'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
+                'body'   => generateTaggedValue("clangformat_body", "Программный код не удовлетворяет требованиям задания."),
                 'footer' => $resFooter
             );
         case 'skip':
@@ -341,7 +341,7 @@ function parseValgrind($data, $enabled)
                 'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('red', 'Проверка не пройдена', 'valgrind_errors') . generateColorBox('red', 'Проверка не пройдена', 'valgrind_leaks') . '</div>',
                 'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
+                'body'   => generateTaggedValue("valgrind_body", "Программный код не удовлетворяет требованиям задания."),
                 'footer' => $resFooter
             );
         case 'skip':
@@ -420,19 +420,9 @@ function parsePylint($data, $enabled)
     $resFooter = '<label for="pylint" id="pylintlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
         '<pre id="pylint" class="axconsole">Загрузка...</pre>';
 
-    if (!array_key_exists('outcome', $data)) {
+    if (!array_key_exists('outcome', $data) || !checkPylintOutputDataStructure($data)) {
         return array(
             'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
-            'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("pylint_body", "Проверка пропущена или инструмент проверки не установлен."),
-            'footer' => $resFooter
-        );
-    }
-
-    if (!checkPylintOutputDataStructure($data)) {
-        return array(
-            'header' => '<div class="w-100"><b>pylint</b>' . generateColorBox('gray', 'Внутрення ошибка!', 'pylint_result') . '</div>',
             'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
             'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
@@ -450,7 +440,13 @@ function parsePylint($data, $enabled)
             $resColorBox .= generateColorBox('red', 'Проверка не пройдена', 'pylint_result');
             break;
         case 'reject':
-            $resColorBox .= generateColorBox('red', 'Проверка не пройдена', 'pylint_result');
+            return array(
+                'header' => '<div class="w-100"><b>Pylint</b>' . generateColorBox('gray', 'Проверка пропущена', 'pylint_result') . '</div>',
+                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pylint_body", "Проверка пропущена или инструмент проверки не установлен."),
+                'footer' => $resFooter
+            );
             break;
         case 'skip':
             return array(
@@ -593,7 +589,7 @@ function parsePytest($data, $enabled)
             'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
             'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
                 ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("pytest_body", "Проверка пропущена или инструмент проверки не установлен."),
+            'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
             'footer' => $resFooter
         );
     }
@@ -618,7 +614,13 @@ function parsePytest($data, $enabled)
             $resColorBox .= generateColorBox('red', 'Проверки не пройдены', 'pytest_result');
             break;
         case 'reject':
-            $resColorBox .= generateColorBox('red', 'Ошибка', 'pytest_result');
+            return array(
+                'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Проверка пропущена', 'pytest_result') . '</div>',
+                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
+                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+                'body'   => generateTaggedValue("pytest_body", "Проверка пропущена или инструмент проверки не установлен."),
+                'footer' => ""
+            );
             break;
         case 'skip':
             return array(
@@ -716,7 +718,7 @@ function parseAutoTests($data, $enabled)
                 'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('red', 'Проверка не пройдена', 'autotests_result') . '</div>',
                 'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
+                'body'   => generateTaggedValue("autotests_body", "Программный код не удовлетворяет требованиям задания."),
                 'footer' => $resFooter
             );
         case 'skip':
@@ -797,7 +799,7 @@ function parseCopyDetect($data, $enabled)
                 'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('red', 'Проверка не пройдена', 'copydetect_result') . '</div>',
                 'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
                     ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),
+                'body'   => generateTaggedValue("copydetect_body", "Программный код не удовлетворяет требованиям задания."),
                 'footer' => ''
             );
         case 'skip':
