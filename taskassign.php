@@ -44,7 +44,8 @@ $previous_page_url = 'preptasks.php?page=' . $Page->id;
 
 show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
 
-$Assignment = new Assignment();
+if ($Assignment == null)
+  $Assignment = new Assignment();
 
 ?>
 
@@ -153,20 +154,6 @@ $Assignment = new Assignment();
                 <div id="main-accordion-students" class="accordion w-100" style="overflow-y: auto; height: 100%; width: 100%;">
 
                   <?php
-                  /*if ($isNewAssignment) {
-                    foreach($Page->getGroups() as $Group) { ?>
-                      <div>
-                      <h6><?=$Group->name?></h6>
-                      <?php foreach($Group->getStudents() as $Student) {?>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" name="students[]" 
-                          value="<?=$Student->id?>" id="flexCheck<?=$Student->id?>" <?=in_array($Student->id, $studids) ? "checked" : "" ?>>
-                          <label class="form-check-label" for="flexCheck<?=$Student->id?>"><?=$Student->getFI()?></label>
-                        </div>
-                      <?php } ?>
-                      </div>
-                    <?php } 
-                  } else {*/
                   $key = 0;
                   foreach ($Page->getGroups() as $key => $Group) { ?>
                     <div class="accordion-item">
@@ -190,7 +177,11 @@ $Assignment = new Assignment();
                                   <div id="accordion-sheader-<?= $Student->id ?>" class="accordion-header">
                                     <div class="d-flex justify-content-between" type="button">
                                       <div class="form-check ms-3">
-                                        <input id="student-<?= $Student->id ?>" class="accordion-input-item form-check-input input-student" type="checkbox" value="<?= $Student->id ?>" name="students[]" <?php if ($Assignment->getStudentById($Student->id) != null) echo 'checked'; ?> onclick="this.checked = !this.checked;">
+                                        <input id="student-<?= $Student->id ?>" class="accordion-input-item form-check-input input-student" type="checkbox"
+                                          value="<?= $Student->id ?>" name="students[]" onclick="this.checked = !this.checked;"
+                                          <?php
+                                          if ($Assignment->getStudentById($Student->id) != null)
+                                            echo 'checked'; ?>>
                                         <label class="form-check-label" for="flexCheck1"><?= $Student->getFI() ?></label>
                                       </div>
                                       <div class="">

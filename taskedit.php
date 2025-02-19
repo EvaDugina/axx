@@ -42,9 +42,7 @@ if (isset($_GET['task'])) {
   // Добавление новго задания
 
   $Page = new Page((int)$_REQUEST['page']);
-  // $Task = new Task($Page->id, 0, 1);
   $Task = null;
-  // $Task->title = "Задание " . (count($Page->getTasks()) + 1) . ".";
   echo "<script>var TASK_ID=null;</script>";
   echo "<script>var PAGE_ID=" . $Page->id . ";</script>";
 } else {
@@ -55,6 +53,9 @@ if (isset($_GET['task'])) {
 $page_title = getTaskeditPageTitle($Task);
 $previous_page_title = getPreptasksPageTitle($Page);
 $previous_page_url = 'preptasks.php?page=' . $Page->id;
+
+if ($Task == null)
+  $Task = new Task();
 
 show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
 ?>
@@ -71,8 +72,6 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
     ),
     $User
   );
-
-  $Task = new Task();
   ?>
 
   <div class="container-fluid overflow-hidden mb-5">
