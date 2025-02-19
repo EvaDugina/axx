@@ -4,8 +4,13 @@
 $au = new auth_ssh();
 checkAuLoggedIN($au);
 
-function getAutotestsAccordionHtml($checks, $checkres, $User)
+function getAutotestsAccordionHtml($checks, $checkres, $User, $update_autotest_results = false)
 {
+
+    if ($update_autotest_results) {
+        $checks = $checkres;
+    }
+
     $accord = array();
     if (!$User->isStudent()) {
         if (isset($checks['tools']['build']))
