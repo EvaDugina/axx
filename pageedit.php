@@ -277,7 +277,15 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 						<label id="label-textArea-description" class="form-label" for="textArea-description">Описание раздела</label>
 						<script>
 							const easyMDE = new EasyMDE({
-								element: document.getElementById('textArea-description')
+								element: document.getElementById('textArea-description'),
+								toolbar: ["bold", "italic", "heading-bigger", "heading-smaller",
+									"|", "code", "quote", "|", "unordered-list", "ordered-list",
+									"|", "link", "image", "|", "preview", "side-by-side",
+									"|", "undo", "redo", "|", "guide"
+								],
+								previewImagesInEditor: true,
+								sideBySideFullscreen: false,
+								toggleFullscreen: false,
 							});
 						</script>
 						<div class="form-notch">
