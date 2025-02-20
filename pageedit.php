@@ -229,15 +229,15 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 				<div class="col-lg-9  px-0">
 					<div class="btn-group shadow-0">
 						<select class="form-select" id="select_teacher">
+							<option value="null">Выберите преподавателя</option>;
 							<?php
 							foreach ($all_teachers as $teacher) { ?>
-								<option value="<?= $teacher['id'] ?>"><?= $teacher['fio'] ?></option>;
+								<option value="<?= $teacher['id'] ?>">
+									<?= $teacher['fio'] ?>
+								</option>;
 							<?php }
 							?>
-						</select>&nbsp;
-						<button id="add_teachers" type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;">
-							Добавить
-						</button>
+						</select>
 					</div>
 				</div>
 				<div class="col-lg-1">
@@ -254,6 +254,7 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 					<div class="col-lg-9 px-0">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
+								<option value="null">Выберите группу</option>;
 								<?php
 								foreach ($Groups as $Group) { ?>
 									<option value="<?= $Group->id ?>" class="d-flex justify-content-between">
@@ -262,10 +263,7 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 								<?php }
 								echo "<option>Нет учебной группы</option>";
 								?>
-							</select>&nbsp;
-							<button type="button" class="btn btn-outline-primary" data-mdb-ripple-color="dark" style="width:120px;" id="add_groups">
-								Добавить
-							</button>
+							</select>
 						</div>
 					</div>
 				</div>
@@ -354,15 +352,6 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 
 						</div>
 					</label>
-
-					<!-- <div class="col-2 align-self-center popover-message-message-stud" style="cursor: pointer; padding: 0px;" onclick="window.location='pageedit.php?addpage'">
-						<a class="btn btn-link" href="pageedit.php?addpage" type="button" style="width: 100%; height: 100%; padding-top: 20%;">
-							<div class="row">
-								<i class="fas fa-plus-circle mb-2 align-self-center" style="font-size: 30px;"></i><br>
-								<span class="align-self-center">Добавить новый раздел</span>
-							</div>
-						</a>
-					</div> -->
 
 				</div>
 			</div>
@@ -636,22 +625,26 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 		return ajaxResponse;
 	}
 
+	// 
+	// 
+	// 
 
+	var selectGroup = document.getElementById("select_groups");
+	selectGroup.onchange = function(event) {
+		event.preventDefault();
+		add_groups();
+	};
 
+	var selectTeacher = document.getElementById("select_teacher");
+	selectTeacher.onchange = function(event) {
+		event.preventDefault();
+		add_teacher();
+	};
 
-	var add_teachers_button = document.getElementById("add_teachers");
-	add_teachers_button.addEventListener('click', addElementTeacher);
-
-	var add_groups_button = document.getElementById("add_groups");
-	add_groups_button.addEventListener('click', add_groups);
-
-
-	function addElementTeacher() {
-		teacher_id = $('#select_teacher').val();
-		add_teacher(teacher_id);
-	}
-
-	function add_teacher(teacher_id) {
+	function add_teacher() {
+		let teacher_id = $('#select_teacher').val();
+		if (teacher_id == "null")
+			return;
 
 		teacher_id = parseInt(teacher_id);
 
@@ -661,7 +654,7 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 		var name;
 		Array.from($('#select_teacher').children()).forEach((option) => {
 			if (option.value == teacher_id) {
-				name = option.innerText;
+				name = option.innerText.trim();
 				return;
 			}
 		});
@@ -673,10 +666,13 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 
 	function add_groups() {
 		let group_id = $('#select_groups').val();
+		if (group_id == "null")
+			return;
+
 		var name;
 		Array.from($('#select_groups').children()).forEach((option) => {
 			if (option.value == group_id) {
-				name = option.innerText;
+				name = option.innerText.trim();
 				return;
 			}
 		});
