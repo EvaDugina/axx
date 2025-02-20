@@ -159,16 +159,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 
 			<input id="input-pageId" type="hidden" name="id" value="<?= $page_id ?>"></input>
 
-			<div class="row align-items-center m-3 mb-4">
-				<div class="col-lg-2 row justify-content-left">Название раздела:</div>
-				<div class="col-lg-2 px-0">
-					<input type="text" id="input-name" class="form-control" maxlength="19" value="<?= $short_name ?>" name="short_name" autocomplete="off" data-container="body" data-placement="right" data-title="Это поле должно быть заполнено!" />
-				</div>
-				<p id="p-errorPageName" class="error p-0 d-none">Ошибка! Незаполненное поле!</p>
-			</div>
-
-			<div class="row align-items-center m-3 mb-4" style="height: 40px;">
-				<div class="col-lg-2 row justify-content-left">Полное название дисциплины:</div>
+			<div class="row align-items-start m-3 mb-4" style="height: 40px;">
+				<div class="col-lg-3 row justify-content-left py-2">Полное название раздела:</div>
 				<div class="col-lg-4 px-0">
 					<div id="div-popover-select" class="btn-group shadow-0" data-container="body" data-placement="right">
 						<select id="selectDiscipline" class="form-select" name="disc_id">
@@ -184,9 +176,24 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 				<p id="p-errorDisciplineName" class="error p-0 d-none">Ошибка! Не выбранная дисциплина!</p>
 			</div>
 
+			<div class="row align-items-start m-3 mb-4">
+				<div class="col-lg-3 row justify-content-left py-2">Краткое название раздела:</div>
+				<div class="col-lg-3 d-flex px-0">
+					<input type="text" id="input-name" class="form-control me-2" value="<?= $short_name ?>"
+						name="short_name" style="width: 25*8px;" autocomplete="off" data-container="body" data-placement="right"
+						data-title="Это поле должно быть заполнено!" />
+					<button id="btn-name-undo" class="btn btn-outline-primary px-2 d-none" title="Вернуть по-умолчанию: <?= $short_name ?>">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+						</svg>
+					</button>
+				</div>
+				<p id="p-errorPageName" class="error p-0 d-none">Ошибка! Незаполненное поле!</p>
+				<p id="p-errorPageNameLength" class="error p-0 d-none">Достигнуто ограничение по количеству символов!</p>
+			</div>
 
-			<div class="row align-items-center m-3 mb-4" style="height: 40px;">
-				<div class="col-lg-2 row justify-content-left">Семестр:</div>
+			<div class="row align-items-start m-3 mb-4" style="height: 40px;">
+				<div class="col-lg-3 row justify-content-left py-2">Семестр:</div>
 				<div class="col-lg-4  px-0">
 					<div class="btn-group shadow-0">
 						<select id="select-semester" class="form-select" name="timestamp">
@@ -212,14 +219,14 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			</div>
 
 
-			<div class="row align-items-center mx-3 pe-group-upper">
-				<div class="col-lg-2 row justify-content-left">Преподаватели:</div>
-				<div id="teachers_container" class="col-lg-10  px-0" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
+			<div class="row align-items-start mx-3 pe-group-upper">
+				<div class="col-lg-3 row justify-content-left py-2">Преподаватели:</div>
+				<div id="teachers_container" class="col-lg-9  px-0" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
 			</div>
 
-			<div class="row align-items-center mx-3 pe-group-lower mb-4">
-				<div class="col-lg-2 row"></div>
-				<div class="col-lg-10  px-0">
+			<div class="row align-items-start mx-3 pe-group-lower mb-4">
+				<div class="col-lg-3 row py-2"></div>
+				<div class="col-lg-9  px-0">
 					<div class="btn-group shadow-0">
 						<select class="form-select" id="select_teacher">
 							<?php
@@ -238,14 +245,13 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			</div>
 
 			<div id="div-students-groups" class="mb-4 <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "d-none" : "" ?>">
-				<div class="row align-items-center mx-3 pe-group-upper">
-					<div class="col-lg-2 row justify-content-left">Учебные группы:</div>
-					<div id="groups_container" class="col-lg-10 d-flex align-items-center flex-wrap px-0" style="background: #fff8e0;"></div>
+				<div class="row align-items-start mx-3 pe-group-upper">
+					<div class="col-lg-3 row justify-content-left py-2">Учебные группы:</div>
+					<div id="groups_container" class="col-lg-9 d-flex align-items-center flex-wrap px-0" style="background: #fff8e0;"></div>
 				</div>
-
-				<div class="row align-items-center mx-3 pe-group-lower mb-4">
-					<div class="col-lg-2 row"></div>
-					<div class="col-lg-10 px-0">
+				<div class="row align-items-start mx-3 pe-group-lower mb-4">
+					<div class="col-lg-3 row py-2"></div>
+					<div class="col-lg-9 px-0">
 						<div class="btn-group shadow-0">
 							<select class="form-select" name="page_group" id="select_groups">
 								<?php
@@ -265,9 +271,9 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 				</div>
 			</div>
 
-			<div class="row align-items-center mx-3 pe-group-upper mb-4">
-				<div class="col-lg-2 row justify-content-left">Описание раздела:</div>
-				<div class="col-lg-10 px-0">
+			<div class="row align-items-start mx-3 pe-group-upper mb-4">
+				<div class="col-lg-3 row justify-content-left py-2">Описание раздела:</div>
+				<div class="col-lg-9 px-0">
 					<div id="form-description" class="form-outline" onkeyup="descriptionChange()">
 						<textarea id="textArea-description" class="form-control <?= 'active' ?>" rows="5" name="page-description" style="resize: none;"><?= ($Page) ? $Page->description : "" ?></textarea>
 						<label id="label-textArea-description" class="form-label" for="textArea-description">Описание раздела</label>
@@ -287,8 +293,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			</div>
 
 			<div class="row align-items-left m-3 mb-4">
-				<div class="col-lg-2 row justify-content-left">Оформление:</div>
-				<div class="col-lg-10 row container-fluid">
+				<div class="col-lg-3 row justify-content-left py-2">Оформление:</div>
+				<div class="col-lg-9 row container-fluid">
 					<?php
 
 					$query = select_color_theme($page_id);
@@ -366,8 +372,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			<?php } ?>
 
 			<div class="row mx-2">
-				<div class="col-lg-2 row justify-content-left">
-					<button id="btn-save" type="submit" name="action" value="save" class="btn btn-outline-primary" data-mdb-ripple-color="dark">
+				<div class="col-lg-3 row justify-content-left">
+					<button id="btn-save" type="submit" name="action" value="save" class="btn btn-primary" data-mdb-ripple-color="dark">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-all" viewBox="0 0 16 16">
 							<path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486z" />
 						</svg>&nbsp;
@@ -465,6 +471,43 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 
 		if (isNewPage && !isAdmin) {
 			add_teacher(user_id);
+		}
+
+		const MAX_SHORT_NAME_LENGTH = 25;
+		var inputName = document.getElementById('input-name');
+		const originalName = inputName.value;
+		var btnNameUndo = document.getElementById('btn-name-undo');
+
+		function timeout(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+		async function sleep(ms, fn, ...args) {
+			await timeout(ms);
+			return fn(...args);
+		}
+
+		btnNameUndo.onclick = function(event) {
+			event.preventDefault();
+			inputName.value = originalName;
+			btnNameUndo.classList.add("d-none");
+		};
+
+		inputName.oninput = async function(event) {
+
+			if (inputName.value.length > MAX_SHORT_NAME_LENGTH) {
+
+				inputName.value = inputName.value.slice(0, MAX_SHORT_NAME_LENGTH);
+				document.getElementById("p-errorPageNameLength").classList.remove("d-none");
+				sleep(2000,
+					async () => {
+						document.getElementById("p-errorPageNameLength").classList.add("d-none");
+					}, );
+			}
+
+			if (inputName.value != originalName)
+				btnNameUndo.classList.remove("d-none");
+			else
+				btnNameUndo.classList.add("d-none");
 		}
 
 	});
@@ -654,7 +697,6 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 	function add_element(parent, name, tag, set, id) {
 		let element = document.createElement("div");
 
-		//element.classList.add("col-lg-2");
 		element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 my-1 badge badge-primary text-wrap teacher-element");
 		element.id = "t-" + id;
 
