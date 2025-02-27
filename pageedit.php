@@ -484,6 +484,16 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			};
 		}
 
+		function showNameUndo() {
+			if (btnNameUndo)
+				btnNameUndo.classList.remove("d-none");
+		}
+
+		function hideNameUndo() {
+			if (btnNameUndo)
+				btnNameUndo.classList.add("d-none");
+		}
+
 		function timeout(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
@@ -493,6 +503,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 		}
 
 		inputName.oninput = async function(event) {
+
+			inputName.value = inputName.value.trim();
 
 			if (inputName.value.length > MAX_SHORT_NAME_LENGTH) {
 
@@ -505,9 +517,9 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			}
 
 			if (inputName.value != originalName)
-				btnNameUndo.classList.remove("d-none");
+				showNameUndo()
 			else
-				btnNameUndo.classList.add("d-none");
+				hideNameUndo()
 		}
 
 	});
