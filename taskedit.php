@@ -105,7 +105,7 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
             <div class="pt-3 d-flex">
               <div class="w-25 me-3">
                 <label>Тип задания:</label>
-                <select id="task-type" class="form-select" aria-label=".form-select" name="task-type" <?= $Task->isConversation() ? "disabled" : "" ?>>
+                <select id="task-type" class="form-select" aria-label=".form-select" name="task-type">
                   <option value="0" <?= (($Task->isDefault()) ? "selected" : "") ?>>Обычное</option>
                   <option value="1" <?= (($Task->isProgramming()) ? "selected" : "") ?>>Программирование</option>
                   <option value="2" <?= (($Task->isConversation()) ? "selected" : "") ?>>Беседа</option>
