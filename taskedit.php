@@ -79,18 +79,27 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
       <div class="row gy-5">
         <div class="col-8">
           <table class="table table-hover">
-
             <div class="pt-3">
-              <div class="form-outline">
-                <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()" placeholder="Задание <?= (count($Page->getTasks()) + 1) ?>."></input>
-                <label id=" label-input-title" class="form-label" for="input-title">Название задания</label>
-                <div id="div-border-title" class="form-notch">
-                  <div class="form-notch-leading" style="width: 9px;"></div>
-                  <div class="form-notch-middle" style="width: 114.4px;"></div>
-                  <div class="form-notch-trailing"></div>
+              <div class="d-flex flex-row">
+                <div class="form-outline w-100 me-3">
+                  <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()" placeholder="Задание <?= (count($Page->getTasks()) + 1) ?>."></input>
+                  <label id="label-input-title" class="form-label" for="input-title">Название задания</label>
+                  <div id="div-border-title" class="form-notch">
+                    <div class="form-notch-leading" style="width: 9px;"></div>
+                    <div class="form-notch-middle" style="width: 114.4px;"></div>
+                    <div class="form-notch-trailing"></div>
+                  </div>
                 </div>
+                <?php if ($Task->title != "") { ?>
+                  <button id="btn-title-undo" class="btn btn-outline-primary px-2 d-none" title="Вернуть по-умолчанию: <?= $Task->title ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+                    </svg>
+                  </button>
+                <?php } ?>
               </div>
               <span id="error-input-title" class="error-input" aria-live="polite"></span>
+              <p id="p-errorTitleLength" class="error p-0 d-none">Достигнуто ограничение по количеству символов!</p>
             </div>
 
             <div class="pt-3 d-flex">
@@ -366,6 +375,56 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
     });
     delete task_files;
   });
+
+  const MAX_SHORT_NAME_LENGTH = 100;
+  var inputTitle = document.getElementById('input-title');
+  if (document.getElementById('btn-title-undo')) {
+    var btnNameUndo = document.getElementById('btn-title-undo');
+    btnNameUndo.onclick = function(event) {
+      event.preventDefault();
+      inputTitle.value = original_title;
+      btnNameUndo.classList.add("d-none");
+      titleChange()
+    };
+  }
+
+  function showTitleUndo() {
+    if (btnNameUndo)
+      btnNameUndo.classList.remove("d-none");
+  }
+
+  function hideTitleUndo() {
+    if (btnNameUndo)
+      btnNameUndo.classList.add("d-none");
+  }
+
+  function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  async function sleep(ms, fn, ...args) {
+    await timeout(ms);
+    return fn(...args);
+  }
+
+  inputTitle.oninput = async function(event) {
+
+    inputTitle.value = inputTitle.value.trim();
+
+    if (inputTitle.value.length > MAX_SHORT_NAME_LENGTH) {
+
+      inputTitle.value = inputTitle.value.slice(0, MAX_SHORT_NAME_LENGTH);
+      document.getElementById("p-errorTitleLength").classList.remove("d-none");
+      sleep(2000,
+        async () => {
+          document.getElementById("p-errorTitleLength").classList.add("d-none");
+        }, );
+    }
+
+    if (inputTitle.value != original_title)
+      showTitleUndo()
+    else
+      hideTitleUndo()
+  }
 
 
   function titleChange() {
