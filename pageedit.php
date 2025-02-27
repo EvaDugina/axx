@@ -182,11 +182,13 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 					<input type="text" id="input-name" class="form-control me-2" value="<?= $short_name ?>"
 						name="short_name" style="width: 25*8px;" autocomplete="off" data-container="body" data-placement="right"
 						data-title="Это поле должно быть заполнено!" />
-					<button id="btn-name-undo" class="btn btn-outline-primary px-2 d-none" title="Вернуть по-умолчанию: <?= $short_name ?>">
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
-							<path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
-						</svg>
-					</button>
+					<?php if ($short_name) { ?>
+						<button id="btn-name-undo" class="btn btn-outline-primary px-2 d-none" title="Вернуть по-умолчанию: <?= $short_name ?>">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+								<path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+							</svg>
+						<?php } ?>
+						</button>
 				</div>
 				<p id="p-errorPageName" class="error p-0 d-none">Ошибка! Незаполненное поле!</p>
 				<p id="p-errorPageNameLength" class="error p-0 d-none">Достигнуто ограничение по количеству символов!</p>
@@ -473,7 +475,14 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 		const MAX_SHORT_NAME_LENGTH = 25;
 		var inputName = document.getElementById('input-name');
 		const originalName = inputName.value;
-		var btnNameUndo = document.getElementById('btn-name-undo');
+		if (document.getElementById('btn-name-undo')) {
+			var btnNameUndo = document.getElementById('btn-name-undo');
+			btnNameUndo.onclick = function(event) {
+				event.preventDefault();
+				inputName.value = originalName;
+				btnNameUndo.classList.add("d-none");
+			};
+		}
 
 		function timeout(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
@@ -482,12 +491,6 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
 			await timeout(ms);
 			return fn(...args);
 		}
-
-		btnNameUndo.onclick = function(event) {
-			event.preventDefault();
-			inputName.value = originalName;
-			btnNameUndo.classList.add("d-none");
-		};
 
 		inputName.oninput = async function(event) {
 
