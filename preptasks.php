@@ -52,11 +52,22 @@ show_head($page_title, array('js/preptasks.js'));
           <div class="pt-3">
 
             <div class="row">
-              <h2 class="col-9 text-nowrap"> Задания по дисциплине</h2>
-              <div class="col-3">
-                <button type="submit" class="btn btn-outline-primary px-3" style="display: inline; float: right;" onclick="window.location='taskedit.php?page=<?= $page_id ?>';">
-                  <i class="fas fa-plus-square fa-lg"></i> Новое задание
-                </button>
+              <h2 class="col-6 text-nowrap"> Задания по дисциплине</h2>
+              <div class="col-6">
+                <div class="w-100 d-flex flex-row-reverse align-items-center">
+                  <button type="submit" class="btn d-flex flex-row align-items-center" onclick="window.location='preptable.php?page=<?= $page_id ?>';" style="">
+                    Посылки&nbsp;&nbsp;
+                    <div class="h-100">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                        <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                      </svg>
+                    </div>
+                  </button>
+                  <button type="submit" class="btn btn-outline-primary px-3 me-3" style="display: inline; float: right;" onclick="window.location='taskedit.php?page=<?= $page_id ?>';">
+                    <i class="fas fa-plus-square fa-lg"></i> Новое задание
+                  </button>
+                </div>
               </div>
             </div>
 

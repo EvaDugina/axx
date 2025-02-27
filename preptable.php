@@ -56,9 +56,20 @@ if ($scripts) echo $scripts;
 
           <div class="pt-3">
 
-            <h2 class="text-nowrap">
-              Посылки по дисциплине
-            </h2>
+            <div class="d-flex justify-content-between">
+              <h2 class="w-75">
+                Посылки по дисциплине
+              </h2>
+              <button type="submit" class="btn d-flex flex-row align-items-center" onclick="window.location='preptasks.php?page=<?= $page_id ?>';" style="">
+                Задания&nbsp;&nbsp;
+                <div class="h-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                    <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                  </svg>
+                </div>
+              </button>
+            </div>
             <div style="padding-top:10px; padding-bottom:10px; ">
               <select class="form-select" aria-label=".form-select" name="select-discipline" id="selectCourse">
                 <?php $i = 1;
@@ -148,9 +159,6 @@ if ($scripts) echo $scripts;
                         <th class="align-items-center" scope="col" colspan="<?= count($tasks) + 1 ?>">
                           <div class="d-flex justify-content-center align-items-center">
                             <span class="me-2" style="font-size: large;">Задания </span>
-                            <button type="submit" class="btn" onclick="window.location='preptasks.php?page=<?= $page_id ?>';" style="">
-                              <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-                            </button>
                           </div>
                         </th>
                       </tr>
