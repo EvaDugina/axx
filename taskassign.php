@@ -70,7 +70,7 @@ if ($Assignment == null)
 
           <div class="row ms-5 mt-5 mb-3">
             <h2 class="col-9 text-nowrap">
-              <?php if ($Task->type == 1) { ?>
+              <?php if ($Task->isProgramming()) { ?>
                 <i class="fas fa-code fa-lg"></i>
               <?php } else { ?>
                 <i class="fas fa-file fa-lg" style="padding: 0px 5px 0px 5px;"></i>

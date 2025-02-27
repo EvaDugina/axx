@@ -133,7 +133,7 @@ else
 <html lang="en">
 
 <?php
-show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
+show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.css'));
 
 ?>
 

@@ -57,7 +57,8 @@ $previous_page_url = 'preptasks.php?page=' . $Page->id;
 if ($Task == null)
   $Task = new Task();
 
-show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), array('https://unpkg.com/easymde/dist/easymde.min.css'));
+show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.css'));
+
 ?>
 
 <main class="pt-2">
@@ -166,7 +167,7 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
             <div class="pt-3 d-flex" id="tools">
 
               <?php $textArea_codeTest = "";
-              if ($Task->type == 1 && isset($TestFiles[0]))
+              if ($Task->isProgramming() && isset($TestFiles[0]))
                 $textArea_codeTest = $TestFiles[0]->getFullText();
               ?>
 
@@ -180,7 +181,8 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
                   <?php } ?>
                 </select>
                 <div class="form-outline mt-2">
-                  <textarea id="textArea-codeTest" class="form-control <?= ($textArea_codeTest != "") ? "active" : "" ?>" rows="5" name="full_text_test" style="resize: none;" onkeyup="codeTestChange()"><?= $textArea_codeTest ?></textarea>
+                  <textarea id="textArea-codeTest" class="form-control <?= ($textArea_codeTest != "") ? "active" : "" ?>" rows="5" name="full_text_test" style="resize: none;"
+                    onkeyup="codeTestChange()"><?= $textArea_codeTest ?></textarea>
                   <label id="label-codeTest" class="form-label" for="textArea-codeTest">Код теста</label>
                   <div id="div-border-codeTest" class="form-notch">
                     <div class="form-notch-leading" style="width: 9px;"></div>
@@ -193,12 +195,13 @@ show_head($page_title, array('https://unpkg.com/easymde/dist/easymde.min.js'), a
               <div class="col-1"></div>
 
               <?php $textArea_codeCheck = "";
-              if ($Task->type == 1 && isset($TestOfTestFiles[0]))
+              if ($Task->isProgramming() && isset($TestOfTestFiles[0]))
                 $textArea_codeCheck = $TestOfTestFiles[0]->getFullText();
               ?>
 
               <div class="form-outline col-6">
-                <textarea id="textArea-codeCheck" class="form-control <?= ($textArea_codeCheck != "") ? "active" : "" ?>" rows="5" name="full_text_test_of_test" style="resize: none;" onkeyup="codeCheckTestChange()"><?= $textArea_codeCheck ?></textarea>
+                <textarea id="textArea-codeCheck" class="form-control <?= ($textArea_codeCheck != "") ? "active" : "" ?>" rows="5" name="full_text_test_of_test" style="resize: none;"
+                  onkeyup="codeCheckTestChange()"><?= $textArea_codeCheck ?></textarea>
                 <label id="label-codeCheck" class="form-label" for="textArea-codeCheck">Код проверки</label>
                 <div id="div-border-codeCheck" class="form-notch">
                   <div class="form-notch-leading" style="width: 9px;"></div>

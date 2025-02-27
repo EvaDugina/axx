@@ -46,13 +46,13 @@ class Task
       $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
       $task = pg_fetch_assoc($result);
 
-      $this->type = $task['type'];
+      $this->type = (int)$task['type'];
       $this->title = $task['title'];
       $this->description = $task['description'];
 
       $this->mark_type = $task['mark_type'];
       $this->max_mark = $task['max_mark'];
-      $this->status = $task['status'];
+      $this->status = (int)$task['status'];
       $this->checks = $task['checks'];
 
       $this->Assignments = getAssignmentsByTask($this->id);
@@ -60,8 +60,8 @@ class Task
       // $this->AutoTests = getAutoTestsByTask($this->id);
     } else if ($count_args == 3) {
       $page_id = $args[0];
-      $this->type = $args[1];
-      $this->status = $args[2];
+      $this->type = (int)$args[1];
+      $this->status = (int)$args[2];
       $this->mark_type = "";
       $this->max_mark = 5;
 
@@ -69,13 +69,13 @@ class Task
     } else if ($count_args == 8) {
       $page_id = $args[0];
 
-      $this->type = $args[1];
+      $this->type = (int)$args[1];
       $this->title = $args[2];
       $this->description = $args[3];
 
       $this->mark_type = $args[4];
       $this->max_mark = $args[5];
-      $this->status = $args[6];
+      $this->status = (int)$args[6];
       $this->checks = $args[7];
 
       $this->pushNewToDB($page_id);
