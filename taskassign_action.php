@@ -128,7 +128,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
 
   $Task = new Task(getTaskByAssignment($Assignment->id));
   if ($Task->hasProjectTemplateFiles()) {
-    $templateCommit = new Commit($Assignment->id, null, $au->getUserId(), 3, null);
+    $templateCommit = new Commit($Assignment->id, null, $au->getUserId(), 4, null);
     $templateCommit->addFiles($Task->getProjectTemplateFiles());
     $Assignment->addCommit($templateCommit->id);
   }

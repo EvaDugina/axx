@@ -12,7 +12,7 @@ for (var i = 0; i < listItems.length; i++) {
 }
 
 $("#btn-save").on('click', handleButtonSave);
-$("#btn-commit").on('click', addNewIntermediateCommit);
+$("#btn-new-commit").on('click', addNewCommit);
 $("#btn-newFile").on('click', newFile);
 $("#div-history-commit-btns").children().each(function () {
 
@@ -74,7 +74,7 @@ function saveActiveFile() {
     saveFile(activeFileName, Editor.getEditorId());
 }
 
-function addNewIntermediateCommit() {
+function addNewCommit() {
     saveActiveFile();
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';

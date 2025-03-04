@@ -679,7 +679,7 @@ class Assignment
   {
     $studentCommits = array();
     foreach ($this->Commits as $Commit) {
-      if (!$Commit->isEditByTeacher()) {
+      if ($Commit->isEditByStudent() || $Commit->isVisibleToAll()) {
         array_push($studentCommits, $Commit);
       }
     }
@@ -689,7 +689,7 @@ class Assignment
   {
     $teacherCommits = array();
     foreach ($this->Commits as $Commit) {
-      if (!$Commit->isEditByStudent()) {
+      if ($Commit->isEditByTeacher() || $Commit->isVisibleToAll()) {
         array_push($teacherCommits, $Commit);
       }
     }

@@ -92,7 +92,7 @@ $nowCommitUser = new User($nowCommit->student_user_id);
 
 $solutionFiles = $nowCommit->getFiles();
 
-$readOnly = $nowCommit->isNotEdit();
+$readOnly = $nowCommit->isNotEdit($User->isStudent());
 if ($readOnly)
   echo "<script>const IS_EDITABLE=true;</script>";
 else
@@ -148,7 +148,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <ul id="ul-files" class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
               <li class="list-group-item disabled px-0">Файлы</li>
 
-              <?php if ($nowCommit->isNotEdit()) { ?>
+              <?php if ($nowCommit->isNotEdit($User->isStudent())) { ?>
                 <p id="p-no-files" class="d-none">Файлы отсутсвуют</p>
               <?php } ?>
 
@@ -171,7 +171,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                       </svg>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-moreActionsWithFile">
-                      <?php if (!$nowCommit->isNotEdit()) { ?>
+                      <?php if (!$nowCommit->isNotEdit($User->isStudent())) { ?>
                         <li>
                           <a type="button" class="dropdown-item align-items-center" id="a-renameFile">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
@@ -194,13 +194,13 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                       </li>
                     </ul>
                   </div>
-                  <?php if (!$nowCommit->isNotEdit()) { ?>
+                  <?php if (!$nowCommit->isNotEdit($User->isStudent())) { ?>
                     <button type="button" class="btn btn-link float-right mx-1 py-0 px-2" id="delFile"><i class="fas fa-times fa-lg"></i></button>
                   <?php } ?>
                 </li>
               <?php } ?>
 
-              <?php if (!$nowCommit->isNotEdit()) { ?>
+              <?php if (!$nowCommit->isNotEdit($User->isStudent())) { ?>
                 <div id="div-add-new-file" class="input-group mt-2 mb-0">
                   <div class="input-group-prepend">
                     <span class="input-group-text w-100 h-100" id="basic-addon1">
@@ -242,12 +242,12 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 <?php foreach ($Commits as $i => $Commit) {
                   $commitUser = new User($Commit->student_user_id); ?>
                   <div class="d-flex <?= ($i == count($Commits) - 1) ? "mb-4" : "mb-1" ?>">
-                    <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit()) {
+                    <button <?php if ($Commit->id == $nowCommit->id) { ?> class="btn btn-<?php if ($Commit->isNotEdit($User->isStudent())) {
                                                                                             echo "success";
                                                                                           } else {
                                                                                             echo "primary";
                                                                                           } ?> 
-                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit()) { ?> class="btn btn-outline-success
+                     d-flex align-items-center justify-content-between w-100 px-3 text-white" disabled <?php } else if ($Commit->isNotEdit($User->isStudent())) { ?> class="btn btn-outline-success
                       d-flex align-items-center justify-content-between w-100 px-3" <?php } else { ?> class="btn btn-outline-primary
                         d-flex align-items-center justify-content-between w-100 px-3" <?php } ?> onclick="window.location='editor.php?assignment=<?= $Assignment->id ?>&commit=<?= $Commit->id ?>'">
 
@@ -261,7 +261,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                       ?>
                       <?= getSVGByCommitType($Commit->type) ?>
                     </button>
-                    <?php if (!$Commit->isNotEdit() && count($Commits) > 1 && $commitUser->id == $User->id) { ?>
+                    <?php if (!$Commit->isNotEdit($User->isStudent()) && count($Commits) > 1 && $commitUser->id == $User->id) { ?>
                       <button class="btn btn-link bg-danger text-white ms-1 p-2" type="button" onclick="deleteCommit(<?= $Commit->id ?>)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                           <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
@@ -286,14 +286,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               </select>
             </div>
             <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
-              <button id="btn-commit" class="btn btn-secondary w-100 align-items-center me-1" type="button">
+              <button id="btn-new-commit" class="btn btn-secondary w-100 align-items-center me-1" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
                 </svg>
                 &nbsp;&nbsp;
-                Клонировать коммит
+                Новый коммит
               </button>
-              <button id="btn-save" class="btn btn-primary w-100" type="button" <?= ($nowCommit && $nowCommit->isNotEdit()) ? "disabled" : "" ?>>
+              <button id="btn-save" class="btn btn-primary w-100" type="button" <?= ($nowCommit && $nowCommit->isNotEdit($User->isStudent())) ? "disabled" : "" ?>>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
                   <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z" />
                   <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z" />
