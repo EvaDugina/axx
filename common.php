@@ -189,15 +189,17 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                   </span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
-                  <?php $i = 0;
-                  foreach ($array_notify as $notify) {
-                    $i++; ?>
-                    <a href="taskchat.php?assignment=<?= $notify['assignment_id'] ?>">
-                      <li class="dropdown-item" <?php if ($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"' ?>>
-                        <div class="d-flex justify-content-between align-items-center">
-                          <div class="me-2">
-                            <span style="border-bottom: 1px solid;">
-                              <?php /*if ($user->isTeacher()) {
+                  <?php
+                  if ($array_notify) {
+                    $i = 0;
+                    foreach ($array_notify as $notify) {
+                      $i++; ?>
+                      <a href="taskchat.php?assignment=<?= $notify['assignment_id'] ?>">
+                        <li class="dropdown-item" <?php if ($i != count($array_notify)) echo 'style="border-bottom: 1px solid;"' ?>>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-2">
+                              <span style="border-bottom: 1px solid;">
+                                <?php /*if ($user->isTeacher()) {
                                 foreach ($notify['students'] as $i => $Student) { ?>
                                   <?= $Student->getFI() ?> <?= ($i + 1 < count($notify['students'])) ? "| " : "" ?>
                                 <?php
@@ -207,20 +209,21 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                                   <?= $Teacher->getOfficialFIO() ?> <?= ($i + 1 < count($notify['teachers'])) ? "| " : "" ?>
                               <?php }
                               } */ ?>
-                              <?= $notify['page_name'] ?>
+                                <?= $notify['page_name'] ?>
+                              </span>
+                              <br><?php echo $notify['taskTitle']; ?>
+                            </div>
+                            <span class="badge badge-primary badge-pill"
+                              <?php if ($user->isTeacher() && $notify['needToCheck']) { ?>
+                              style="background: red; color: white;"
+                              <?php } ?>>
+                              <?= $notify['countUnreaded'] ?>
                             </span>
-                            <br><?php echo $notify['taskTitle']; ?>
                           </div>
-                          <span class="badge badge-primary badge-pill"
-                            <?php if ($user->isTeacher() && $notify['needToCheck']) { ?>
-                            style="background: red; color: white;"
-                            <?php } ?>>
-                            <?= $notify['countUnreaded'] ?>
-                          </span>
-                        </div>
-                      </li>
-                    </a>
-                  <?php } ?>
+                        </li>
+                      </a>
+                  <?php }
+                  } ?>
                 </ul>
               </ul>
 
