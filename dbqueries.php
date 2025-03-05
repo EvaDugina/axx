@@ -38,7 +38,7 @@ function select_page_names($status)
 {
   return "SELECT p.id, d.name ||  ': ' || p.short_name || ' (' || p.semester || ' семестр) ' AS names
             FROM ax.ax_page p INNER JOIN discipline d ON d.id = p.disc_id 
-            WHERE p.status = " . $status . "ORDER BY p.semester";
+            WHERE p.status = $status ORDER BY p.semester";
 }
 
 function select_page_by_task_id($task_id)
