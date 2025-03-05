@@ -504,8 +504,6 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 
 		inputName.oninput = async function(event) {
 
-			inputName.value = inputName.value.trim();
-
 			if (inputName.value.length > MAX_SHORT_NAME_LENGTH) {
 
 				inputName.value = inputName.value.slice(0, MAX_SHORT_NAME_LENGTH);
@@ -520,6 +518,10 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 				showNameUndo()
 			else
 				hideNameUndo()
+		}
+
+		inputName.onblur = function(event) {
+			inputName.value = inputName.value.trim();
 		}
 
 	});
