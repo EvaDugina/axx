@@ -437,7 +437,7 @@ function getSVGByCommitType($type)
 
 function queryGetFilesByCommit($commit_id)
 {
-  return "SELECT file_id as id FROM ax.ax_commit_file WHERE commit_id = $commit_id";
+  return "SELECT file_id as id FROM ax.ax_commit_file WHERE commit_id = $commit_id ORDER BY id;";
 }
 
 function queryGetCommitInfo($commit_id)
