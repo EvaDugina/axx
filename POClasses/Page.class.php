@@ -272,6 +272,34 @@ class Page
     return $this->ColorTheme->getSrcUrl();
   }
 
+  function setColorTheme($color_theme_id)
+  {
+    global $dbconnect;
+
+    $this->ColorTheme = new ColorTheme($color_theme_id);
+    $color_theme_id = $this->ColorTheme->id;
+
+    $query = "UPDATE ax.ax_page SET color_theme_id=$color_theme_id
+              WHERE id =$this->id;
+    ";
+
+    pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+  }
+
+  function setDefaultColorTheme()
+  {
+    $first_default_color_theme_id = getFirstDefaultImageId();
+    $this->setColorTheme($first_default_color_theme_id);
+  }
+
+  function deleteColorTheme($color_theme_id)
+  {
+    $ColorTheme = new ColorTheme($color_theme_id);
+    if ($ColorTheme->id == $this->ColorTheme->id)
+      $this->setDefaultColorTheme();
+    $ColorTheme->deleteFromDB();
+  }
+
   // -- END WORK WITH PAGE
 
 

@@ -65,7 +65,7 @@ class ColorTheme
     {
         global $dbconnect;
 
-        if (!$this->isBasic()) {
+        if (!$this->isBasicImage() && !$this->isDefaultImage()) {
             deleteFile($this->src_url);
             $query = "DELETE FROM ax.ax_color_theme WHERE id = $this->id;";
             pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -75,8 +75,6 @@ class ColorTheme
     //   
     // 
     // 
-
-
 
     function getSrcUrl()
     {
@@ -90,10 +88,14 @@ class ColorTheme
         return $this->src_url;
     }
 
-
-    function isBasic()
+    function isBasicImage()
     {
-        return $this->page_id == null;
+        return $this->page_id == null && $this->status == 0;
+    }
+
+    function isDefaultImage()
+    {
+        return $this->status == 1;
     }
 }
 
@@ -101,6 +103,16 @@ class ColorTheme
 // 
 // 
 // 
+
+function getFirstDefaultImageId()
+{
+    global $dbconnect;
+
+    $query = queryGetFirstBasicColorTheme();
+    $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+    $default_color_theme = pg_fetch_assoc($result);
+    return $default_color_theme['id'];
+}
 
 function queryInsertColorTheme($page_id, $src_url, $status)
 {
@@ -121,6 +133,11 @@ function queryGetColorThemeSrcUrl($color_theme_id)
     return "SELECT src_url FROM ax.ax_color_theme 
           WHERE id = $color_theme_id;
   ";
+}
+
+function queryGetFirstBasicColorTheme()
+{
+    return "SELECT id FROM ax.ax_color_theme WHERE status = 1 LIMIT 1;";
 }
 
 function queryGetColorTheme($color_theme_id)

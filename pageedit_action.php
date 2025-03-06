@@ -12,9 +12,9 @@ if (isset($_POST['flag-addColorTheme']) && isset($_POST['page_id']) && isset($_F
 	exit;
 }
 
-if (isset($_POST['flag-deleteColorTheme']) && isset($_POST['color_theme_id'])) {
-	$ColorTheme = new ColorTheme((int)$_POST['color_theme_id']);
-	$ColorTheme->deleteFromDB();
+if (isset($_POST['flag-deleteColorTheme']) && isset($_POST['color_theme_id']) && isset($_POST['page_id'])) {
+	$Page = new Page($_POST['page_id']);
+	$Page->deleteColorTheme($_POST['color_theme_id']);
 	exit;
 }
 

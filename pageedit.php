@@ -670,6 +670,7 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 
 		formData.append('flag-deleteColorTheme', true);
 		formData.append('color_theme_id', color_theme_id);
+		formData.append('page_id', getPageId());
 
 		ajaxResponse = null;
 
