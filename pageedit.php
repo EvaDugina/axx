@@ -236,30 +236,59 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 
 			<div class="row align-items-start mx-3 pe-group-upper">
 				<div class="col-lg-3 row justify-content-left py-2">Преподаватели:</div>
-				<div id="teachers_container" class="col-lg-9  px-0" style="display: flex; flex-direction: row; justify-content: flex-start; background: #fff8e0;"></div>
-			</div>
+				<div class="col-lg-9 d-flex flex-column px-0" style="gap: 10px;">
+					<div id="teachers_container" class="d-flex flex-row justify-content-start flex-wrap">
 
-			<div class="row align-items-start mx-3 pe-group-lower mb-4">
-				<div class="col-lg-3 row py-2"></div>
-				<div class="col-lg-9  px-0">
-					<div class="btn-group shadow-0">
-						<select class="form-select" id="select_teacher">
-							<option value="null">Выберите преподавателя</option>;
-							<?php
-							foreach ($all_teachers as $teacher) { ?>
-								<option value="<?= $teacher['id'] ?>">
-									<?= $teacher['fio'] ?>
-								</option>;
-							<?php }
-							?>
-						</select>
+					</div>
+					<div class="align-items-start pe-group-lower mb-4">
+						<!-- <div class="col-lg-3 row py-2"></div> -->
+						<div class="col-lg-9 px-0">
+							<div class="btn-group shadow-0">
+								<select class="form-select" id="select_teacher">
+									<option value="null">Выберите преподавателя</option>;
+									<?php
+									foreach ($all_teachers as $teacher) { ?>
+										<option value="<?= $teacher['id'] ?>">
+											<?= $teacher['fio'] ?>
+										</option>;
+									<?php }
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-1">
+						</div>
 					</div>
 				</div>
-				<div class="col-lg-1">
+			</div>
+
+			<div id="div-students-groups" class="row align-items-start mx-3 pe-group-upper  <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "d-none" : "" ?>">
+				<div class="col-lg-3 row justify-content-left py-2">Учебные группы:</div>
+				<div class="col-lg-9 d-flex flex-column px-0" style="gap: 10px;">
+					<div id="groups_container" class="d-flex flex-row flex-wrap justify-content-start"></div>
+					<div class="align-items-start pe-group-lower mb-4">
+						<div class="col-lg-9 px-0">
+							<div class="btn-group shadow-0">
+								<select class="form-select" name="page_group" id="select_groups">
+									<option value="null">Выберите группу</option>;
+									<?php
+									foreach ($Groups as $Group) { ?>
+										<option value="<?= $Group->id ?>" class="d-flex justify-content-between">
+											<?= $Group->getTitle() ?>
+										</option>
+									<?php }
+									echo "<option>Нет учебной группы</option>";
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-1">
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<div id="div-students-groups" class="mb-4 <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "d-none" : "" ?>">
+			<!-- <div id="div-students-groups" class="mb-4 <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "d-none" : "" ?>">
 				<div class="row align-items-start mx-3 pe-group-upper">
 					<div class="col-lg-3 row justify-content-left py-2">Учебные группы:</div>
 					<div id="groups_container" class="col-lg-9 d-flex align-items-center flex-wrap px-0" style="background: #fff8e0;"></div>
@@ -282,7 +311,7 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 			<div class="row align-items-start mx-3 pe-group-upper mb-4">
 				<div class="col-lg-3 row justify-content-left py-2">Описание раздела:</div>
@@ -463,6 +492,14 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 		return false;
 	}
 
+	function timeout(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+	async function sleep(ms, fn, ...args) {
+		await timeout(ms);
+		return fn(...args);
+	}
+
 	$(document).ready(function() {
 
 		if (actual_teachers_json) {
@@ -505,14 +542,6 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 		function hideNameUndo() {
 			if (btnNameUndo)
 				btnNameUndo.classList.add("d-none");
-		}
-
-		function timeout(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
-		}
-		async function sleep(ms, fn, ...args) {
-			await timeout(ms);
-			return fn(...args);
 		}
 
 		inputName.oninput = async function(event) {
@@ -671,12 +700,21 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 	selectGroup.onchange = function(event) {
 		event.preventDefault();
 		add_groups();
+		sleep(400,
+			async () => {
+				selectGroup.value = "null";
+			}, );
 	};
 
 	var selectTeacher = document.getElementById("select_teacher");
 	selectTeacher.onchange = function(event) {
 		event.preventDefault();
 		add_teacher();
+		sleep(400,
+			async () => {
+				selectTeacher.value = "null";
+			}, );
+
 	};
 
 	function add_teacher() {
