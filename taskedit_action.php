@@ -7,7 +7,6 @@ require_once("POClasses/Assignment.class.php");
 require_once("POClasses/Task.class.php");
 require_once("POClasses/File.class.php");
 
-
 $au = new auth_ssh();
 checkAuLoggedIN($au);
 
@@ -64,7 +63,7 @@ if (isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
 }
 
 if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
-  $file_type = $_POST['new_type'];
+  $file_type = (int)$_POST['new_type'];
 
   // В задании не может быть несколько файлов автоматической проверки
   if (($file_type == 2 || $file_type == 3)  && count($Task->getFilesByType($file_type)) > 0) {
@@ -80,7 +79,15 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
     exit();
   }
 
+  if ($File->isProjectTemplate()) {
+    $Task->removeFileTemplateFromAllCommits($File->id);
+  }
+
   $File->setType($file_type);
+
+  if ($File->isProjectTemplate()) {
+    $Task->addFileTemplateToAllAssignments($File->id);
+  }
 
   // header('Location: taskedit.php?task=' . $_POST['task_id']);
   echo getSVGByFileType($File->type);

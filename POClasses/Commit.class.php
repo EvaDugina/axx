@@ -270,12 +270,25 @@ class Commit
     }
   }
   public function copyFiles() {}
+  public function deleteAllFiles()
+  {
+    foreach ($this->Files as $File) {
+      $this->deleteFile($File->id);
+    }
+  }
   public function deleteFile($file_id)
   {
     $index = $this->findFileById($file_id);
     if ($index != -1) {
-      $this->deleteFileFromCommitDB($file_id);
       $this->Files[$index]->deleteFromDB();
+    }
+    $this->deleteFileFromCommitSoft($file_id);
+  }
+  public function deleteFileFromCommitSoft($file_id)
+  {
+    $index = $this->findFileById($file_id);
+    if ($index != -1) {
+      $this->deleteFileFromCommitDB($file_id);
       unset($this->Files[$index]);
       $this->Files = array_values($this->Files);
     }

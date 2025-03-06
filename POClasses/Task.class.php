@@ -2,6 +2,9 @@
 require_once("./settings.php");
 require_once("Assignment.class.php");
 require_once("File.class.php");
+require_once("./auth_ssh.class.php");
+$au = new auth_ssh();
+checkAuLoggedIN($au);
 
 class Task
 {
@@ -449,6 +452,9 @@ class Task
     $File = new File((int)$file_id);
     $this->pushFileToTaskDB($file_id);
     array_push($this->Files, $File);
+    if ($File->isProjectTemplate()) {
+      $this->addFileTemplateToAllAssignments($File->id);
+    }
   }
   public function addFiles($Files)
   {
@@ -457,6 +463,9 @@ class Task
       $copiedFile = new File($File->type, $File->name_without_prefix);
       $copiedFile->copy($File->id);
       array_push($copyFiles, $copiedFile);
+      if ($copiedFile->isProjectTemplate()) {
+        $this->addFileTemplateToAllAssignments($copiedFile->id);
+      }
     }
     $this->pushFilesToTaskDB($copyFiles);
 
@@ -468,10 +477,39 @@ class Task
   {
     $index = $this->findFileById($file_id);
     if ($index != -1) {
+      if ($this->Files[$index]->isProjectTemplate()) {
+        $this->removeFileTemplateFromAllCommits($this->Files[$index]->id);
+      }
       $this->deleteFileFromTaskDB($file_id);
       $this->Files[$index]->deleteFromDB();
       unset($this->Files[$index]);
       $this->Files = array_values($this->Files);
+    }
+  }
+  public function removeFileTemplateFromAllCommits($file_id)
+  {
+    foreach ($this->Assignments as $Assignment) {
+      $templateCommit = $Assignment->getTemplateCommit();
+      if ($templateCommit != null) {
+        $templateCommit->deleteFileFromCommitSoft($file_id);
+      }
+      if (count($templateCommit->getFiles()) == 0)
+        $Assignment->deleteCommit($templateCommit->id);
+    }
+  }
+  public function addFileTemplateToAllAssignments($file_id)
+  {
+    global $au;
+
+    foreach ($this->Assignments as $Assignment) {
+      $templateCommit = $Assignment->getTemplateCommit();
+      if ($templateCommit != null) {
+        $templateCommit->addFile($file_id);
+      } else {
+        $templateCommit = new Commit($Assignment->id, null, $au->getUserId(), 4, null);
+        $templateCommit->addFile($file_id);
+        $Assignment->addCommit($templateCommit->id);
+      }
     }
   }
   private function findFileById($file_id)

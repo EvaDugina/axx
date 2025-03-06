@@ -234,7 +234,7 @@ class Assignment
   {
     global $dbconnect;
 
-    $this->variant_number = $variant_number;
+    $this->variant_number = (int)$variant_number;
 
     $query = "UPDATE ax.ax_assignment SET variant_number = $variant_number WHERE id = $this->id;";
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
@@ -694,6 +694,14 @@ class Assignment
       }
     }
     return $teacherCommits;
+  }
+  public function getTemplateCommit()
+  {
+    foreach ($this->Commits as $Commit) {
+      if ($Commit->isTemplate())
+        return $Commit;
+    }
+    return null;
   }
 
   // -- END WORK WITH COMMITS 

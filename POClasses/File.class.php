@@ -33,9 +33,9 @@ class File
 
       if ($file) {
         $this->name = $file['file_name'];
-        $this->type = $file['type'];
+        $this->type = (int)$file['type'];
         if (isset($file['visibility']))
-          $this->visibility = $file['visibility'];
+          $this->visibility = (int)$file['visibility'];
         $this->download_url = $file['download_url'];
         if ($this->download_url != null) {
           $this->name_without_prefix = deleteRandomPrefix($this->name);
@@ -43,10 +43,10 @@ class File
           $this->name_without_prefix = $this->name;
         }
         $this->full_text = $file['full_text'];
-        $this->status = $file['status'];
+        $this->status = (int)$file['status'];
       }
     } else if ($count_args == 2) {
-      $this->type = $args[0];
+      $this->type = (int)$args[0];
       if ($this->type == 2 || $this->type == 3)
         $this->visibility = 0;
       else
@@ -57,7 +57,7 @@ class File
 
       $this->pushNewToDB();
     } else if ($count_args == 4) {
-      $this->type = $args[0];
+      $this->type = (int)$args[0];
       if ($this->type == 2 || $this->type == 3)
         $this->visibility = 0;
       else
@@ -233,7 +233,7 @@ class File
   {
     global $dbconnect;
 
-    $this->type = $type;
+    $this->type = (int)$type;
 
     $query = "UPDATE ax.ax_file SET type = $this->type
               WHERE id = $this->id;
@@ -252,7 +252,7 @@ class File
   {
     global $dbconnect;
 
-    $this->visibility = $visibility;
+    $this->visibility = (int)$visibility;
 
     $query = "UPDATE ax.ax_file SET visibility = $this->visibility
               WHERE id = $this->id;
