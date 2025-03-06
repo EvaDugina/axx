@@ -4,16 +4,6 @@ require_once("dbqueries.php");
 require_once("utilities.php");
 require_once("settings.php");
 
-function getTextSemester($year, $sem)
-{
-  $semester = $year . "/" . ($year + 1) . " ";
-  if ($sem == 1)
-    $semester .= "Осень";
-  else
-    $semester .= "Весна";
-  return $semester;
-}
-
 $au = new auth_ssh();
 checkAuLoggedIN($au);
 checkAuIsNotStudent($au);

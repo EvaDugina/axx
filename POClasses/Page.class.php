@@ -694,6 +694,40 @@ function getPageByTask($task_id)
   return $page_id;
 }
 
+function convert_sem_from_number($id)
+{
+  if ($id == 1) return 'Осень';
+  else return 'Весна';
+}
+
+function convert_number_from_sem($sem)
+{
+  if ($sem == 'Осень')
+    return 1;
+  return 2;
+}
+
+function getTextSemester($year, $sem)
+{
+  $semester = $year . "/" . ($year + 1) . " ";
+  $semester .= convert_sem_from_number($sem);
+  return $semester;
+}
+
+function getCurrentStudyYear()
+{
+  $year = (int) get_now_date("Y");
+  $month = (int) get_now_date("m");
+  if ($month < 9)
+    return $year - 1;
+  return $year;
+}
+
+function getFutureGroupYear()
+{
+  return getCurrentStudyYear() + 1;
+}
+
 
 
 

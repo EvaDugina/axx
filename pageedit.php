@@ -6,17 +6,25 @@ require_once("common.php");
 require_once("dbqueries.php");
 require_once("utilities.php");
 
-function generatePairOptionsSemester($choosedYear, $year, $page_year, $page_semester)
+function generatePairOptionsSemester($choosedYear, $year, $page_year, $page_semester, $class = null)
 {
-	$options = "<option ";
+	$options = "<option";
+	if ($class != null)
+		$options .= ' class="' . $class . '"';
 	if ($choosedYear && $year == $page_year && $page_semester == 1)
-		$options .= "selected";
-	$options .= ">" . $year . "/" . ($year + 1) . " Осень</option>";
+		$options .= " selected";
+	$options .= ">";
+	$options .= getTextSemester($year, 1);
+	$options .= "</option>";
 
-	$options .= "<option ";
+	$options .= "<option";
+	if ($class != null)
+		$options .= ' class="' . $class . '"';
 	if ($choosedYear && $year == $page_year && $page_semester == 2)
-		$options .= "selected";
-	$options .= ">" . $year . "/" . ($year + 1) . " Весна</option>";
+		$options .= " selected";
+	$options .= ">";
+	$options .= getTextSemester($year, 2);
+	$options .= "</option>";
 
 	return $options;
 }
@@ -199,19 +207,24 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 				<div class="col-lg-4  px-0">
 					<div class="btn-group shadow-0">
 						<select id="select-semester" class="form-select" name="timestamp">
-							<?php // echo $page['year'] . " " . $page['semester'];
-							for ($year = $years['max'] - 4; $year <= $years['max']; $year++) {
+							<?php
+							$future_year = getFutureGroupYear();
+							$current_year = getCurrentStudyYear();
+							for ($year = $current_year - 4; $year < $future_year; $year++) {
 								if ($isNewPage) {
 									echo generatePairOptionsSemester(true, $year, $new_page_year, $new_page_semester);
 								} else {
 									echo generatePairOptionsSemester($page, $year, $page['year'], $page['semester']);
 								}
 							}
-							?>
 
-							<!-- Добавление в новый, не существующий в бд семестр -->
-							<option class="text-info"><?= ($years['max'] + 1) . "/" . ($years['max'] + 2) . " Осень" ?></option>;
-							<option class="text-info"><?= ($years['max'] + 1) . "/" . ($years['max'] + 2) . " Весна" ?></option>;
+							// Добавление в новый, не существующий в бд семестр
+							if ($isNewPage) {
+								echo generatePairOptionsSemester(true, $future_year, $new_page_year, $new_page_semester, "text-info");
+							} else {
+								echo generatePairOptionsSemester($page, $future_year, $page['year'], $page['semester'], "text-info");
+							}
+							?>
 
 							<!-- Добавление вне семестровых разделов -->
 							<option value="ВНЕ CЕМЕСТРА" class="text-secondary" <?= (isOutsideSemesterPage($Page, $new_page_year, $new_page_semester)) ? "selected" : "" ?>>ВНЕ CЕМЕСТРА</option>;

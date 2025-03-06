@@ -99,11 +99,7 @@ function convert_timestamp_from_string($str)
 {
   $pos = explode(" ", $str);
   $year = explode("/", $pos[0])[0];
-  $sem = $pos[1];
-  $sem_number = 0;
-
-  if ($sem == 'Осень') $sem_number = 1;
-  else $sem_number = 2;
+  $sem_number = convert_number_from_sem($pos[1]);
   // echo $sem_number;
 
   return array('year' => $year, 'semester' => $sem_number);
@@ -477,11 +473,6 @@ function checkTask($assignment_id, $mark)
 
 
 // ПРОЧЕЕ
-function convert_sem_from_number($id)
-{
-  if ($id == 1) return 'Осень';
-  else return 'Весна';
-}
 
 function show_accordion($name, $data, $labelshift = "0px")
 {
