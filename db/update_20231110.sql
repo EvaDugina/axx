@@ -5,8 +5,6 @@ ALTER TABLE ax_page_group SET SCHEMA ax;
 ALTER TABLE ax_page_prep SET SCHEMA ax;
 ALTER TABLE ax_task SET SCHEMA ax;
 ALTER TABLE ax_task_file SET SCHEMA ax;
-ALTER TABLE ax_task SET SCHEMA ax;
-ALTER TABLE ax_task_file SET SCHEMA ax;
 ALTER TABLE ax_assignment SET SCHEMA ax;
 ALTER TABLE ax_assignment_session SET SCHEMA ax;
 ALTER TABLE ax_assignment_student SET SCHEMA ax;
