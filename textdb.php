@@ -373,37 +373,12 @@ else if ($type == "oncheck") {
       // Отправка сообщения-ссылки для преподавателя
       $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 2);
       $Assignment->addMessage($linkMessage->id);
-
-      // $result2 = pg_query($dbconnect, "insert into ax.ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
-      //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Отправлено на проверку', $new_id, 0) returning id");
-      // $result = pg_fetch_assoc($result2);
-      // $msg_id = $result['id'];
-
-      // $Message = new Message((int)$msg_id);
-      // $File = new File(null, 'проверить', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
-      // $Message->addFile($File->id);
-      // pg_query($dbconnect, "insert into ax.ax_message_attachment (message_id, file_name, download_url, full_text)".
-      // 				 "     values ($msg_id, 'проверить', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-      // pg_query($dbconnect, "update ax.ax_assignment set status = 1, status_code = 2, status = 1 where id = $assignment");
-
     } else {
       $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "Проверено");
       $Assignment->addMessage($Message);
       $Message->setCommit($answerCommit->id);
       $File = new File(10, 'проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
       $Message->addFile($File->id);
-
-      // $result2 = pg_query($dbconnect, "insert into ax.ax_message (assignment_id, type, sender_user_type, sender_user_id, date_time, reply_to_id, full_text, commit_id, status)" .
-      //   "     values ($assignment, 1, $user_role, $user_id, now(), null, 'Проверено', $new_id, 0) returning id");
-      // $result = pg_fetch_assoc($result2);
-      // $msg_id = $result['id'];
-
-      // $Message = new Message((int)$msg_id);
-      // $File = new File(null, 'проверенная версия', "editor.php?assignment=$assignment&commit=$new_id", null);
-      // $Message->addFile($File->id);
-      // pg_query($dbconnect, "insert into ax.ax_message_attachment (message_id, file_name, download_url, full_text)".
-      // 				 "     values ($msg_id, 'проверенная версия', 'editor.php?assignment=$assignment&commit=$new_id', null)");
-      // pg_query($dbconnect, "update ax.ax_assignment set status_code = 2, status = 4, where id = $assignment");
     }
 
     if ($User->isStudent()) {
