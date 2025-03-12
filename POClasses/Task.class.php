@@ -2,9 +2,6 @@
 require_once("./settings.php");
 require_once("Assignment.class.php");
 require_once("File.class.php");
-require_once("./auth_ssh.class.php");
-$au = new auth_ssh();
-checkAuLoggedIN($au);
 
 class Task
 {
@@ -269,7 +266,7 @@ class Task
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function copy($task_id)
+  public function copy($task_id, $user_id)
   {
     $Task = new Task((int)$task_id);
 
@@ -283,7 +280,7 @@ class Task
     $this->pushAllChangesToDB();
 
     $this->deleteFilesFromTaskDB();
-    $this->addFiles($Task->getFiles());
+    $this->addFilesWithCopy($Task->getFiles(), $user_id);
   }
 
 
@@ -449,22 +446,42 @@ class Task
 
   public function addFile($file_id)
   {
+    require_once("./auth_ssh.class.php");
+    $au = new auth_ssh();
+    $user_id = $au->getUserId();
+
     $File = new File((int)$file_id);
     $this->pushFileToTaskDB($file_id);
     array_push($this->Files, $File);
     if ($File->isProjectTemplate()) {
-      $this->addFileTemplateToAllAssignments($File->id);
+      $this->addFileTemplateToAllAssignments($File->id, $user_id);
     }
   }
-  public function addFiles($Files)
+  public function addFileWithCopy($file_id)
+  {
+    require_once("./auth_ssh.class.php");
+    $au = new auth_ssh();
+    $user_id = $au->getUserId();
+
+    $File = new File((int)$file_id);
+    $copiedFile = new File($File->type, $File->name_without_prefix);
+    $copiedFile->copy($File->id);
+    $this->pushFileToTaskDB($copiedFile->id);
+    array_push($this->Files, $File);
+    if ($copiedFile->isProjectTemplate()) {
+      $this->addFileTemplateToAllAssignments($copiedFile->id, $user_id);
+    }
+  }
+  public function addFilesWithCopy($Files, $user_id)
   {
     $copyFiles = array();
     foreach ($Files as $File) {
       $copiedFile = new File($File->type, $File->name_without_prefix);
       $copiedFile->copy($File->id);
+      $this->pushFileToTaskDB($copiedFile->id);
       array_push($copyFiles, $copiedFile);
       if ($copiedFile->isProjectTemplate()) {
-        $this->addFileTemplateToAllAssignments($copiedFile->id);
+        $this->addFileTemplateToAllAssignments($copiedFile->id, $user_id);
       }
     }
     $this->pushFilesToTaskDB($copyFiles);
@@ -497,16 +514,15 @@ class Task
         $Assignment->deleteCommit($templateCommit->id);
     }
   }
-  public function addFileTemplateToAllAssignments($file_id)
+  public function addFileTemplateToAllAssignments($file_id, $user_id)
   {
-    global $au;
 
     foreach ($this->Assignments as $Assignment) {
       $templateCommit = $Assignment->getTemplateCommit();
       if ($templateCommit != null) {
         $templateCommit->addFile($file_id);
       } else {
-        $templateCommit = new Commit($Assignment->id, null, $au->getUserId(), 4, null);
+        $templateCommit = new Commit($Assignment->id, null, $user_id, 4, null);
         $templateCommit->addFile($file_id);
         $Assignment->addCommit($templateCommit->id);
       }

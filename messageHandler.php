@@ -1,5 +1,5 @@
 <?php
-require("./utilities.php");
+require_once("./utilities.php");
 
 $au = new auth_ssh();
 checkAuLoggedIN($au);
