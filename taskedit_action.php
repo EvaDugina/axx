@@ -84,10 +84,8 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
   }
 
   $File->setType($file_type);
+  $Task->addFile($File->id);
 
-  if ($File->isProjectTemplate()) {
-    $Task->addFileTemplateToAllAssignments($File->id);
-  }
 
   // header('Location: taskedit.php?task=' . $_POST['task_id']);
   echo getSVGByFileType($File->type);
