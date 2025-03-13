@@ -260,7 +260,7 @@ class auth_ssh
 
         $lg = $user['login'];
 
-        if (($user['role'] == 3) && ($lg != 'd.ivan')) {
+        if (($user['role'] == 3) && ($lg != 'admin')) {
             return true;
         }
 
@@ -304,7 +304,7 @@ class auth_ssh
 
         $prep = $this->isInPrepGroup($user['id']);
 
-        if ($user['role'] == 1 || $user['role'] == 2 || $user['role'] == 4 || $prep || $lg == 'd.ivan') {
+        if ($user['role'] == 1 || $user['role'] == 2 || $user['role'] == 4 || $prep || $lg == 'admin') {
             pg_query("INSERT INTO access_log (user_action, result, action_time, source_page, login_used) VALUES ('admin_or_prep_access', 'success', " . time() . ", '$source', '$lg')");
 
             return true;
@@ -323,7 +323,7 @@ class auth_ssh
 
         $user = pg_query("SELECT * FROM users WHERE id=$userId");
         $user = pg_fetch_assoc($user);
-        if ($user['role'] == 4 || $user['login'] == 'd.ivan') {
+        if ($user['role'] == 4 || $user['login'] == 'admin') {
             return true;
         }
 
@@ -463,7 +463,7 @@ class auth_ssh
         if (!$user)
             return false;
 
-        if ($user['login'] == 'd.ivan')
+        if ($user['login'] == 'admin')
             return 2;
         else
             return $user['role'];

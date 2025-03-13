@@ -1,6 +1,6 @@
 // import {TEXT_WITH_MARK} from "STRING_CONSTANTS.js";
 
-TEXT_WITH_MARK = "Задание проверено. \nОценка: ";
+const TEXT_WITH_MARK = "Задание проверено. \nОценка: ";
 
 const areaSelectCourse = selectCourse.addEventListener(`change`, (e) => {
   const value = document.getElementById("selectCourse").value;
@@ -323,7 +323,7 @@ function checkMarkInputs(id) {
   let mark = input_mark.value;
   let max_mark = input_mark.max;
 
-  if (parseInt(mark) == NaN || mark <= 0 || mark > max_mark) {
+  if (isNaN(parseInt(mark)) || mark <= 0 || mark > max_mark) {
     console.log("Оценка заполнена неверно");
     return -1;
   }
