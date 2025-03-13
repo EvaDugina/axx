@@ -48,7 +48,7 @@ if (isset($_GET['download_task_files'])) {
 
     $File = null;
 
-    // Скачивание файла из БД по attachment_id из ax.ax_message_attachment
+    // Скачивание файла из БД по attachment_id
     if (isset($_GET['file_id'])) {
         // Достаем название и полный текст файла по attachment_id
         $File = new File((int)$_GET['file_id']);
