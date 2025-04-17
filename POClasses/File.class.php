@@ -541,29 +541,6 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
   }
 }
 
-function addFileToColorTheme($page_id, $file_name, $file_tmp_name, $type)
-{
-  global $dbconnect;
-
-  $store_in_db = getSpecialFileTypes();
-
-  $File = new File($type, $file_name);
-
-  $file_ext = $File->getExt();
-  $file_dir = getUploadFileDir();
-  $file_path = $file_dir . $File->name;
-
-  // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
-  if (move_uploaded_file($file_tmp_name, $file_path)) {
-
-    $File->setDownloadUrl($file_path);
-    new ColorTheme($page_id, $File->download_url);
-    return $File->id;
-  } else {
-    exit("Ошибка загрузки файла");
-  }
-}
-
 
 
 // ФУНКЦИИ ЗАПРОСОВ К БД

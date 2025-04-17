@@ -454,6 +454,14 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 	let teachers = new Set();
 	let groups = new Set();
 
+	var MAX_FILE_SIZE = null;
+	fetch('config.json') // Путь к JSON-файлу
+		.then(response => response.json())
+		.then(data => {
+			MAX_FILE_SIZE = data.MAX_FILE_SIZE
+		})
+		.catch(error => console.error('Ошибка:', error));
+
 	var actual_teachers_json = <?php echo json_encode($page_teachers); ?>;
 	var page_groups_json = <?php echo json_encode($page_groups); ?>;
 
@@ -579,6 +587,10 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 		// Получаем расширение файла и сравниваем точно ли оно png или jpeg или jpg
 		// let ext = new_file.name.split('.').pop();
 		if (new_file.type == "image/png" || new_file.type == "image/jpg" || new_file.type == "image/jpeg" || new_file.type == "image/gif") {
+			if (new_file.size >= MAX_FILE_SIZE * 1024 * 1024) {
+				alert(`Ошибка загрузки файла! Файл слишком большой (${(new_file.size / (1024 * 1024)).toFixed(2)} MB). Максимум: ${MAX_FILE_SIZE} MB.`);
+				return;
+			}
 			// var img = new Image();
 			// img.onload = function() {
 			// 	var width = this.width;
@@ -603,7 +615,7 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 
 			// document.location.reload();
 		} else {
-			alert("Ошибка загрузки файла! Файл должен быть с расширением PNG, JPG или JPEG");
+			alert("Ошибка загрузки файла! Файл должен быть с расширением PNG, JPG, JPEG или GIF!");
 		}
 
 	});

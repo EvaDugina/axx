@@ -14,12 +14,13 @@ CREATE TABLE ax_color_theme (
     CONSTRAINT ax_color_theme_pkey PRIMARY KEY (id)
 ); ALTER TABLE ax_color_theme OWNER TO accelerator;
 
-INSERT INTO public.ax_color_theme(id, disc_id, name, bg_color, src_url) VALUES
-(0, -1, 'Красный', '#dc3545', 'src/img/red.jpg'), (1, -2, 'Жёлтый', '#ffc107', 'src/img/yellow.jpg'), 
-(2, -3, 'Зелёный', '#198754', 'src/img/green.jpg'), (3, -4, 'Синий', '#1266f1', 'src/img/blue.jpg'),
-(4, -5, 'Фиолетовый', '#6f42c1', 'src/img/purple.jpg');
+INSERT INTO public.ax_color_theme(disc_id, name, bg_color, src_url) VALUES
+(null, 'Серый', '#7a7a7a', 'src/img/no-foto.jpg'),
+(-1, 'Красный', '#dc3545', 'src/img/red.jpg'), (-2, 'Жёлтый', '#ffc107', 'src/img/yellow.jpg'), 
+(-3, 'Зелёный', '#198754', 'src/img/green.jpg'), (-4, 'Синий', '#1266f1', 'src/img/blue.jpg'),
+(-5, 'Фиолетовый', '#6f42c1', 'src/img/purple.jpg');
 
-UPDATE ax_page SET color_theme_id = 0;
+UPDATE ax_page SET color_theme_id = 2;
 
 GRANT USAGE, SELECT ON SEQUENCE ax_assignment_id_seq TO accelerator;
 

@@ -81,7 +81,7 @@ class ColorTheme
         global $dbconnect;
 
         if ($this->src_url == null) {
-            $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(-1)) or die('Ошибка запроса: ' . pg_last_error());
+            $pg_query = pg_query($dbconnect, queryGetColorThemeSrcUrl(1)) or die('Ошибка запроса: ' . pg_last_error());
             return pg_fetch_assoc($pg_query)['src_url'];
         }
 
@@ -112,6 +112,21 @@ function getFirstDefaultImageId()
     $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     $default_color_theme = pg_fetch_assoc($result);
     return $default_color_theme['id'];
+}
+
+function addFileToColorTheme($page_id, $file_name, $file_tmp_name, $type)
+{
+
+    $file_dir = getUploadFileDir();
+    $file_path = $file_dir . $file_name;
+
+    // Перемещаем файл пользователя из временной директории сервера в директорию $file_dir
+    if (move_uploaded_file($file_tmp_name, $file_path)) {
+        $newColorTheme = new ColorTheme($page_id, $file_path);
+        return $newColorTheme->id;
+    } else {
+        return "Ошибка загрузки файла";
+    }
 }
 
 function queryInsertColorTheme($page_id, $src_url, $status)

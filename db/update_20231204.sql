@@ -8,5 +8,4 @@ UPDATE ax.ax_color_theme SET status = 1 WHERE disc_id is not null;
 ALTER TABLE ax.ax_color_theme ADD COLUMN page_id integer;
 -- page_id в рамках которой загружена фотография
 
-INSERT INTO ax.ax_color_theme(id, name, bg_color, src_url, status) VALUES
-(-1, 'Серый', '#7a7a7a', 'src/img/no-foto.jpg', 1);
+UPDATE ax.ax_color_theme SET status = 1 WHERE name = 'Серый';
