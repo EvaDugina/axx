@@ -83,7 +83,7 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
             <div class="pt-3">
               <div class="d-flex flex-row">
                 <div class="form-outline w-100 me-3">
-                  <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" onkeyup="titleChange()" placeholder="Задание <?= (count($Page->getTasks()) + 1) ?>."></input>
+                  <input id="input-title" class="form-control <?= ($Task->title != "") ? 'active' : ''; ?>" wrap="off" rows="1" style="resize: none; white-space:normal;" name="task-title" value="<?= $Task->title ?>" placeholder="Задание <?= (count($Page->getTasks()) + 1) ?>."></input>
                   <label id="label-input-title" class="form-label" for="input-title">Название задания</label>
                   <div id="div-border-title" class="form-notch">
                     <div class="form-notch-leading" style="width: 9px;"></div>
@@ -409,10 +409,37 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
     return fn(...args);
   }
 
-  inputTitle.oninput = async function(event) {
+  inputTitle.onkeydown = function(event) {
+    if (inputTitle.value.length == 0 && event.key === 'Tab') {
+      event.preventDefault();
+      inputTitle.value = inputTitle.getAttribute("placeholder") + " ";
+      titleChange()
+      inputTitle.dispatchEvent(new Event('input'));
+    }
+  }
 
+  inputTitle.oninput = function(event) {
+
+    titleLimit()
+    titleChange()
+
+    if (inputTitle.value != original_title)
+      showTitleUndo()
+    else
+      hideTitleUndo()
+  }
+
+  inputTitle.onblur = function(event) {
     inputTitle.value = inputTitle.value.trim();
+    titleChange()
 
+    if (inputTitle.value != original_title)
+      showTitleUndo()
+    else
+      hideTitleUndo()
+  }
+
+  function titleLimit() {
     if (inputTitle.value.length > MAX_SHORT_NAME_LENGTH) {
 
       inputTitle.value = inputTitle.value.slice(0, MAX_SHORT_NAME_LENGTH);
@@ -422,11 +449,6 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
           document.getElementById("p-errorTitleLength").classList.add("d-none");
         }, );
     }
-
-    if (inputTitle.value != original_title)
-      showTitleUndo()
-    else
-      hideTitleUndo()
   }
 
 
