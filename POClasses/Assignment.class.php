@@ -322,7 +322,12 @@ class Assignment
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-
+  public function isOpened()
+  {
+    $date_now = get_now_date("d-m-Y H:i:s");
+    return !($this->start_limit != null && $date_now < $this->start_limit) &&
+      !($this->finish_limit != null && $date_now > $this->finish_limit);
+  }
 
   public function isVisible()
   {
@@ -332,16 +337,15 @@ class Assignment
   }
   public function isVisibleForStudent()
   {
-    $date_now = get_now_date("d-m-Y H:i:s");
-    if ($this->isVisible() && !($this->start_limit != null && $date_now < $this->start_limit))
-      return true;
-    return false;
+    return $this->isVisible() && $this->isAccess() && $this->isOpened();
+  }
+  public function isAccess()
+  {
+    return $this->status != -1;
   }
   public function isCompleteable()
   {
-    if ($this->status != -1 && $this->visibility != 4)
-      return true;
-    return false;
+    return $this->status != -1 && $this->visibility != 4;
   }
   public function isCompleted()
   {

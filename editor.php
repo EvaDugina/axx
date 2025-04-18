@@ -27,6 +27,11 @@ if (array_key_exists('assignment', $_GET)) {
 }
 //echo $assignment_id. "<br>";
 
+if ($au->isStudent() && !$Assignment->isVisibleForStudent()) {
+  header('Location:index.php');
+  exit;
+}
+
 
 $task_title = '';
 $task_description = '';
@@ -140,9 +145,9 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   ?>
 
   <main class="container-fluid overflow-hidden">
-    <div class="pt-2">
-      <div class="row d-flex justify-content-between">
-        <div class="col-md-2 d-flex flex-column">
+    <div class="pt-2 row">
+      <div class="row d-flex justify-content-between col-md-8">
+        <div class="col-md-3 d-flex flex-column">
 
           <div class="d-none d-sm-block d-print-block" style="border-bottom: 1px solid;">
             <ul id="ul-files" class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
@@ -276,7 +281,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           <?php } ?>
 
         </div>
-        <div class="col-md-6 px-0">
+        <div class="col-md-9 px-0">
           <div class="d-flex mb-1">
             <div class="w-100 me-1">
               <select class="form-select" aria-label=".form-select" id="language">
@@ -310,10 +315,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           <div id="div-shell-editor" class="embed-responsive embed-responsive-4by3 monaco-border-not-editable">
             <div id="container" class="embed-responsive-item"></div>
           </div>
-          </div>
-          
-          <!--ТЕСТ РЕДАКТОРА -->
-          <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
 
           <div class="d-flex justify-content-between mt-1">
             <!--<button type="button" class="btn btn-outline-primary" id="check" style="width: 50%;"> Отправить на проверку</button>-->
@@ -335,56 +336,62 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <button type="button" class="btn btn-primary" id="run" style="width: 50%;">Запустить в консоли</button>
 
           </div>
+
         </div>
-        <div class="col-md-4">
-          <div class="d-none d-sm-block d-print-block border rounded mb-5">
-            <div class="tab d-flex justify-content-between">
-              <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
-              <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>
-              <button class="tablinks" onclick="openCity('Test')" data-tab-name="Test">Проверки</button>
-              <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
-                <button class="tablinks" onclick="openCity('Chat')" data-tab-name="Chat">Чат</button>
+
+        <!--ТЕСТ РЕДАКТОРА -->
+        <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
+
+      </div>
+      <div class="col-md-4">
+        <div class="d-none d-sm-block d-print-block border rounded mb-5">
+          <div class="tab d-flex justify-content-between">
+            <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
+            <button class="tablinks" onclick="openCity('Console')" data-tab-name="Console">Консоль</button>
+            <button class="tablinks" onclick="openCity('Test')" data-tab-name="Test">Проверки</button>
+            <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
+              <button class="tablinks" onclick="openCity('Chat')" data-tab-name="Chat">Чат</button>
+            <?php } ?>
+          </div>
+
+          <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
+            <div>
+              <?php if ($task_description != "") { ?>
+                <p id="TaskDescr"><?= $task_description ?></p>
+                <script>
+                  document.getElementById('TaskDescr').innerHTML =
+                    marked.parse(document.getElementById('TaskDescr').innerHTML);
+                </script>
+              <?php } else { ?>
+                <h6 class="mt-2">Описание задания отсутствует</h6>
               <?php } ?>
-            </div>
-
-            <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
               <div>
-                <?php if ($task_description != "") { ?>
-                  <p id="TaskDescr"><?= $task_description ?></p>
-                  <script>
-                    document.getElementById('TaskDescr').innerHTML =
-                      marked.parse(document.getElementById('TaskDescr').innerHTML);
-                  </script>
-                <?php } else { ?>
-                  <h6 class="mt-2">Описание задания отсутствует</h6>
-                <?php } ?>
-                <div>
-                  <?php
-                  if ($User->isTeacher() || $User->isAdmin())
-                    $task_files = $Task->getTeacherFilesToTaskchat();
-                  else
-                    $task_files = $Task->getStudentFilesToTaskchat();
-
-                  if ($task_files) { ?>
-                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
-                    <?= showFiles($task_files); ?>
-                  <?php }
-                  ?>
-                </div>
-              </div>
-
-            </div>
-
-            <div id="Console" class="tabcontent">
-              <h3>Консоль</h3>
-              <div id="terminal"></div>
-            </div>
-
-            <div id="Test" class="tabcontent">
-              <div id="div-check-results">
                 <?php
+                if ($User->isTeacher() || $User->isAdmin())
+                  $task_files = $Task->getTeacherFilesToTaskchat();
+                else
+                  $task_files = $Task->getStudentFilesToTaskchat();
 
-                $checkres = json_decode('{
+                if ($task_files) { ?>
+                  <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                  <?= showFiles($task_files); ?>
+                <?php }
+                ?>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="Console" class="tabcontent">
+            <h3>Консоль</h3>
+            <div id="terminal"></div>
+          </div>
+
+          <div id="Test" class="tabcontent">
+            <div id="div-check-results">
+              <?php
+
+              $checkres = json_decode('{
           "tools": {
             "build": {
               "enabled": false,
@@ -608,307 +615,307 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           }
         }', true);
 
-                if (!$last_commit_id || $last_commit_id == "") {
-                  $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
-                  $last_commit_id = pg_fetch_assoc($resAC)['id'];
+              if (!$last_commit_id || $last_commit_id == "") {
+                $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+                $last_commit_id = pg_fetch_assoc($resAC)['id'];
+              }
+
+              if ($last_commit_id && $last_commit_id != "") {
+                $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
+                if ($resultC && pg_num_rows($resultC) > 0) {
+                  $rowC = pg_fetch_assoc($resultC);
+                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
+                    $checkres = json_decode($rowC['res'], true);
                 }
+              }
 
-                if ($last_commit_id && $last_commit_id != "") {
-                  $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
-                  if ($resultC && pg_num_rows($resultC) > 0) {
-                    $rowC = pg_fetch_assoc($resultC);
-                    if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
-                      $checkres = json_decode($rowC['res'], true);
-                  }
-                }
+              $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+                " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
+              $row = pg_fetch_assoc($result);
+              $checks = $row['achecks'];
+              if ($checks == null)
+                $checks = $row['tchecks'];
+              if ($checks == null)
+                $checks = json_encode($checkres);
+              $checks = json_decode($checks, true);
 
-                $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
-                  " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
-                $row = pg_fetch_assoc($result);
-                $checks = $row['achecks'];
-                if ($checks == null)
-                  $checks = $row['tchecks'];
-                if ($checks == null)
-                  $checks = json_encode($checkres);
-                $checks = json_decode($checks, true);
+              echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
 
-                echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
+              $accord = getAutotestsAccordionHtml($checks, @$checkres, $User);
+              echo show_accordion('checkres', $accord, "5px");
+              ?>
 
-                $accord = getAutotestsAccordionHtml($checks, @$checkres, $User);
-                echo show_accordion('checkres', $accord, "5px");
-                ?>
-
-              </div>
-
-              <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
-
-              <div class="d-flex flex-row justify-content-between my-1 w-100 align-items-start">
-
-                <?php if (count($accord) > 0) { ?>
-                  <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
-                <?php } else { ?>
-                  <h6 class="mt-2">Отсутствуют проверки, доступные для запуска</h6>
-                <?php } ?>
-
-                <?php if ($au->isAdminOrPrep()) { ?>
-                  <div class="w-50 flex-column">
-                    <?php if ($Task->isMarkNumber()) { ?>
-                      <div class="d-flex flex-row">
-                        <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;">
-                          <select id="checkTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
-                            <option hidden value="-1"></option>
-                            <?php for ($i = 1; $i <= $Task->max_mark; $i++) { ?>
-                              <option value="<?= $i ?>"><?= $i ?></option>
-                            <?php } ?>
-                          </select>
-                        </div>
-                        <button id="button-check" class="btn btn-success d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%; height: fit-content;font-size: small;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, $('#checkTask-select-mark').val())">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
-                            <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
-                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-                          </svg>
-                          <div class="d-flex align-items-center">
-                            &nbsp;&nbsp;Оценить&nbsp;
-                            <div id="spinner-mark" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
-                              <span class="sr-only">Loading...</span>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    <?php } else { ?>
-                      <div class="d-flex flex-row justify-content-end my-1">
-                        <button id="button-check-word" class="btn btn-primary d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, 'зачтено')">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
-                            <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
-                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
-                          </svg>
-                          <div class="d-flex align-items-center">
-                            &nbsp;&nbsp;Зачесть&nbsp;
-                            <div id="spinner-check-word" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
-                              <span class="sr-only">Loading...</span>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    <?php } ?>
-                    <?php if ($Assignment->isCompleted()) { ?>
-                      <div id="div-reject-check" class="d-flex flex-row justify-content-end my-1">
-                        <button id="button-reject-check" class="btn btn-danger d-flex justify-content-center" target="_blank" type="submit" name="reject-check" style="width: 100%;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, '')">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
-                            <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
-                          </svg>
-                          <div class="d-flex align-items-center">
-                            &nbsp;&nbsp;Отменить оценку&nbsp;
-                            <div id="spinner-reject-check" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
-                              <span class="sr-only">Loading...</span>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    <?php } ?>
-                  </div>
-
-                <?php } ?>
-              </div>
             </div>
 
-            <div id="Chat" class="tabcontent">
+            <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
 
-              <div class="chat-wrapper mb-1">
+            <div class="d-flex flex-row justify-content-between my-1 w-100 align-items-start">
 
-                <div id="chat-box" style="overflow-y: scroll; max-height: 55%">
-                  <!-- Вывод сообщений на страницу -->
+              <?php if (count($accord) > 0) { ?>
+                <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
+              <?php } else { ?>
+                <h6 class="mt-2">Отсутствуют проверки, доступные для запуска</h6>
+              <?php } ?>
+
+              <?php if ($au->isAdminOrPrep()) { ?>
+                <div class="w-50 flex-column">
+                  <?php if ($Task->isMarkNumber()) { ?>
+                    <div class="d-flex flex-row">
+                      <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;">
+                        <select id="checkTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
+                          <option hidden value="-1"></option>
+                          <?php for ($i = 1; $i <= $Task->max_mark; $i++) { ?>
+                            <option value="<?= $i ?>"><?= $i ?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <button id="button-check" class="btn btn-success d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%; height: fit-content;font-size: small;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, $('#checkTask-select-mark').val())">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                          <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                        </svg>
+                        <div class="d-flex align-items-center">
+                          &nbsp;&nbsp;Оценить&nbsp;
+                          <div id="spinner-mark" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  <?php } else { ?>
+                    <div class="d-flex flex-row justify-content-end my-1">
+                      <button id="button-check-word" class="btn btn-primary d-flex justify-content-center" target="_blank" type="submit" name="submit-check" style="width: 100%;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, 'зачтено')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                          <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z" />
+                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z" />
+                        </svg>
+                        <div class="d-flex align-items-center">
+                          &nbsp;&nbsp;Зачесть&nbsp;
+                          <div id="spinner-check-word" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  <?php } ?>
+                  <?php if ($Assignment->isCompleted()) { ?>
+                    <div id="div-reject-check" class="d-flex flex-row justify-content-end my-1">
+                      <button id="button-reject-check" class="btn btn-danger d-flex justify-content-center" target="_blank" type="submit" name="reject-check" style="width: 100%;" onclick="markAssignmentWithoutReload(<?= $Assignment->id ?>, <?= $User->id ?>, '')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                          <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+                        </svg>
+                        <div class="d-flex align-items-center">
+                          &nbsp;&nbsp;Отменить оценку&nbsp;
+                          <div id="spinner-reject-check" class="spinner-border ms-2 d-none" role="status" style="width: 1rem; height: 1rem;">
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  <?php } ?>
                 </div>
 
+              <?php } ?>
+            </div>
+          </div>
 
-                <div class="d-flex align-items-center">
+          <div id="Chat" class="tabcontent">
 
-                  <div class="dropdown d-none me-1" id="btn-group-more">
-                    <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="ul-dropdownMenu-more" data-mdb-toggle="dropdown" aria-expanded="false">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                      </svg>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-more">
-                      <li>
-                        <a class="dropdown-item align-items-center" href="#">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right me-1" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z" />
-                          </svg>
-                          Переслать
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
-                          </svg>
-                        </a>
-                        <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
-                          <?php
-                          $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
-                          $conversationTask = $Page->getConversationTask();
-                          if ($conversationTask) { ?>
-                            <li>
-                              <a class="dropdown-item" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
-                                В общую беседу
-                              </a>
-                            </li>
-                          <?php } ?>
+            <div class="chat-wrapper mb-1">
+
+              <div id="chat-box" style="overflow-y: scroll; max-height: 55%">
+                <!-- Вывод сообщений на страницу -->
+              </div>
+
+
+              <div class="d-flex align-items-center">
+
+                <div class="dropdown d-none me-1" id="btn-group-more">
+                  <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="ul-dropdownMenu-more" data-mdb-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                      <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                    </svg>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="ul-dropdownMenu-more">
+                    <li>
+                      <a class="dropdown-item align-items-center" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right me-1" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z" />
+                        </svg>
+                        Переслать
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
+                        </svg>
+                      </a>
+                      <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
+                        <?php
+                        $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
+                        $conversationTask = $Page->getConversationTask();
+                        if ($conversationTask) { ?>
                           <li>
-                            <a class="dropdown-item" onclick="resendMessages(<?= $Assignment->id ?>, <?= $User->id ?>, true)">
-                              В текущий диалог
+                            <a class="dropdown-item" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
+                              В общую беседу
                             </a>
                           </li>
+                        <?php } ?>
+                        <li>
+                          <a class="dropdown-item" onclick="resendMessages(<?= $Assignment->id ?>, <?= $User->id ?>, true)">
+                            В текущий диалог
+                          </a>
+                        </li>
 
-                        </ul>
-                      </li>
-                      <li>
-                        <a class="dropdown-item align-items-center" href="#" id="a-messages-delete" style="cursor: pointer;" onclick="deleteMessages(<?= $Assignment->id ?>, <?= $User->id ?>)">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
-                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
-                          </svg>
-                          Удалить
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <?php if ($Assignment->isCompleteable() || $Task->isConversation()) { ?>
-                    <form class="w-100 align-items-center m-0" action="taskchat_action.php" method="POST" enctype="multipart/form-data">
-                      <div class="message-input-wrapper h-100 align-items-center p-0 m-0">
-                        <div class="file-input-wrapper">
-                          <input type="hidden" name="MAX_FILE_SIZE" value="<?= $MAX_FILE_SIZE ?>" />
-                          <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
-                          <!-- <label for="user-files"> -->
-                          <!-- <i class="fa-solid fa-paperclip"></i> -->
-                          <!-- <span id="files-count" class="label-files-count"></span> -->
-                          <!-- </label> -->
-                          <label for="user-files" class="p-1" style="cursor: pointer;">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip h-100 w-100" height="30" width="30" viewBox="0 0 16 16">
-                              <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"></path>
-                            </svg>
-                            <span id="files-count" class="text-success"></span>
-                          </label>
-                        </div>
-                        <textarea name="user-message" id="textarea-user-message" class="border rounded w-100 p-1 mx-2" style="resize:none; overflow:hidden;" placeholder="Напишите сообщение..." rows="1"></textarea>
-                        <button type="submit" name="submit-message" id="submit-message">Отправить</button>
-                      </div>
-                      <div id="div-attachedFiles" class="d-flex flex-wrap mt-2">
-
-                      </div>
-                      <!-- <p id="p-errorFileName" class="error" style="display: none;">Ошибка! Файл с таким названием уже существует!</p> -->
-                    </form>
-                  <?php } ?>
-
+                      </ul>
+                    </li>
+                    <li>
+                      <a class="dropdown-item align-items-center" href="#" id="a-messages-delete" style="cursor: pointer;" onclick="deleteMessages(<?= $Assignment->id ?>, <?= $User->id ?>)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
+                          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                        Удалить
+                      </a>
+                    </li>
+                  </ul>
                 </div>
+
+                <?php if ($Assignment->isCompleteable() || $Task->isConversation()) { ?>
+                  <form class="w-100 align-items-center m-0" action="taskchat_action.php" method="POST" enctype="multipart/form-data">
+                    <div class="message-input-wrapper h-100 align-items-center p-0 m-0">
+                      <div class="file-input-wrapper">
+                        <input type="hidden" name="MAX_FILE_SIZE" value="<?= $MAX_FILE_SIZE ?>" />
+                        <input id="user-files" type="file" name="user_files[]" class="input-files" multiple>
+                        <!-- <label for="user-files"> -->
+                        <!-- <i class="fa-solid fa-paperclip"></i> -->
+                        <!-- <span id="files-count" class="label-files-count"></span> -->
+                        <!-- </label> -->
+                        <label for="user-files" class="p-1" style="cursor: pointer;">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-paperclip h-100 w-100" height="30" width="30" viewBox="0 0 16 16">
+                            <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"></path>
+                          </svg>
+                          <span id="files-count" class="text-success"></span>
+                        </label>
+                      </div>
+                      <textarea name="user-message" id="textarea-user-message" class="border rounded w-100 p-1 mx-2" style="resize:none; overflow:hidden;" placeholder="Напишите сообщение..." rows="1"></textarea>
+                      <button type="submit" name="submit-message" id="submit-message">Отправить</button>
+                    </div>
+                    <div id="div-attachedFiles" class="d-flex flex-wrap mt-2">
+
+                    </div>
+                    <!-- <p id="p-errorFileName" class="error" style="display: none;">Ошибка! Файл с таким названием уже существует!</p> -->
+                  </form>
+                <?php } ?>
 
               </div>
 
             </div>
-
-
-
-
-            <?php
-            if ($Assignment->finish_limit && checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") { ?>
-
-              <div id="deadline-message" class="deadline-message m-3">
-                Время выполнения истекло!
-              </div>
-
-              <div id="countdown" class="countdown">
-                <div class="countdown-number">
-                  <span class="days countdown-time"></span>
-                </div>
-                <div class="countdown-number">
-                  <span class="hours countdown-time"></span>
-                </div>
-                <div class="countdown-number">
-                  <span class="minutes countdown-time"></span>
-                </div>
-                <div class="countdown-number">
-                  <span class="seconds countdown-time"></span>
-                </div>
-              </div>
-
-              <script>
-                function getTimeRemaining(endtime) {
-                  let dateEndTime = Date.parse(endtime);
-                  let dateNow = Date.parse(new Date());
-                  var deltaTime = dateEndTime - dateNow;
-                  var seconds = Math.floor((deltaTime / 1000) % 60);
-                  var minutes = Math.floor((deltaTime / 1000 / 60) % 60);
-                  var hours = Math.floor((deltaTime / (1000 * 60 * 60)) % 24);
-                  var days = Math.floor(deltaTime / (1000 * 60 * 60 * 24));
-                  return {
-                    total: deltaTime,
-                    days: days,
-                    hours: hours,
-                    minutes: minutes,
-                    seconds: seconds
-                  };
-                }
-
-                function initializeClock(id, endtime) {
-                  var clock = document.getElementById(id);
-                  var daysSpan = clock.querySelector(".days");
-                  var hoursSpan = clock.querySelector(".hours");
-                  var minutesSpan = clock.querySelector(".minutes");
-                  var secondsSpan = clock.querySelector(".seconds");
-
-                  function updateClock() {
-                    var t = getTimeRemaining(endtime);
-
-                    if (t.total <= 0) {
-                      document.getElementById("countdown").className = "hidden";
-                      document.getElementById("deadline-message").classList.remove("deadline-message");
-                      document.getElementById("deadline-message").classList.add("visible");
-                      clearInterval(timeinterval);
-                      return true;
-                    }
-
-                    refresh_clock_element(daysSpan, null, t.days, t.days + "д.");
-                    refresh_clock_element(hoursSpan, daysSpan, t.hours, ("0" + t.hours).slice(-2) + "ч.");
-                    refresh_clock_element(minutesSpan, hoursSpan, t.minutes, ("0" + t.minutes).slice(-2) + "м.");
-                    refresh_clock_element(secondsSpan, minutesSpan, t.seconds, ("0" + t.seconds).slice(-2) + "с.");
-
-
-                    // hoursSpan.innerHTML = ("0" + t.hours).slice(-2) + "ч.";
-                    // minutesSpan.innerHTML = ("0" + t.minutes).slice(-2) + "м.";
-                    // secondsSpan.innerHTML = ("0" + t.seconds).slice(-2) + "с.";
-
-                    function refresh_clock_element(span, previous_span, value, value_str) {
-                      if (value <= 0) {
-                        if (previous_span === null || previous_span.parentElement.classList.contains('d-none')) {
-                          span.parentElement.classList.add("d-none");
-                        }
-                      } else {
-                        span.parentElement.classList.remove("d-none");
-                      }
-                      span.innerHTML = value_str;
-                    }
-                  }
-
-                  updateClock();
-                  var timeinterval = setInterval(updateClock, 1000);
-                }
-
-                function fun() {
-                  var deadline = "<?= $Assignment->getEndDateTime() ?>"; // for endless timer
-                  initializeClock("countdown", deadline);
-                }
-                fun();
-              </script>
-
-            <?php
-            } else { ?>
-              <div class="m-3">
-                Время окончания приема работы не задано!
-              </div>
-            <?php } ?>
 
           </div>
 
+
+
+
+          <?php
+          if ($Assignment->finish_limit && checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") { ?>
+
+            <div id="deadline-message" class="deadline-message m-3">
+              Время выполнения истекло!
+            </div>
+
+            <div id="countdown" class="countdown">
+              <div class="countdown-number">
+                <span class="days countdown-time"></span>
+              </div>
+              <div class="countdown-number">
+                <span class="hours countdown-time"></span>
+              </div>
+              <div class="countdown-number">
+                <span class="minutes countdown-time"></span>
+              </div>
+              <div class="countdown-number">
+                <span class="seconds countdown-time"></span>
+              </div>
+            </div>
+
+            <script>
+              function getTimeRemaining(endtime) {
+                let dateEndTime = Date.parse(endtime);
+                let dateNow = Date.parse(new Date());
+                var deltaTime = dateEndTime - dateNow;
+                var seconds = Math.floor((deltaTime / 1000) % 60);
+                var minutes = Math.floor((deltaTime / 1000 / 60) % 60);
+                var hours = Math.floor((deltaTime / (1000 * 60 * 60)) % 24);
+                var days = Math.floor(deltaTime / (1000 * 60 * 60 * 24));
+                return {
+                  total: deltaTime,
+                  days: days,
+                  hours: hours,
+                  minutes: minutes,
+                  seconds: seconds
+                };
+              }
+
+              function initializeClock(id, endtime) {
+                var clock = document.getElementById(id);
+                var daysSpan = clock.querySelector(".days");
+                var hoursSpan = clock.querySelector(".hours");
+                var minutesSpan = clock.querySelector(".minutes");
+                var secondsSpan = clock.querySelector(".seconds");
+
+                function updateClock() {
+                  var t = getTimeRemaining(endtime);
+
+                  if (t.total <= 0) {
+                    document.getElementById("countdown").className = "hidden";
+                    document.getElementById("deadline-message").classList.remove("deadline-message");
+                    document.getElementById("deadline-message").classList.add("visible");
+                    clearInterval(timeinterval);
+                    return true;
+                  }
+
+                  refresh_clock_element(daysSpan, null, t.days, t.days + "д.");
+                  refresh_clock_element(hoursSpan, daysSpan, t.hours, ("0" + t.hours).slice(-2) + "ч.");
+                  refresh_clock_element(minutesSpan, hoursSpan, t.minutes, ("0" + t.minutes).slice(-2) + "м.");
+                  refresh_clock_element(secondsSpan, minutesSpan, t.seconds, ("0" + t.seconds).slice(-2) + "с.");
+
+
+                  // hoursSpan.innerHTML = ("0" + t.hours).slice(-2) + "ч.";
+                  // minutesSpan.innerHTML = ("0" + t.minutes).slice(-2) + "м.";
+                  // secondsSpan.innerHTML = ("0" + t.seconds).slice(-2) + "с.";
+
+                  function refresh_clock_element(span, previous_span, value, value_str) {
+                    if (value <= 0) {
+                      if (previous_span === null || previous_span.parentElement.classList.contains('d-none')) {
+                        span.parentElement.classList.add("d-none");
+                      }
+                    } else {
+                      span.parentElement.classList.remove("d-none");
+                    }
+                    span.innerHTML = value_str;
+                  }
+                }
+
+                updateClock();
+                var timeinterval = setInterval(updateClock, 1000);
+              }
+
+              function fun() {
+                var deadline = "<?= $Assignment->getEndDateTime() ?>"; // for endless timer
+                initializeClock("countdown", deadline);
+              }
+              fun();
+            </script>
+
+          <?php
+          } else { ?>
+            <div class="m-3">
+              Время окончания приема работы не задано!
+            </div>
+          <?php } ?>
+
         </div>
       </div>
+
+    </div>
     </div>
   </main>
 

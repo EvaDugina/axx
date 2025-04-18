@@ -32,7 +32,6 @@ if (isset($_REQUEST['assignment'])) {
 
 $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
 
-$au = new auth_ssh();
 if ($au->isAdmin() && isset($_REQUEST['id_student'])) {
   // Если на страницу чата зашёл АДМИН
   $student_id = $_REQUEST['id_student'];
@@ -85,6 +84,11 @@ if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) {
     http_response_code(404);
     exit;
   }
+}
+
+if ($au->isStudent() && !$Assignment->isVisibleForStudent()) {
+  header('Location:index.php');
+  exit;
 }
 
 $query = select_ax_page_short_name($page_id);
