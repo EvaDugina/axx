@@ -312,10 +312,9 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
   // " where id = ".$_POST['assignment_id'];
   //   $result = pg_query($dbconnect, $query);
 
-
   if (isset($_POST['fromtime'])) {
     if ($_POST['fromtime'] == "")
-      $Assignment->deleteFinishLimit();
+      $Assignment->deleteStartLimit();
     else {
       $date = strtotime($_POST['fromtime']);
       if (isset($_POST['start_time'])) {
@@ -327,10 +326,9 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
     }
   }
 
-
   if (isset($_POST['tilltime'])) {
     if ($_POST['tilltime'] == "")
-      $Assignment->deleteStartLimit();
+      $Assignment->deleteFinishLimit();
     else {
       $date = strtotime($_POST['tilltime']);
       if (isset($_POST['end_time'])) {

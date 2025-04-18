@@ -459,8 +459,6 @@ if ($Assignment == null)
       let end_date = new Date($('#input-endDate').val());
       let end_time = $('#input-endTime').val();
 
-      console.log(start_time, end_time)
-
       if (!(start_date instanceof Date && !isNaN(start_date))) {
         start_date = "";
       } else if (start_time == "") {
@@ -474,18 +472,18 @@ if ($Assignment == null)
         return;
       }
 
+      if (start_date != "" && end_date != "") {
 
-      if (start_date != "" && end_date != "" && start_date > end_date) {
-        alert("Неверно указаны даты!");
-        return;
-      } else if (start_date == end_date) {
         let split_start_time = start_time.split(":");
+        start_date.setHours(split_start_time[0])
+        start_date.setMinutes(split_start_time[1])
+
         let split_end_time = end_time.split(":");
-        if (parseInt(split_start_time[0]) > parseInt(split_end_time[0])) {
-          alert("Неверно указано время!");
-          return;
-        } else if (parseInt(split_start_time[0]) == parseInt(split_end_time[0]) && parseInt(split_start_time[1]) >= parseInt(split_end_time[1])) {
-          alert("Неверно указано время!");
+        end_date.setHours(split_end_time[0])
+        end_date.setMinutes(split_end_time[1])
+
+        if (start_date.getTime() >= end_date.getTime()) {
+          alert("Неверно указаны сроки выполнения назначения!");
           return;
         }
       }
