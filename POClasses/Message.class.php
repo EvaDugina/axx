@@ -183,6 +183,8 @@ class Message
   {
     global $dbconnect;
 
+    $now = get_now_date("Y-m-d H:i:s");
+
     if ($this->reply_to_id != null) {
       $query = "INSERT INTO ax.ax_message (assignment_id, type, sender_user_id, sender_user_type, 
                 date_time, reply_to_id, full_text, status, visibility) 

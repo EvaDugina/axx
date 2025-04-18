@@ -389,7 +389,7 @@ class Page
   {
     $count = 0;
     foreach ($this->getTasks() as $Task) {
-      if ($Task->status == 1) {
+      if ($Task->isActive()) {
         $count += count($Task->getVisibleAssignmemntsByStudent($student_id));
       }
     }
@@ -865,10 +865,12 @@ function queryInsertPage($Page)
     $description_sql = "\$antihype1\$$Page->description\$antihype1\$";
   }
 
+  $now = get_now_date("Y-m-d H:i:s");
+
   return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
             creator_id, creation_date, description, type, status) 
             VALUES ($disc_sql, $name_sql, $year_sql, $semester_sql, $color_theme_id, 
-            $Page->creator_id, now(), $description_sql, $Page->type, $Page->status) 
+            $Page->creator_id, to_timestamp('$now', 'YYYY-MM-DD HH24:MI:SS'), $description_sql, $Page->type, $Page->status) 
             RETURNING id;";
 }
 
@@ -902,8 +904,10 @@ function queryInsertMainPage($Page)
     $description_sql = "\$antihype1\$$Page->description\$antihype1\$";
   }
 
+  $now = get_now_date("Y-m-d H:i:s");
+
   return "INSERT INTO ax.ax_page (disc_id, short_name, year, semester, color_theme_id, 
   creator_id, creation_date, description, type, status)
-  VALUES (null, $name_sql, $year_sql, $semester_sql, 0, $Page->creator_id, now(), $description_sql, $Page->type, $Page->status) 
+  VALUES (null, $name_sql, $year_sql, $semester_sql, 0, $Page->creator_id, to_timestamp('$now', 'YYYY-MM-DD HH24:MI:SS'), $description_sql, $Page->type, $Page->status) 
   RETURNING id INTO pageId;";
 }

@@ -411,10 +411,13 @@ show_head($page_title, array('js/preptasks.js'));
                         </span>
                         <i class="fas fa-user<?= (($icon_multiusers) ? "s" : "") ?>"></i> <?= $stud_list ?>
                       <?php }
+                      echo "(";
+                      if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) != "")
+                        echo "c $Assignment->start_limit ";
                       if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
-                        echo " (до $Assignment->finish_limit)";
-                      else
-                        echo " (бессрочно)"; ?>
+                        echo "=> до $Assignment->finish_limit";
+                      echo ")";
+                      ?>
                     </span>
                     <span>
                       <button class="btn btn-link me-0 p-1" type="button" onclick="event.stopPropagation(); window.location='taskassign.php?assignment_id=<?= $Assignment->id ?>';" data-title="Редактировать">

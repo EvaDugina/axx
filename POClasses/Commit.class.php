@@ -132,8 +132,10 @@ class Commit
   {
     global $dbconnect;
 
+    $now = get_now_date("Y-m-d H:i:s");
+
     $query = "INSERT INTO ax.ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type, status, autotest_results)
-              VALUES ($assignment_id, $this->session_id, $this->student_user_id, now(), $this->type, $this->status, \$antihype1\$$this->autotest_results\$antihype1\$)
+              VALUES ($assignment_id, $this->session_id, $this->student_user_id, to_timestamp('$now', 'YYYY-MM-DD HH24:MI:SS'), $this->type, $this->status, \$antihype1\$$this->autotest_results\$antihype1\$)
               RETURNING id, date_time";
 
     $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());

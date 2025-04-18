@@ -283,7 +283,7 @@ if ($Assignment == null)
                     </div>
 
                     <div class="form-outline datetimepicker mt-3">
-                      <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit == null || (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) == "")) ? "23:59" : convert_timestamp_to_date($Assignment->getEndTime(), "H:i") ?>">
+                      <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit == null || (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) == "")) ? "00:00" : convert_timestamp_to_date($Assignment->getEndTime(), "H:i") ?>">
                       <label for="input-endTime" class="form-label" style="margin-left: 0px;">Время окончания</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>

@@ -65,8 +65,8 @@ class Assignment
       else if (isset($assignment['variant_comment']))
         $this->variant_number = $assignment['variant_comment'];
 
-      $this->start_limit = convertServerDateTimeToCurrent($assignment['start_limit'], "d-m-Y H:i:s");
-      $this->finish_limit = convertServerDateTimeToCurrent($assignment['finish_limit'], "d-m-Y H:i:s");
+      $this->start_limit = convertServerDateTimeToCurrent($assignment['start_limit'], "d-m-Y H:i");
+      $this->finish_limit = convertServerDateTimeToCurrent($assignment['finish_limit'], "d-m-Y H:i");
 
       $this->visibility = $assignment['status_code'];
       $this->visibility_text = $assignment['status_text'];
@@ -324,9 +324,9 @@ class Assignment
 
   public function isOpened()
   {
-    $date_now = get_now_date("d-m-Y H:i:s");
+    $date_now = get_now_date("d-m-Y H:i");
     return !($this->start_limit != null && $date_now < $this->start_limit) &&
-      !($this->finish_limit != null && $date_now > $this->finish_limit);
+      !($this->finish_limit != null && $date_now >= $this->finish_limit);
   }
 
   public function isVisible()
