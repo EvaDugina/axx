@@ -135,22 +135,22 @@ class File
 
   function isAttached()
   {
-    return $this->type == 0;
+    return isAttachedType($this->type);
   }
 
   function isProjectTemplate()
   {
-    return $this->type == 1;
+    return isProjectTemplateType($this->type);
   }
 
   function isCodeTest()
   {
-    return $this->type == 2;
+    return isCodeTestType($this->type);
   }
 
   function isCodeCheckTest()
   {
-    return $this->type == 3;
+    return isCodeCheckTestType($this->type);
   }
 
   function isInUploadDir()
@@ -383,6 +383,31 @@ class File
 
 }
 
+
+///
+
+function isAttachedType($type)
+{
+  return $type == 0;
+}
+
+function isProjectTemplateType($type)
+{
+  return $type == 1;
+}
+
+function isCodeTestType($type)
+{
+  return $type == 2;
+}
+
+function isCodeCheckTestType($type)
+{
+  return $type == 3;
+}
+
+///
+
 function deleteFile($download_url)
 {
   if ($download_url != "" && file_exists($download_url))
@@ -540,6 +565,7 @@ function addFileToObject($Object, $file_name, $file_tmp_name, $type)
     exit("Ошибка загрузки файла");
   }
 }
+
 
 
 

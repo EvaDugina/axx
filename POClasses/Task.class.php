@@ -503,17 +503,8 @@ class Task
       $this->Files = array_values($this->Files);
     }
   }
-  public function removeFileTemplateFromAllCommits($file_id)
-  {
-    foreach ($this->Assignments as $Assignment) {
-      $templateCommit = $Assignment->getTemplateCommit();
-      if ($templateCommit != null) {
-        $templateCommit->deleteFileFromCommitSoft($file_id);
-      }
-      if (count($templateCommit->getFiles()) == 0)
-        $Assignment->deleteCommit($templateCommit->id);
-    }
-  }
+
+
   public function addFileTemplateToAllAssignments($file_id, $user_id)
   {
 
@@ -528,6 +519,19 @@ class Task
       }
     }
   }
+
+  public function removeFileTemplateFromAllCommits($file_id)
+  {
+    foreach ($this->Assignments as $Assignment) {
+      $templateCommit = $Assignment->getTemplateCommit();
+      if ($templateCommit != null) {
+        $templateCommit->deleteFileFromCommitSoft($file_id);
+        if (count($templateCommit->getFiles()) == 0)
+          $Assignment->deleteCommit($templateCommit->id);
+      }
+    }
+  }
+
   private function findFileById($file_id)
   {
     $index = 0;

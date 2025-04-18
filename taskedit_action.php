@@ -62,11 +62,11 @@ if (isset($_POST['flag-deleteFile']) && isset($_POST['task_id'])) {
   exit();
 }
 
-if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
-  $file_type = (int)$_POST['new_type'];
+if (isset($_POST['flag-editFileType']) && isset($_POST['task_id']) && isset($_POST['new_type']) && isset($_POST['file_id'])) {
+  $new_file_type = (int)$_POST['new_type'];
 
   // В задании не может быть несколько файлов автоматической проверки
-  if (($file_type == 2 || $file_type == 3)  && count($Task->getFilesByType($file_type)) > 0) {
+  if (($new_file_type == 2 || $new_file_type == 3)  && count($Task->getFilesByType($new_file_type)) > 0) {
     echo "ERROR: NO_MORE_FILES_CODE";
     exit();
   }
@@ -74,18 +74,22 @@ if (isset($_POST['flag-editFileType']) && isset($_POST['task_id'])) {
   $file_id = $_POST['file_id'];
   // $Task = new Task((int)$_POST['task_id']);
   $File = $Task->getFileById((int)$file_id);
-  if ($File->isInUploadDir() && $file_type == 1) {
+  if ($File->isInUploadDir() && $new_file_type == 1) {
     echo "ERROR: EXT_FOR_CODE_PROJECT";
     exit();
   }
 
-  if ($File->isProjectTemplate()) {
+  // Если файл стал с типом исходный код
+  if (!$File->isProjectTemplate() && isProjectTemplateType($new_file_type)) {
+    $Task->addFileTemplateToAllAssignments($File->id, $au->getUserId());
+  }
+
+  // Если файл был с типом "исходный код"
+  else if ($File->isProjectTemplate() && !isProjectTemplateType($new_file_type)) {
     $Task->removeFileTemplateFromAllCommits($File->id);
   }
 
-  $File->setType($file_type);
-  $Task->addFile($File->id);
-
+  $File->setType($new_file_type);
 
   // header('Location: taskedit.php?task=' . $_POST['task_id']);
   echo getSVGByFileType($File->type);
