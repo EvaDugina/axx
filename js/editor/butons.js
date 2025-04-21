@@ -97,7 +97,9 @@ function changeEditorLanguage(new_file_language) {
 //     makeRequest('textdb.php?' + param + "&type=commit&commit_type=answer&status=clone", "commit");
 // }
 
-function openFile(event = null, listItem = null) {
+async function openFile(event = null, listItem = null) {
+
+    await Editor.waitForEditor();
 
     let thisListItem = listItem;
     if (thisListItem == null)

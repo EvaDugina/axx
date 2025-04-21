@@ -2,10 +2,34 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { MonacoBinding } from 'y-monaco';
 import { storeInHash, loadFromHash } from "../hashStorage.js";
-import {wsApiUrl, httpApiUrl} from '../api.js';
+import { wsApiUrl, httpApiUrl } from '../api.js';
 
 const editor = { current: null, id: null };
 var FILES_POSITIONS = [];
+
+// Работа с обводкой окна редактора
+
+export function blockEditor() {
+    $('#div-shell-editor').removeClass("monaco-border-editable");
+    $('#div-shell-editor').addClass("monaco-border-not-editable");
+}
+
+export function unblockEditor() {
+    $('#div-shell-editor').addClass("monaco-border-editable");
+    $('#div-shell-editor').removeClass("monaco-border-not-editable");
+}
+
+export function isBlocked() {
+    return $('#div-shell-editor').hasClass("monaco-border-not-editable");
+}
+
+export function isReadOnly() {
+    return IS_EDITABLE;
+}
+
+// 
+// 
+// 
 
 export default editor;
 
@@ -52,43 +76,37 @@ export function removeFilePosition(file_id) {
     delete FILES_POSITIONS[file_id];
 }
 
-// Работа с обводкой окна редактора
-
-export function blockEditor() {
-    $('#div-shell-editor').removeClass("monaco-border-editable");
-    $('#div-shell-editor').addClass("monaco-border-not-editable");
-}
-
-export function unblockEditor() {
-    $('#div-shell-editor').addClass("monaco-border-editable");
-    $('#div-shell-editor').removeClass("monaco-border-not-editable");
-}
-
-export function isBlocked() {
-    return $('#div-shell-editor').hasClass("monaco-border-not-editable");
-}
-
-export function isReadOnly() {
-    return IS_EDITABLE;
+function isEditorReady() {
+    return editor.current != null;
 }
 
 // 
 // 
 // 
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function waitForEditor() {
+    while (!isEditorReady()) {
+        await sleep(1000);
+    }
+}
 
 require.config({ paths: { vs: '../../node_modules/monaco-editor/min/vs' } });
 require(['vs/editor/editor.main'], function () {
     (async () => {
-        let {editorId = null} = loadFromHash();
-        if(!editorId) {
-            const res = await fetch(`${httpApiUrl}/editor/`, {method: "POST"});
+        let { editorId = null } = loadFromHash();
+        if (!editorId) {
+            const res = await fetch(`${httpApiUrl}/editor/`, { method: "POST" });
             editorId = (await res.json()).id;
-            storeInHash({editorId});
+            storeInHash({ editorId });
         }
         editor.id = editorId;
-    
+
         const ydocument = new Y.Doc();
-        const provider = new WebsocketProvider(`${wsApiUrl}/editor/ws`, editor.id, ydocument);
+        const provider = new WebsocketProvider(`${wsApiUrl}/editor/ws`, editorId, ydocument);
         const type = ydocument.getText('monaco');
 
         console.log("Создание Monaco Editor...");
@@ -105,22 +123,5 @@ require(['vs/editor/editor.main'], function () {
         $('#container').addClass("d-none");
 
         console.log("Monaco Editor создан:", editor.current);
-            })();    
-        });
-
-        
-
-
-// // require(['vs/editor/editor.main'], function () {
-// //     editor.current = monaco.editor.create(document.getElementById('container'), {
-// //         language: 'cpp',
-// //         insertSpaces: false,
-// //         readOnly: read_only,
-// //         unicodeHighlight: {
-// //             ambiguousCharacters: false,
-// //         },
-
-// //     });
-// //     editor.current.layout();
-// //     // $('#container').addClass("d-none");
-// });
+    })();
+});
