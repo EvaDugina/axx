@@ -1093,19 +1093,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
         alert("Не удалось удалить коммит.");
       }
     }
-
-    document.onkeydown = function(e) {
-      if (e.ctrlKey || e.metaKey) isCtrl = true;
-      if ((e.key.toUpperCase() == "S" || e.key.toUpperCase() == "Ы") && isCtrl == true) {
-        e.preventDefault();
-        $('#btn-save').click();
-        // $('#btn-save').addClass("active");
-        // setTimeout(function() {
-        //   endAnimationSave();
-        // }, 1000);
-        isCtrl = false;
-      }
-    }
   </script>
 
   <script type="text/javascript" src="js/taskchat.js"></script>

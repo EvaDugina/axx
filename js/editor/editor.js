@@ -80,6 +80,12 @@ function isEditorReady() {
     return editor.current != null;
 }
 
+
+
+function isFocused() {
+    return editor.current.hasTextFocus();
+}
+
 // 
 // 
 // 
@@ -120,6 +126,13 @@ require(['vs/editor/editor.main'], function () {
             minimap: { enabled: false }
         });
         editor.current.layout();
+
+        // Добавление команды для сочетания клавиш Ctrl + S
+        editor.current.addCommand(monaco.KeyCode.KeyS | monaco.KeyMod.CtrlCmd, function () {
+            $('#btn-save').click();
+        });
+
+
         $('#container').addClass("d-none");
 
         console.log("Monaco Editor создан:", editor.current);

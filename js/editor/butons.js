@@ -14,9 +14,7 @@ for (var i = 0; i < listItems.length; i++) {
 $("#btn-save").on('click', handleButtonSave);
 $("#btn-new-commit").on('click', addNewCommit);
 $("#btn-newFile").on('click', newFile);
-$("#div-history-commit-btns").children().each(function () {
-
-});
+$("#div-history-commit-btns").children().each(function () { });
 
 var ARRAY_FILES = [];
 listItems.forEach(element => {
@@ -142,7 +140,7 @@ async function openFile(event = null, listItem = null) {
         if (param == '') param = 'void';
         makeRequest('textdb.php?' + param + "&type=open&id=" + id, "open");
     } else {
-        Editor.setFocusToCurrent();
+        // Editor.setFocusToCurrent();
     }
 }
 
@@ -197,12 +195,19 @@ function renameFile(event) {
     input.className = "form-control validationCustom input-file editing";
     input.style.cursor = "text";
     input.setSelectionRange(last_name.length, last_name.length);
-    input.focus();
 
-    input.removeEventListener("keydown", handleInputFileName);
+    input = removeAllListeners(input);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
 
     input.addEventListener("keydown", { handleEvent: handleInputFileName, li_id: li.dataset.orderid, input: input, last_name: last_name, type: "keydown" }, true);
     input.addEventListener("blur", { handleEvent: handleInputFileName, li_id: li.dataset.orderid, input: input, last_name: last_name, type: "blur" }, true);
+}
+
+function removeAllListeners(element) {
+    const newElement = element.cloneNode(true);
+    element.parentNode.replaceChild(newElement, element);
+    return newElement;
 }
 
 var eventListenerLastName = "";
@@ -232,6 +237,7 @@ function handleInputFileName(event) {
 
         if (last_name != new_name && !checkOriginalFileName(new_name, li_id)) {
             alert("Введите оригинальное имя файла!");
+            input.value = last_name;
         } else {
             input.type = "button";
             input.className = "form-control-plaintext form-control-sm validationCustom input-file not-editing";
@@ -247,6 +253,8 @@ function handleInputFileName(event) {
 
         // Смена языка окна редактора кода в зависимости от расширения
         changeEditorLanguage(getLanguageByFileName(new_name));
+
+        // Editor.setFocusToCurrent();
 
     }
 }
