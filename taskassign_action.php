@@ -132,9 +132,9 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
     if ($templateCommit == null) {
       $templateCommit = new Commit($Assignment->id, null, $au->getUserId(), 4, null);
       $Assignment->addCommit($templateCommit->id);
-    }
-    foreach ($Task->getProjectTemplateFiles() as $File) {
-      $templateCommit->addFile($File->id);
+      foreach ($Task->getProjectTemplateFiles() as $File) {
+        $templateCommit->addFile($File->id);
+      }
     }
   }
 
