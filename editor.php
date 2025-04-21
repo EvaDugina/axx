@@ -615,6 +615,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           }
         }', true);
 
+              $hasCheckResults = false;
+
               if (!$last_commit_id || $last_commit_id == "") {
                 $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
                 $last_commit_id = pg_fetch_assoc($resAC)['id'];
@@ -624,8 +626,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
                 if ($resultC && pg_num_rows($resultC) > 0) {
                   $rowC = pg_fetch_assoc($resultC);
-                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null)
+                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null) {
                     $checkres = json_decode($rowC['res'], true);
+                    $hasCheckResults = true;
+                  }
                 }
               }
 
@@ -638,6 +642,13 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               if ($checks == null)
                 $checks = json_encode($checkres);
               $checks = json_decode($checks, true);
+              ?>
+
+              <div>
+                <span id="span-checks-old" class="btn-danger <?= ($hasCheckResults) ? "" : "d-none" ?>">Обратите внимание! Результаты проверки неактуальны.</span>
+              </div>
+
+              <?php
 
               echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
 

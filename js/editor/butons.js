@@ -266,6 +266,7 @@ function saveFile(name, id) {
     var param = document.location.href.split("?")[1].split("#")[0];
     if (param == '') param = 'void';
     makeRequest(['textdb.php?' + param + "&type=save&likeid=" + id + "&" + "file_name=" + name, text], "save");
+    codeChanges();
 }
 
 function saveEditedFile() {
@@ -329,6 +330,8 @@ if (startTools != null) {
         console.log("REQUEST: ", 'textdb.php?' + param + "&type=tools" + request_text)
 
         makeRequest('textdb.php?' + param + "&type=tools" + request_text, "tools");
+
+        resetCodeChanges();
     });
 }
 
@@ -1149,4 +1152,21 @@ function switchCon(n) {
             label.attributes.for.value);
         con.style.display = 'block';
     }
+}
+
+function codeChanges() {
+    if (Editor.isEditorChanged()) {
+        codeChanged();
+    }
+}
+
+function codeChanged() {
+    let span = document.getElementById("span-checks-old");
+    span.classList.remove("d-none");
+}
+
+function resetCodeChanges() {
+    Editor.resetEditorChanges(true);
+    let span2 = document.getElementById("span-checks-old");
+    span2.classList.add("d-none");
 }

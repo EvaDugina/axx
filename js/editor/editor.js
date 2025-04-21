@@ -6,6 +6,8 @@ import { wsApiUrl, httpApiUrl } from '../api.js';
 
 const editor = { current: null, id: null };
 var FILES_POSITIONS = [];
+var PREVIOUS_VALUE = null;
+var IS_CHANGED = false;
 
 // Работа с обводкой окна редактора
 
@@ -33,12 +35,21 @@ export function isReadOnly() {
 
 export default editor;
 
+export function isEditorChanged() {
+    return IS_CHANGED;
+}
+
 export function getEditorId() {
     return editor.id;
 }
 
 export function setEditorId(new_id) {
     editor.id = new_id;
+    resetEditorChanges()
+}
+
+export function setEditorPreviousValue(previous_value) {
+    PREVIOUS_VALUE = previous_value;
 }
 
 export function getEditorValue() {
@@ -50,6 +61,8 @@ export function setEditorLanguage(language) {
 }
 
 export function setEditorValue(new_text) {
+    if (PREVIOUS_VALUE == null)
+        PREVIOUS_VALUE = new_text;
     editor.current.setValue(new_text);
 }
 
@@ -76,11 +89,16 @@ export function removeFilePosition(file_id) {
     delete FILES_POSITIONS[file_id];
 }
 
+export function resetEditorChanges(isChecksStart = false) {
+    setEditorPreviousValue(null)
+    IS_CHANGED = false;
+    if (isChecksStart)
+        setEditorPreviousValue(getEditorValue());
+}
+
 function isEditorReady() {
     return editor.current != null;
 }
-
-
 
 function isFocused() {
     return editor.current.hasTextFocus();
@@ -130,6 +148,24 @@ require(['vs/editor/editor.main'], function () {
         // Добавление команды для сочетания клавиш Ctrl + S
         editor.current.addCommand(monaco.KeyCode.KeyS | monaco.KeyMod.CtrlCmd, function () {
             $('#btn-save').click();
+        });
+
+        editor.current.onDidChangeModelContent((event) => {
+            let newValue = editor.current.getValue();
+
+            if (PREVIOUS_VALUE == null || PREVIOUS_VALUE == newValue)
+                return;
+
+            event.changes.forEach(change => {
+                console.log('Изменение:', {
+                    from: change.range.startLineNumber,
+                    to: change.range.endLineNumber,
+                    text: change.text
+                });
+            });
+
+            setEditorPreviousValue(newValue);
+            IS_CHANGED = true;
         });
 
 
