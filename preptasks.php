@@ -411,12 +411,18 @@ show_head($page_title, array('js/preptasks.js'));
                         </span>
                         <i class="fas fa-user<?= (($icon_multiusers) ? "s" : "") ?>"></i> <?= $stud_list ?>
                       <?php }
-                      echo "(";
+                      $time_limit =  "(";
                       if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) != "")
-                        echo "c $Assignment->start_limit ";
-                      if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "")
-                        echo "=> до $Assignment->finish_limit";
-                      echo ")";
+                        $time_limit .= "c $Assignment->start_limit";
+                      if (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) != "") {
+                        if ($time_limit != "(")
+                          $time_limit .= " ";
+                        $time_limit .=  "=> до $Assignment->finish_limit";
+                      }
+                      $time_limit .=  ")";
+                      if ($time_limit == "()")
+                        $time_limit = "(бессрочно)";
+                      echo $time_limit;
                       ?>
                     </span>
                     <span>
