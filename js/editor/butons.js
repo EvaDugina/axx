@@ -428,7 +428,17 @@ function makeRequest(url, type) {
     } else {
         httpRequest.onreadystatechange = function () {
             var con = document.getElementById(type);
-            con.innerHTML = httpRequest.responseText.trim();
+            let response = httpRequest.responseText.trim();
+
+            function decodeEscapeSequences(response) {
+                return response.replace(/\\n/g, '\n');
+            }
+
+            response = decodeEscapeSequences(response);
+
+            // console.log("response", response);
+
+            con.innerHTML = response
         }
         httpRequest.open('POST', encodeURI(url), true);
         httpRequest.send(null);
@@ -1161,12 +1171,12 @@ function codeChanges() {
 }
 
 function codeChanged() {
-    let span = document.getElementById("span-checks-old");
-    span.classList.remove("d-none");
+    let span_checks_old = document.getElementById("span-checks-old")
+    span_checks_old.classList.remove("d-none");
 }
 
 function resetCodeChanges() {
     Editor.resetEditorChanges(true);
-    let span2 = document.getElementById("span-checks-old");
-    span2.classList.add("d-none");
+    let span_checks_old = document.getElementById("span-checks-old")
+    span_checks_old.classList.add("d-none");
 }
