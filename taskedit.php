@@ -666,12 +666,10 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
       original_description = new_description.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
 
-    if (isExtCodeTestChanged()) {
+    if (isExtCodeTestChanged() || isCodeTestChanged()) {
       newExtCodeTest = $('#select-codeTestFiles-ext').val();
       original_extCodeTest = newExtCodeTest;
       new_codeTest = "";
-    }
-    if (isCodeTestChanged()) {
       new_codeTest = $('#textArea-codeTest').val();
       original_codeTest = new_codeTest;
     }
