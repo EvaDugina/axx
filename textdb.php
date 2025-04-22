@@ -893,7 +893,7 @@ else if ($type == "tools") {
 
   $folder_for_docker = getenv('HOST_DIR');
   if ($hostScriptDir === false) {
-      die('Переменная HOST_DIR не задана');
+    die('Переменная HOST_DIR не задана');
   }
 
   $checks = json_decode($checks, true);
@@ -931,7 +931,7 @@ else if ($type == "tools") {
     http_response_code(500);
     exit;
   }
-  
+
   $myfile = fopen($folder . '/output.json', "r");
   if (!$myfile) {
     echo "Не удалось получить результаты проверки из файла:<br>";
@@ -944,7 +944,7 @@ else if ($type == "tools") {
 
   pg_query($dbconnect, 'update ax.ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $Commit->id);
   /**/
-  
+
   header('Content-Type: application/json');
 }
 
@@ -984,10 +984,22 @@ else if ($type == "console") {
   if ($tool == "build" && $text[0] == 'b') {
     $text = substr($text, 1 + $len_char, strlen($text) - 1 - $len_char * 2);
   }
-  $responce = $text;
+  $responce = replaceBytes($text);
 
   header('Content-Type: text/plain');
 }
+
+function replaceBytes($str)
+{
+  return preg_replace_callback(
+    '/\\\\x([0-9A-Fa-f]{2})\\\\x([0-9A-Fa-f]{2})\\\\x([0-9A-Fa-f]{2})/',
+    function ($matches) {
+      return "~";
+    },
+    $str
+  );
+}
+
 
 //-----------------------------------------------------------------------------------------------------------------------------
 ?>
