@@ -144,10 +144,10 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   );
   ?>
 
-  <main class="container-fluid overflow-hidden">
-    <div class="pt-2 row">
-      <div class="row d-flex justify-content-between col-md-8">
-        <div class="col-md-3 d-flex flex-column">
+  <main class="container-fluid overflow-hidden mx-0 px-0 no-gutters">
+    <div class="pt-2 mx-0 w-100 row no-gutters">
+      <div class="d-flex justify-content-between col-md-8 pe-1">
+        <div class="w-25 d-flex flex-column me-2">
 
           <div class="d-none d-sm-block d-print-block" style="border-bottom: 1px solid;">
             <ul id="ul-files" class="tasks__list list-group-flush w-100 px-0" style="width: 100px;">
@@ -281,7 +281,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           <?php } ?>
 
         </div>
-        <div class="col-md-9 px-0">
+        <div class="w-75 px-0">
           <div class="d-flex mb-1">
             <div class="w-100 me-1">
               <select class="form-select" aria-label=".form-select" id="language">
@@ -343,7 +343,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
         <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
 
       </div>
-      <div class="col-md-4">
+      <div class="col-md-4 ps-1">
         <div class="d-none d-sm-block d-print-block border rounded mb-5">
           <div class="tab d-flex justify-content-between">
             <button id="defaultOpen" class="tablinks" onclick="openCity('Task')" data-tab-name="Task">Задание</button>
@@ -382,9 +382,9 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
           </div>
 
-          <div id="Console" class="tabcontent">
+          <div id="Console" class="tabcontent mx-0 px-0">
             <h3>Консоль</h3>
-            <div id="terminal"></div>
+            <div id="terminal" class="mx-0 px-0"></div>
           </div>
 
           <div id="Test" class="tabcontent">
@@ -1042,11 +1042,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
       for (var i = 0; i < list.length; i++) list[i].classList.add("mdtable");
     }
     showBorders();
-
-    var isCtrl = false;
-    document.onkeyup = function(e) {
-      if (e.ctrlKey || e.metaKey) isCtrl = false;
-    }
 
     function markAssignmentWithoutReload(assignment_id, user_id, mark) {
       $('#spinner-mark').removeClass("d-none");
