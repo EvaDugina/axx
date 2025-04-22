@@ -388,270 +388,269 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           </div>
 
           <div id="Test" class="tabcontent">
+
+            <?php
+
+            $checkres = json_decode('{
+"tools": {
+"build": {
+"enabled": false,
+"show_to_student": false,
+"language": "C++",
+"check": {
+  "autoreject": true,
+  "full_output": "output_build.txt",
+  "outcome": "pass"
+},
+"outcome": "undefined"
+},
+"valgrind": {
+"enabled": false,
+"show_to_student": false,
+"bin": "valgrind",
+"arguments": "",
+"compiler": "gcc",
+"checks": [
+  {
+    "check": "errors",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": true,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "leaks",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": true,
+    "result": 5,
+    "outcome": "fail"
+  }
+],
+"full_output": "output_valgrind.xml",
+"outcome": "undefined"
+},
+"cppcheck": {
+"enabled": false,
+"show_t_student": false,
+"bin": "cppcheck",
+"arguments": "",
+"checks": [
+  {
+    "check": "error",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "warning",
+    "enabled": true,
+    "imit": 3,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "style",
+    "enabled": true,
+    "limit": 3,
+    "autoreject": false,
+    "result": 2,
+    "outcome": "pass"
+  },
+  {
+    "check": "performance",
+    "enabled": true,
+    "limit": 2,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "portability",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "information",
+    "enabed": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 1,
+    "outcome": "fail"
+  },
+  {
+    "check": "unusedFunction",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "missingnclude",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  }
+],
+"full_output": "output_cppcheck.xml",
+"outcome": "undefined"
+},
+"clang-format": {
+"enabled": false,
+"show_to_student": false,
+"bin": "clang-format",
+"arguments": "",
+"check": {
+  "level": "strict",
+  ".comment": "canbediffrentchecks,suchasstrict,less,minimalandsoon",
+  "file": ".clang-format",
+  "limit": 5,
+  "autoreject": true,
+  "result": 8,
+  "outcome": "fail"
+},
+"full_output": "output_format.xml",
+"outcome": "undefined"
+},
+"pylint": {
+"enabled": false,
+"show_to_student": false,
+"bin": "pylint",
+"arguments": "",
+"checks": [
+  {
+    "check": "error",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "warning",
+    "enabled": true,
+    "limit": 0,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "refactor",
+    "enabled": true,
+    "limit": 3,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  },
+  {
+    "check": "convention",
+    "enabled": true,
+    "limit": 3,
+    "autoreject": false,
+    "result": 0,
+    "outcome": "pass"
+  }
+],
+"full_output": "output_pylint.xml",
+"outcome": "undefined"
+},
+"pytest": {
+"enabled": false,
+"show_to_student": false,
+"bin": "pytest",
+"arguments": "",
+"test_path": "autotest.py",
+"check": {
+    "limit": 0,
+    "autoreject": true,
+    "error": 0,
+    "failed": 0,
+    "passed": 0,
+    "seconds": 0,
+    "outcome": "fail"
+},
+"full_output": "output_pytest.txt",
+"outcome": "undefined"
+},
+"copydetect": {
+"enabled": false,
+"show_to_student": false,
+"bin": "copydetect",
+"arguments": "",
+"check": {
+  "type": "with_all",
+  "limit": 50,
+  "reference_directory": "copydetect",
+  "autoreject": true,
+  "result": 44,
+  "outcome": "skip"
+},
+"full_output": "output_copydetect.html",
+"outcome": "undefined"
+},
+"autotests": {
+"enabled": false,
+"show_to_student": false,
+"test_path": "test_example.cpp",
+"check": {
+  "limit": 0,
+  "autoreject": true,
+  "outcome": "skip",
+  "errors": 0,
+  "failures": 3
+},
+"full_output": "output_tests.txt",
+"outcome": "undefined"
+}
+}
+}', true);
+
+            $hasCheckResults = false;
+
+            if (!$last_commit_id || $last_commit_id == "") {
+              $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+              $last_commit_id = pg_fetch_assoc($resAC)['id'];
+            }
+
+            if ($last_commit_id && $last_commit_id != "") {
+              $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
+              if ($resultC && pg_num_rows($resultC) > 0) {
+                $rowC = pg_fetch_assoc($resultC);
+                if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null) {
+                  $checkres = json_decode($rowC['res'], true);
+                  $hasCheckResults = true;
+                }
+              }
+            }
+
+            $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+              " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
+            $row = pg_fetch_assoc($result);
+            $checks = $row['achecks'];
+            if ($checks == null)
+              $checks = $row['tchecks'];
+            if ($checks == null)
+              $checks = json_encode($checkres);
+            $checks = json_decode($checks, true);
+            ?>
+
+            <div>
+              <span id="span-checks-old" class="btn-danger <?= ($hasCheckResults) ? "" : "d-none" ?>">Обратите внимание! Результаты проверки неактуальны.</span>
+            </div>
+
             <div id="div-check-results">
               <?php
-
-              $checkres = json_decode('{
-          "tools": {
-            "build": {
-              "enabled": false,
-              "show_to_student": false,
-              "language": "C++",
-              "check": {
-                "autoreject": true,
-                "full_output": "output_build.txt",
-                "outcome": "pass"
-              },
-              "outcome": "undefined"
-            },
-            "valgrind": {
-              "enabled": false,
-              "show_to_student": false,
-              "bin": "valgrind",
-              "arguments": "",
-              "compiler": "gcc",
-              "checks": [
-                {
-                  "check": "errors",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": true,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "leaks",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": true,
-                  "result": 5,
-                  "outcome": "fail"
-                }
-              ],
-              "full_output": "output_valgrind.xml",
-              "outcome": "undefined"
-            },
-            "cppcheck": {
-              "enabled": false,
-              "show_t_student": false,
-              "bin": "cppcheck",
-              "arguments": "",
-              "checks": [
-                {
-                  "check": "error",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "warning",
-                  "enabled": true,
-                  "imit": 3,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "style",
-                  "enabled": true,
-                  "limit": 3,
-                  "autoreject": false,
-                  "result": 2,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "performance",
-                  "enabled": true,
-                  "limit": 2,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "portability",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "information",
-                  "enabed": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 1,
-                  "outcome": "fail"
-                },
-                {
-                  "check": "unusedFunction",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "missingnclude",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                }
-              ],
-              "full_output": "output_cppcheck.xml",
-              "outcome": "undefined"
-            },
-            "clang-format": {
-              "enabled": false,
-              "show_to_student": false,
-              "bin": "clang-format",
-              "arguments": "",
-              "check": {
-                "level": "strict",
-                ".comment": "canbediffrentchecks,suchasstrict,less,minimalandsoon",
-                "file": ".clang-format",
-                "limit": 5,
-                "autoreject": true,
-                "result": 8,
-                "outcome": "fail"
-              },
-              "full_output": "output_format.xml",
-              "outcome": "undefined"
-            },
-            "pylint": {
-              "enabled": false,
-              "show_to_student": false,
-              "bin": "pylint",
-              "arguments": "",
-              "checks": [
-                {
-                  "check": "error",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "warning",
-                  "enabled": true,
-                  "limit": 0,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "refactor",
-                  "enabled": true,
-                  "limit": 3,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                },
-                {
-                  "check": "convention",
-                  "enabled": true,
-                  "limit": 3,
-                  "autoreject": false,
-                  "result": 0,
-                  "outcome": "pass"
-                }
-              ],
-              "full_output": "output_pylint.xml",
-              "outcome": "undefined"
-            },
-            "pytest": {
-              "enabled": false,
-              "show_to_student": false,
-              "bin": "pytest",
-              "arguments": "",
-              "test_path": "autotest.py",
-              "check": {
-                  "limit": 0,
-                  "autoreject": true,
-                  "error": 0,
-                  "failed": 0,
-                  "passed": 0,
-                  "seconds": 0,
-                  "outcome": "fail"
-              },
-              "full_output": "output_pytest.txt",
-              "outcome": "undefined"
-            },
-            "copydetect": {
-              "enabled": false,
-              "show_to_student": false,
-              "bin": "copydetect",
-              "arguments": "",
-              "check": {
-                "type": "with_all",
-                "limit": 50,
-                "reference_directory": "copydetect",
-                "autoreject": true,
-                "result": 44,
-                "outcome": "skip"
-              },
-              "full_output": "output_copydetect.html",
-              "outcome": "undefined"
-            },
-            "autotests": {
-              "enabled": false,
-              "show_to_student": false,
-              "test_path": "test_example.cpp",
-              "check": {
-                "limit": 0,
-                "autoreject": true,
-                "outcome": "skip",
-                "errors": 0,
-                "failures": 3
-              },
-              "full_output": "output_tests.txt",
-              "outcome": "undefined"
-            }
-          }
-        }', true);
-
-              $hasCheckResults = false;
-
-              if (!$last_commit_id || $last_commit_id == "") {
-                $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
-                $last_commit_id = pg_fetch_assoc($resAC)['id'];
-              }
-
-              if ($last_commit_id && $last_commit_id != "") {
-                $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
-                if ($resultC && pg_num_rows($resultC) > 0) {
-                  $rowC = pg_fetch_assoc($resultC);
-                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null) {
-                    $checkres = json_decode($rowC['res'], true);
-                    $hasCheckResults = true;
-                  }
-                }
-              }
-
-              $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
-                " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
-              $row = pg_fetch_assoc($result);
-              $checks = $row['achecks'];
-              if ($checks == null)
-                $checks = $row['tchecks'];
-              if ($checks == null)
-                $checks = json_encode($checkres);
-              $checks = json_decode($checks, true);
-              ?>
-
-              <div>
-                <span id="span-checks-old" class="btn-danger <?= ($hasCheckResults) ? "" : "d-none" ?>">Обратите внимание! Результаты проверки неактуальны.</span>
-              </div>
-
-              <?php
-
-              echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
-
+              echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . "; console.log(" . json_encode($checkres) . ");</script>";
               $accord = getAutotestsAccordionHtml($checks, @$checkres, $User);
               echo show_accordion('checkres', $accord, "5px");
               ?>
