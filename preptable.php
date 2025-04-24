@@ -60,15 +60,17 @@ if ($scripts) echo $scripts;
               <h2 class="w-75">
                 Посылки по дисциплине
               </h2>
-              <button type="submit" class="btn d-flex flex-row align-items-center" onclick="window.location='preptasks.php?page=<?= $page_id ?>';" style="">
-                Задания&nbsp;&nbsp;
-                <div class="h-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
-                    <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
-                  </svg>
-                </div>
-              </button>
+              <div class="py-1">
+                <button type="submit" class="btn btn-outline-danger d-flex align-items-center" onclick="window.location='preptasks.php?page=<?= $page_id ?>';" style="">
+                  Задания&nbsp;&nbsp;
+                  <div class="h-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                      <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                    </svg>
+                  </div>
+                </button>
+              </div>
             </div>
             <div style="padding-top:10px; padding-bottom:10px; ">
               <select class="form-select" aria-label=".form-select" name="select-discipline" id="selectCourse">
@@ -115,32 +117,14 @@ if ($scripts) echo $scripts;
             <?php
             $query = select_page_tasks($page_id, 1);
             $result = pg_query($dbconnect, $query);
-            $tasks = array();
-            if (!$result || pg_num_rows($result) < 1) { ?>
-              <div class="pt-3">
-                <h5>Задания по этой дисциплине отсутствуют</h5>
-              </div>
-
-            <?php
-            } else {
+            if (true) {
               $tasks = pg_fetch_all_assoc($result, PGSQL_ASSOC);
               $group = null;
 
-              $query = select_page_students_grouped($page_id, 1);
-              $result = pg_query($dbconnect, $query);
-              $students = pg_fetch_all_assoc($result, PGSQL_ASSOC);
-
-              $query = select_preptable_messages($page_id);
-              $result = pg_query($dbconnect, $query);
-              $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
             ?>
 
               <?php
-              if (!$tasks) { ?>
-                <div class="pt-3">
-                  <h5>Отсутсвуют задания</h5>
-                </div>
-              <?php } else { ?>
+              if (count($Page->getGroups()) > 0) { ?>
 
                 <div>
                   <table class="table table-status" id="table-status-id" style="text-align: center;">
@@ -156,11 +140,13 @@ if ($scripts) echo $scripts;
                             <span style="font-size: large;">Подгруппа</span>
                           </div>
                         </th>
-                        <th class="align-items-center" scope="col" colspan="<?= count($tasks) + 1 ?>">
-                          <div class="d-flex justify-content-center align-items-center">
-                            <span class="me-2" style="font-size: large;">Задания </span>
-                          </div>
-                        </th>
+                        <?php if ($tasks) { ?>
+                          <th class="align-items-center" scope="col" colspan="<?= count($tasks) + 1 ?>">
+                            <div class="d-flex justify-content-center align-items-center">
+                              <span class="me-2" style="font-size: large;">Задания </span>
+                            </div>
+                          </th>
+                        <?php } ?>
                       </tr>
                       <tr>
                         <th scope="col" colspan="1"> </th>
@@ -183,7 +169,9 @@ if ($scripts) echo $scripts;
                           <th scope="row" colspan="1"><?= $Group->name ?></th>
                           <th scope="row" colspan="1"></th>
                           <!-- <th colspan="1"> </th> -->
-                          <td colspan="<?= count($Page->getActiveTasks()) ?>" style="background: var(--mdb-gray-200);"> </td>
+                          <?php if ($tasks) { ?>
+                            <td colspan="<?= count($Page->getActiveTasks()) ?>" style="background: var(--mdb-gray-200);"> </td>
+                          <?php } ?>
                         </tr>
                         <?php
                         foreach ($Group->getStudents() as $count => $Student) { ?>
@@ -204,7 +192,7 @@ if ($scripts) echo $scripts;
                               if ($Assignment != null) {
                                 if (!$Assignment->isVisible()) { ?>
                                   <td onclick="unblockAssignment(<?= $Assignment->id ?>)" style="background: var(--mdb-gray-100);">
-                                    <span id="span-assignmentMark-<?= $Assignment->id ?>">
+                                    <span id="span-assignmentMark-<?= $Assignment->id ?>" class="d-flex justify-content-center align-items-end">
                                       <?php
                                       if ($Assignment->mark == null)
                                         echo getSVGByAssignmentStatus(-2);
@@ -235,7 +223,7 @@ if ($scripts) echo $scripts;
                                   $last_message_Student = new User((int)$last_Message->sender_user_id);
                                 ?>
                                   <td id="td-assignment-<?= $Assignment->id ?>" tabindex="0" onclick="chooseAssignment(<?= $Assignment->id ?>); showTdPopover(this);" style="cursor: pointer;" data-toggle="popover" data-title="<?php /*$last_message_Student->getFI() convert_mtime($last_Message->date_time)*/ ?> Оценить задание" title="<?= $last_message_Student->getFI() . " " . convert_mtime($last_Message->date_time) ?>" data-mdb-content="<?= getPopoverContent($last_Message, $Task, $Assignment->id, $user_id, $Assignment->mark) ?>">
-                                    <span id="span-assignmentMark-<?= $Assignment->id ?>">
+                                    <span id="span-assignmentMark-<?= $Assignment->id ?>" class="d-flex justify-content-center align-items-end">
                                       <?php
                                       if ($Assignment->mark == null)
                                         echo getSVGByAssignmentStatus(-2);
@@ -252,7 +240,7 @@ if ($scripts) echo $scripts;
                                           </svg>
                                         </span>
                                       <?php } else { ?>
-                                        <span class="text-danger" style="font-size: larger;">
+                                        <span class="text-danger">
                                           ?
                                         </span>
                                       <?php } ?>
@@ -261,7 +249,7 @@ if ($scripts) echo $scripts;
                                 <?php } else { ?>
                                   <td id="td-assignment-<?= $Assignment->id ?>" onclick="chooseAssignment(<?= $Assignment->id ?>); answerPress(2,null,<?= $Assignment->id ?>,<?= $user_id ?>,'<?= $Task->mark_type ?>',<?= $Task->max_mark ?>, '<?= $Assignment->mark ?>');" style="cursor: pointer;" data-title="Оценить задание">
 
-                                    <span id="span-assignmentMark-<?= $Assignment->id ?>">
+                                    <span id="span-assignmentMark-<?= $Assignment->id ?>" class="d-flex justify-content-center align-items-end">
                                       <?php
                                       if ($Assignment->mark == null)
                                         echo getSVGByAssignmentStatus(-2);
@@ -285,129 +273,133 @@ if ($scripts) echo $scripts;
                   </table>
                 </div>
 
-              <?php } ?>
+                <div class="my-4 pt-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="mx-3" style="color: black; font-style:normal; font-size: larger; font-weight: bold;">ИСТОРИЯ СООБЩЕНИЙ</span>
+                    <?php if ($Page->getConversationTask() == null) { ?>
+                      <form id="form-createGeneralConversation" name="createGeneralConversation" action="taskassign_action.php" method="POST" enctype="multipart/form-data" class="me-2">
+                        <input type="hidden" name="page_id" value="<?= $Page->id ?>"></input>
+                        <input type="hidden" name="createGeneralConversation" value="true"></input>
 
-              <div class="my-4 pt-2">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="mx-3" style="color: black; font-style:normal; font-size: larger; font-weight: bold;">ИСТОРИЯ СООБЩЕНИЙ</span>
-                  <?php if ($Page->getConversationTask() == null) { ?>
-                    <form id="form-createGeneralConversation" name="createGeneralConversation" action="taskassign_action.php" method="POST" enctype="multipart/form-data" class="me-2">
-                      <input type="hidden" name="page_id" value="<?= $Page->id ?>"></input>
-                      <input type="hidden" name="createGeneralConversation" value="true"></input>
-
-                      <button class="btn btn-outline-primary px-3" type="submit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-square-text-fill" viewBox="0 0 16 16">
-                          <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z" />
-                        </svg>
-                        &nbsp; СОЗДАТЬ ОБЩУЮ БЕСЕДУ
+                        <button class="btn btn-outline-primary px-3" type="submit">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-square-text-fill" viewBox="0 0 16 16">
+                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z" />
+                          </svg>
+                          &nbsp; СОЗДАТЬ ОБЩУЮ БЕСЕДУ
+                        </button>
+                      </form>
+                    <?php } else if ($Page->getConversationTask()->getConversationAssignment() != null) { ?>
+                      <button class="btn btn-outline-primary px-3 d-flex" onclick="window.location='taskchat.php?assignment=<?= $Page->getConversationTask()->getConversationAssignment()->id ?>'">
+                        <?php getSVGByTaskType(2); ?>
+                        &nbsp; БЕСЕДА ПРЕДМЕТА
                       </button>
-                    </form>
-                  <?php } else if ($Page->getConversationTask()->getConversationAssignment() != null) { ?>
-                    <button class="btn btn-outline-primary px-3 d-flex" onclick="window.location='taskchat.php?assignment=<?= $Page->getConversationTask()->getConversationAssignment()->id ?>'">
-                      <?php getSVGByTaskType(2); ?>
-                      &nbsp; БЕСЕДА ПРЕДМЕТА
-                    </button>
-                  <?php } ?>
-                </div>
-                <ul class="accordion list-group" style="margin-bottom: 40px;" id="accordion-student-list">
-                  <?php
-                  // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
+                    <?php } ?>
+                  </div>
+                  <ul class="accordion list-group" style="margin-bottom: 40px;" id="accordion-student-list">
+                    <?php
+                    // Составление аккордеона-списка студентов с возможностью перехода на страницы taskchat по каждому отдельному заданию 
 
-                  $key = 0;
-                  foreach ($Page->getGroups() as $Group) {
-                    foreach ($Group->getStudents() as $Student) {
-                      $studentAssignments = $Page->getAllCompilingAssignmentsByStudent($Student->id);
-                      $studentCompletedAssignments = $Page->getCountCompletedAssignmentsByStudent($Student->id);
-                  ?>
-                      <div class="student-item">
-                        <li id="<?= ++$key ?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
-                          <div class="row">
-                            <div class="d-flex justify-content-between align-items-center">
-                              <div id="div-accordion-collapse-<?= $key ?>" class="<?= (count($studentAssignments) > 0) ? "accordion-button" : "accordion-button-empty" ?> shadow-none collapsed p-2">
-                                <div class="div-accordion-student-fio w-100">
-                                  <!--<i id="icon-down-right-<?= $key ?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
-                                  <strong class="strong-accordion-student-fio"><?= $Student->getFI() ?></strong>
+                    $key = 0;
+                    foreach ($Page->getGroups() as $Group) {
+                      foreach ($Group->getStudents() as $Student) {
+                        $studentAssignments = $Page->getAllCompilingAssignmentsByStudent($Student->id);
+                        $studentCompletedAssignments = $Page->getCountCompletedAssignmentsByStudent($Student->id);
+                    ?>
+                        <div class="student-item">
+                          <li id="<?= ++$key ?>" class="li-1 list-group-item noselect toggle-accordion" style="cursor: pointer;" href="javascript:void(0);">
+                            <div class="row">
+                              <div class="d-flex justify-content-between align-items-center">
+                                <div id="div-accordion-collapse-<?= $key ?>" class="<?= (count($studentAssignments) > 0) ? "accordion-button" : "accordion-button-empty" ?> shadow-none collapsed p-2">
+                                  <div class="div-accordion-student-fio w-100">
+                                    <!--<i id="icon-down-right-<?= $key ?>" class="fa fa-caret-right" aria-hidden="true"></i>-->
+                                    <strong class="strong-accordion-student-fio"><?= $Student->getFI() ?></strong>
+                                  </div>
+                                  <?php
+                                  if ($Page->hasUncheckedTasks($Student->id)) { ?>
+                                    <span id="span-studentStatus-<?= $Student->id ?>" class="badge badge-primary badge-pill bg-warning text-white me-3">
+                                      Ожидает проверки
+                                    </span>
+                                  <?php } ?>
+                                  <?php if (count($studentAssignments) > 0) { ?>
+                                    <span class="badge badge-light me-3">
+                                      <span class="small font-weight-light">
+                                        (
+                                        <span id="span-countCompletedAssignments-<?= $Student->id ?>">
+                                          <?= $studentCompletedAssignments ?>
+                                        </span>
+                                        /
+                                        <span id="span-countVisibleAssignments-<?= $Student->id ?>">
+                                          <?= count($studentAssignments) ?>
+                                        </span>
+                                        )</span>
+                                    </span>
+                                  <?php } ?>
                                 </div>
-                                <?php
-                                if ($Page->hasUncheckedTasks($Student->id)) { ?>
-                                  <span id="span-studentStatus-<?= $Student->id ?>" class="badge badge-primary badge-pill bg-warning text-white me-3">
-                                    Ожидает проверки
-                                  </span>
-                                <?php } ?>
-                                <?php if (count($studentAssignments) > 0) { ?>
-                                  <span class="badge badge-light me-3">
-                                    <span class="small font-weight-light">
-                                      (
-                                      <span id="span-countCompletedAssignments-<?= $Student->id ?>">
-                                        <?= $studentCompletedAssignments ?>
-                                      </span>
-                                      /
-                                      <span id="span-countVisibleAssignments-<?= $Student->id ?>">
-                                        <?= count($studentAssignments) ?>
-                                      </span>
-                                      )</span>
-                                  </span>
+
+                                <?php if (count($studentAssignments) < 1) { ?>
+                                  <div class="me-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+                                      <path d="M15 8a6.973 6.973 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8ZM2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Z" />
+                                    </svg>
+                                  </div>
                                 <?php } ?>
                               </div>
-
-                              <?php if (count($studentAssignments) < 1) { ?>
-                                <div class="me-2">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
-                                    <path d="M15 8a6.973 6.973 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8ZM2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Z" />
-                                  </svg>
-                                </div>
-                              <?php } ?>
                             </div>
-                          </div>
-                        </li>
-                        <div class="inner-accordion noselect" style="display: none;">
-                          <?php
-                          foreach ($Page->getActiveTasks() as $Task) {
-                            $Assignment = $Task->getLastAssignmentByStudent($Student->id);
-                            if ($Assignment != null) { ?>
-                              <a href="taskchat.php?assignment=<?= $Assignment->id ?>">
-                                <li class="list-group-item">
-                                  <div class="row">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                      &nbsp;&nbsp;&nbsp;<?= $Task->title ?>
-                                      <div id="div-assignmentStatus-<?= $Assignment->id ?>" data-student-id="<?= $Student->id ?>">
-                                        <?php
+                          </li>
+                          <div class="inner-accordion noselect" style="display: none;">
+                            <?php
+                            foreach ($Page->getActiveTasks() as $Task) {
+                              $Assignment = $Task->getLastAssignmentByStudent($Student->id);
+                              if ($Assignment != null) { ?>
+                                <a href="taskchat.php?assignment=<?= $Assignment->id ?>">
+                                  <li class="list-group-item">
+                                    <div class="row">
+                                      <div class="d-flex justify-content-between align-items-center">
+                                        &nbsp;&nbsp;&nbsp;<?= $Task->title ?>
+                                        <div id="div-assignmentStatus-<?= $Assignment->id ?>" data-student-id="<?= $Student->id ?>">
+                                          <?php
 
-                                        if ($Assignment->isWaitingCheck()) { ?>
-                                          <span class="badge badge-primary badge-pill bg-warning text-white">
-                                            <?= ($Assignment->isMarked()) ? "Ожидает пвторной проверки" : "Ожидает проверки"; ?>
-                                          </span>
-                                        <?php }
+                                          if ($Assignment->isWaitingCheck()) { ?>
+                                            <span class="badge badge-primary badge-pill bg-warning text-white">
+                                              <?= ($Assignment->isMarked()) ? "Ожидает пвторной проверки" : "Ожидает проверки"; ?>
+                                            </span>
+                                          <?php }
 
-                                        if ($Assignment->isMarked()) { ?>
-                                          <span class="badge badge-primary badge-pill bg-success text-white">
-                                            Выполнено: <?= $Assignment->mark ?>
-                                          </span>
-                                        <?php } else if ($Assignment->isCompleted()) { ?>
-                                          <span class="badge badge-primary badge-pill bg-primary text-white">
-                                            Проверено
-                                          </span>
-                                        <?php } ?>
+                                          if ($Assignment->isMarked()) { ?>
+                                            <span class="badge badge-primary badge-pill bg-success text-white">
+                                              Выполнено: <?= $Assignment->mark ?>
+                                            </span>
+                                          <?php } else if ($Assignment->isCompleted()) { ?>
+                                            <span class="badge badge-primary badge-pill bg-primary text-white">
+                                              Проверено
+                                            </span>
+                                          <?php } ?>
 
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </li>
-                              </a>
+                                  </li>
+                                </a>
+                              <?php } ?>
                             <?php } ?>
-                          <?php } ?>
+                          </div>
                         </div>
-                      </div>
-                  <?php
-                    }
-                  } ?>
+                    <?php
+                      }
+                    } ?>
 
-                </ul>
-              </div>
+                  </ul>
+                </div>
+              <?php } ?>
           </div>
         </div>
 
-        <?php if ($messages && count($messages) > 0) { ?>
+        <?php
+              $query = select_preptable_messages($page_id);
+              $result = pg_query($dbconnect, $query);
+              $messages = pg_fetch_all_assoc($result, PGSQL_ASSOC);
+
+              if ($messages && count($messages) > 0) { ?>
           <div class="col-4 bg-light p-3" style="z-index: 3;">
             <h5>История посылок и оценок</h5>
             <div id="list-messages" class="bg-light" style="/*overflow-y: scroll; height: calc(100vh - 80px); max-height: calc(100vh - 80px);*/">
