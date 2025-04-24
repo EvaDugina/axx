@@ -115,15 +115,21 @@ if (array_key_exists('page', $_REQUEST)) {
 	echo "<script>var PAGE_ID=$Page->id;</script>";
 } else {
 	$page_id = 0;
-	// TODO: Сделать создание страницы
-	echo "<script>var isNewPage=true;</script>";
-	echo "<script>var PAGE_ID=null;</script>";
+
+	$page_teachers = [array('id' => $User->id, 'fio' => $User->getOfficialFIO())];
 
 	if (array_key_exists('year', $_REQUEST) && array_key_exists('sem', $_REQUEST))
 		$semester = $_REQUEST['year'] . "/" . convert_sem_from_number($_REQUEST['sem']);
+
+	// TODO: Сделать создание страницы
+	echo "<script>var isNewPage=true;</script>";
+	echo "<script>var PAGE_ID=null;</script>";
 }
 
 $page_title = getPageeditPageTitle($Page);
+
+echo "<script>var actual_teachers_json = " . json_encode($page_teachers) . ";</script>";
+echo "<script>var page_groups_json = " . json_encode($page_groups) . ";</script>";
 
 
 echo "<script>var user_id=" . $User->id . ";</script>";
@@ -461,9 +467,6 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 			MAX_FILE_SIZE = data.MAX_FILE_SIZE
 		})
 		.catch(error => console.error('Ошибка:', error));
-
-	var actual_teachers_json = <?php echo json_encode($page_teachers); ?>;
-	var page_groups_json = <?php echo json_encode($page_groups); ?>;
 
 
 	let easyMDE_value = easyMDE.value();
