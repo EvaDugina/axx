@@ -108,7 +108,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 	$pageGroups = $Page->getGroups();
 	foreach ($pageGroups as $Group) {
-		array_push($page_groups, array('id' => $Group->id, 'name' => $Group->name));
+		array_push($page_groups, array('id' => $Group->id, 'name' => $Group->name, 'countAssignments' => $Page->getCountActiveAssignmentsByGroup($Group->id)));
 	}
 
 	echo "<script>var isNewPage=false;</script>";
@@ -278,8 +278,11 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 								<select class="form-select" name="page_group" id="select_groups">
 									<option value="null">Выберите группу</option>;
 									<?php
-									foreach ($Groups as $Group) { ?>
-										<option value="<?= $Group->id ?>" class="d-flex justify-content-between">
+									foreach ($Groups as $Group) {
+										$countAssignments = 0;
+										if ($Page != null)
+											$countAssignments = $Page->getCountActiveAssignmentsByGroup($Group->id); ?>
+										<option value="<?= $Group->id ?>" class="d-flex justify-content-between" data-countAssignments="<?= $countAssignments ?>">
 											<?= $Group->getTitle() ?>
 										</option>
 									<?php }
@@ -524,7 +527,7 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 		if (page_groups_json) {
 			page_groups_json.forEach(function(r) {
 				let name = r.name;
-				add_element(document.getElementById("groups_container"), name, "groups[]", "g", r.id);
+				add_element(document.getElementById("groups_container"), name, "groups[]", "g", r.id, r.countAssignments);
 				groups.add(r.id);
 			});
 		}
@@ -713,14 +716,14 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 	// 
 
 	var selectGroup = document.getElementById("select_groups");
-	selectGroup.onchange = function(event) {
+	selectGroup.addEventListener('change', function(event) {
 		event.preventDefault();
-		add_groups();
+		add_groups(this.options[this.selectedIndex].dataset.countassignments);
 		sleep(400,
 			async () => {
 				selectGroup.value = "null";
 			}, );
-	};
+	});
 
 	var selectTeacher = document.getElementById("select_teacher");
 	selectTeacher.onchange = function(event) {
@@ -734,13 +737,11 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 	};
 
 	function add_teacher() {
-		let teacher_id = $('#select_teacher').val();
+		let teacher_id = parseInt($('#select_teacher').val());
 		if (teacher_id == "null")
 			return;
 
-		teacher_id = parseInt(teacher_id);
-
-		if (teachers.has(parseInt(teacher_id)))
+		if (teachers.has(teacher_id))
 			return;
 
 		var name;
@@ -756,8 +757,8 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 		teachers.add(teacher_id);
 	}
 
-	function add_groups() {
-		let group_id = $('#select_groups').val();
+	function add_groups(countAssignments) {
+		let group_id = parseInt($('#select_groups').val());
 		if (group_id == "null")
 			return;
 
@@ -777,12 +778,14 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 			return;
 		}
 
-		add_element(document.getElementById("groups_container"), name, "groups[]", "g", group_id);
+		add_element(document.getElementById("groups_container"), name, "groups[]", "g", group_id, countAssignments);
 
 		groups.add(group_id);
 	}
 
-	function add_element(parent, name, tag, set, id) {
+	function add_element(parent, name, tag, set, id, countAssignments = null) {
+		id = parseInt(id)
+
 		let element = document.createElement("div");
 
 		element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-4 my-1 badge badge-primary text-wrap teacher-element");
@@ -792,6 +795,34 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 		text.classList.add("p-1", "me-1");
 		text.setAttribute("style", "font-size: 15px; /*border-right: 1px solid; border-color: grey;*/");
 		text.innerText = name;
+
+		if (countAssignments != null && countAssignments > 0) {
+			let span_countAssignments = document.createElement("span");
+			span_countAssignments.classList.add("p-1", "ms-1", "badge", "badge-danger");
+			span_countAssignments.setAttribute("style", "font-size: 15px; cursor: help;");
+			// span_countAssignments.setAttribute("title", "Количество активных Назначений")
+			span_countAssignments.innerText = countAssignments;
+
+			var tooltip = document.createElement('div');
+			tooltip.className = 'badge badge-danger';
+			tooltip.setAttribute("style", "font-size: 13px; position: absolute;");
+			element.appendChild(tooltip);
+
+			span_countAssignments.addEventListener('mouseenter', (e) => {
+				tooltip.textContent = "Количество активных Назначений";
+				tooltip.style.display = 'block';
+
+				let rect = e.target.getBoundingClientRect();
+				tooltip.style.left = `${rect.left + window.scrollX}px`;
+				tooltip.style.top = `${rect.bottom + window.scrollY}px`;
+			});
+
+			span_countAssignments.addEventListener('mouseleave', () => {
+				tooltip.style.display = 'none';
+			});
+
+			text.append(span_countAssignments);
+		}
 
 		let button = document.createElement("button");
 		button.classList.add("btn-close");
@@ -806,9 +837,16 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 
 		button.addEventListener('click', function(event) {
 			let name = event.target.parentNode.value;
-			if (tag == "groups[]")
-				groups.delete(id);
-			else
+			if (tag == "groups[]") {
+				if (countAssignments != null && countAssignments > 0) {
+					let flag = confirm("Вы уверены что хотите открепить группу от данного раздела? Для неё существует ещё " + countAssignments + " активных назначений!");
+					if (flag) {
+						groups.delete(id);
+					}
+				} else {
+					groups.delete(id);
+				}
+			} else
 				teachers.delete(id);
 			parent.removeChild(event.target.parentNode);
 		});

@@ -376,7 +376,6 @@ class Page
     return $return_Tasks;
   }
 
-
   public function getCountCompletedAssignments($student_id)
   {
     $count_success = 0;
@@ -391,6 +390,19 @@ class Page
     foreach ($this->getTasks() as $Task) {
       if ($Task->isActive()) {
         $count += count($Task->getVisibleAssignmemntsByStudent($student_id));
+      }
+    }
+    return $count;
+  }
+  public function getCountActiveAssignmentsByGroup($group_id)
+  {
+    $count = 0;
+    $Group = new Group($group_id);
+    foreach ($Group->getStudents() as $Student) {
+      foreach ($this->getTasks() as $Task) {
+        if ($Task->isActive()) {
+          $count += count($Task->getVisibleAssignmemntsByStudent($Student->id));
+        }
       }
     }
     return $count;
