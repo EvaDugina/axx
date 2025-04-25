@@ -73,7 +73,7 @@ function parseBuildCheck($data, $enabled)
 {
     $status_check = ($enabled) ? 'checked' : '';
     $resFooter = '<label for="build" id="buildlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<textarea id="build" class="axconsole w-100">Загрузка...</textarea>';
+        '<textarea id="build" class="axconsole w-100" readonly>Загрузка...</textarea>';
 
     // if (!$enabled) {
     //     return array(

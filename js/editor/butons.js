@@ -104,8 +104,8 @@ async function openFile(event = null, listItem = null) {
         thisListItem = this;
 
     $('#container').removeClass("d-none");
-    if (user_role == 3)
-        $('#check').prop("disabled", false);
+    // if (user_role == 3)
+    // $('#check').prop("disabled", false);
     var id = thisListItem.querySelector(".validationCustom").id;
     let editor_id = Editor.getEditorId();
     if (editor_id != null)
@@ -164,6 +164,9 @@ function delFile(event) {
         Editor.blockEditor();
 
     ARRAY_FILES.splice(parseInt(li.dataset.orderid), 1);
+    if (ARRAY_FILES.length < 1)
+        $('#check').prop("disabled", true);
+
     Editor.removeFilePosition(id);
 
     var param = document.location.href.split("?")[1].split("#")[0];
@@ -178,8 +181,8 @@ function delFile(event) {
     }
     else {
         $('#container').addClass("d-none");
-        if (user_role == 3)
-            $('#check').prop("disabled", true);
+        // if (user_role == 3)
+        //     $('#check').prop("disabled", true);
     }
     Editor.setFocusToCurrent();
 
@@ -484,8 +487,8 @@ function alertContentsCheck(httpRequest) {
         if (httpRequest.readyState == 4) {
             if (httpRequest.status == 200) {
                 // alert('Код отправлен на проверку!');
-                if (user_role == 3)
-                    $('#check').prop("disabled", false);
+                // if (user_role == 3)
+                //     $('#check').prop("disabled", false);
                 $('#dialogSuccess').modal('show');
                 // document.location.href = "editor.php?assignment=" + document.getElementById('check').getAttribute('assignment');
                 // document.location.reload();
@@ -1066,6 +1069,7 @@ function newFile() {
         listItems = list.querySelectorAll(".tasks__item");
 
         ARRAY_FILES.push(nameFile);
+        $('#check').prop("disabled", false);
 
         var param = document.location.href.split("?")[1].split("#")[0];
         if (param == '') param = 'void';
@@ -1172,11 +1176,13 @@ function codeChanges() {
 
 function codeChanged() {
     let span_checks_old = document.getElementById("span-checks-old")
-    span_checks_old.classList.remove("d-none");
+    if (span_checks_old)
+        span_checks_old.classList.remove("d-none");
 }
 
 function resetCodeChanges() {
     Editor.resetEditorChanges(true);
     let span_checks_old = document.getElementById("span-checks-old")
-    span_checks_old.classList.add("d-none");
+    if (span_checks_old)
+        span_checks_old.classList.add("d-none");
 }

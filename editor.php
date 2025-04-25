@@ -323,11 +323,11 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <?php
             if ($au->isAdminOrPrep()) {  // Оценить отправленное на проверку задание 
             ?>
-              <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" commit="<?= $Commit->id ?>" <?= (($Assignment->isWaitingCheck()) ? "" : "disabled") ?>>Завершить проверку</button>
+              <button type="button" class="btn btn-success me-1" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" commit="<?= $nowCommit->id ?>" <?= (($Assignment->isWaitingCheck() && $nowCommit->isChecking() && count($solutionFiles) > 0) ? "" : "disabled") ?>>Отправить коммит с замечаниями</button>
             <?php
             } else if ($Assignment->checkStudent($User->id)) { // Отправить задание на проверку
             ?>
-              <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" commit="<?= $Commit->id ?>" <?= (($assignment_status == -1 || count($solutionFiles) < 1) ? "disabled" : "") ?>>
+              <button type="button" class="btn btn-success" id="check" style="width: 100%;" assignment="<?= $assignment_id ?>" commit="<?= $nowCommit->id ?>" <?= (($assignment_status == -1 || count($solutionFiles) < 1 || !$nowCommit->isInProcess()) ? "disabled" : "") ?>>
                 Отправить на проверку</button>
             <?php
             }
@@ -392,227 +392,227 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             <?php
 
             $checkres = json_decode('{
-"tools": {
-"build": {
-"enabled": false,
-"show_to_student": false,
-"language": "C++",
-"check": {
-  "autoreject": true,
-  "full_output": "output_build.txt",
-  "outcome": "pass"
-},
-"outcome": "undefined"
-},
-"valgrind": {
-"enabled": false,
-"show_to_student": false,
-"bin": "valgrind",
-"arguments": "",
-"compiler": "gcc",
-"checks": [
-  {
-    "check": "errors",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": true,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "leaks",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": true,
-    "result": 5,
-    "outcome": "fail"
+  "tools": {
+    "build": {
+      "enabled": false,
+      "show_to_student": false,
+      "language": "C++",
+      "check": {
+        "autoreject": true,
+        "full_output": "output_build.txt",
+        "outcome": "pass"
+      },
+      "outcome": "undefined"
+    },
+    "valgrind": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "valgrind",
+      "arguments": "",
+      "compiler": "gcc",
+      "checks": [
+        {
+          "check": "errors",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": true,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "leaks",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": true,
+          "result": 5,
+          "outcome": "fail"
+        }
+      ],
+      "full_output": "output_valgrind.xml",
+      "outcome": "undefined"
+    },
+    "cppcheck": {
+      "enabled": false,
+      "show_t_student": false,
+      "bin": "cppcheck",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "warning",
+          "enabled": true,
+          "imit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "style",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 2,
+          "outcome": "pass"
+        },
+        {
+          "check": "performance",
+          "enabled": true,
+          "limit": 2,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "portability",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "information",
+          "enabed": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 1,
+          "outcome": "fail"
+        },
+        {
+          "check": "unusedFunction",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "missingnclude",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        }
+      ],
+      "full_output": "output_cppcheck.xml",
+      "outcome": "undefined"
+    },
+    "clang-format": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "clang-format",
+      "arguments": "",
+      "check": {
+        "level": "strict",
+        ".comment": "canbediffrentchecks,suchasstrict,less,minimalandsoon",
+        "file": ".clang-format",
+        "limit": 5,
+        "autoreject": true,
+        "result": 8,
+        "outcome": "fail"
+      },
+      "full_output": "output_format.xml",
+      "outcome": "undefined"
+    },
+    "pylint": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "pylint",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "warning",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "refactor",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "convention",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        }
+      ],
+      "full_output": "output_pylint.xml",
+      "outcome": "undefined"
+    },
+    "pytest": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "pytest",
+      "arguments": "",
+      "test_path": "autotest.py",
+      "check": {
+        "limit": 0,
+        "autoreject": true,
+        "error": 0,
+        "failed": 0,
+        "passed": 0,
+        "seconds": 0,
+        "outcome": "fail"
+      },
+      "full_output": "output_pytest.txt",
+      "outcome": "undefined"
+    },
+    "copydetect": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "copydetect",
+      "arguments": "",
+      "check": {
+        "type": "with_all",
+        "limit": 50,
+        "reference_directory": "copydetect",
+        "autoreject": true,
+        "result": 44,
+        "outcome": "skip"
+      },
+      "full_output": "output_copydetect.html",
+      "outcome": "undefined"
+    },
+    "autotests": {
+      "enabled": false,
+      "show_to_student": false,
+      "test_path": "test_example.cpp",
+      "check": {
+        "limit": 0,
+        "autoreject": true,
+        "outcome": "skip",
+        "errors": 0,
+        "failures": 3
+      },
+      "full_output": "output_tests.txt",
+      "outcome": "undefined"
+    }
   }
-],
-"full_output": "output_valgrind.xml",
-"outcome": "undefined"
-},
-"cppcheck": {
-"enabled": false,
-"show_t_student": false,
-"bin": "cppcheck",
-"arguments": "",
-"checks": [
-  {
-    "check": "error",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "warning",
-    "enabled": true,
-    "imit": 3,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "style",
-    "enabled": true,
-    "limit": 3,
-    "autoreject": false,
-    "result": 2,
-    "outcome": "pass"
-  },
-  {
-    "check": "performance",
-    "enabled": true,
-    "limit": 2,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "portability",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "information",
-    "enabed": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 1,
-    "outcome": "fail"
-  },
-  {
-    "check": "unusedFunction",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "missingnclude",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  }
-],
-"full_output": "output_cppcheck.xml",
-"outcome": "undefined"
-},
-"clang-format": {
-"enabled": false,
-"show_to_student": false,
-"bin": "clang-format",
-"arguments": "",
-"check": {
-  "level": "strict",
-  ".comment": "canbediffrentchecks,suchasstrict,less,minimalandsoon",
-  "file": ".clang-format",
-  "limit": 5,
-  "autoreject": true,
-  "result": 8,
-  "outcome": "fail"
-},
-"full_output": "output_format.xml",
-"outcome": "undefined"
-},
-"pylint": {
-"enabled": false,
-"show_to_student": false,
-"bin": "pylint",
-"arguments": "",
-"checks": [
-  {
-    "check": "error",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "warning",
-    "enabled": true,
-    "limit": 0,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "refactor",
-    "enabled": true,
-    "limit": 3,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  },
-  {
-    "check": "convention",
-    "enabled": true,
-    "limit": 3,
-    "autoreject": false,
-    "result": 0,
-    "outcome": "pass"
-  }
-],
-"full_output": "output_pylint.xml",
-"outcome": "undefined"
-},
-"pytest": {
-"enabled": false,
-"show_to_student": false,
-"bin": "pytest",
-"arguments": "",
-"test_path": "autotest.py",
-"check": {
-    "limit": 0,
-    "autoreject": true,
-    "error": 0,
-    "failed": 0,
-    "passed": 0,
-    "seconds": 0,
-    "outcome": "fail"
-},
-"full_output": "output_pytest.txt",
-"outcome": "undefined"
-},
-"copydetect": {
-"enabled": false,
-"show_to_student": false,
-"bin": "copydetect",
-"arguments": "",
-"check": {
-  "type": "with_all",
-  "limit": 50,
-  "reference_directory": "copydetect",
-  "autoreject": true,
-  "result": 44,
-  "outcome": "skip"
-},
-"full_output": "output_copydetect.html",
-"outcome": "undefined"
-},
-"autotests": {
-"enabled": false,
-"show_to_student": false,
-"test_path": "test_example.cpp",
-"check": {
-  "limit": 0,
-  "autoreject": true,
-  "outcome": "skip",
-  "errors": 0,
-  "failures": 3
-},
-"full_output": "output_tests.txt",
-"outcome": "undefined"
-}
-}
 }', true);
 
             $hasCheckResults = false;
@@ -644,13 +644,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             $checks = json_decode($checks, true);
             ?>
 
-            <div>
+            <!-- <div>
+              Плашка над проверками о том, что результаты неактуальны (активна при изменении кода)
               <span id="span-checks-old" class="btn-danger <?= ($hasCheckResults) ? "" : "d-none" ?>">Обратите внимание! Результаты проверки неактуальны.</span>
-            </div>
+            </div> -->
 
             <div id="div-check-results">
               <?php
-              echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . "; console.log(" . json_encode($checkres) . ");</script>";
+              echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
               $accord = getAutotestsAccordionHtml($checks, @$checkres, $User);
               echo show_accordion('checkres', $accord, "5px");
               ?>

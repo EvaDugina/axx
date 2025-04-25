@@ -499,7 +499,7 @@ class Assignment
 
   // WORK WITH MESSAGES
 
-  public function addMessage($message_id)
+  public function addMessage(int $message_id)
   {
     $Message = new Message((int)$message_id);
     $this->pushNewToDeliveryDB($Message);

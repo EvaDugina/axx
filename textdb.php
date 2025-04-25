@@ -314,78 +314,35 @@ else if ($type == "oncheck") {
     exit;
   }
 
-  // $filecount = 0;
-  // $result = pg_query($dbconnect, "SELECT count(*) cnt from ax.ax_commit_file where commit_id = $commit_id");
-  // $result = pg_fetch_all($result);
-  // $filecount = $result[0]['cnt'];
-  // $new_id = 0;
+  $answerCommit = getCommitCopy($Assignment->id, $au->getUserId(), $Commit);
+  if ($User->isStudent()) {
+    $answerCommit->setType(1);
+  } else {
+    $answerCommit->setType(3);
+  }
 
-  if (count($Commit->getFiles()) > 0) {
-    // $result = pg_query($dbconnect, "select id, role from students where login='" . $au->getUserLogin() . "'");
-    // $result = pg_fetch_all($result);
-    // $user_id = $result[0]['id'];
-    // // $user_role = $result[0]['role'];
-    // $User = new User($user_id);
+  if ($User->isStudent()) {
+    $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "");
+    $Assignment->addMessage($Message->id);
+    $Message->setCommit($answerCommit->id);
+    $File = new File(10, 'версия на проверку', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
+    $Message->addFile($File->id);
 
-    // --- сессий пока нет
-    // if ($User->isStudent()) {
-    //   $lastCommit = $Assignment->getLastCommitForStudent();
-    // } else {
-    //   $lastCommit = $Assignment->getLastCommitForTeacher();
-    // }
+    // Отправка сообщения-ссылки для преподавателя
+    $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 2);
+    $Assignment->addMessage($linkMessage->id);
+  } else {
+    $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "");
+    $Assignment->addMessage($Message->id);
+    $Message->setCommit($answerCommit->id);
+    $File = new File(10, 'проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
+    $Message->addFile($File->id);
+  }
 
-    $answerCommit = getCommitCopy($Assignment->id, $au->getUserId(), $Commit);
-    if ($User->isStudent()) {
-      $answerCommit->setType(1);
-    } else {
-      $answerCommit->setType(3);
-    }
-
-    // $result = pg_query($dbconnect, "insert into ax.ax_solution_commit (assignment_id, session_id, student_user_id, date_time, type) select assignment_id, session_id, $user_id, now()," .
-    //   (($user_role == 3) ? "1" : "3") . " from ax.ax_solution_commit where id = $commit_id RETURNING id");
-    // $result = pg_fetch_all($result);
-    // $new_id = $result[0]['id'];
-
-    // $pg_query = pg_query($dbconnect, "SELECT ax.ax_file.* from ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id where commit_id = $commit_id");
-    // $Commit = new Commit((int)$new_id);
-    // while ($file = pg_fetch_assoc($pg_query)) {
-    //   $File = new File((int)$file['type'], $file['file_name']);
-    //   $File->copy($file["id"]);
-    //   $Commit->addFile($File->id);
-    // }
-
-    // $result = pg_query($dbconnect, "insert into ax.ax_solution_file (assignment_id, commit_id, type, file_name, download_url, full_text) select assignment_id, $new_id, type, file_name, download_url, full_text from ax.ax_solution_file where commit_id = $commit_id");
-
-    // $result = pg_query($dbconnect, "update ax.ax_solution_commit set type = 1 where id = $commit_id");
-
-    // if ($User->isStudent())
-    //   pg_query($dbconnect, "UPDATE ax.ax_assignment SET status=1, status_code=2 where id=$assignment");
-    // else
-    //   pg_query($dbconnect, "UPDATE ax.ax_assignment SET status=4, status_code=2 where id=$assignment");
-
-    if ($User->isStudent()) {
-      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "Отправлено на проверку");
-      $Assignment->addMessage($Message->id);
-      $Message->setCommit($answerCommit->id);
-      $File = new File(10, 'проверить', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
-      $Message->addFile($File->id);
-
-      // Отправка сообщения-ссылки для преподавателя
-      $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 2);
-      $Assignment->addMessage($linkMessage->id);
-    } else {
-      $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "Проверено");
-      $Assignment->addMessage($Message);
-      $Message->setCommit($answerCommit->id);
-      $File = new File(10, 'проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
-      $Message->addFile($File->id);
-    }
-
-    if ($User->isStudent()) {
-      $Assignment->setStatus(1);
-    } else {
-      $Assignment->setStatus(2);
-    }
+  if ($User->isStudent()) {
+    $Assignment->setStatus(1);
+  } else {
+    $Assignment->setStatus(2);
   }
 }
 
