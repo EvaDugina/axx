@@ -55,7 +55,7 @@ show_head($page_title, array('js/preptasks.js'));
               <h2 class="col-6 text-nowrap"> Задания по дисциплине</h2>
               <div class="col-6">
                 <div class="w-100 d-flex flex-row-reverse align-items-center">
-                  <button type="submit" class="btn d-flex flex-row align-items-center" onclick="window.location='preptable.php?page=<?= $page_id ?>';" style="">
+                  <button type="submit" class="btn btn-outline-danger d-flex align-items-center" onclick="window.location='preptable.php?page=<?= $page_id ?>';" style="">
                     Посылки&nbsp;&nbsp;
                     <div class="h-100">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
