@@ -29,7 +29,7 @@ $count_tasks = $Page->getCountActiveAssignments($student_id);
 <html lang="en">
 
 <?php
-show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
+show_head($page_title, array('./src/npm/marked/marked.min.js'));
 ?>
 
 <body style="overflow-x: hidden;">
@@ -41,55 +41,87 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   <main class="container-fluid overflow-hidden">
     <div class="pt-5 px-4">
       <div class="row">
-        <div class="col-md-6 d-flex">
-          <h3><?php echo $Page->name; ?></h4>
-            <p style="color: grey; margin-left: 10px; margin-top:17px; "><?php echo $count_succes_tasks . "/" . $count_tasks; ?></p>
-        </div>
-      </div>
-      <div class="pt-4 px-5">
-        <div class="row">
-
-          <?php if ($Page->description != "") { ?>
-            <h5 class="px-0">Описание раздела</h5>
-            <div class="rounded border p-3 mt-3 mb-5">
-              <p id="p-pageDescription" class="m-0 p-0" style="overflow: auto;"><?= $Page->description ?></p>
+        <div class="col-md-12 d-flex">
+          <div class="d-flex justify-content-between w-100 h-auto">
+            <div class="d-flex flex-column w-100">
+              <p class="h3 me-2"><strong><?= $Page->name; ?></strong> (<?= $Page->getDisciplineName() ?>)</p>
+              <p>
+                Выполнено заданий: <strong><?= $count_succes_tasks ?>&nbsp;/&nbsp;<?= $count_tasks; ?></strong>
+              </p>
+            </div>
+            <div class="h-auto d-flex flex-wrap align-items-start justify-content-end w-75">
+              <?php foreach ($Page->getTeachers() as $i => $Teacher) { ?>
+                <a href="profile.php?user_id=<?= $Teacher->id ?>" class="h-auto badge badge-primary border-0 rounded-3 p-1 hover-shadow d-flex align-items-center px-2 me-3">
+                  <div class="shadow-none p-1 m-0 bg-image me-2"
+                    style="/*left: -<?= $i * 5 ?>%*/">
+                    <?php if ($Teacher->getImageFile() != null) { ?>
+                      <div class="embed-responsive embed-responsive-1by1" style="display: block;">
+                        <div class="embed-responsive-item">
+                          <img class="h-100 w-100 p-0 m-0 rounded-circle user-icon" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?= $Teacher->getImageFile()->download_url ?>" />
+                        </div>
+                      </div>
+                    <?php } else { ?>
+                      <div>
+                        <svg class="h-100 w-100" xmlns="http://www.w3.org/2000/svg" width="20" fill="white" class="bi bi-person-circle" viewBox="0 0 16 16">
+                          <path fill-rule="nonzero" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                          <path fill-rule="nonzero" d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                        </svg>
+                      </div>
+                    <?php } ?>
+                  </div>
+                  <span><?= $Teacher->getFIO() ?></span>
+                </a>
+              <?php } ?>
             </div>
 
-            <script>
-              document.getElementById('p-pageDescription').innerHTML =
-                marked.parse(document.getElementById('p-pageDescription').innerHTML);
-              $('#p-pageDescription').children().addClass("m-0");
-            </script>
-          <?php } ?>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pt-4 px-5">
+      <div class="row">
 
-
-
-          <div class="col-md-offset-2 col-md-5 mt-3 px-0">
-            <?php if ($count_tasks == 0)
-              echo '<h5>Задания по этой дисциплине отсутствуют</h5>';
-            else  echo '<h5>Название задания</h5>'; ?>
+        <?php if ($Page->description != "") { ?>
+          <h5 class="px-0">Описание раздела</h5>
+          <div class="rounded border p-3 mt-3 mb-5">
+            <p id="p-pageDescription" class="m-0 p-0" style="overflow: auto;"><?= $Page->description ?></p>
           </div>
 
+          <script>
+            document.getElementById('p-pageDescription').innerHTML =
+              marked.parse(document.getElementById('p-pageDescription').innerHTML);
+            $('#p-pageDescription').children().addClass("m-0");
+          </script>
+        <?php } ?>
+
+
+
+        <div class="col-md-offset-2 col-md-5 mt-3 px-0">
+          <?php if ($count_tasks == 0)
+            echo '<h5>Задания по этой дисциплине отсутствуют</h5>';
+          else  echo '<h5>Название задания</h5>'; ?>
         </div>
 
-        <div class="row pt-3 px-0">
-          <div class="col-md-11 col-md-push-1 w-100 px-0">
-            <div class="list-group list-group-flush" id="list-tab" role="tablist">
-              <?php
-              $conversationTask = null;
-              foreach ($Page->getActiveTasksWithConversation() as $Task) {
-                if ($Task->isConversation()) {
-                  $conversationTask = $Task;
-                  continue;
-                }
-                generateTaskLine($Task, $student_id);
+      </div>
+
+      <div class="row pt-3 px-0">
+        <div class="col-md-11 col-md-push-1 w-100 px-0">
+          <div class="list-group list-group-flush" id="list-tab" role="tablist">
+            <?php
+            $conversationTask = null;
+            foreach ($Page->getActiveTasksWithConversation() as $Task) {
+              if ($Task->isConversation()) {
+                $conversationTask = $Task;
+                continue;
               }
-              if ($conversationTask != null)
-                generateTaskLine($conversationTask, $student_id); ?>
-            </div>
+              generateTaskLine($Task, $student_id);
+            }
+            if ($conversationTask != null)
+              generateTaskLine($conversationTask, $student_id); ?>
           </div>
         </div>
       </div>
+    </div>
     </div>
   </main>
 

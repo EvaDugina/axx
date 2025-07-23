@@ -130,6 +130,10 @@ class Message
   {
     return getConvertedDateTime($this->date_time);
   }
+  public function getDateTime($format = null)
+  {
+    return ($format == null) ? convert_timestamp_to_date($this->date_time, "m-d-Y H:i:s") : convert_timestamp_to_date($this->date_time, $format);
+  }
 
   public function getMainResendedMessage()
   {
@@ -240,6 +244,25 @@ class Message
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
+  function isByTeacher()
+  {
+    return $this->sender_user_type == 2;
+  }
+
+  function isByStudent()
+  {
+    return $this->sender_user_type == 3;
+  }
+
+  function isStudentSolution()
+  {
+    return $this->isCommit() && $this->isByStudent();
+  }
+
+  function isCommit()
+  {
+    return $this->type == 1;
+  }
 
   function isResended()
   {
@@ -252,6 +275,18 @@ class Message
   function isVisible($user_role)
   {
     return $this->visibility == 0 || $this->visibility == $user_role;
+  }
+  function isVisibleOnlyForAdmin()
+  {
+    return $this->visibility == 1;
+  }
+  function isVisibleOnlyForTeacher()
+  {
+    return $this->visibility == 2;
+  }
+  function isVisibleOnlyForStudent()
+  {
+    return $this->visibility == 3;
   }
 
   public function isReadedByUser($user_id)

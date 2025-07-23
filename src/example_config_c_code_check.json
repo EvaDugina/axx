@@ -1,0 +1,119 @@
+{
+    "tools": {
+        "build": {
+            "enabled": false,
+            "autoreject": false,
+            "bin": "gcc",
+            "check": {
+                "autoreject": true
+            }
+        },
+        "cppcheck": {
+            "enabled": false,
+            "autoreject": false,
+            "bin": "cppcheck",
+            "arguments": "",
+            "checks": [
+                {
+                    "check": "error",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                },
+                {
+                    "check": "warning",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 3
+                },
+                {
+                    "check": "style",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 3
+                },
+                {
+                    "check": "performance",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 2
+                },
+                {
+                    "check": "portability",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                },
+                {
+                    "check": "information",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                },
+                {
+                    "check": "unusedFunction",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                },
+                {
+                    "check": "missingInclude",
+                    "enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                }
+            ]
+        },
+        "valgrind": {
+			"enabled": false,
+            "autoreject": false,
+            "bin": "valgrind",
+			"arguments": "",
+            "compiler": "gcc",
+            "checks": [
+                {
+                    "check": "errors",
+					"enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                },
+                {
+                    "check": "leaks",
+					"enabled": true,
+                    "autoreject": false,
+                    "limit": 0
+                }
+            ]
+        },
+        "clang-format": {
+			"enabled": false,
+            "autoreject": false,
+            "bin": "clang-format",
+            "arguments": "",
+            "check": {
+                "autoreject": true,
+                "level": "strict",
+                "limit": 5
+            }
+        },
+        "catch2": {
+            "enabled": false,
+            "autoreject": false,
+            "test_path": [],
+            "check": {
+                "autoreject": true,
+                "limit": 0
+            }
+       },
+        "copydetect": {
+ 			"enabled": false,
+            "autoreject": false,
+            "bin": "copydetect",
+			"arguments": "",
+            "check": {
+                "autoreject": true,
+                "limit": 50
+            }
+       }
+    }
+}

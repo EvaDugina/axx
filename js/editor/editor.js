@@ -8,6 +8,7 @@ const editor = { current: null, id: null };
 var FILES_POSITIONS = [];
 var PREVIOUS_VALUE = null;
 var IS_CHANGED = false;
+var IS_READY = false;
 
 // Работа с обводкой окна редактора
 
@@ -23,6 +24,14 @@ export function unblockEditor() {
 
 export function isBlocked() {
     return $('#div-shell-editor').hasClass("monaco-border-not-editable");
+}
+
+export function hideCode() {
+    $('#container').addClass("d-none");
+}
+
+export function showCode() {
+    $('#container').removeClass("d-none");
 }
 
 export function isReadOnly() {
@@ -97,7 +106,7 @@ export function resetEditorChanges(isChecksStart = false) {
 }
 
 function isEditorReady() {
-    return editor.current != null;
+    return IS_READY;
 }
 
 function isFocused() {
@@ -114,11 +123,24 @@ function sleep(ms) {
 
 export async function waitForEditor() {
     while (!isEditorReady()) {
-        await sleep(1000);
+        // console.log("Ожидание запуска реадктора кода...")
+        await sleep(500);
     }
 }
 
-require.config({ paths: { vs: '../../node_modules/monaco-editor/min/vs' } });
+export async function loadEditor() {
+    console.log("Загрузка редактора кода...")
+    document.getElementById("spinner-load-editor").classList.remove("d-none");
+    await waitForEditor();
+    document.getElementById("spinner-load-editor").classList.add("d-none");
+    console.log("Редактор кода загружен!")
+
+}
+
+
+require.config({
+    paths: { vs: './node_modules/monaco-editor/min/vs' }
+});
 require(['vs/editor/editor.main'], function () {
     (async () => {
         let { editorId = null } = loadFromHash();
@@ -133,7 +155,7 @@ require(['vs/editor/editor.main'], function () {
         const provider = new WebsocketProvider(`${wsApiUrl}/editor/ws`, editorId, ydocument);
         const type = ydocument.getText('monaco');
 
-        console.log("Создание Monaco Editor...");
+        // console.log("Создание Monaco Editor...");
         editor.current = monaco.editor.create(document.getElementById('container'), {
             language: 'cpp',
             insertSpaces: false,
@@ -157,20 +179,22 @@ require(['vs/editor/editor.main'], function () {
                 return;
 
             event.changes.forEach(change => {
-                console.log('Изменение:', {
-                    from: change.range.startLineNumber,
-                    to: change.range.endLineNumber,
-                    text: change.text
-                });
+                // console.log('Изменение:', {
+                //     from: change.range.startLineNumber,
+                //     to: change.range.endLineNumber,
+                //     text: change.text
+                // });
             });
 
             setEditorPreviousValue(newValue);
             IS_CHANGED = true;
         });
 
-
-        $('#container').addClass("d-none");
+        IS_READY = true;
+        hideCode();
 
         console.log("Monaco Editor создан:", editor.current);
     })();
 });
+
+loadEditor();

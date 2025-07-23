@@ -139,6 +139,16 @@ class Assignment
   }
 
 
+  public function getTag(): string
+  {
+    $tag = "";
+    foreach ($this->getStudents() as $Student) {
+      if ($tag != "")
+        $tag .= "_";
+      $tag .= $Student->middle_name;
+    }
+    return $tag;
+  }
 
   // SETTERS
 
@@ -146,7 +156,10 @@ class Assignment
   {
     global $dbconnect;
 
-    $this->status = $status;
+    if (isCheckedNotCompleted($status) && $this->isMarked())
+      $this->status = 4;
+    else
+      $this->status = $status;
 
     $query = "UPDATE ax.ax_assignment SET status = $this->status
               WHERE id = $this->id";
@@ -215,19 +228,39 @@ class Assignment
     pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   }
 
-  public function getStartTime()
+  public function getTextStatus()
   {
-    return convert_timestamp_to_date($this->start_limit, "H:i:s");
+    return status_to_text($this->status);
   }
 
-  public function getEndTime()
+  public function getTextVisibility()
   {
-    return convert_timestamp_to_date($this->finish_limit, "H:i:s");
+    return visibility_to_text($this->visibility);
   }
 
-  public function getEndDateTime()
+  public function getStartLimit($format = "m-d-Y H:i:s")
   {
-    return convert_timestamp_to_date($this->finish_limit, "m-d-Y H:i:s");
+    return convert_timestamp_to_date($this->start_limit, $format);
+  }
+
+  public function getFinishLimit($format = "m-d-Y H:i:s")
+  {
+    return convert_timestamp_to_date($this->finish_limit, $format);
+  }
+
+  public function getStartFinishLimit($format = "H:i m.d.Y", $text_between = " => до ")
+  {
+    return $this->getStartLimit($format) . $text_between . $this->getFinishLimit($format);
+  }
+
+  public function isNullStartLimit()
+  {
+    return checkIfDefaultDate($this->getStartLimit("Y-m-d")) == "";
+  }
+
+  public function isNullFinishLimit()
+  {
+    return checkIfDefaultDate($this->getFinishLimit("Y-m-d")) == "";
   }
 
   public function setVariantNumber($variant_number)
@@ -337,7 +370,7 @@ class Assignment
   }
   public function isVisibleForStudent()
   {
-    return $this->isVisible() && $this->isAccess() && $this->isOpened();
+    return $this->isVisible() && $this->isOpened();
   }
   public function isAccess()
   {
@@ -347,17 +380,17 @@ class Assignment
   {
     return $this->status != -1 && $this->visibility != 4;
   }
+  public function isCheckedNotCompleted()
+  {
+    return isCheckedNotCompleted($this->status);
+  }
   public function isCompleted()
   {
-    if ($this->status == 2 || $this->status == 4)
-      return true;
-    return false;
+    return isCompleted($this->status);
   }
   public function isWaitingCheck()
   {
-    if ($this->status == 1)
-      return true;
-    return false;
+    return isWaitingCheck($this->status);
   }
   public function isMarked()
   {
@@ -397,14 +430,17 @@ class Assignment
   public function addStudent($student_id)
   {
     $Student = new User((int)$student_id);
-    $this->pushStudentToAssignmentDB($student_id);
-    array_push($this->Students, $Student);
+    if (!$this->checkStudent($Student->id)) {
+      $this->pushStudentToAssignmentDB($student_id);
+      array_push($this->Students, $Student);
+    }
   }
   public function addStudents($Students)
   {
     $this->pushStudentsToAssignmentDB($Students);
     foreach ($Students as $Student) {
-      array_push($this->Students, $Student);
+      if (!$this->checkStudent($Student->id))
+        array_push($this->Students, $Student);
     }
   }
   public function deleteStudent($student_id)
@@ -458,9 +494,11 @@ class Assignment
     if (!empty($Students)) {
       $query = "";
       foreach ($Students as $Student) {
-        $query .= "INSERT INTO ax.ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
+        if (!$this->checkStudent($Student->id))
+          $query .= "INSERT INTO ax.ax_assignment_student (assignment_id, student_user_id) VALUES ($this->id, $Student->id);";
       }
-      pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+      if ($query != "")
+        pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
     }
   }
   private function deleteStudentFromAssignmentDB($student_id)
@@ -547,7 +585,7 @@ class Assignment
   public function getLastAnswerMessage()
   {
     for ($i = count($this->Messages) - 1; $i >= 0; $i--) {
-      if ($this->Messages[$i]->type == 1)
+      if ($this->Messages[$i]->isStudentSolution())
         return $this->Messages[$i];
     }
   }
@@ -819,8 +857,18 @@ function queryGetCommitsByAssignment($assignment_id)
 
 
 
-
-
+function isWaitingCheck($status)
+{
+  return $status == 1;
+}
+function isCheckedNotCompleted($status)
+{
+  return $status == 2;
+}
+function isCompleted($status)
+{
+  return $status == 4;
+}
 
 
 function visibility_to_text($visibility)

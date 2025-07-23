@@ -49,7 +49,7 @@ function show_breadcrumbs(&$breadcrumbs)
             <svg style="height: inherit;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
             </svg>
-            <li class="d-flex justify-content-between align-items-center px-2" style="font-size: smaller; font-weight: 600;">
+            <li class="d-flex justify-content-between align-items-center px-2" style="">
               <a class="text-reset" href="<?php echo $link; ?>"><?php echo $name ?></a>
             </li>
           <?php
@@ -77,7 +77,6 @@ function show_head($page_title = '', $js = array(), $css = array())
     <!-- Fonts & Icons -->
     <link rel="stylesheet" type="text/css" href="src/fonts-icons/all.css" />
     <link rel="stylesheet" href="src/fonts-icons/font-awesome.min.css" />
-    <!-- <script src="https://kit.fontawesome.com/b9b9878a35.js" crossorigin="anonymous"></script> -->
 
     <!-- Extra -->
     <link rel="stylesheet" href="css/accelerator.css" />
@@ -111,6 +110,7 @@ function show_head($page_title = '', $js = array(), $css = array())
 
 function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $breadcrumbs = array(), $user = null)
 {
+  $au = new auth_ssh();
 ?>
   <script type="text/javascript">
     $(document).ready(function() {
@@ -123,13 +123,20 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
   </script>
   <header id="header" class="header header--fixed js-header is-show">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-warning navbar-light">
+    <nav class="navbar navbar-expand-lg background-light-grey navbar-light" style="height:75px;">
       <!-- Container wrapper -->
-      <div class="container-fluid mt-1">
+      <div class="container-fluid">
         <!-- Navbar brand -->
         <div class="d-flex align-items-center me-3">
-          <a class="navbar-brand p-0 me-0 mb-1" href="index.php">
-            <b>536 Акселератор</b>&nbsp;
+          <a class="navbar-brand p-0 me-0 text-reset" href="index.php">
+            <svg xmlns="http://www.w3.org/2000/svg" width="44.996" height="45" viewBox="0 0 44.996 45">
+              <path id="Logo" data-name="Logo" d="M149.546,195.5a22.506,22.506,0,0,0-22.1,18.244,54.633,54.633,0,0,1,9.445-2.678,55.249,55.249,0,0,1,18.59-.3,54.567,54.567,0,0,0-28.435,7.519,22.527,22.527,0,0,0,.674,5.206,40.427,40.427,0,0,1,29.827-10.734,37.33,37.33,0,0,0-11.988,3.283,38.273,38.273,0,0,0-15.447,13.3,22.594,22.594,0,0,0,3.914,4.945,37.942,37.942,0,0,1,8.877-11.167,38.443,38.443,0,0,1,17.365-8.412l.008-.551-5.975,1.918,4.869-3.836-6.418-4.131,7.451,2.139v-4.131l2.066,3.541,2.434-1.475-.664,2.8,3.91.885-3.91,1.254,4.426,7.008-6.049-5.533-2.213,4.943.054-3.912c-5.48,3.747-11.053,7.675-13.849,13.428a21.07,21.07,0,0,0-1.908,10.866,22.5,22.5,0,1,0,5.044-44.432Z" transform="translate(-127.05 -195.5)" fill="#4f4f4f"></path>
+            </svg>
+          </a>
+          <a class="navbar-brand p-0 ms-3 me-0 text-reset" href="index.php">
+            <div class="d-flex me-2 align-items-start">
+              <span><strong>Акселератор</strong></span><span class="badge badge-light text-reset p-1 m-0"><small>536</small></span>
+            </div>
           </a>
           <?php $version = getCurrentVersion(); ?>
           <span class="text-muted mt-1">v<?= (($version != null)) ? $version : "?" ?></span>
@@ -176,19 +183,34 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
               <?php } ?> -->
 
               <!-- Icons -->
-              <ul class="navbar-nav me-1">
+              <ul class="navbar-nav me-2">
+                <?php if ($au->isAdmin()) { ?>
+                  <!-- Admin Panel -->
+                  <a class="me-3 dropdown-toggle hidden-arrow badge bg-secondary text-light" href="adminpanel.php">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash" viewBox="0 0 16 16">
+                      <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0" />
+                    </svg>
+                  </a>
+                <?php } ?>
                 <!-- Notifications -->
-                <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
-                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
-                  </svg>
+                <a class="dropdown-toggle hidden-arrow badge <?= ($array_notify && count($array_notify) > 0) ? "bg-danger text-light" : "bg-light text-reset" ?>" href="#" id="navbarDropdownMenuLink1" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                  <?php if ($array_notify && count($array_notify) > 0) { ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-text-fill" viewBox="0 0 16 16">
+                      <path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353zM3.5 3h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1m0 2.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1m0 2.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1" />
+                    </svg>
+                  <?php } else { ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-dots-fill" viewBox="0 0 16 16">
+                      <path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353zM5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 1a1 1 0 1 1 0-2 1 1 0 0 1 0 2" />
+                    </svg>
+                  <?php } ?>
                   <?php // FIXME: Скачет иконка уведомлений 
                   ?>
-                  <span class="badge rounded-pill badge-notification <?php if (!$array_notify || ($array_notify && count($array_notify) < 1)) echo 'd-none'; ?>" style="background: #dc3545;">
-                    <?php if ($array_notify) echo count($array_notify); ?>
+                  <span class="badge rounded-pill badge-notification <?= (!$array_notify || ($array_notify && count($array_notify) < 1)) ? "bg-success" : "bg-danger" ?>">
+                    <?php if ($array_notify) echo count($array_notify);
+                    else echo 0; ?>
                   </span>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
+                <ul class=" dropdown-menu dropdown-menu-end me-2" aria-labelledby="navbarDropdownMenuLink1" style="z-index:99999999; ">
                   <?php
                   if ($array_notify) {
                     $i = 0;
@@ -254,7 +276,7 @@ function show_header(/* [x]: Убрать */$dbconnect, $page_title = '', $bread
                     else echo $_SESSION['username']; ?>
                   </span>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
+                <ul class="dropdown-menu dropdown-menu-end me-2" aria-labelledby="navbarDropdownMenuLink2" style="z-index:99999999; ">
                   <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
                   <li><a class="dropdown-item" href="login.php?action=logout">Выйти</a></li>
                 </ul>

@@ -33,10 +33,30 @@ function getPGQuotationMarks()
 function getEditorLanguages()
 {
   return [
-    "CPP" => ["cmd" => 'make', "exts" => ['cpp', 'h'], "name" => 'C++', "monaco_editor_name" => 'cpp'],
-    "C" => ["cmd" => 'make', "exts" => ['c'], "name" => 'C', "monaco_editor_name" => 'c'],
-    "PYTHON" => ["cmd" => 'python3', "exts" => ['py'], "name" => 'Python', "monaco_editor_name" => 'python'],
-    "DEFAULT" => ["cmd" => null, "exts" => [], "name" => 'Text', "monaco_editor_name" => 'plaintext']
+    "CPP" => [
+      "cmd" => 'make',
+      "exts" => ['cpp', 'h'],
+      "name" => 'C++',
+      "monaco_editor_name" => 'cpp'
+    ],
+    "C" => [
+      "cmd" => 'make',
+      "exts" => ['c'],
+      "name" => 'C',
+      "monaco_editor_name" => 'c'
+    ],
+    "PYTHON" => [
+      "cmd" => 'python3 main.py',
+      "exts" => ['py'],
+      "name" => 'Python',
+      "monaco_editor_name" => 'python'
+    ],
+    "DEFAULT" => [
+      "cmd" => null,
+      "exts" => [],
+      "name" => 'Text',
+      "monaco_editor_name" => 'plaintext'
+    ]
   ];
 }
 
@@ -129,7 +149,7 @@ function convert_mtime($mtime)
   $time_date = explode(" ", $mtime);
   $date = explode("-", $time_date[0]);
   $time = explode(":", $time_date[1]);
-  $time_date_output = $time[0] . ":" . $time[1] . " " . $date[0] . "." . $date[1] . "." . $date[2];
+  $time_date_output = "<strong>" . $time[0] . ":" . $time[1] . "</strong>" /*. ":" . $time[2]*/ . " " . $date[0] . "." . $date[1] . "." . $date[2];
   return $time_date_output;
 }
 
@@ -164,12 +184,10 @@ function showAttachedFilesByMessageId($message_id)
   $message_text = "";
 
   foreach ($Message->getFiles() as $File) {
-    $message_text .= "
-      <a target='_blank' download href='" . $File->getDownloadLink() . "'>
-      <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-file-earmark-fill' viewBox='0 0 16 16'>
-        <path d='M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z'/>
-      </svg> " . $File->name_without_prefix . "
-      </a><br/>";
+    $message_text .= "<a target='_blank' href='" . $File->getDownloadLink() . "'>";
+    $message_text .= "<p class='p-0 m-0'>" . getStringSVGByFileType($File->type);
+    $message_text .= $File->name_without_prefix . "</p>";
+    $message_text .= "</a>";
   }
 
   return $message_text;
@@ -220,9 +238,7 @@ function showTaskchatFiles($Files)
       <div class="btn btn-outline-primary d-inline-flex justify-content-between align-items-center my-1 ms-0 me-1 px-3 div-task-file" style="cursor:unset;">
         <a id="a-file-<?= $File->id ?>" href="<?= $File->getDownloadLink() ?>" target="_blank" class="d-inline-flex justify-content-between align-items-center">
 
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
-            <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z" />
-          </svg>
+          <?php getSVGByFileType($File->type) ?>
 
           &nbsp;<span data-title="<?= $File->name_without_prefix ?>"><?= getCompressedFileName($File->name_without_prefix, 40) ?></span>&nbsp;&nbsp;
         </a>
@@ -251,44 +267,7 @@ function showMessageFiles($Files, $isAuthor = false)
         </div>
       <?php } ?>
 
-    <?php }
-  }
-}
-
-function getSVGByFileType($type)
-{
-  switch ($type) {
-    case 0: ?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
-        <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z" />
-      </svg>
-    <?php break;
-    case 1: ?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-md" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2H9v-1h3a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM.706 13.189v2.66H0V11.85h.806l1.14 2.596h.026l1.14-2.596h.8v3.999h-.716v-2.66h-.038l-.946 2.159h-.516l-.952-2.16H.706Zm3.919 2.66V11.85h1.459c.406 0 .741.078 1.005.234.263.157.46.383.589.68.13.297.196.655.196 1.075 0 .422-.066.784-.196 1.084-.131.301-.33.53-.595.689-.264.158-.597.237-1 .237H4.626Zm1.353-3.354h-.562v2.707h.562c.186 0 .347-.028.484-.082a.8.8 0 0 0 .334-.252 1.14 1.14 0 0 0 .196-.422c.045-.168.067-.365.067-.592a2.1 2.1 0 0 0-.117-.753.89.89 0 0 0-.354-.454c-.159-.102-.362-.152-.61-.152Z" />
-      </svg>
-    <?php break;
-    case 2: ?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-binary-fill" viewBox="0 0 16 16">
-        <path d="M5.526 10.273c-.542 0-.832.563-.832 1.612 0 .088.003.173.006.252l1.559-1.143c-.126-.474-.375-.72-.733-.72zm-.732 2.508c.126.472.372.718.732.718.54 0 .83-.563.83-1.614 0-.085-.003-.17-.006-.25l-1.556 1.146z" />
-        <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-2.45 8.385c0 1.415-.548 2.206-1.524 2.206C4.548 14.09 4 13.3 4 11.885c0-1.412.548-2.203 1.526-2.203.976 0 1.524.79 1.524 2.203zm3.805 1.52V14h-3v-.595h1.181V10.5h-.05l-1.136.747v-.688l1.19-.786h.69v3.633h1.125z" />
-      </svg>
-    <?php break;
-    case 3: ?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">
-        <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
-      </svg>
-    <?php break;
-    case 10: ?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">
-        <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
-      </svg>
-    <?php break;
-    case 11: ?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-medical-fill" viewBox="0 0 16 16">
-        <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-3 2v.634l.549-.317a.5.5 0 1 1 .5.866L7 7l.549.317a.5.5 0 1 1-.5.866L6.5 7.866V8.5a.5.5 0 0 1-1 0v-.634l-.549.317a.5.5 0 1 1-.5-.866L5 7l-.549-.317a.5.5 0 0 1 .5-.866l.549.317V5.5a.5.5 0 1 1 1 0zm-2 4.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zm0 2h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
-      </svg>
-  <?php break;
+  <?php }
   }
 }
 
@@ -514,7 +493,7 @@ function show_accordion($name, $data, $labelshift = "0px")
 					  </div>
 -->
         </div>
-        <div id="accordion-<?= $name ?>-collapse-<?= $i ?>" class="accordion-collapse collapse" aria-labelledby="accordion-<?= $name ?>-gheader-<?= $i ?>" data-mdb-parent="#main-accordion-<?= $name ?>">
+        <div id="accordion-<?= $name ?>-collapse-<?= $i ?>" class="accordion-collapse collapse p-2" aria-labelledby="accordion-<?= $name ?>-gheader-<?= $i ?>" data-mdb-parent="#main-accordion-<?= $name ?>">
           <div class="accordion-body">
             <div id="group-accordion-<?= $name ?>" class="accordion accordion-flush">
               <div id="item-from-<?= $name ?>-group-<?= $i ?>" class="accordion-item">
@@ -553,6 +532,12 @@ function str2int($str = '')
     return 0;
 }
 
+function bool2str(bool $bool): string
+{
+  return $bool ? 'true' : 'false';
+}
+
+
 function getChangeLogHtml()
 {
   include "./parsedown-1.7.4/Parsedown.php";
@@ -574,173 +559,228 @@ function getChangeLogHtml()
 function getDefaultChecksPreset()
 {
   return '{
-    "tools": {
-      "build": {
-        "enabled": false,
-        "show_to_student": false,
-        "language": "C++",
-        "check": {
-          "autoreject": true
-        }
+  "tools": {
+    "build": {
+      "enabled": false,
+      "show_to_student": false,
+      "language": "C++",
+      "check": {
+        "autoreject": true,
+        "full_output": "output_build.txt",
+        "outcome": "pass"
       },
-      "valgrind": {
-        "enabled": "false",
-        "show_to_student": "false",
-        "bin": "valgrind",
-        "arguments": "",
-        "compiler": "gcc",
-        "checks": [
-          {
-            "check": "errors",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          },
-          {
-            "check": "leaks",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          }
-        ]
-      },
-      "cppcheck": {
-        "enabled": "false",
-        "show_to_student": "false",
-        "bin": "cppcheck",
-        "arguments": "",
-        "checks": [
-          {
-            "check": "error",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          },
-          {
-            "check": "warning",
-            "enabled": "true",
-            "limit": "3",
-            "autoreject": "false"
-          },
-          {
-            "check": "style",
-            "enabled": "true",
-            "limit": "3",
-            "autoreject": "false"
-          },
-          {
-            "check": "performance",
-            "enabled": "true",
-            "limit": "2",
-            "autoreject": "false"
-          },
-          {
-            "check": "portability",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          },
-          {
-            "check": "information",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          },
-          {
-            "check": "unusedFunction",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          },
-          {
-            "check": "missingInclude",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false"
-          }
-        ]
-      },
-      "clang-format": {
-        "enabled": "false",
-        "show_to_student": "false",
-        "bin": "clang-format",
-        "arguments": "",
-        "check": {
-          "level": "strict",
-          "file": "",
-          "limit": "5",
-          "autoreject": "true"
-        }
-      },
-      "pylint": {
-        "enabled": "false",
-        "show_to_student": "false",
-        "bin": "pylint",
-        "arguments": "",
-        "checks": [
-          {
-            "check": "error",
-            "enabled": "true",
-            "limit": "0",
-            "autoreject": "false",
-            "disableErrorCodes": []
-          },
-          {
-            "check": "warning",
-            "enabled": "true",
-            "limit": "6",
-            "autoreject": "false",
-            "disableErrorCodes": []
-          },
-          {
-            "check": "refactor",
-            "enabled": "false",
-            "limit": "3",
-            "autoreject": "false",
-            "disableErrorCodes": []
-          },
-          {
-            "check": "convention",
-            "enabled": "true",
-            "limit": "7",
-            "autoreject": "false",
-            "disableErrorCodes": ["C0111", "C0112"]
-          }
-        ]
-      },
-      "pytest": {
-        "enabled": "false",
-        "show_to_student": "false",
-        "bin": "pytest",
-        "test_path": "autotest.py",
-        "arguments": "",
-        "check": {
-          "limit": "0",
-          "autoreject": "true"
-        }
-      },
-      "copydetect": {
-        "enabled": "false",
-        "show_to_student": "false",
-        "bin": "copydetect",
-        "arguments": "",
-        "check": {
-          "type": "with_all",
-          "limit": "80",
-          "autoreject": "false"
-        }
-      },
-      "autotests": {
-        "enabled": false,
-        "show_to_student": false,
-        "test_path": "autotest.cpp",
-        "check": {
+      "outcome": "undefined"
+    },
+    "valgrind": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "valgrind",
+      "arguments": "",
+      "compiler": "gcc",
+      "checks": [
+        {
+          "check": "errors",
+          "enabled": true,
           "limit": 0,
-          "autoreject": true
+          "autoreject": true,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "leaks",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": true,
+          "result": 5,
+          "outcome": "fail"
         }
-      }
+      ],
+      "full_output": "output_valgrind.xml",
+      "outcome": "undefined"
+    },
+    "cppcheck": {
+      "enabled": false,
+      "show_t_student": false,
+      "bin": "cppcheck",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "warning",
+          "enabled": true,
+          "imit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "style",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 2,
+          "outcome": "pass"
+        },
+        {
+          "check": "performance",
+          "enabled": true,
+          "limit": 2,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "portability",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "information",
+          "enabed": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 1,
+          "outcome": "fail"
+        },
+        {
+          "check": "unusedFunction",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "missingnclude",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        }
+      ],
+      "full_output": "output_cppcheck.xml",
+      "outcome": "undefined"
+    },
+    "clang-format": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "clang-format",
+      "arguments": "",
+      "check": {
+        "level": "strict",
+        ".comment": "canbediffrentchecks,suchasstrict,less,minimalandsoon",
+        "file": ".clang-format",
+        "limit": 5,
+        "autoreject": true,
+        "result": 8,
+        "outcome": "fail"
+      },
+      "full_output": "output_format.xml",
+      "outcome": "undefined"
+    },
+    "pylint": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "pylint",
+      "arguments": "",
+      "checks": [
+        {
+          "check": "error",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "warning",
+          "enabled": true,
+          "limit": 0,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "refactor",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        },
+        {
+          "check": "convention",
+          "enabled": true,
+          "limit": 3,
+          "autoreject": false,
+          "result": 0,
+          "outcome": "pass"
+        }
+      ],
+      "full_output": "output_pylint.xml",
+      "outcome": "undefined"
+    },
+    "pytest": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "pytest",
+      "arguments": "",
+      "test_path": "autotest.py",
+      "check": {
+        "limit": 0,
+        "autoreject": true,
+        "error": 0,
+        "failed": 0,
+        "passed": 0,
+        "seconds": 0,
+        "outcome": "fail"
+      },
+      "full_output": "output_pytest.txt",
+      "outcome": "undefined"
+    },
+    "copydetect": {
+      "enabled": false,
+      "show_to_student": false,
+      "bin": "copydetect",
+      "arguments": "",
+      "check": {
+        "type": "with_all",
+        "limit": 50,
+        "reference_directory": "copydetect",
+        "autoreject": true,
+        "result": 44,
+        "outcome": "skip"
+      },
+      "full_output": "output_copydetect.html",
+      "outcome": "undefined"
+    },
+    "catch2": {
+      "enabled": false,
+      "show_to_student": false,
+      "test_path": "test_example.cpp",
+      "check": {
+        "limit": 0,
+        "autoreject": true,
+        "outcome": "skip",
+        "errors": 0,
+        "failures": 3
+      },
+      "full_output": "output_tests.txt",
+      "outcome": "undefined"
     }
-  }';
+  }
+}';
 }
 
 function getGNUChecksPreset()
@@ -902,7 +942,7 @@ function getGNUChecksPreset()
           "autoreject": "false"
         }
       },
-      "autotests": {
+      "catch2": {
         "enabled": false,
         "show_to_student": false,
         "test_path": "autotest.cpp",
@@ -1074,7 +1114,7 @@ function getPYChecksPreset()
           "autoreject": "false"
         }
       },
-      "autotests": {
+      "catch2": {
         "enabled": false,
         "show_to_student": false,
         "test_path": "autotest.cpp",
@@ -1124,10 +1164,10 @@ function add_check_param($group, $param, $caption, $checks)
     $enabled = @$checks['tools']['copydetect']['enabled'];
     $limit = @$checks['tools']['copydetect']['check']['limit'];
     $reject = @$checks['tools']['copydetect']['check']['autoreject'];
-  } else if ($group == 'test') {
-    $enabled = @$checks['tools']['autotests']['enabled'];
-    $limit = @$checks['tools']['autotests']['check']['limit'];
-    $reject = @$checks['tools']['autotests']['check']['autoreject'];
+  } else if ($group == 'catch2') {
+    $enabled = @$checks['tools']['catch2']['enabled'];
+    $limit = @$checks['tools']['catch2']['check']['limit'];
+    $reject = @$checks['tools']['catch2']['check']['autoreject'];
   } else if ($group == 'pytest') {
     $enabled = @$checks['tools']['pytest']['enabled'];
     $limit = @$checks['tools']['pytest']['check']['limit'];
@@ -1281,27 +1321,30 @@ function getChecksAccordion($checks)
         ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
         '<label class="form-check-label" for="pytest_show" style="color:#4f4f4f;">отображать студенту</label>',
 
-      'body'   => '<div><label class="form-check-label" for="pytest_arg" style="width:20%;">аргументы</label>' .
+      'body'   => '<div class="d-flex justify-content-between align-items-center mb-2"><label class="form-check-label" for="pytest_arg" style="width:20%;">аргументы</label>' .
+        '<div class="d-flex align-items-center w-100">' .
+        '<div class="badge badge-primary px-3 py-2 me-2"><span>-s</span></div>' .
+        '<div class="badge badge-primary px-3 py-2 me-2"><span>-q</span></div>' .
         '<input id="pytest_arg" name="pytest_arg" value="' . @$checks['tools']['pytest']['arguments'] .
-        '" class="accordion-input-item mb-2" wrap="off" rows="1" style="width:50%;"></div>' .
+        '" class="accordion-input-item form-control w-75" wrap="off" rows="1" style="width:50%;"></div></div>' .
         add_check_param('pytest', 'check', 'проверять', $checks)
     ),
     array(
-      'header' => '<b>Автотесты</b>',
-      'label'   => '<input id="test_enabled" name="test_enabled" ' . checked(@$checks['tools']['autotests']['enabled']) .
+      'header' => '<b>Catch2</b>',
+      'label'   => '<input id="test_enabled" name="test_enabled" ' . checked(@$checks['tools']['catch2']['enabled']) .
         ' class="accordion-input-item form-check-input" type="checkbox" value="true">' .
         '<label class="form-check-label" for="test_enabled" style="color:#4f4f4f;">выполнять проверки</label>' .
-        '<input id="test_show" name="test_show" ' . checked(@$checks['tools']['autotests']['show_to_student']) .
+        '<input id="test_show" name="test_show" ' . checked(@$checks['tools']['catch2']['show_to_student']) .
         ' class="accordion-input-item form-check-input ms-5" type="checkbox" value="true" onclick="onInputShowClick(event)">' .
         '<label class="form-check-label" for="test_show" style="color:#4f4f4f;">отображать студенту</label>',
 
       'body'   => //'<div><label class="form-check-label" for="test_lang" style="width:20%;">сравнивать</label>'.
       //'<select id="test_lang" class="form-select mb-2" aria-label=".form-select" name="test_lang" style="width:50%; display: inline-block;">'.
-      //'  <option value="С" '.selected(@$checks['tools']['autotests']['language'], 'C').'>C</option>'.
-      //'  <option value="С++" '.selected(@$checks['tools']['autotests']['language'], 'C++').'>C++</option>'.
-      //'  <option value="Python" '.selected(@$checks['tools']['autotests']['language'], 'Python').'>Python</option>'.
+      //'  <option value="С" '.selected(@$checks['tools']['catch2']['language'], 'C').'>C</option>'.
+      //'  <option value="С++" '.selected(@$checks['tools']['catch2']['language'], 'C++').'>C++</option>'.
+      //'  <option value="Python" '.selected(@$checks['tools']['catch2']['language'], 'Python').'>Python</option>'.
       //'</select></div>'.
-      add_check_param('test', 'check', 'проверять', $checks)
+      add_check_param('catch2', 'check', 'проверять', $checks)
     ),
     array(
       'header' => '<b>Антиплагиат</b>',

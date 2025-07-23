@@ -14,18 +14,20 @@ $User = new User((int)$au->getUserId());
 
 if ($User->isTeacher()) {
   $query1 = pg_query($dbconnect, select_pages_for_teacher($User->id));
-  $query2 = pg_query($dbconnect, select_inside_semester_pages_for_teacher($User->id));
+  $query2 = pg_query($dbconnect, select_outside_semester_pages_for_teacher($User->id));
 } else {
   $query1 = pg_query($dbconnect, select_pages_for_admin());
-  $query2 = pg_query($dbconnect, select_inside_semester_pages_for_admin());
+  $query2 = pg_query($dbconnect, select_outside_semester_pages_for_admin());
 }
 
 $pages = pg_fetch_all($query1);
-$inside_semester_pages = pg_fetch_all($query2);
+$outside_semester_pages = pg_fetch_all($query2);
 
 $result1 = pg_query($dbconnect, 'select count(id) from ax.ax_page');
 $disc_count = pg_fetch_all($result1);
 
+
+$page_title = 'Дашборд Преподавателя';
 
 // function full_name($discipline_id, $dbconnect)
 // {
@@ -38,11 +40,11 @@ $disc_count = pg_fetch_all($result1);
 
 <link rel="stylesheet" href="css/main.css">
 
-<?php show_head("Дашборд преподавателя"); ?>
+<?php show_head($page_title); ?>
 
 <body>
 
-  <?php show_header($dbconnect, 'Дашборд преподавателя', array(), $User); ?>
+  <?php show_header($dbconnect, $page_title, array($page_title  => $_SERVER['REQUEST_URI']), $User); ?>
 
   <main>
 
@@ -54,7 +56,7 @@ $disc_count = pg_fetch_all($result1);
         <div class="container">
           <div class="row g-5 container-fluid">
 
-            <?php foreach ($inside_semester_pages as $page) {
+            <?php foreach ($outside_semester_pages as $page) {
 
               $page_id = $page['id'];
               $Page = new Page((int)$page_id);
@@ -220,7 +222,15 @@ $disc_count = pg_fetch_all($result1);
                   <div class="d-flex justify-content-between">
                     <span>Посылки студентов </span>
                     <button class="btn btn-link btn-sm" style="background-color: unset;" href="#" id="navbarDropdownMenuLink<?= $Page->id ?>" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                      <i class="fas fa-bell fa-lg"></i>
+                      <?php if ($notify_count['count'] > 0) { ?>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-paper-fill" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M6.5 9.5 3 7.5v-6A1.5 1.5 0 0 1 4.5 0h7A1.5 1.5 0 0 1 13 1.5v6l-3.5 2L8 8.75zM1.059 3.635 2 3.133v3.753L0 5.713V5.4a2 2 0 0 1 1.059-1.765M16 5.713l-2 1.173V3.133l.941.502A2 2 0 0 1 16 5.4zm0 1.16-5.693 3.337L16 13.372v-6.5Zm-8 3.199 7.941 4.412A2 2 0 0 1 14 16H2a2 2 0 0 1-1.941-1.516zm-8 3.3 5.693-3.162L0 6.873v6.5Z" />
+                        </svg>
+                      <?php } else { ?>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-paper" viewBox="0 0 16 16">
+                          <path d="M4 0a2 2 0 0 0-2 2v1.133l-.941.502A2 2 0 0 0 0 5.4V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5.4a2 2 0 0 0-1.059-1.765L14 3.133V2a2 2 0 0 0-2-2zm10 4.267.47.25A1 1 0 0 1 15 5.4v.817l-1 .6zm-1 3.15-3.75 2.25L8 8.917l-1.25.75L3 7.417V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1zm-11-.6-1-.6V5.4a1 1 0 0 1 .53-.882L2 4.267zm13 .566v5.734l-4.778-2.867zm-.035 6.88A1 1 0 0 1 14 15H2a1 1 0 0 1-.965-.738L8 10.083zM1 13.116V7.383l4.778 2.867L1 13.117Z" />
+                        </svg>
+                      <?php } ?>
                       <span class="badge rounded-pill badge-notification 
                               <?php if ($notify_count['count'] > 0) echo "bg-danger";
                               else echo "bg-success"; ?>"><?= $notify_count['count']; ?></span>

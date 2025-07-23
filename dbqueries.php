@@ -46,7 +46,7 @@ function select_page_by_task_id($task_id)
   return "SELECT page_id FROM ax.ax_task WHERE id = $task_id";
 }
 
-function select_inside_semester_pages_for_teacher($teacher_id)
+function select_outside_semester_pages_for_teacher($teacher_id)
 {
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
   FROM ax.ax_page p
@@ -63,11 +63,11 @@ function select_pages_for_teacher($teacher_id)
           INNER JOIN ax.ax_page_prep ON ax.ax_page_prep.page_id = p.id
           LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS NOT null AND p.semester IS NOT null AND ax.ax_page_prep.prep_user_id = $teacher_id
-          ORDER BY p.year DESC, p.semester DESC
+          ORDER BY p.year DESC, p.semester DESC, p.creation_date
   ";
 }
 
-function select_inside_semester_pages_for_admin()
+function select_outside_semester_pages_for_admin()
 {
   return "SELECT p.*, get_semester(year, semester) sem, p.year y, p.semester s, ax.ax_color_theme.src_url
           FROM ax.ax_page p
@@ -82,7 +82,7 @@ function select_pages_for_admin()
           FROM ax.ax_page p
           LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS NOT null AND p.semester IS NOT null
-          ORDER BY p.year DESC, p.semester DESC
+          ORDER BY p.year DESC, p.semester DESC, p.creation_date
   ";
 }
 
@@ -93,7 +93,7 @@ function select_pages_for_student($group_id)
           INNER JOIN ax.ax_page_group ON ax.ax_page_group.page_id = p.id
           LEFT JOIN ax.ax_color_theme ON ax.ax_color_theme.id = p.color_theme_id
           WHERE p.year IS NOT null AND p.semester IS NOT null AND ax.ax_page_group.group_id = $group_id AND p.status = 1
-          ORDER BY p.year DESC, p.semester DESC;
+          ORDER BY p.year DESC, p.semester DESC, p.creation_date;
   ";
 }
 
@@ -790,7 +790,7 @@ function select_preptable_messages($page_id)
       FROM (
         SELECT a.aid, a.type, max(a.mid) as mid
         FROM( 
-          SELECT ax.ax_task.id tid, ax.ax_assignment.id aid, m1.id mid, m1.type FROM ax.ax_task 
+          SELECT ax.ax_task.id tid, ax.ax_assignment.id aid, m1.id mid, m1.type, m1.reply_to_id as reply_to_id FROM ax.ax_task 
           INNER JOIN ax.ax_assignment ON ax.ax_task.id = ax.ax_assignment.task_id AND ax.ax_assignment.status in (1)
           INNER JOIN ax.ax_assignment_student ON ax.ax_assignment.id = ax.ax_assignment_student.assignment_id
           INNER JOIN students s1 ON s1.id = ax.ax_assignment_student.student_user_id 
@@ -800,7 +800,7 @@ function select_preptable_messages($page_id)
           WHERE ax.ax_task.page_id = $page_id AND m1.type in (1, 2) AND ax.ax_task.status = 1 
           ORDER BY mid DESC
         ) a
-        GROUP BY a.aid, a.type
+        GROUP BY a.aid, a.type, a.reply_to_id
       ) a
     
     INNER JOIN ax.ax_assignment ON ax.ax_assignment.id = a.aid
@@ -817,7 +817,7 @@ function select_preptable_messages($page_id)
     LEFT JOIN ax.ax_message m2 ON m2.id = m1.reply_to_id
     LEFT JOIN students s2 ON s2.id = m2.sender_user_id
     
-    ORDER BY mid         
+    ORDER BY mid      
     ";
 }
 

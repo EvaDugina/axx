@@ -12,4 +12,4 @@ export const protocolWs = window.location.protocol === `https:` ? `wss:` : `ws:`
 export const httpApiUrl = `${protocolHttp}//${host}`;
 export const wsApiUrl = `${protocolWs}//${host}`;
 
-console.log({httpApiUrl, wsApiUrl})
+// console.log({httpApiUrl, wsApiUrl})

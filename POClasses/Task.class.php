@@ -478,7 +478,6 @@ class Task
     foreach ($Files as $File) {
       $copiedFile = new File($File->type, $File->name_without_prefix);
       $copiedFile->copy($File->id);
-      $this->pushFileToTaskDB($copiedFile->id);
       array_push($copyFiles, $copiedFile);
       if ($copiedFile->isProjectTemplate()) {
         $this->addFileTemplateToAllAssignments($copiedFile->id, $user_id);
@@ -681,7 +680,7 @@ function getEditorPageTitle()
 // 
 // 
 
-function getTaskByAssignment($assignment_id)
+function getTaskByAssignment($assignment_id): int
 {
   global $dbconnect;
 
@@ -689,7 +688,7 @@ function getTaskByAssignment($assignment_id)
   $pg_query = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
   $task_id = pg_fetch_assoc($pg_query)['task_id'];
 
-  return $task_id;
+  return (int) $task_id;
 }
 
 
@@ -750,7 +749,20 @@ function getSVGByTaskType($type)
   }
 }
 
-
+function createTemplateCommit($Assignment, $user_id)
+{
+  $Task = new Task(getTaskByAssignment($Assignment->id));
+  if ($Task->hasProjectTemplateFiles()) {
+    $templateCommit = $Assignment->getTemplateCommit();
+    if ($templateCommit == null) {
+      $templateCommit = new Commit($Assignment->id, null, $user_id, 4, null);
+      $Assignment->addCommit($templateCommit->id);
+      foreach ($Task->getProjectTemplateFiles() as $File) {
+        $templateCommit->addFile($File->id);
+      }
+    }
+  }
+}
 
 
 // ФУНКЦИИ ЗАПРОСОВ К БД

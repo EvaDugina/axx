@@ -42,7 +42,7 @@ $page_title = getTaskassignPageTitle($Task, $Assignment);
 $previous_page_title = getPreptasksPageTitle($Page);
 $previous_page_url = 'preptasks.php?page=' . $Page->id;
 
-show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
+show_head($page_title, array('./src/npm/marked/marked.min.js'));
 
 if ($Assignment == null)
   $Assignment = new Assignment();
@@ -250,7 +250,7 @@ if ($Assignment == null)
                   <div class="w-100">
 
                     <div class="form-outline datetimepicker me-3">
-                      <input id="input-startDate" type="date" class="form-control active" name="fromtime" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) : "" ?>" onblur="$(this).addClass('active');$(this).css('opacity', '1');">
+                      <input id="input-startDate" type="date" class="form-control active" name="fromtime" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit != null) ? checkIfDefaultDate($Assignment->getStartLimit("Y-m-d")) : "" ?>" onblur="$(this).addClass('active');$(this).css('opacity', '1');">
                       <label for="fromtime" class="form-label" style="margin-left: 0px;">Дата начала</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -260,7 +260,7 @@ if ($Assignment == null)
                     </div>
 
                     <div class="form-outline datetimepicker mt-3 me-3">
-                      <input id="input-startTime" type="time" name="start_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit == null || (checkIfDefaultDate(convert_timestamp_to_date($Assignment->start_limit, "Y-m-d")) == "")) ? "00:00" : convert_timestamp_to_date($Assignment->getStartTime(), "H:i") ?>">
+                      <input id="input-startTime" type="time" name="start_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->start_limit == null || (checkIfDefaultDate($Assignment->getStartLimit("Y-m-d")) == "")) ? "00:00" : $Assignment->getStartLimit("H:i") ?>">
                       <label for="input-startTime" class="form-label" style="margin-left: 0px;">Время начала</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -273,7 +273,7 @@ if ($Assignment == null)
 
                   <div class="w-100">
                     <div class="form-outline datetimepicker">
-                      <input id="input-endDate" type="date" class="form-control active" name="tilltime" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit != null) ? checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) : "" ?>" onblur="$(this).addClass('active');$(this).css('opacity', '1');">
+                      <input id="input-endDate" type="date" class="form-control active" name="tilltime" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit != null) ? checkIfDefaultDate($Assignment->getFinishLimit("Y-m-d")) : "" ?>" onblur="$(this).addClass('active');$(this).css('opacity', '1');">
                       <label for="tilltime" class="form-label" style="margin-left: 0px;">Дата окончания</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -283,7 +283,7 @@ if ($Assignment == null)
                     </div>
 
                     <div class="form-outline datetimepicker mt-3">
-                      <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit == null || (checkIfDefaultDate(convert_timestamp_to_date($Assignment->finish_limit, "Y-m-d")) == "")) ? "00:00" : convert_timestamp_to_date($Assignment->getEndTime(), "H:i") ?>">
+                      <input id="input-endTime" type="time" name="end_time" class="form-control active" style="margin-bottom: 0px;" value="<?= ($Assignment->finish_limit == null || (checkIfDefaultDate($Assignment->getFinishLimit("Y-m-d")) == "")) ? "00:00" : $Assignment->getFinishLimit("H:i") ?>">
                       <label for="input-endTime" class="form-label" style="margin-left: 0px;">Время окончания</label>
                       <div class="form-notch">
                         <div class="form-notch-leading" style="width: 9px;"></div>
@@ -361,7 +361,7 @@ if ($Assignment == null)
                 <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
                 <?php
                 // $task_files = getTaskFiles($dbconnect, $Task->id);
-                showFiles($Task->getFiles());
+                showFiles($Task->getVisibleFiles());
                 ?>
               </div>
             </div>
@@ -564,7 +564,7 @@ if ($Assignment == null)
     }
   </script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="./src/poper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 
 </body>
 

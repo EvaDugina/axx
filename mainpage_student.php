@@ -31,16 +31,18 @@ $pages = pg_fetch_all($query);
 
 $User = new User((int)$au->getUserId());
 $Group = new Group((int)$group_id);
+
+$page_title = 'Дашборд Студента';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <html>
 
-<?php show_head($pge_title = 'Дашборд студента'); ?>
+<?php show_head($pge_title); ?>
 
 <body>
-  <?php show_header($dbconnect, 'Дашборд студента', array(), $User); ?>
+  <?php show_header($dbconnect, $page_title, array($page_title  => $_SERVER['REQUEST_URI']), $User); ?>
   <main class="justify-content-start overflow-hidden mb-5 pt-3">
     <?php
 

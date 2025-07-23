@@ -35,42 +35,37 @@ if (isset($_POST['action'])) {
 
 				$query = update_discipline($_POST);
 				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-				$query = delete_page_prep($_POST['id']);
-				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
-
-				$query = delete_page_group($_POST['id']);
-				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 			} else {
 				$query = insert_page($_POST);
-				echo $query;
 				$result = pg_query($dbconnect, $query);
 				$id = pg_fetch_all($result)[0]['id'] or die('Ошибка запроса: ' . pg_last_error());
 			}
 
+			$Page = new Page($id);
+
 			if (isset($_POST['teachers'])) {
-				echo '</br></br>';
-				print_r($_POST['teachers']);
+				$query = delete_page_prep($_POST['id']);
+				$result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+
 				foreach ($_POST['teachers'] as $teacher) {
-					// echo '</br>';
-					// $pos = explode(" ", $teacher);
-					// $first_name = $pos[0];
-					// $middle_name = "";
-					// if (isset($pos[1]))
-					//   $middle_name = $pos[1];
-					// //echo $first_name .' ' . $middle_name;  
-					// //echo $teacher;
-					// $query = prep_ax_prep_page($id, $first_name, $middle_name);
 					$query = addTeacherToPage($id, (int)$teacher);
 					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 				}
 			}
 
 			if (isset($_POST['groups'])) {
+
+				if (!$Page->hasConversationTask())
+					$Page->createConversation($_POST['groups']);
+
+				$conversationAssignment = $Page->getConversationTask()->getConversationAssignment();
+				$Students = array();
 				foreach ($_POST['groups'] as $group) {
-					$query = addGroupToPage($id, (int)$group);
-					pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
+					$Group = new Group($group);
+					$Students = array_merge($Students, $Group->getStudents());
+					$Page->addGroup((int)$group);
 				}
+				$conversationAssignment->addStudents($Students);
 			}
 
 			$status = True;
@@ -82,7 +77,6 @@ if (isset($_POST['action'])) {
 			break;
 
 		case 'delete':
-			var_dump($_POST['id']);
 			$Page = new Page($_POST['id']);
 			$Page->deleteFromDB();
 
@@ -119,15 +113,10 @@ function downloadPage($page_id)
 		exit("Невозможно открыть <$zip_file_path>");
 	}
 
-	// $directory_path = "Page_$Page->id/";
-	// if ($zipPage->addEmptyDir($directory_path)) {
 	$TaskFiles = getAllTasksAsFiles($tmp_file_dir, $Page);
 	foreach ($TaskFiles as $TaskFileName) {
 		$zipPage->addFile($tmp_file_dir . $TaskFileName, $TaskFileName);
 	}
-	// } else {
-	// echo 'Could not create the directory';
-	// }
 	$zipPage->close();
 
 	if (!file_exists($zip_file_path)) {

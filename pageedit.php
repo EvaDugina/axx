@@ -116,7 +116,8 @@ if (array_key_exists('page', $_REQUEST)) {
 } else {
 	$page_id = 0;
 
-	$page_teachers = [array('id' => $User->id, 'fio' => $User->getOfficialFIO())];
+	if ($au->isAdminOrPrep() && !$au->isAdmin())
+		$page_teachers = [array('id' => $User->id, 'fio' => $User->getOfficialFIO())];
 
 	if (array_key_exists('year', $_REQUEST) && array_key_exists('sem', $_REQUEST))
 		$semester = $_REQUEST['year'] . "/" . convert_sem_from_number($_REQUEST['sem']);
@@ -128,6 +129,7 @@ if (array_key_exists('page', $_REQUEST)) {
 
 $page_title = getPageeditPageTitle($Page);
 
+echo "<script>console.log(" . json_encode($page_teachers) . ");</script>";
 echo "<script>var actual_teachers_json = " . json_encode($page_teachers) . ";</script>";
 echo "<script>var page_groups_json = " . json_encode($page_groups) . ";</script>";
 
@@ -736,8 +738,9 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
 
 	};
 
-	function add_teacher() {
-		let teacher_id = parseInt($('#select_teacher').val());
+	function add_teacher(teacher_id = null) {
+		if (teacher_id == null)
+			teacher_id = parseInt($('#select_teacher').val());
 		if (teacher_id == "null")
 			return;
 

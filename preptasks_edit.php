@@ -136,8 +136,8 @@ switch ($action) {
       $Page = new Page((int)$_REQUEST['page']);
       foreach ($tasknums as $task_id) {
         $Task = new Task($Page->id, 0, 1);
-        $Task->copy($task_id);
-        // $Page->addTask((int)$Task->id);
+        $Task->copy($task_id, $au->getUserId());
+        $Page->addTask((int)$Task->id);
       }
 
       header('Location:preptasks.php?page=' . $_REQUEST['page']);
@@ -220,6 +220,8 @@ switch ($action) {
 
           $Assignment = new Assignment($tn, 2);
 
+          createTemplateCommit($Assignment, $au->getUserId());
+
           if ($flag_startDate) $Assignment->setStartLimit($start_date);
           if ($flag_endDate) $Assignment->setFinishLimit($end_date);
 
@@ -250,6 +252,8 @@ switch ($action) {
           foreach ($tasknums as $tn) {
 
             $Assignment = new Assignment($tn, 2);
+
+            createTemplateCommit($Assignment, $au->getUserId());
 
             if ($flag_startDate) $Assignment->setStartLimit($start_date);
             if ($flag_endDate) $Assignment->setFinishLimit($end_date);

@@ -7,3 +7,9 @@ share/
 auth_ssh_global.class.php
 auth_ssh_dev.class.php
 ISSUES.txt
+tmp_env
+
+Pipfile*
+
+auth_ssh.class.php
+auth.php

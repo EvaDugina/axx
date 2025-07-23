@@ -64,8 +64,7 @@ if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) {
   if ($row) {
     $assignment_id = $row['id'];
   } else {
-    echo 'Не распознанный Assignment';
-    http_response_code(404);
+    header('Location:index.php');
     exit;
   }
 } else if (isset($_REQUEST['assignment'])) {
@@ -80,8 +79,7 @@ if (isset($_REQUEST['task'], $_REQUEST['page'], $_REQUEST['id_student'])) {
     $task_id = $row['task_id'];
     $page_id = $row['page_id'];
   } else {
-    echo 'Не распознанные Page & Task';
-    http_response_code(404);
+    header('Location:index.php');
     exit;
   }
 }
@@ -170,7 +168,7 @@ if ($au->isAdminOrPrep()) {
   $previous_page_url = 'studtasks.php?page=' . $Page->id;
 }
 
-show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js')); ?>
+show_head($page_title, array('./src/npm/marked/marked.min.js')); ?>
 <link rel="stylesheet" href="taskchat.css">
 
 
@@ -208,7 +206,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           <?php if ($task_description != "") { ?>
             <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;"><?= $task_description ?></p>
           <?php } else { ?>
-            <p class="m-0 p-0" style="color: grey;">Описание отсутствует.</p>
+            <p id="TaskDescr" class="m-0 p-0" style="overflow: auto;">Описание отсутствует.</p>
           <?php } ?>
 
           <script>
@@ -307,12 +305,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             </div>
             <div class="w-100">
               <div>
-                <a href="editor.php?assignment=<?= $assignment_id ?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash" viewBox="0 0 16 16">
-                    <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" />
-                  </svg>&nbsp;&nbsp;
-                  Онлайн редактор кода
-                </a>
+                <?php if ($Assignment->isAccess()) { ?>
+                  <a href="editor.php?assignment=<?= $assignment_id ?>" class="btn btn-outline-primary my-1" style="width: 100%;" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash" viewBox="0 0 16 16">
+                      <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z" />
+                    </svg>&nbsp;&nbsp;
+                    Онлайн редактор кода
+                  </a>
+                <?php } ?>
               </div>
 
               <?php if ($au->isAdminOrPrep()) { // Оценить отправленное на проверку задание 
@@ -546,7 +546,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="./src/poper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script type="text/javascript" src="js/taskchat.js"></script>
 
   <script type="text/javascript">
@@ -918,10 +918,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
       //element.classList.add("col-lg-2");
       element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-2 mt-1 badge badge-light text-wrap teacher-element");
       element.id = "messageFile-" + id;
-
-      //  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
-      //   <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z"/>
-      // </svg>
 
       let svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
       svg.classList.add("bi", "bi-file-earmark-fill");

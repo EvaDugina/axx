@@ -197,11 +197,11 @@ function showTdPopover(element) {
 
   $(element).popover({
     html: true,
-    delay: 250, // без этого ничего не работает и popover сразу закрывается
+    delay: 100, // без этого ничего не работает и popover сразу закрывается
     trigger: 'focus',
     placement: 'bottom',
     sanitize: false,
-    title: element.getAttribute('title'),
+    title: element.getAttribute('data-mdb-title'),
     content: element.getAttribute('data-mdb-content')
   }).popover('show');
 
@@ -216,6 +216,8 @@ var sender_user_type = null;
 var reply_id = null;
 
 function answerPress(answer_type, message_id, f_assignment_id, f_user_id, mark_type = null, max_mark = null, current_mark = null) {
+  chooseAssignment(f_assignment_id);
+
   assignment_id = f_assignment_id;
   user_id = f_user_id;
   reply_id = message_id;
@@ -367,7 +369,7 @@ function sendMessage(form, userMessage, typeMessage, mark = null, func_success =
   formData.append('user_id', user_id);
   formData.append('message_text', userMessage);
   formData.append('type', typeMessage);
-  formData.append('flag_preptable', true);
+  formData.append('flag-preptable', true);
   if (reply_id != null) {
     formData.append('reply_id', reply_id);
   }
@@ -375,19 +377,17 @@ function sendMessage(form, userMessage, typeMessage, mark = null, func_success =
     formData.append('mark', mark);
   }
 
-  console.log('message_text =' + userMessage);
-  console.log('type =' + typeMessage);
-  console.log(Array.from(formData));
-
   $.ajax({
     type: "POST",
-    url: 'taskchat_action.php #content',
+    url: 'taskchat_action.php#content',
     cache: false,
     contentType: false,
     processData: false,
     data: formData,
     dataType: 'html',
-    success: console.log("SUCCESS!"),
+    success: function (response) {
+      // console.log(JSON.parse(response.trim()));
+    },
     complete: function () {
       form.submit();
     }

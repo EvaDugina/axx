@@ -942,11 +942,11 @@ show_head($page_title, array('./src/easymde.min.js'), array('./src/easymde.min.c
   }
 
   function isMarkTypeChanged() {
-    let now_markType = $('#select-markType').val();
-    if (original_markType != now_markType) {
-      return true;
-    }
-    return false;
+    // let now_markType = $('#select-markType').val();
+    // if (original_markType != now_markType) {
+    return true;
+    // }
+    // return false;
   }
 
   function isMaxMarkChanged() {

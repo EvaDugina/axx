@@ -46,3 +46,16 @@
 .input-file .editing{
   cursor: text; 
 }
+
+.background-light-grey {
+  background: #F7F7F9;
+}
+
+
+.background-grey {
+  background: #E0E5EA;
+}
+
+.background-dark-primary {
+  background: #435576;
+}

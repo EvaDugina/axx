@@ -132,7 +132,7 @@ if (isset($_POST['mark'])) {
 
 
 
-if (isset($_POST['flag_preptable']) && $_POST['flag_preptable']) {
+if (isset($_POST['flag-preptable']) && $_POST['flag-preptable']) {
   exit;
 }
 
@@ -261,7 +261,12 @@ function showMessage($Message, $User, $min_new_message_id, $isResended = false)
               <?php
               if ($Message->type == 3) { // если ссылка
               ?>
-                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">Проверить код</a>
+                <a href="<?= $Message->full_text ?>" onclick="event.stopPropagation()">
+                  <?php if ($Message->isVisibleOnlyForTeacher()) {
+                    echo "Проверить код";
+                  } else {
+                    echo "Посмотреть замечания";
+                  } ?></a>
               <?php } else { ?>
                 <?= getTextWithTagBrAfterLines(stripslashes(htmlspecialchars($Message->full_text))) ?>
                 <br>

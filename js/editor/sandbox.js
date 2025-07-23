@@ -1,5 +1,5 @@
 import editor from "./editor.js";
-import { makeRequest, saveEditedFile, saveActiveFile, openFile, getActiveFileName } from "./butons.js";
+import { makeRequest, saveEditedFile, saveActiveFile, openFile, getActiveFileName, synchFilesWithConsole } from "./butons.js";
 import { getCMDCompilationCommand, getFileExt } from "../FileHandler.js";
 import httpApiUrl from "../api.js";
 import Sandbox from "../sandbox.js";
@@ -39,21 +39,7 @@ function getProjectCompilationCommandThroughProjectFiles(file_names) {
 
 document.querySelector("#run").addEventListener('click', async e => {
     saveActiveFile();
-    //saveAll();
-    var param = document.location.href.split("?")[1].split("#")[0];
-    if (param == '') param = 'void';
-    var list = document.getElementsByClassName("tasks__list")[0];
-    var items = list.querySelectorAll(".validationCustom");
-    var name = "";
-    var t = 0;
-    let file_names = [];
-    for (var i = 0; i < items.length - 1; i++) {
-        //if(items[i].value.split(".")[items[i].value.split(".").length-1] == "makefile" ^ items[i].value.split(".")[items[i].value.split(".").length-1] == "make"){
-        //    t = i;
-        //}
-        makeRequest(['textdb.php?' + param + "&type=open&id=" + items[i].id, items[i].value], "get");
-        file_names.push(items[i].value);
-    }
+    synchFilesWithConsole();
 
     let activeFileExt = getFileExt(getActiveFileName());
     let cmdCommand = getCMDCompilationCommand(activeFileExt);
@@ -62,21 +48,29 @@ document.querySelector("#run").addEventListener('click', async e => {
     if (cmdCommand == null)
         alert("Не удалось определить команду консоли для сборки проекта!")
 
-    //if(t){
+    // if (t) {
     //var resp = await (await fetch(`${apiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make -f "+items[t].value}), headers: {'Content-Type': 'application/json'}})).json();
-    
-    var resp = await (await fetch(`${httpApiUrl}/sandbox/${Sandbox.id}/cmd`, {method: "POST", body: JSON.stringify({cmd: "make "}), headers: {'Content-Type': 'application/json'}})).json();
-    
-    //var resp = await (await fetch(`${httpApiUrl}/sandbox/${Sandbox.id}/cmd/${user}`, { method: "POST", body: JSON.stringify({ cmd: cmdCommand + " " }), headers: { 'Content-Type': 'application/json' } })).json();
-    //}
-    //alert(resp['stdout']+",\n"+resp['stderr']+",\n"+resp['exitCode']);
-    //alert(t);
+    // }
+    // alert(t);
+
+    // var resp = await (await fetch(`${httpApiUrl}/sandbox/${Sandbox.id}/cmd`, {
+    //     method: "POST", body: JSON.stringify({ cmd: "make " }), headers: { 'Content-Type': 'application/json' }
+    // })).json();
+
+    var resp = await (await fetch(`${httpApiUrl}/sandbox/${Sandbox.id}/cmd`, {
+        method: "POST", body: JSON.stringify({ cmd: cmdCommand }), headers: { 'Content-Type': 'application/json' }
+    })).json();
+
     var entry = document.createElement("div");
     var l = resp['stdout']
     if (resp['stderr']) {
         l = resp['stdout'] + "\n Ошибка " + resp['stderr'];
+        // alert(l + "\nEXIT_CODE: " + resp['exitCode']);
     }
-    entry.innerHTML = '<pre>Результат Makefile: ' + l + ' </pre>';
+
+    openCity('Console');
+
+    entry.innerHTML = '<pre class="bg-dark text-light mt-2">Результат ' + cmdCommand + ': ' + l + ' </pre>';
     document.querySelector("#terminal").insertAdjacentElement('afterend', entry);
 });
 

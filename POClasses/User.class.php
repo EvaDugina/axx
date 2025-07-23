@@ -83,6 +83,10 @@ class User
   {
     return convertFIOToOfficial($this->first_name, $this->middle_name, $this->last_name);
   }
+  public function getTeacherFIO()
+  {
+    return $this->first_name . " " . $this->last_name;
+  }
 
   public function getNotifications()
   {
@@ -104,6 +108,8 @@ class User
 
       foreach ($Page->getTasks() as $Task) {
         foreach ($Task->getActiveAssignments() as $Assignment) {
+          if ($this->isStudent() && !$Assignment->checkStudent($this->id))
+            continue;
           $unreadedMessages = $Assignment->getUnreadedMessage($this->id);
           if (count($unreadedMessages) > 0) {
             $notify = array(
@@ -121,46 +127,6 @@ class User
           }
         }
       }
-
-      // if ($this->isTeacher()) { // Уведомления для преподавателя 
-      //   foreach ($Page->getTasks() as $Task) {
-      //     foreach ($Task->getActiveAssignments() as $Assignment) {
-      //       $unreadedMessages = $Assignment->getUnreadedMessagesForTeacher();
-      //       if (count($unreadedMessages) > 0) {
-      //         $notify = array(
-      //           "task_id" => $Task->id,
-      //           "taskTitle" => $Task->title,
-      //           "countUnreaded" => count($unreadedMessages),
-      //           "assignment_id" => $Assignment->id,
-      //           "students" => $Assignment->getStudents(),
-      //           "page_name" => $Page->name,
-      //           "needToCheck" => ($Assignment->isWaitingCheck()) ? true : false
-      //         );
-      //         array_push($notifies, $notify);
-      //       }
-      //     }
-      //   }
-      // } else if ($this->isStudent()) { // Уведомления для студента
-      //   foreach ($Page->getTasks() as $Task) {
-      //     foreach ($Task->getVisibleAssignmemntsByStudent($this->id) as $Assignment) {
-      //       $unreadedMessages = $Assignment->getUnreadedMessagesForStudent();
-      //       if (count($unreadedMessages) > 0) {
-      //         $notify = array(
-      //           "task_id" => $Task->id,
-      //           "taskTitle" => $Task->title,
-      //           "countUnreaded" => count($unreadedMessages),
-      //           "assignment_id" => $Assignment->id,
-      //           "teachers" => $Page->getTeachers(),
-      //           "page_name" => $Page->name,
-      //           "completed" => ($Assignment->isCompleted()) ? true : false
-      //         );
-      //         array_push($notifies, $notify);
-      //       }
-      //     }
-      //   }
-      // }
-
-
     }
 
     return $notifies;
@@ -269,21 +235,15 @@ function getProfilePageTitle($User)
 
 function isAdmin($role)
 {
-  if ($role == 1)
-    return true;
-  return false;
+  return $role == 1;
 }
 function isTeacher($role)
 {
-  if ($role == 2)
-    return true;
-  return false;
+  return $role == 2;
 }
 function isStudent($role)
 {
-  if ($role == 3)
-    return true;
-  return false;
+  return $role == 3;
 }
 
 // 

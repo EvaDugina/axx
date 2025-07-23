@@ -1,7 +1,6 @@
 <?php
-    $host = 'psql';
-    $port = '5432';
-    $dbname = 'test_db';
-    $user = 'postgres';
-    $password = '7136644';
-?>
+$host = getenv('POSTGRES_HOST');
+$port = getenv('POSTGRES_INNER_PORT');
+$user = getenv('POSTGRES_USER');
+$password = getenv('POSTGRES_PASSWORD');
+$dbname = getenv('POSTGRES_DB');

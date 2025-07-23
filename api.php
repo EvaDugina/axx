@@ -123,7 +123,7 @@ if (($checks == null)
 	|| !array_key_exists('cppcheck', $checks['tools'])
 	|| !array_key_exists('clang-format', $checks['tools'])
 	|| !array_key_exists('valgrind', $checks['tools'])
-	|| !array_key_exists('autotests', $checks['tools'])
+	|| !array_key_exists('catch2', $checks['tools'])
 	|| !array_key_exists('copydetect', $checks['tools'])
 ) {
 	echo "Incorrect data in config file: <br>";
@@ -144,7 +144,7 @@ $checks['tools']['clang-format']['check']['file'] = ".clang-format";
 $checks['tools']['valgrind']['enabled'] = $flag_valgrind;
 $checks['tools']['valgrind']['bin'] = "valgrind";
 
-$checks['tools']['autotests']['enabled'] = $flag_autotest;
+$checks['tools']['catch2']['enabled'] = $flag_autotest;
 
 $checks['tools']['copydetect']['enabled'] = $flag_plagiat;
 $checks['tools']['copydetect']['bin'] = "copydetect";
@@ -160,7 +160,7 @@ if (!file_exists($folder))
 // autotest files
 $test_input = array();
 if (!$flag_autotest)
-	$checks['tools']['autotests']['test_path'] = "";
+	$checks['tools']['catch2']['test_path'] = "";
 else if (array_key_exists('tests1', $_FILES)) {
 	for ($i = 1; $i < 100; $i++) {
 		if (!array_key_exists('tests' . $i, $_FILES) || $_FILES['tests' . $i]['name'] == "")
@@ -187,7 +187,7 @@ else if (array_key_exists('tests1', $_FILES)) {
 		}
 		array_push($test_input, $_FILES['tests' . $i]['name']);
 	}
-	$checks['tools']['autotests']['test_path'] = implode(' ', $test_input);
+	$checks['tools']['catch2']['test_path'] = implode(' ', $test_input);
 } else {
 	// ��������� ������ ������ �� ��
 	if ($assignment_id == 0) {
@@ -216,7 +216,7 @@ else if (array_key_exists('tests1', $_FILES)) {
 		array_push($test_input, $testfile);
 	} while ($result = pg_fetch_assoc($result));
 	//$test_input = "accel_autotest.cpp";
-	$checks['tools']['autotests']['test_path'] = implode(' ', $test_input);
+	$checks['tools']['catch2']['test_path'] = implode(' ', $test_input);
 }
 
 // config.json
@@ -291,7 +291,7 @@ if (array_key_exists('sources1', $_FILES)) {
 
 $output = null;
 $retval = null;
-exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . $src_input . ' ' . $test_input . ' 2>&1', $output, $retval);
+exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox c_code_check -c config.json ' . $src_input . ' ' . $test_input . ' 2>&1', $output, $retval);
 
 // ��������� ����������� �������� �� ����� 
 $myfile = fopen($folder . '/output.json', "r");

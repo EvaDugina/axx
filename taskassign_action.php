@@ -103,7 +103,7 @@ if (isset($_POST['changeStatus'])) {
 
 if (isset($_POST['createGeneralConversation'])) {
   $Page = new Page((int)$_POST['page_id']);
-  $Task = $Page->createGeneralConversation();
+  $Task = $Page->createConversation();
   $Task->setTitle("Беседа со всеми пользователями курса");
   header("Location: taskchat.php?assignment=" . $Task->getConversationAssignment()->id);
   exit();
@@ -126,28 +126,23 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
     exit();
   }
 
-  $Task = new Task(getTaskByAssignment($Assignment->id));
-  if ($Task->hasProjectTemplateFiles()) {
-    $templateCommit = $Assignment->getTemplateCommit();
-    if ($templateCommit == null) {
-      $templateCommit = new Commit($Assignment->id, null, $au->getUserId(), 4, null);
-      $Assignment->addCommit($templateCommit->id);
-      foreach ($Task->getProjectTemplateFiles() as $File) {
-        $templateCommit->addFile($File->id);
-      }
-    }
-  }
+  createTemplateCommit($Assignment, $au->getUserId());
+
+  $bin_build = ($_POST["build_language"] == "C++") ? "g++" : "gcc";
 
   $params = array(
     "tools" => array(
       "build" => array(
         "enabled" => str2bool(@$_POST["build_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["build_show"]),
         "language" => @$_POST["build_language"],
+        "bin" => $bin_build,
         "check" => array("autoreject" => str2bool(@$_POST["build_autoreject"]))
       ),
       "valgrind" => array(
         "enabled" => str2bool(@$_POST["valgrind_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["valgrind_show"]),
         "bin" => "valgrind",
         "arguments" => @$_POST["valgrind_arg"],
@@ -169,6 +164,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
       ),
       "cppcheck" => array(
         "enabled" => str2bool(@$_POST["cppcheck_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["cppcheck_show"]),
         "bin" => "cppcheck",
         "arguments" => @$_POST["cppcheck_arg"],
@@ -225,6 +221,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
       ),
       "clang-format" => array(
         "enabled" => str2bool(@$_POST["clang_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["clang_show"]),
         "bin" => "clang-format",
         "arguments" => @$_POST["clang_arg"],
@@ -237,6 +234,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
       ),
       "pylint" => array(
         "enabled" => str2bool(@$_POST["pylint_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["pylint_show"]),
         "bin" => "pylint",
         "arguments" => @$_POST["pylint_arg"],
@@ -269,8 +267,11 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
       ),
       "pytest" => array(
         "enabled" => str2bool(@$_POST["pytest_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["pytest_show"]),
-        "test_path" => "autotest.py",
+        "test_path" => array(
+          "autotest.py"
+        ),
         "bin" => "pytest",
         "arguments" => @$_POST["pytest_arg"],
         "check" => array(
@@ -278,10 +279,13 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
           "autoreject" => str2bool(@$_POST["pytest_check_reject"])
         )
       ),
-      "autotests" => array(
+      "catch2" => array(
         "enabled" => str2bool(@$_POST["test_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["test_show"]),
-        "test_path" => "autotest.cpp",
+        "test_path" => array(
+          "autotest.cpp"
+        ),
         "check" => array(
           "limit" => str2int(@$_POST["test_check_limit"]),
           "autoreject" => str2bool(@$_POST["test_check_reject"])
@@ -289,6 +293,7 @@ if ((isset($_POST['action']) && $_POST['action'] == "save")) {
       ),
       "copydetect" => array(
         "enabled" => str2bool(@$_POST["plug_enabled"]),
+        "autoreject" => False,
         "show_to_student" => str2bool(@$_POST["plug_show"]),
         "bin" => "copydetect",
         "arguments" => @$_POST["plug_arg"],
@@ -372,7 +377,7 @@ if (isset($_POST['flag-markAssignment']) && isset($_POST['assignment_id']) && is
     $message_text = "Комментарий проеподавателя: \n" + $_POST['message_text'];
   }
 
-  $Message = new Message((int)$Assignment->id, 2, $User->id, $User->role);
+  $Message = new Message((int)$Assignment->id, 2, $User->id, $User->role, $Assignment->getLastAnswerMessage()->id, "");
   $Message->setFullText($message_text);
   $Assignment->addMessage($Message->id);
 

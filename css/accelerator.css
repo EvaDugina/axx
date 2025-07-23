@@ -17,27 +17,6 @@
   z-index: 1000;
 }
 
-
-
-/* [data-title] {
-  position: relative;
-}
-[data-title]:hover::before {
-  content: attr(data-title);
-  position: absolute;
-  bottom: -26px;
-  left: 0px;
-  display: inline-block;
-  border-radius: 2px;
-  background: var(--mdb-gray-500);
-  color: #fff;
-  font-size: 12px;
-  font-family: sans-serif;
-  white-space: nowrap;
-} */
-
-
-
 .table-status {
     margin: 1rem 0;
     width: auto;

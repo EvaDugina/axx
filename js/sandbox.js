@@ -17,36 +17,7 @@ export default Sandbox;
     Sandbox.id = sandboxId;
 
     const terminal = new Terminal();
-    const socket = new WebSocket(`${wsApiUrl}/sandbox/ws/${Sandbox.id}`);
-
-    socket.onopen = () => {
-        console.log('WebSocket connection established');
-        socket.send("\n");
-    };
-
-    socket.onmessage = (event) => {
-        console.log('Message from server:', event.data);
-    };
-
-    socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-    };
-
-    socket.onclose = (event) => {
-        console.log('WebSocket connection closed:', event);
-    };
-
-    terminal.onData(data => {
-        if (socket.readyState === WebSocket.OPEN) {
-            // socket.send(data); // Отправка данных через WebSocket
-        } else {
-            console.error('WebSocket is not open. Current state:', socket.readyState);
-        }
-    });
-
-    const attachAddon = new AttachAddon.AttachAddon(socket);
     const fitAddon = new FitAddon.FitAddon();
-    terminal.loadAddon(attachAddon);
     terminal.loadAddon(fitAddon);
 
     let div_terminal = document.querySelector("#terminal");
@@ -65,5 +36,54 @@ export default Sandbox;
         }
 
     }).observe(div_terminal);
+
+    var socket;
+    var isFirstOpen = true;
+    const URL = `${wsApiUrl}/sandbox/ws/${Sandbox.id}`;
+    function connectWebSocket() {
+        socket = new WebSocket(URL);
+
+        socket.onopen = () => {
+            console.log('WebSocket connection established');
+            if (isFirstOpen) {
+                isFirstOpen = false;
+                terminal.writeln('\x1B[1;3;31mТерминал запущен!\x1B[0m');
+                terminal.write('$ ');
+                // terminal.writeln('\x1B[1;3;31mRed bold italic\x1B[0m text');
+                // terminal.writeln('\x1B[32mGreen text\x1B[0m');
+                // terminal.writeln('\x1B[44;37mWhite on blue\x1B[0m');
+                // socket.send("\n");
+
+            }
+            var attachAddon = new AttachAddon.AttachAddon(socket);
+            terminal.loadAddon(attachAddon);
+
+        };
+
+        // socket.onmessage = (event) => {
+        //     let message = event.data;
+        //     console.log("message", message);
+        //     terminal.write(message);
+        // };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        socket.onclose = (event) => {
+            console.log('WebSocket connection closed:', event);
+            if (event.code === 1006) {
+                reconnectWebSocket(5);
+            } else {
+                reconnectWebSocket(15);
+            }
+        };
+
+        async function reconnectWebSocket(s) {
+            setTimeout(connectWebSocket, s * 1000);
+        }
+
+    }
+    connectWebSocket();
 
 })();

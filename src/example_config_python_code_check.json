@@ -1,0 +1,74 @@
+{
+  "tools": {
+    "pylint": {
+      "enabled": false,
+      "autoreject": false,
+      "bin": "pylint",
+      "arguments": "",
+      "disable_error_codes": ["C0114", "C0116", "C0304"],
+      "checks": [
+        {
+          "check": "error",
+          "enabled": true,
+          "autoreject": false,
+          "limit": 0,
+          "disable_error_codes": []
+        },
+        {
+          "check": "warning",
+          "enabled": true,
+          "autoreject": false,
+          "limit": 1,
+          "disable_error_codes": []
+        },
+        {
+          "check": "refactor",
+          "enabled": true,
+          "autoreject": false,
+          "limit": 3,
+          "disable_error_codes": []
+        },
+        {
+          "check": "convention",
+          "enabled": true,
+          "autoreject": false,
+          "limit": 3,
+          "disable_error_codes": []
+        }
+      ]
+    },
+    "pytest": {
+      "enabled": false,
+      "autoreject": false,
+      "bin": "pytest",
+      "arguments": "",
+      "test_path": [],
+      "check": {
+          "autoreject": false,
+          "limit": 0
+        }
+    },
+    "bandit": {
+      "enabled": false,
+      "autoreject": false,
+      "bin": "bandit",
+      "arguments": "",
+      "check": {
+          "autoreject": true,
+          "severity_hight_limit": "",
+          "severity_medium_limit": "",
+          "severity_low_limit": ""
+        }
+    },
+    "copydetect": {
+      "enabled": false,
+      "autoreject": false,
+      "arguments": "",
+      "bin": "copydetect",
+      "check": {
+        "autoreject": true,
+        "limit": 50
+      }
+    }
+  }
+}

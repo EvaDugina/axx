@@ -425,8 +425,10 @@ class Page
   public function addGroup($group_id)
   {
     $Group = new Group((int)$group_id);
-    $this->pushGroupToPageDB($group_id);
-    array_push($this->Groups, $Group);
+    if (!$this->hasGroup($Group->id)) {
+      $this->pushGroupToPageDB($group_id);
+      array_push($this->Groups, $Group);
+    }
   }
   public function deleteGroup($group_id)
   {
@@ -454,6 +456,10 @@ class Page
         return $Group;
     }
     return null;
+  }
+  public function hasGroup($group_id)
+  {
+    return $this->getGroupById($group_id) != null;
   }
 
   public function pushGroupToPageDB($group_id)
@@ -585,7 +591,7 @@ class Page
     return 'Весна';
   }
 
-  public function createGeneralConversation($group_ids = null)
+  public function createConversation($group_ids = null)
   {
     $conversationTask = new Task($this->id, 2, 1);
     $conversationTask->setTitle("ОБЩАЯ БЕСЕДА");
@@ -615,6 +621,10 @@ class Page
         return $Task;
     }
     return null;
+  }
+  public function hasConversationTask()
+  {
+    return $this->getConversationTask() != null;
   }
 }
 
@@ -677,16 +687,14 @@ function getGroupsByPage($page_id)
 {
   global $dbconnect;
 
-  $groups = array();
-
   $query = queryGetGroupsByPage($page_id);
   $result = pg_query($dbconnect, $query) or die('Ошибка запроса: ' . pg_last_error());
 
+  $Groups = array();
   while ($group_row = pg_fetch_assoc($result)) {
-    array_push($groups, new Group((int)$group_row['id']));
+    array_push($Groups, new Group((int)$group_row['id']));
   }
-
-  return $groups;
+  return $Groups;
 }
 
 function getTeachersByPage($page_id)

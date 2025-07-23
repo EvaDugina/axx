@@ -1,60 +1,150 @@
 <?php
+require_once("DataClasses/ToolResult.class.php");
 
 // защита от случайного перехода
 $au = new auth_ssh();
 checkAuLoggedIN($au);
 
-function getAutotestsAccordionHtml($checks, $checkres, $User, $update_autotest_results = false)
+function createConsoleFullOuput($isTextarea, $elementId)
+{
+    $html = "";
+    $html .= "<button id='button-full-screen-$elementId' class='w-100 btn btn-outline-primary mb-2 d-none' onclick='makeElementFullScreen(&#39;$elementId&#39;)'>Развернуть окно вывода</button>";
+    if ($isTextarea)
+        $html .= "<textarea id='$elementId' class='axconsole w-100' readonly>";
+    else
+        $html .= "<pre id='$elementId' class='axconsole'>";
+
+    $html .= "Загрузка...";
+
+    if ($isTextarea)
+        $html .= "</textarea>";
+    else
+        $html .= "</pre>";
+
+    return $html;
+}
+
+function is_valid_tool_config(mixed $tool_config): bool
+{
+    // Конвертируем в ассоциативный массив
+    $tool_config = json_decode(json_encode($tool_config), $assoc = true);
+    return isset($tool_config['enabled']) && isset($tool_config['show_to_student']);
+}
+
+function is_valid_tool_result(mixed $tool_result): bool
+{
+    // Конвертируем в ассоциативный массив
+    $tool_result = json_decode(json_encode($tool_result), $assoc = true);
+    return isset($tool_result['full_output']) && isset($tool_result['outcome']);
+}
+
+function getAutotestsAccordionHtml(array $config_base, array $config_temp, array | null $result, bool $isStudent)
 {
 
-    if ($update_autotest_results) {
-        $checks = $checkres;
+    $accord = array();
+    foreach (get_all_tools() as $Tool) {
+        $key = $Tool->value;
+
+        if (!isset($config_base['tools'][$key]) || !is_valid_tool_config($config_base['tools'][$key])) {
+            // throw new InvalidArgumentException("Не верная конфигурация Config: " . json_encode($config_base['tools'][$key]));
+            continue;
+        }
+        if (!isset($config_temp['tools'][$key]) || !is_valid_tool_config($config_temp['tools'][$key])) {
+            // throw new InvalidArgumentException("Не верная конфигурация Config_Temp: " . json_encode($config_temp['tools'][$key]));
+            continue;
+        }
+
+        if (!$config_base['tools'][$key]['enabled'])
+            continue;
+        if ($isStudent && !$config_base['tools'][$key]['show_to_student']) {
+            continue;
+        }
+
+        $tool_result = null;
+        if ($result && isset($result['tools']) && isset($result['tools'][$key]))
+            $tool_result = $result['tools'][$key];
+        array_push($accord, parseToolResult($Tool, $config_temp['tools'][$key], $tool_result));
     }
 
-    $accord = array();
-    if (!$User->isStudent()) {
-        if (isset($checks['tools']['build']))
-            array_push($accord, parseBuildCheck(@$checkres['tools']['build'], @$checks['tools']['build']['enabled']));
-        if (isset($checks['tools']['cppcheck']))
-            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], @$checks['tools']['cppcheck']['enabled']));
-        if (isset($checks['tools']['clang-format']))
-            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], @$checks['tools']['clang-format']['enabled']));
-        if (isset($checks['tools']['valgrind']))
-            array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], @$checks['tools']['valgrind']['enabled']));
-        if (isset($checks['tools']['pylint']))
-            array_push($accord, parsePylint(@$checkres['tools']['pylint'], @$checks['tools']['pylint']['enabled']));
-        if (isset($checks['tools']['pytest']))
-            array_push($accord, parsePytest(@$checkres['tools']['pytest'], @$checks['tools']['pytest']['enabled']));
-        if (isset($checks['tools']['autotests']))
-            array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], @$checks['tools']['autotests']['enabled']));
-        if (isset($checks['tools']['copydetect']))
-            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], @$checks['tools']['copydetect']['enabled']));
-    } else {
-        if (isset($checks['tools']['build']) && $checks['tools']['build']['show_to_student'])
-            array_push($accord, parseBuildCheck(@$checkres['tools']['build'], @$checks['tools']['build']['enabled']));
-        if (isset($checks['tools']['cppcheck']) && $checks['tools']['cppcheck']['show_to_student'])
-            array_push($accord, parseCppCheck(@$checkres['tools']['cppcheck'], @$checks['tools']['cppcheck']['enabled']));
-        if (isset($checks['tools']['clang-format']) && $checks['tools']['clang-format']['show_to_student'])
-            array_push($accord, parseClangFormat(@$checkres['tools']['clang-format'], @$checks['tools']['clang-format']['enabled']));
-        if (isset($checks['tools']['valgrind']) && $checks['tools']['valgrind']['show_to_student'])
-            array_push($accord, parseValgrind(@$checkres['tools']['valgrind'], @$checks['tools']['valgrind']['enabled']));
-        if (isset($checks['tools']['pylint']) && $checks['tools']['pylint']['show_to_student'])
-            array_push($accord, parsePylint(@$checkres['tools']['pylint'], @$checks['tools']['pylint']['enabled']));
-        if (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['show_to_student'])
-            array_push($accord, parsePytest(@$checkres['tools']['pytest'], @$checks['tools']['pytest']['enabled']));
-        if (isset($checks['tools']['autotests']) && $checks['tools']['autotests']['show_to_student'])
-            array_push($accord, parseAutoTests(@$checkres['tools']['autotests'], @$checks['tools']['autotests']['enabled']));
-        if (isset($checks['tools']['copydetect']) && $checks['tools']['copydetect']['show_to_student'])
-            array_push($accord, parseCopyDetect(@$checkres['tools']['copydetect'], @$checks['tools']['copydetect']['enabled']));
-    }
     return $accord;
 }
 
-function getcheckinfo($checkarr, $checkname)
+function parseToolResult(Tool $Tool, $tool_config, $tool_result)
 {
-    foreach ($checkarr as $c)
-        if (@$c['check'] == $checkname)
-            return $c;
+    $enabled = $tool_config['enabled'];
+
+    $Outcome = null;
+    if (!$enabled || !isset($tool_result)) {
+        $Outcome = Outcome::SKIP;
+    } else {
+        $ToolResult = $Tool->get_tool_result($tool_result);
+        $ToolConfig = $Tool->get_tool_result($tool_result);
+
+        if (!$ToolResult->is_valid()) {
+            $Outcome = Outcome::UNDEFINED;
+        } else {
+            $Outcome = $ToolResult->get_param(Param::OUTCOME);
+        }
+    }
+
+    $body = "";
+    if ($Outcome === Outcome::PASS || $Outcome === Outcome::FAIL) {
+
+        if ($Tool == Tool::BUILD)
+            $body = get_body_build($ToolResult->get_checks()[0]);
+        else if ($Tool == Tool::CPPCHECK)
+            $body = "<br>" . get_body_cppcheck($ToolResult->get_checks());
+        else if ($Tool == Tool::CLANG_FORMAT)
+            $body = "<br>" . get_body_clangformat($ToolResult->get_checks()[0]);
+        else if ($Tool == Tool::VALGRIND)
+            $body = "<br>" . get_body_valgrind($ToolResult->get_checks());
+        else if ($Tool == Tool::CATCH2)
+            $body = "<br>" . get_body_catch2($ToolResult->get_checks()[0]);
+
+        else if ($Tool == Tool::PYLINT)
+            $body = "<br>" . get_body_pylint($ToolResult->get_checks());
+        else if ($Tool == Tool::PYTEST)
+            $body = "<br>" . get_body_pytest($ToolResult->get_checks()[0]);
+
+        else if ($Tool == Tool::COPYDETECT)
+            $body = "<br>" . get_body_copydetect($ToolResult->get_checks()[0]);
+    }
+
+    $color_box = "";
+    $footer = "";
+    if ($Outcome === Outcome::PASS || $Outcome === Outcome::FAIL || $Outcome === Outcome::REJECT) {
+        $color_box = generateColorBox($Outcome->color(), $Outcome->short_description(), $Tool->name() . '_result');
+        if ($Tool == Tool::COPYDETECT) {
+            $folder_for_docker = getenv('HOST_DIR');
+            if ($folder_for_docker === false) {
+                die('Переменная HOST_DIR не задана');
+            }
+            $folder_docker_share = "$folder_for_docker/share";
+            $sid = session_id();
+            $folder = "$folder_docker_share/" . (($sid == false) ? "unknown" : $sid);
+            $folder_to_copydetect = "$folder/output_copydetect.html";
+            if (file_exists($folder_to_copydetect) && !is_dir($folder_to_copydetect)) {
+                $footer = '<a target="_blank" class="btn btn-outline-danger mt-2" style="cursor: pointer;" href="open_html.php?file_path=' . $folder_to_copydetect . '">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-text" viewBox="0 0 16 16">
+    <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z"/>
+    <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1"/>
+    </svg> &nbsp; Открыть подробный отчет</a>';
+            } else {
+                $footer = "Для получения подробных результатов перезапустите проверку.";
+            }
+        } else
+            $footer = '<label for="' . $Tool->name() . '" id="' . $Tool->name() . 'label" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
+                createConsoleFullOuput(true, $Tool->name());
+    }
+
+    $status_check = ($enabled) ? 'checked' : '';
+    return array(
+        'header' => '<div class="w-100"><b>' . $Tool->name_official() . '</b>' . $color_box . '</div>',
+        'label'     => '<input id="' . $Tool->name() . '_enabled" name="' . $Tool->name() . '_enabled" ' . $status_check .
+            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
+        'body'   => generateTaggedValue($Tool->name() . "_body", $Outcome->long_description() . $body),
+        'footer' => $footer
+    );
 }
 
 // Генерация цветного квадрата для элементов с проверками
@@ -68,925 +158,99 @@ function generateTaggedValue($tag, $val)
     return '<span id=' . $tag . '>' . $val . '</span>';
 }
 
-// Разбор и преобразования результата проверки сборки в элемент массива для генерации аккордеона
-function parseBuildCheck($data, $enabled)
+// 
+// GET_BODY_*()
+// 
+
+function get_body_build(CheckResult $CheckResult): string
 {
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="build" id="buildlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<textarea id="build" class="axconsole w-100" readonly>Загрузка...</textarea>';
-
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b><span id="build_result" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("build_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
-
-
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b></div>',
-            'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
-
-    switch ($data['outcome']) {
-        case 'pass':
-            break;
-        case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . generateColorBox('red', 'Проверка не пройдена', 'build_result') . '</div>',
-                'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("build_body", "Программный код не удовлетворяет требованиям задания программного кода."),
-                'footer' => $resFooter
-            );
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b><span id="build_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("build_body", "Проверка пропущена."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b><span id="build_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("build_body", "Инструмент проверки не установлен."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b><span id="build_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("build_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
-
-    $resBody = '';
-    $check = $data['check'];
-
-    switch ($check['outcome']) {
-        case 'pass':
-            $boxColor = 'green';
-            $boxText = 'Успех';
-            break;
-        case 'reject':
-            $boxColor = 'red';
-            $boxText = 'Неудача';
-            break;
-        case 'fail':
-            $boxColor = 'yellow';
-            $boxText = 'Неудача';
-            break;
-    }
-
-    $resColorBox = generateColorBox($boxColor, $boxText, 'build_result');
-    $resArr = array(
-        'header' => '<div class="w-100"><b>' . $data['language'] . ' Build</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="buildcheck_enabled" name="buildcheck_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-        'body'   => generateTaggedValue("build_body", "Проект был собран успешно."),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
+    return "";
 }
 
-// Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
-function parseCppCheck($data, $enabled)
+function get_body_cppcheck(array $array_CheckResult): string
 {
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="cppcheck" id="cppchecklabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<pre id="cppcheck" class="axconsole">Загрузка...</pre>';
+    $body = '';
 
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>CppCheck</b><span id="cppcheck_result" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("cppcheck_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
-
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>CppCheck</b></div>',
-            'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
+    foreach ($array_CheckResult as $CheckResult) {
+        $body .= $CheckResult->get_param(Param::CHECK_NAME) . ' : ' . $CheckResult->get_param(Param::RESULT) . '<br>';
     }
 
-    switch ($data['outcome']) {
-        case 'pass':
-            break;
-        case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>CppCheck</b>' . generateColorBox('red', 'Проверка не пройдена', 'cppcheck_result') . '</div>',
-                'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("cppcheck_body", "Программный код не удовлетворяет требованиям задания."),
-                'footer' => $resFooter
-            );
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>CppCheck</b><span id="cppcheck_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("cppcheck_body", "Проверка пропущена."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>CppCheck</b><span id="cppcheck_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("cppcheck_body", "Инструмент проверки не установлен."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>CppCheck</b><span id="cppcheck_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("cppcheck_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
+    return $body;
+}
+
+function get_body_clangformat(CheckResult $CheckResult): string
+{
+    return 'Замечаний линтера: ' . $CheckResult->get_param(Param::RESULT) . '<br>';
+}
+
+function get_body_valgrind(array $array_CheckResult): string
+{
+    $body = "";
+    foreach ($array_CheckResult as $CheckResult) {
+        $check_name = $CheckResult->get_param(Param::CHECK_NAME);
+        if ($check_name == "errors")
+            $body .= 'Ошибки памяти: ' . $CheckResult->get_param(Param::RESULT) . '<br>';
+        else if ($check_name == "leaks")
+            $body .= 'Утечки памяти: ' . $CheckResult->get_param(Param::RESULT) . '<br>';
     }
+    return $body;
+}
 
+function get_body_catch2(CheckResult $CheckResult)
+{
+    $body = 'Ошибок: ' . $CheckResult->get_param(Param::ERROR) . '<br>';
+    $body .= 'Проверок провалено: ' . $CheckResult->get_param(Param::FAILED) . '<br>';
 
-    $resBody = '';
-    $sumOfErrors = 0;
+    return $body;
+}
 
-    foreach ($data['checks'] as $check) {
-        $resBody .= @$check['check'] . ' : ' . @$check['result'] . '<br>';
-        $sumOfErrors += @$check['result'];
-    }
+function get_body_pylint(array $array_CheckResult)
+{
+    $array_text = array(
+        "error" => "Ошибки",
+        "warning" => "Предупреждения",
+        "refactor" => "Предложения по оформлению",
+        "convention" => "Нарушения соглашений"
+    );
 
-    $boxColor = 'green';
-    $boxText = $sumOfErrors;
-
-    foreach ($data['checks'] as $check) {
-        switch ($check['outcome']) {
-            case 'fail':
-                $boxColor = 'yellow';
-                break;
-            case 'reject':
-                $boxColor = 'red';
-                break;
-        }
-        if ($check['outcome'] == 'reject') {
-            break;
+    $body = "";
+    foreach ($array_CheckResult as $index => $CheckResult) {
+        $check_name = $CheckResult->get_param(Param::CHECK_NAME);
+        $Outcome = $CheckResult->get_param(Param::OUTCOME);
+        if ($Outcome != Outcome::SKIP) {
+            $text = $array_text[$check_name];
+            $body .= "$text: " . $CheckResult->get_param(Param::RESULT) . '<br>';
         }
     }
 
-    $resColorBox = generateColorBox($boxColor, $boxText, 'cppcheck_result');
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>CppCheck</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="cppcheck_enabled" name="cppcheck_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-
-        'body'   => generateTaggedValue("cppcheck_body", $resBody),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
+    return $body;
 }
 
-// Разбор и преобразования результата проверки корректного форматирования кода в элемент массива для генерации аккордеона
-function parseClangFormat($data, $enabled)
+function get_body_pytest(CheckResult $CheckResult)
 {
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="format" id="formatlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<pre id="format" class="axconsole">Загрузка...</pre>';
+    $body = '';
 
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>Clang-format</b><span id="clangformat_result" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("clangformat_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
+    $errors = $CheckResult->get_param(Param::ERROR);
+    $body .= 'Ошибки во время выполнения: ' . $errors . '<br>';
 
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Clang-format</b></div>',
-            'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
+    $failed = $CheckResult->get_param(Param::FAILED);
+    $body .= 'Тестов провалено: ' . $failed . '<br>';
 
-    switch ($data['outcome']) {
-        case 'pass':
-            break;
-        case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>Clang-format</b>' . generateColorBox('red', 'Проверка не пройдена', 'clangformat_result') . '</div>',
-                'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("clangformat_body", "Программный код не удовлетворяет требованиям задания."),
-                'footer' => $resFooter
-            );
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>Clang-format</b><span id="clangformat_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("clangformat_body", "Проверка пропущена."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>Clang-format</b><span id="clangformat_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("clangformat_body", "Инструмент проверки не установлен."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>Clang-format</b><span id="clangformat_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("clangformat_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
+    $passed = $CheckResult->get_param(Param::PASSED);
+    $body .= 'Тестов пройдено: ' . $passed . '<br>';
 
+    $seconds = $CheckResult->get_param(Param::SECONDS);
+    $body .= 'Время выполнения: ' . $seconds . 's<br>';
 
-    $resBody = $data['outcome'];
-    $check = $data['check'];
-    $boxText = $check['result'];
-
-    switch ($check['outcome']) {
-        case 'pass':
-            $boxColor = 'green';
-            $resBody = "Проверка пройдена!";
-            break;
-        case 'reject':
-            $boxColor = 'red';
-            $resBody = "Проверка отменена!";
-            break;
-        case 'fail':
-            $boxColor = 'yellow';
-            $resBody = "Проверка не пройдена!";
-            break;
-    }
-
-    $resColorBox = generateColorBox($boxColor, $boxText, 'clangformat_result');
-    $resBody .= '</br>Замечаний линтера: ' . @$check['result'] . '<br>';
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>Clang-format</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="clangformat_enabled" name="clangformat_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-
-        'body'   => generateTaggedValue('clangformat_body', $resBody),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
+    return $body;
 }
 
-// Разбор и преобразования результата проверки ошибок работы с памятью в элемент массива для генерации аккордеона
-function parseValgrind($data, $enabled)
+function get_body_copydetect(CheckResult $CheckResult)
 {
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="valgrind" id="valgrindlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<pre id="valgrind" class="axconsole">Загрузка...</pre>';
+    $body = '';
 
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>Valgrind</b><span id="valgrind_errors" class="rightbadge"></span><span id="valgrind_leaks" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("valgrind_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
+    if ($CheckResult->get_param(Param::RESULT))
+        $body .= 'Процент оригинальности: ' . $CheckResult->get_param(Param::RESULT) . '%';
 
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Valgrind</b></div>',
-            'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
-
-    switch ($data['outcome']) {
-        case 'pass':
-            break;
-        case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>Valgrind</b>' . generateColorBox('red', 'Проверка не пройдена', 'valgrind_errors') . generateColorBox('red', 'Проверка не пройдена', 'valgrind_leaks') . '</div>',
-                'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("valgrind_body", "Программный код не удовлетворяет требованиям задания."),
-                'footer' => $resFooter
-            );
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>Valgrind</b><span id="valgrind_errors" class="rightbadge"></span><span id="valgrind_leaks" class="rightbadge"></span></div>',
-                'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("valgrind_body", "Проверка пропущена"),
-                'footer' => $resFooter
-            );
-            break;
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>Valgrind</b><span id="valgrind_errors" class="rightbadge"></span><span id="valgrind_leaks" class="rightbadge"></span></div>',
-                'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("valgrind_body", "Инструмент проверки не установлен."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>Valgrind</b><span id="valgrind_errors" class="rightbadge"></span><span id="valgrind_leaks" class="rightbadge"></span></div>',
-                'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("valgrind_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
-
-
-    $leaks = getcheckinfo($data['checks'], 'leaks');
-    $errors = getcheckinfo($data['checks'], 'errors');
-
-    $resBody = '';
-
-    switch ($leaks['outcome']) {
-        case 'pass':
-            $leaksColor = 'green';
-            break;
-        case 'reject':
-            $leaksColor = 'red';
-            break;
-        case 'fail':
-            $leaksColor = 'yellow';
-            break;
-    }
-
-    switch ($errors['outcome']) {
-        case 'pass':
-            $errorsColor = 'green';
-            break;
-        case 'reject':
-            $errorsColor = 'red';
-            break;
-        case 'fail':
-            $errorsColor = 'yellow';
-            break;
-    }
-
-    $resBody .= 'Утечки памяти: ' . @$leaks['result'] . '<br>';
-    $resBody .= 'Ошибки памяти: ' . @$errors['result'] . '<br>';
-    //$resBody .= '<br>Вывод Valgrind: <br>'.$data['output'];
-
-    $resColorBox = generateColorBox($errorsColor, $errors['result'], 'valgrind_errors') .
-        generateColorBox($leaksColor, $leaks['result'], 'valgrind_leaks');
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>Valgrind</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="valgrind_enabled" name="valgrind_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-        'body'   => generateTaggedValue("valgrind_body", $resBody),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
-}
-
-// Разбор и преобразования результата проверки статическим анализатором кода в элемент массива для генерации аккордеона
-function parsePylint($data, $enabled)
-{
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="pylint" id="pylintlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<pre id="pylint" class="axconsole">Загрузка...</pre>';
-
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>Pylint</b></div>',
-    //         'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("pylint_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
-
-    if (!array_key_exists('outcome', $data) || !checkPylintOutputDataStructure($data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Pylint</b><span id="pylint_result" class="rightbadge"></span></div>',
-            'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
-
-    $resColorBox = "";
-
-    switch ($data['outcome']) {
-        case 'pass':
-            $resColorBox .= generateColorBox('green', 'Проверка пройдена', 'pylint_result');
-            break;
-        case 'fail':
-            $resColorBox .= generateColorBox('red', 'Проверка не пройдена', 'pylint_result');
-            break;
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>Pylint</b></div>',
-                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pylint_body", "Проверка пропущена."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>Pylint</b></div>',
-                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pylint_body", "Инструмент проверки не установлен."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>Pylint</b></div>',
-                'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pylint_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
-
-    $resBody = '';
-
-    $errors = getcheckinfo($data['checks'], 'error');
-    if ($errors['enabled'] && $errors['outcome'] != "skip") {
-        switch ($errors['outcome']) {
-            case 'pass':
-                $errorsColor = 'green';
-                break;
-            case 'reject':
-                $errorsColor = 'red';
-                break;
-            case 'fail':
-                $errorsColor = 'yellow';
-                break;
-            case 'skip':
-                $errorsColor = 'gray';
-                break;
-        }
-        $resBody .= 'Ошибки: ' . @$errors['result'] . '<br>';
-        $resColorBox = generateColorBox($errorsColor, $errors['result'], 'pylint_errors') . $resColorBox;
-    }
-
-    $warnings = getcheckinfo($data['checks'], 'warning');
-    if ($warnings['enabled'] && $warnings['outcome'] != "skip") {
-        switch ($warnings['outcome']) {
-            case 'pass':
-                $warningsColor = 'green';
-                break;
-            case 'reject':
-                $warningsColor = 'red';
-                break;
-            case 'fail':
-                $warningsColor = 'yellow';
-                break;
-            case 'skip':
-                $warningsColor = 'gray';
-                break;
-        }
-        $resBody .= 'Предупреждения: ' . @$warnings['result'] . '<br>';
-        $resColorBox = generateColorBox($warningsColor, $warnings['result'], 'pylint_warnings') . $resColorBox;
-    }
-
-    $refactors = getcheckinfo($data['checks'], 'refactor');
-    if ($refactors['enabled'] && $refactors['outcome'] != "skip") {
-        switch ($refactors['outcome']) {
-            case 'pass':
-                $refactorsColor = 'green';
-                break;
-            case 'reject':
-                $refactorsColor = 'red';
-                break;
-            case 'fail':
-                $refactorsColor = 'yellow';
-                break;
-            case 'skip':
-                $refactorsColor = 'gray';
-                break;
-        }
-        $resBody .= 'Предложения по оформлению: ' . @$refactors['result'] . '<br>';
-        $resColorBox = generateColorBox($refactorsColor, $refactors['result'], 'pylint_refactors') . $resColorBox;
-    }
-
-    $conventions = getcheckinfo($data['checks'], 'convention');
-    if ($conventions['enabled'] && $conventions['outcome'] != "skip") {
-        switch ($conventions['outcome']) {
-            case 'pass':
-                $conventionsColor = 'green';
-                break;
-            case 'reject':
-                $conventionsColor = 'red';
-                break;
-            case 'fail':
-                $conventionsColor = 'yellow';
-                break;
-            case 'skip':
-                $conventionsColor = 'gray';
-                break;
-        }
-        $resBody .= 'Нарушения соглашений: ' . @$conventions['result'] . '<br>';
-        $resColorBox = generateColorBox($conventionsColor, $conventions['result'], 'pylint_conventions') . $resColorBox;
-    }
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>Pylint</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="pylint_enabled" name="pylint_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-        'body'   => generateTaggedValue("pylint_body", $resBody),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
-}
-function checkPylintOutputDataStructure($pylintOutputData)
-{
-    if (!array_key_exists('outcome', $pylintOutputData))
-        return false;
-    else if (!array_key_exists('checks', $pylintOutputData))
-        return false;
-    foreach ($pylintOutputData['checks'] as $check) {
-        if (
-            $check['outcome'] != "skip" &&
-            (!array_key_exists('outcome', $check) || !array_key_exists('enabled', $check)
-                || !array_key_exists('result', $check))
-        )
-            return false;
-    }
-    return true;
-}
-
-function parsePytest($data, $enabled)
-{
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="pytest" id="pytestlabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<pre id="pytest" class="axconsole">Загрузка...</pre>';
-
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("pytest_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
-
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
-            'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
-
-    if (!checkPytestOutputDataStructure($data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Pytest</b>' . generateColorBox('gray', 'Внутрення ошибка!', 'pytest_result') . '</div>',
-            'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
-
-    $resColorBox = "";
-
-    switch ($data['outcome']) {
-        case 'pass':
-            $resColorBox .= generateColorBox('green', 'Проверка пройдена', 'pytest_result');
-            break;
-        case 'fail':
-            $resColorBox .= generateColorBox('red', 'Проверка не пройдена', 'pytest_result');
-            break;
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>Pytest</b></div>',
-                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pytest_body", "Проверка пропущена."),
-                'footer' => ""
-            );
-            break;
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>Pytest</b></div>',
-                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pytest_body", "Инструмент проверки не установлен."),
-                'footer' => ""
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>Pytest</b><span id="pytest_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("pytest_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
-
-    $check = $data['check'];
-
-    $resBody = '';
-
-    $errors = $check['error'];
-    if ($errors > 0) {
-        $resBody .= 'Ошибки во время выполнения: ' . $errors . '<br>';
-        $resColorBox = generateColorBox('red', $errors, 'pytest_error') . $resColorBox;
-    }
-
-    $failed = $check['failed'];
-    $resBody .= 'Тестов провалено: ' . $failed . '<br>';
-    $resColorBox = generateColorBox('yellow', $failed, 'pytest_failed') . $resColorBox;
-
-    $passed = $check['passed'];
-    $resBody .= 'Тестов пройдено: ' . $passed . '<br>';
-    $resColorBox = generateColorBox('green', $passed, 'pytest_passed') . $resColorBox;
-
-    $seconds = $check['seconds'];
-    $resBody .= 'Время выполнения: ' . $seconds . 's<br>';
-    $resColorBox = generateColorBox('gray', $seconds . "s", 'pytest_seconds') . $resColorBox;
-
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>Pytest</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="pytest_enabled" name="pytest_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-        'body'   => generateTaggedValue("pytest_body", $resBody),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
-}
-function checkPytestOutputDataStructure($pytestOutputData)
-{
-    if (!array_key_exists('outcome', $pytestOutputData))
-        return false;
-    else if (!array_key_exists('check', $pytestOutputData))
-        return false;
-    $check = $pytestOutputData['check'];
-    if (
-        $pytestOutputData['outcome'] != "skip" && (
-            !array_key_exists('error', $check) || !array_key_exists('failed', $check)
-            || !array_key_exists('passed', $check) || !array_key_exists('seconds', $check))
-    )
-        return false;
-    return true;
-}
-
-
-// Разбор и преобразования результата вывода автотестов в элемент массива для генерации аккордеона
-function parseAutoTests($data, $enabled)
-{
-    $status_check = ($enabled) ? 'checked' : '';
-    $resFooter = '<label for="tests" id="testslabel" class="switchcon" style="cursor: pointer;">+ показать полный вывод</label>' .
-        '<pre id="tests" class="axconsole">Загрузка...</pre>';
-
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>Автотесты</b><span id="autotests_result" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("autotests_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
-
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Автотесты</b></div>',
-            'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => $resFooter
-        );
-    }
-
-    switch ($data['outcome']) {
-        case 'pass':
-            break;
-        case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>Автотесты</b>' . generateColorBox('red', 'Проверка не пройдена', 'autotests_result') . '</div>',
-                'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("autotests_body", "Программный код не удовлетворяет требованиям задания."),
-                'footer' => $resFooter
-            );
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>Автотесты</b></div>',
-                'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("autotests_body", "Проверка пропущена."),
-                'footer' => $resFooter
-            );
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>Автотесты</b><span id="autotests_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("autotests_body", "Инструмент проверки не установлен."),
-                'footer' => $resFooter
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>Автотесты</b><span id="autotests_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("autotests_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
-
-
-    $result = 0;
-    $check = $data['check'];
-
-    switch ($check['outcome']) {
-        case 'pass':
-            $boxColor = 'green';
-            $boxText = 'Успех';
-            break;
-        case 'reject':
-            $boxColor = 'red';
-            $boxText = 'Неудача';
-            break;
-        case 'fail':
-            $boxColor = 'yellow';
-            $boxText = 'Неудача';
-            break;
-    }
-
-    $resBody = 'Тестов провалено: ' . $check['errors'] . '<br>';
-    $resBody .= 'Проверок провалено: ' . $check['failures'] . '<br>';
-    $resColorBox = generateColorBox($boxColor, $boxText, 'autotests_result');
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>Автотесты</b>' . $resColorBox . '</div>',
-
-        'label'     => '<input id="autotests_enabled" name="autotests_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-
-        'body'   => generateTaggedValue("autotests_body", $resBody),
-        'footer' => $resFooter
-    );
-
-    return $resArr;
-}
-
-// Разбор и преобразования результата проверки антиплагиатом в элемент массива для генерации аккордеона
-function parseCopyDetect($data, $enabled)
-{
-    $status_check = ($enabled) ? 'checked' : '';
-
-    // if (!$enabled) {
-    //     return array(
-    //         'header' => '<div class="w-100"><b>Антиплагиат</b><span id="copydetect_result" class="rightbadge"></span></div>',
-    //         'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-    //             ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-    //         'body'   => generateTaggedValue("copydetect_body", "Не проверено."),
-    //         'footer' => ""
-    //     );
-    // }
-
-    if (!array_key_exists('outcome', $data)) {
-        return array(
-            'header' => '<div class="w-100"><b>Антиплагиат</b></div>',
-            'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-                ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-            'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),
-            'footer' => ''
-        );
-    }
-
-    switch ($data['outcome']) {
-        case 'pass':
-            break;
-        case 'fail':
-            return array(
-                'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox('red', 'Проверка не пройдена', 'copydetect_result') . '</div>',
-                'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("copydetect_body", "Программный код не удовлетворяет требованиям задания."),
-                'footer' => ''
-            );
-        case 'reject':
-            return array(
-                'header' => '<div class="w-100"><b>Антиплагиат</b></div>',
-                'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("copydetect_body", "Проверка пропущена."),
-                'footer' => ''
-            );
-        case 'skip':
-            return array(
-                'header' => '<div class="w-100"><b>Антиплагиат</b><span id="copydetect_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("copydetect_body", "Инструмент проверки не установлен."),
-                'footer' => ''
-            );
-            break;
-        case 'undefined':
-            return array(
-                'header' => '<div class="w-100"><b>Антиплагиат</b><span id="copydetect_result" class="rightbadge"></span></div>',
-                'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-                    ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-                'body'   => generateTaggedValue("copydetect_body", "При выполнении проверки произошла критическая ошибка."),
-                'footer' => ""
-            );
-            break;
-    }
-
-
-    $check = $data['check'];
-    $result = $check['result'] . '%';
-    $resBody = '';
-
-    switch ($data['check']['outcome']) {
-        case 'pass':
-            $boxColor = 'green';
-            break;
-        case 'fail':
-            $boxColor = 'yellow';
-            break;
-        case 'reject':
-            $boxColor = 'red';
-            break;
-        case 'skip':
-            $boxColor = 'gray';
-            break;
-    }
-
-    $resArr = array(
-        'header' => '<div class="w-100"><b>Антиплагиат</b>' . generateColorBox($boxColor, $result, 'copydetect_result') . '</div>',
-        'label'     => '<input id="copydetect_enabled" name="copydetect_enabled" ' . $status_check .
-            ' class="accordion-input-item form-check-input" type="checkbox" value="true">',
-        'body'   => generateTaggedValue("copydetect_body", $resBody),
-        'footer' => ''
-    );
-
-    return $resArr;
+    return $body;
 }

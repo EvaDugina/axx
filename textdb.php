@@ -7,15 +7,37 @@ require_once("POClasses/File.class.php");
 require_once("POClasses/Commit.class.php");
 require_once("POClasses/Message.class.php");
 
+$au = new auth_ssh();
+checkAuLoggedIN($au);
+
 $file_name = 0;
 $assignment = 0;
 $responce = 0;
 $commit_id = null;
 $file_id = 0;
 
+$array_tools_elems = array(
+  "build" => "build",
+  "cppcheck" => "cppcheck",
+  "clang-format" => "clang-format",
+  "valgrind" => "valgrind",
+  "catch2" => "catch2",
 
-$au = new auth_ssh();
-checkAuLoggedIN($au);
+  "pylint" => "pylint",
+  "pytest" => "pytest",
+
+  "copydetect" => "copydetect"
+);
+
+$folder_for_docker = getenv('HOST_DIR');
+if ($folder_for_docker === false) {
+  die('Переменная HOST_DIR не задана');
+}
+
+$session_id = session_id();
+$folder_docker_share_session = "$folder_for_docker/share/" . (($session_id == false) ? "unknown" : $session_id);
+if (!file_exists($folder_docker_share_session) || !is_dir($folder_docker_share_session))
+  mkdir($folder_docker_share_session, 0777, true);
 
 $User = new User((int)$au->getUserId());
 
@@ -61,9 +83,9 @@ function get_prev_files($assignment)
   $result = pg_query($dbconnect, $query);
 
   while ($file = pg_fetch_assoc($result)) {
-    $filename = $file['assignment_id'] . ' ' . $aarray[$file['assignment_id']] . ' ' . $file['file_name'];
+    $file_name = $file['assignment_id'] . ' ' . $aarray[$file['assignment_id']] . ' ' . $file['file_name'];
     $fulltext = $file['full_text'];
-    array_push($farray, array("name" => $filename, "text" => $fulltext));
+    array_push($farray, array("name" => $file_name, "text" => $fulltext));
   }
 
   return $farray;
@@ -325,18 +347,22 @@ else if ($type == "oncheck") {
     $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "");
     $Assignment->addMessage($Message->id);
     $Message->setCommit($answerCommit->id);
-    $File = new File(10, 'версия на проверку', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
+    $File = new File(10, 'Версия на проверку', "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", null);
     $Message->addFile($File->id);
 
     // Отправка сообщения-ссылки для преподавателя
-    $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 2);
-    $Assignment->addMessage($linkMessage->id);
+    // $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 2);
+    // $Assignment->addMessage($linkMessage->id);
   } else {
-    $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, "");
+    $Message = new Message((int)$Assignment->id, 1, $User->id, $User->role, $Assignment->getLastAnswerMessage()->id, "");
     $Assignment->addMessage($Message->id);
     $Message->setCommit($answerCommit->id);
-    $File = new File(10, 'проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
+    $File = new File(10, 'Проверенная версия', "editor.php?assignment=$assignment&commit=$answerCommit->id", null);
     $Message->addFile($File->id);
+
+    // Отправка сообщения-ссылки для студента
+    // $linkMessage = new Message((int)$Assignment->id, 3, $User->id, $User->role, null, "editor.php?assignment=$Assignment->id&commit=$answerCommit->id", 3);
+    // $Assignment->addMessage($linkMessage->id);
   }
 
   if ($User->isStudent()) {
@@ -348,6 +374,23 @@ else if ($type == "oncheck") {
 
 //---------------------------------------------------------------TOOLS-------------------------------------------------------
 else if ($type == "tools") {
+
+  // ОЧИСТКА ДИРЕКТОРИИ
+  $files = array_diff(scandir($folder_docker_share_session), array('.', '..'));
+  foreach ($files as $file) {
+    if (!is_dir($folder_docker_share_session . '/' . $file))
+      unlink($folder_docker_share_session . '/' . $file);
+  }
+
+  // ОЧИСТКА ДИРЕКТОРИИ AUTOTESTING
+  $folder_autotesting = $folder_docker_share_session . "/autotesting";
+  if (!file_exists($folder_autotesting) || !is_dir($folder_autotesting))
+    mkdir($folder_autotesting, 0777, true);
+  $files = array_diff(scandir($folder_autotesting), array('.', '..'));
+  foreach ($files as $file) {
+    unlink($folder_autotesting . '/' . $file);
+  }
+
 
   if ($Commit == null) {
     echo "Некорректное обращение. Отсутствует идентификатор коммита";
@@ -362,284 +405,90 @@ else if ($type == "tools") {
   if ($checks == null)
     $checks = $row['tchecks'];
   if ($checks == null)
-    $checks = '{
-  "tools": {
-    "build": {
-      "enabled": true,
-      "show_to_student": false,
-      "language": "C++",
-      "check": {
-        "autoreject": true
-      }
-    },
-    "valgrind": {
-      "enabled": true,
-      "show_to_student": false,
-      "bin": "valgrind",
-      "arguments": "",
-      "compiler": "g++",
-      "checks": [
-        {
-          "check": "errors",
-          "enabled": true,
-          "limit": 3,
-          "autoreject": true,
-          "result": 6,
-          "outcome": "pass"
-        },
-        {
-          "check": "leaks",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": true,
-          "result": 10,
-          "outcome": "reject"
-        }
-      ],
-      "output": ""
-    },
-    "cppcheck": {
-      "enabled": true,
-      "show_to_student": false,
-      "bin": "cppcheck",
-      "arguments": "",
-      "checks": [
-        {
-          "check": "error",
-          "enabled": true,
-          "limit": 1,
-          "autoreject": false,
-          "result": 1,
-          "outcome": "fail"
-        },
-        {
-          "check": "warning",
-          "enabled": true,
-          "limit": 3,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "style",
-          "enabled": true,
-          "limit": 3,
-          "autoreject": false,
-          "result": 1,
-          "outcome": "pass"
-        },
-        {
-          "check": "performance",
-          "enabled": true,
-          "limit": 2,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "portability",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "information",
-          "enabled": true,
-          "limit": 1,
-          "autoreject": false,
-          "result": 1,
-          "outcome": "fail"
-        },
-        {
-          "check": "unusedFunction",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "missingInclude",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        }
-      ],
-      "output": ""
-    },
-    "clang-format": {
-      "enabled": true,
-      "show_to_student": false,
-      "bin": "clang-format",
-      "arguments": "",
-      "check": {
-        "name": "strict",
-        "file": ".clang-format",
-        "limit": 5,
-        "autoreject": true,
-        "result": 3,
-        "outcome": "reject"
-      },
-      "output": ""
-    },
-    "pylint": {
-      "enabled": "false",
-      "show_to_student": "false",
-      "bin": "pylint",
-      "arguments": "",
-      "checks": [
-        {
-          "check": "error",
-          "enabled": "true",
-          "limit": "0",
-          "autoreject": "false",
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "warning",
-          "enabled": "true",
-          "limit": "0",
-          "autoreject": "false",
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "refactor",
-          "enabled": "true",
-          "limit": "3",
-          "autoreject": "false",
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "convention",
-          "enabled": "true",
-          "limit": "3",
-          "autoreject": "false",
-          "result": 0,
-          "outcome": "pass"
-        }
-      ],
-      "full_output": "output_pylint.xml",
-      "outcome": "undefined"
-    },
-    "pytest": {
-      "enabled": true,
-      "show_to_student": false,
-      "test_path": "autotest.py",
-      "bin": "pytest",
-      "arguments": "",
-      "check": {
-        "limit": 0,
-        "autoreject": true
-      }
-    },
-    "copydetect": {
-      "enabled": true,
-      "show_to_student": false,
-      "bin": "copydetect",
-      "arguments": "",
-      "check": {
-        "type": "with_all",
-        "limit": 50,
-        "autoreject": true,
-        "reference_directory": "copydetect_input"
-      }
-    },
-    "autotests": {
-      "enabled": true,
-      "show_to_student": false,
-      "test_path": "autotest.cpp",
-      "check": {
-        "limit": 0,
-        "autoreject": true
-      }
-    }
-  }
-}';
+    $checks = getDefaultChecksPreset();
 
   $checks = json_decode($checks, true);
 
-  if (array_key_exists('cppcheck', $_REQUEST)) {
-    $checks['tools']['cppcheck']['enabled'] = str2bool(@$_REQUEST['cppcheck']);
-    $checks['tools']['cppcheck']['bin'] = "cppcheck";
-  }
-  if (array_key_exists('clang', $_REQUEST)) {
-    $checks['tools']['clang-format']['enabled'] = str2bool(@$_REQUEST['clang']);
-    $checks['tools']['clang-format']['bin'] = "clang-format";
-    $checks['tools']['clang-format']['check']['file'] = ".clang-format";
-  }
-  if (array_key_exists('valgrind', $_REQUEST)) {
-    $checks['tools']['valgrind']['enabled'] = str2bool(@$_REQUEST['valgrind']);
-    $checks['tools']['valgrind']['bin'] = "valgrind";
-  }
-  if (array_key_exists('pylint', $_REQUEST)) {
-    $checks['tools']['pylint']['enabled'] = str2bool(@$_REQUEST['pylint']);
-    $checks['tools']['pylint']['bin'] = "pylint";
-  }
-  if (array_key_exists('copy', $_REQUEST)) {
-    $checks['tools']['copydetect']['enabled'] = str2bool(@$_REQUEST['copy']);
-    $checks['tools']['copydetect']['bin'] = "copydetect";
-    $checks['tools']['copydetect']['check']['reference_directory'] = "copydetect_input";
-  }
-  if (array_key_exists('build', $_REQUEST)) {
-      //if (!array_key_exists('build', $checks['tools'])) 
-    ; //$checks['tools']['build'] = array();  
-    //else
-
-    $checks['tools']['build']['enabled'] = str2bool(@$_REQUEST['build']);
-  }
-  if (array_key_exists('test', $_REQUEST)) {
-    //if (!array_key_exists('autotests', $checks['tools'])) 
-    //	; //$checks['tools']['autotests'] = array();  
-    //else
-
-    $checks['tools']['autotests']['enabled'] = str2bool(@$_REQUEST['test']);
-    $checks['tools']['autotests']['test_path'] = "autotest.cpp";
-  }
-  if (array_key_exists('pytest', $_REQUEST)) {
-    //if (!array_key_exists('autotests', $checks['tools'])) 
-    //	; //$checks['tools']['autotests'] = array();  
-    //else
-
-    $checks['tools']['pytest']['enabled'] = str2bool(@$_REQUEST['pytest']);
-    $checks['tools']['pytest']['test_path'] = "autotest.py";
+  $no_tools_choosed = true;
+  foreach ($array_tools_elems as $key) {
+    if (!isset($_REQUEST[$key])) {
+      $checks['tools'][$key]['enabled'] = false;
+      continue;
+    }
+    $checks['tools'][$key]['enabled'] = str2bool($_REQUEST[$key]);
+    if ($checks['tools'][$key]['enabled'])
+      $no_tools_choosed = false;
+    // Проверяем BIN
+    if ($key == $array_tools_elems['catch2'] || $key == $array_tools_elems['pytest']);
+    else if ($key == $array_tools_elems['build']) {
+      $checks['tools'][$key]['bin'] = ($checks['tools'][$key]['language'] == "C") ? "gcc" : "g++";
+    } else
+      $checks['tools'][$key]['bin'] = $key;
   }
 
-  /*echo $checks; exit;*/
-
-  $sid = session_id();
-  $folder = "/var/www/html/share/" . (($sid == false) ? "unknown" : $sid);
-  if (!file_exists($folder))
-    mkdir($folder, 0777, true);
+  if ($no_tools_choosed) {
+    echo json_encode(array("internal-error" => "Не выбран ни один инстурмент проверки!"));
+    exit;
+  }
 
   // получение файла проверки
-  $result = pg_query($dbconnect,  "SELECT f.* from ax.ax_file f INNER JOIN ax.ax_task_file ON ax.ax_task_file.file_id = f.id inner join ax.ax_assignment a on ax.ax_task_file.task_id = a.task_id where f.type = 2 and a.id = " . $assignment);
-  $result = pg_fetch_assoc($result);
-  if (!$result && array_key_exists('autotests', $checks['tools']))
-    $checks['tools']['autotests']['enabled'] = false;
-  else if (array_key_exists('autotests', $checks['tools'])) {
-    $checks["tools"]["autotests"]["test_path"] = $result["file_name"];
-    @unlink($folder . '/' . $result['file_name']);
-    $myfile = fopen($folder . '/' . 'autotest.cpp', "w") or die("Невозможно открыть файл ($File->name) кода теста!");
-    fwrite($myfile, $result['full_text']);
-    fclose($myfile);
-  }
-  $checks = json_encode($checks);
+  $files_codeTest = array();
+  $Task = new Task((int)getTaskByAssignment((int)$assignment));
+  if (count($Task->getCodeTestFiles()) < 1) {
+    if (array_key_exists($array_tools_elems['catch2'], $checks['tools'])) {
+      $checks['tools'][$array_tools_elems['catch2']]['enabled'] = false;
+    } else if (array_key_exists($array_tools_elems['pytest'], $checks['tools'])) {
+      $checks['tools'][$array_tools_elems['pytest']]['enabled'] = false;
+    }
+  } else {
+    foreach ($Task->getCodeTestFiles() as $File) {
+      if (array_key_exists($array_tools_elems['catch2'], $checks['tools'])) {
+        $checks["tools"][$array_tools_elems['catch2']]["test_path"] = [$File->name];
+      } else if (array_key_exists($array_tools_elems['pytest'], $checks['tools'])) {
+        $checks["tools"][$array_tools_elems['pytest']]["test_path"] = [$File->name];
+      }
+      @unlink($folder_docker_share_session . '/' . $File->name);
+      $myfile = fopen($folder_docker_share_session . '/' . $File->name, "w");
+      if (!$myfile) {
+        echo "Невозможно открыть файл ($File->name) автотеста!";
+        http_response_code(500);
+        exit;
+      }
+      fwrite($myfile, $File->getFullText());
+      fclose($myfile);
+      array_push($files_codeTest, $File->name);
+    }
 
-  $myfile = fopen($folder . '/config.json', "w") or die("Невозможно открыть файл конфигурации!");
+    if (count($files_codeTest) < 1) {
+      echo "Не найдены файлы теста!" . $Task->id;
+      http_response_code(400);
+      exit;
+    }
+  }
+
+  // Убираем лишние параметры из проверки
+  $tools_not_enabled = [];
+  foreach ($checks['tools'] as $key => $tool_json) {
+    if (!$tool_json['enabled']) {
+      array_push($tools_not_enabled, $key);
+    }
+  }
+  foreach ($tools_not_enabled as $key) {
+    unset($checks['tools'][$key]);
+  }
+
+  $checks = json_encode($checks);
+  // var_dump($checks);
+  // exit;
+
+  $myfile = fopen($folder_docker_share_session . '/config.json', "w") or die("Невозможно открыть файл конфигурации!");
   fwrite($myfile, $checks);
   fclose($myfile);
 
   // $result = pg_query($dbconnect,  "SELECT * from ax.ax_solution_file where commit_id = ".$commit_id);
   // $result = pg_query($dbconnect, "SELECT * FROM ax.ax_file INNER JOIN ax.ax_commit_file ON ax.ax_commit_file.file_id = ax.ax_file.id WHERE ax.ax_commit_file.commit_id = $commit_id");
   // while ($row = pg_fetch_assoc($result)) {
-  //   $myfile = fopen($folder . '/' . $row['file_name'], "w") or die("Unable to open file!");
+  //   $myfile = fopen($folder_docker_share_session . '/' . $row['file_name'], "w") or die("Unable to open file!");
   //   fwrite($myfile, $row['full_text']);
   //   fclose($myfile);
   //   if (strtoupper($row['file_name']) != 'MAKEFILE')
@@ -649,7 +498,7 @@ else if ($type == "tools") {
   $files = array();
   // $Commit = new Commit($commit_id);
   foreach ($Commit->getFiles() as $File) {
-    $myfile = fopen($folder . '/' . $File->name, "w") or die("Невозможно открыть файл ($File->name) проекта!");
+    $myfile = fopen($folder_docker_share_session . '/' . $File->name, "w") or die("Невозможно открыть файл ($File->name) проекта!");
     if (!$myfile) {
       echo "Невозможно открыть файл ($File->name) проекта!";
       http_response_code(500);
@@ -667,30 +516,22 @@ else if ($type == "tools") {
     exit;
   }
 
-  // $files_codeTest = array();
-  // $Task = new Task((int)getTaskByAssignment((int)$assignment));
-  // foreach ($Task->getCodeTestFiles() as $File) {
-  //   $myfile = fopen($folder . '/' . "autotest." . $File->getExt(), "w");
-  //   if (!$myfile) {
-  //     echo "Невозможно открыть файл ($File->name) автотеста!";
-  //     http_response_code(500);
-  //     exit;
-  //   }
-  //   fwrite($myfile, $File->getFullText());
-  //   fclose($myfile);
-  //   array_push($files_codeTest, "autotest." . $File->getExt());
-  // }
-
-  // if (count($files_codeTest) < 1) {
-  //   echo "Не найдены файлы теста!" . $Task->id;
-  //   http_response_code(400);
-  //   exit;
-  // }
-
-  @unlink($folder . '/copydetect_input');
-  @mkdir($folder . '/copydetect_input', 0777, true);
-  $prev_files = get_prev_files($assignment);
-  foreach ($prev_files as $pf) {
+  @unlink($folder_docker_share_session . '/autotesting/for_copydetect');
+  @mkdir($folder_docker_share_session . '/autotesting/for_copydetect', 0777, true);
+  $Task = new Task(getTaskByAssignment($Assignment->id));
+  $prev_files = [];
+  foreach ($Task->getAssignments() as $anoutherAssignment) {
+    if ($anoutherAssignment->id == $Assignment->id)
+      continue;
+    $lastCommit = $anoutherAssignment->getLastCommitForTeacher();
+    foreach ($lastCommit->getFiles() as $prevFile) {
+      array_push($prev_files, array(
+        "name" => $anoutherAssignment->getTag() . "_" . $prevFile->name,
+        "full_text" => $prevFile->getFullText()
+      ));
+    }
+  }
+  foreach ($prev_files as $prev_file) {
     $cyr = [
       'а',
       'б',
@@ -827,48 +668,49 @@ else if ($type == "tools") {
       'Yu',
       'Ya'
     ];
-    $transname = str_replace($cyr, $lat, $pf["name"]);
+    $transname = str_replace($cyr, $lat, $prev_file["name"]);
 
-    $myfile = fopen($folder . '/copydetect_input/' . $transname, "w");
+    $myfile = fopen($folder_docker_share_session . '/autotesting/for_copydetect/' . $transname, "w");
     if (!$myfile) {
       echo "Ошибка создания файла для проверки!";
       http_response_code(500);
       exit;
     }
-    fwrite($myfile, $pf["text"]);
+    fwrite($myfile, $prev_file["full_text"]);
     fclose($myfile);
   }
 
-  @unlink($folder . '/output.json');
+  // @unlink($folder_docker_share_session . '/output.json');
 
   $output = null;
   $retval = null;
 
   // Локальная проверка модуля python_code_check
-  // chdir($folder);
+  // chdir($folder_docker_share_session);
   // exec("python -m python_code_check -c config.json " . implode(' ', $files) . ' 2>&1', $output, $retval);
 
-  $folder_for_docker = getenv('HOST_DIR');
-  if ($hostScriptDir === false) {
-    die('Переменная HOST_DIR не задана');
-  }
-
   $checks = json_decode($checks, true);
-  if ((isset($checks['tools']['pylint']) && $checks['tools']['pylint']['enabled'])
-    || (isset($checks['tools']['pytest']) && $checks['tools']['pytest']['enabled'])
-  )
-    exec('docker run --net=host --rm -v ' . $folder_for_docker . '/share/' . $sid . ':/tmp -v ' . $folder_for_docker . '/utility:/stable -w=/tmp nitori_sandbox python_code_check -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
-  else
-    exec('docker run --net=host --rm -v ' . $folder_for_docker . '/share/' . $sid . ':/tmp -v ' . $folder_for_docker . '/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
-
-  //$responce = 'docker run -it --net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
-  //exec('docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
-  //echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
+  if ((isset($checks['tools'][$array_tools_elems['pylint']]) && $checks['tools'][$array_tools_elems['pylint']]['enabled'])
+    || (isset($checks['tools'][$array_tools_elems['pytest']]) && $checks['tools'][$array_tools_elems['pytest']]['enabled'])
+  ) {
+    // Для отладки: Без удаления контейнера + Зависание контейнера:
+    // $command = 'docker run --net=host --rm -v ' . "$folder_docker_share_session" . ':/tmp/work -w=/tmp/work nitori_sandbox bash -c "python_code_check -c config.json ' . implode(' ', $files) . ' && tail -f /dev/null" 2>&1';
+    $command = 'docker run --net=host --rm -v ' . "$folder_docker_share_session" . ':/tmp/work -w=/tmp/work nitori_sandbox python_code_check -c config.json ' . implode(' ', $files) . ' 2>&1';
+    exec($command, $output, $retval);
+  } else {
+    // Для отладки: Без удаления контейнера + Зависание контейнера:
+    // $command = 'docker run --net=host --rm -v ' . "$folder_docker_share_session" . :/tmp/work -w=/tmp/work nitori_sandbox bash -c "c_code_check -c config.json ' . implode(' ', $files) . ' && tail -f /dev/null" 2>&1';
+    $command = 'docker run --net=host --rm -v ' . "$folder_docker_share_session" . ':/tmp/work -w=/tmp/work nitori_sandbox c_code_check -c config.json ' . implode(' ', $files) . ' 2>&1';
+    exec($command, $output, $retval);
+  }
+  //$responce = 'docker run -it --net=host --rm -v '.$folder_docker_share_session.':/tmp nitori_sandbox c_code_check -c config.json -i'.$commit_id.' '.implode(' ', $files);
+  //exec('docker run -it --net=host --rm -v '.$folder_docker_share_session.':/tmp -w=/tmp nitori_sandbox c_code_check -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
+  //echo 'docker run -it --net=host --rm -v '.$folder_docker_share_session.':/tmp -w=/tmp nitori_sandbox c_code_check -c config.json '.implode(' ', $files); exit;
   /* Получение результатов проверки из БД
-  //$responce = 'docker run -it --net=host --rm -v '.$folder.':/tmp nitori_sandbox codecheck -c config.json -i'.$commit_id.' '.implode(' ', $files);
-  //exec('docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
-  // exec('docker run --net=host --rm -v ' . $folder . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox codecheck -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
-  //echo 'docker run -it --net=host --rm -v '.$folder.':/tmp -w=/tmp nitori_sandbox codecheck -c config.json '.implode(' ', $files); exit;
+  //$responce = 'docker run -it --net=host --rm -v '.$folder_docker_share_session.':/tmp nitori_sandbox c_code_check -c config.json -i'.$commit_id.' '.implode(' ', $files);
+  //exec('docker run -it --net=host --rm -v '.$folder_docker_share_session.':/tmp -w=/tmp nitori_sandbox c_code_check -c config.json -i '.$commit_id.' '.implode(' ', $files), $output, $retval);
+  // exec('docker run --net=host --rm -v ' . $folder_docker_share_session . ':/tmp -v /var/app/utility:/stable -w=/tmp nitori_sandbox c_code_check -c config.json ' . implode(' ', $files) . ' 2>&1', $output, $retval);
+  //echo 'docker run -it --net=host --rm -v '.$folder_docker_share_session.':/tmp -w=/tmp nitori_sandbox c_code_check -c config.json '.implode(' ', $files); exit;
   /* Получение результатов проверки из БД
 	$result = pg_query($dbconnect,  "select autotest_results from ax.ax_solution_commit where id = ".$commit_id);
 	if (!($row = pg_fetch_assoc($result))) {
@@ -880,24 +722,35 @@ else if ($type == "tools") {
 	}
 	$responce = $row['autotest_results'];
 */
+
   /* Получение результатов проверки из файла */
-  $fileName = $folder . '/output.json';
-  if (!file_exists($fileName)) {
-    echo "Не удалось найти файл output.json в папке с результатами файлов:\n";
-    var_dump($output);
+  $file_name = $folder_docker_share_session . '/output.json';
+  if (!file_exists($file_name)) {
+    echo json_encode(["internal-error" => "Не удалось найти файл output.json в папке с результатами файлов:\n$output"]);
+    // var_dump($output);
     http_response_code(500);
     exit;
   }
 
-  $myfile = fopen($folder . '/output.json', "r");
+  $myfile = fopen($folder_docker_share_session . '/output.json', "r");
   if (!$myfile) {
-    echo "Не удалось получить результаты проверки из файла:<br>";
-    var_dump($output);
+    echo json_encode(["internal-error" => "Не удалось получить результаты проверки из файла: \n$output"]);
+    // echo "Не удалось получить результаты проверки из файла:<br>";
+    // var_dump($output);
     http_response_code(500);
     exit;
   }
-  $responce = fread($myfile, filesize($folder . '/output.json'));
+  $responce = fread($myfile, filesize($folder_docker_share_session . '/output.json'));
   fclose($myfile);
+
+  // $myfile = fopen($folder_docker_share_session . '/output_pytest.txt', "r");
+  // if (!$myfile) {
+  //   echo "Не удалось получить результаты проверки из файла:<br>";
+  //   http_response_code(500);
+  //   exit;
+  // }
+  // $responce .= fread($myfile, filesize($folder_docker_share_session . '/output_pytest.txt'));
+  // fclose($myfile);
 
   pg_query($dbconnect, 'update ax.ax_solution_commit set autotest_results = $accelquotes$' . $responce . '$accelquotes$ where id = ' . $Commit->id);
   /**/
@@ -907,7 +760,6 @@ else if ($type == "tools") {
 
 //---------------------------------------------------------------CONSOLE-------------------------------------------------------
 else if ($type == "console") {
-  $sid = session_id();
   if (!array_key_exists('tool', $_REQUEST)) {
     echo "Отсутсвует ключ 'tool'";
     http_response_code(400);
@@ -915,31 +767,32 @@ else if ($type == "console") {
   }
   $tool =  $_REQUEST['tool'];
 
-  $folder = "/var/www/html/share/" . (($sid == false) ? "unknown" : $sid);
-  if (!file_exists($folder)) {
+  $ext = "txt";
+  if ($tool == $array_tools_elems['cppcheck'] || $tool == $array_tools_elems['clang-format'])
+    $ext = "xml";
+
+  $file_name = $folder_docker_share_session . '/output_' . $tool . '.' . $ext;
+  if (!file_exists($file_name)) {
     echo "Перезапустите проверку!";
     http_response_code(200);
     exit;
   }
-  $ext = "txt";
-  if ($tool == 'cppcheck' || $tool == 'format')
-    $ext = "xml";
 
-  $filename = $folder . '/output_' . $tool . '.' . $ext;
-  $myfile = fopen($filename, "r");
+  $myfile = fopen($file_name, "r");
   if (!$myfile) {
     echo "Перезапустите проверку!";
     http_response_code(200);
     exit;
   }
-
-  $text = htmlspecialchars(fread($myfile, filesize($filename)));
+  $text = htmlspecialchars(fread($myfile, filesize($file_name)));
   fclose($myfile);
 
   $text = mb_convert_encoding($text, "UTF-8", "auto");
   $len_char = strlen(htmlspecialchars("'"));
-  if ($tool == "build" && $text[0] == 'b') {
+  if ($tool == $array_tools_elems['build'] && $text[0] == 'b') {
     $text = substr($text, 1 + $len_char, strlen($text) - 1 - $len_char * 2);
+    if ($text == "")
+      $text = "Пустой полный вывод!";
   }
   $responce = replaceBytes($text);
 
@@ -949,9 +802,9 @@ else if ($type == "console") {
 function replaceBytes($str)
 {
   return preg_replace_callback(
-    '/\\\\x([0-9A-Fa-f]{2})\\\\x([0-9A-Fa-f]{2})\\\\x([0-9A-Fa-f]{2})/',
+    '/\\\\x([0-9A-Fa-f]{2})/',
     function ($matches) {
-      return "~";
+      return "";
     },
     $str
   );

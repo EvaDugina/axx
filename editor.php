@@ -27,7 +27,7 @@ if (array_key_exists('assignment', $_GET)) {
 }
 //echo $assignment_id. "<br>";
 
-if ($au->isStudent() && !$Assignment->isVisibleForStudent()) {
+if ($au->isStudent() && (!$Assignment->isVisibleForStudent() || !$Assignment->isAccess())) {
   header('Location:index.php');
   exit;
 }
@@ -115,21 +115,22 @@ $query = select_ax_page_short_name($page_id);
 $result = pg_query($dbconnect, $query);
 $page_name = pg_fetch_assoc($result)['short_name'];
 
-
+$Page = new Page((int)getPageByAssignment((int)$Assignment->id));
 $page_title = getEditorPageTitle();
 $previous_page_title = getTaskchatPageTitle($Task);
 $previous_page_url = 'taskchat.php?assignment=' . $assignment_id;
-show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'));
+show_head($page_title, array('./src/npm/marked/marked.min.js'));
 ?>
 
 <link rel="stylesheet" href="css/mdb/rdt.css" />
 
-<link rel="stylesheet" href="../node_modules/xterm/css/xterm.css" />
-<script src="../node_modules/xterm/lib/xterm.js"></script>
-<script src="../node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
-<script src="../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<link rel="stylesheet" href="./node_modules/xterm/css/xterm.css" />
+<script src="./node_modules/xterm/lib/xterm.js"></script>
+<script src="./node_modules/xterm-addon-attach/lib/xterm-addon-attach.js"></script>
+<script src="./node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+<!-- <script src="./node_modules/xterm-addon-canvas/lib/xterm-addon-canvas.js"></script> -->
 
-<body style="overflow-x:hidden">
+<body id="body" style="overflow-x:hidden">
 
   <?php
   // XXX: ПРОВЕРИТЬ
@@ -145,7 +146,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   ?>
 
   <main class="container-fluid overflow-hidden mx-0 px-0 no-gutters">
-    <div class="pt-2 mx-0 w-100 row no-gutters">
+    <div id="div-blur" class="blur-background d-none" onclick="makeElementDefaultScreen()"></div>
+    <div id="div-body" class="pt-2 mx-0 w-100 row no-gutters">
       <div class="d-flex justify-content-between col-md-8 pe-1">
         <div class="w-25 d-flex flex-column me-2">
 
@@ -291,14 +293,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               </select>
             </div>
             <?php if ($au->isAdminOrPrep() || $Assignment->checkStudent($User->id)) { ?>
-              <button id="btn-new-commit" class="btn btn-secondary w-100 align-items-center me-1" type="button">
+              <button id="btn-new-commit" class="btn btn-secondary w-100 align-items-center me-1 px-0" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
                 </svg>
                 &nbsp;&nbsp;
                 Дублировать коммит
               </button>
-              <button id="btn-save" class="btn btn-primary w-100" type="button" <?= ($nowCommit && $nowCommit->isNotEdit($User->isStudent())) ? "disabled" : "" ?>>
+              <button id="btn-save" class="btn btn-primary w-75 me-1 px-0" type="button" <?= ($nowCommit && $nowCommit->isNotEdit($User->isStudent())) ? "disabled" : "" ?>>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all" viewBox="0 0 16 16">
                   <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z" />
                   <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z" />
@@ -308,12 +310,29 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                 <div id="spinner-save" class="spinner-border d-none ms-3" role="status" style="width: 1rem; height: 1rem;">
                   <span class="sr-only">Loading...</span>
                 </div>
-
+              </button>
+              <button id="btn-synch" class="btn btn-outline-primary w-50 px-0" type="button">
+                <svg id="svg-btn-synch" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                  <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                  <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                </svg>
+                &nbsp;&nbsp;
+                Synch
               </button>
             <?php } ?>
           </div>
-          <div id="div-shell-editor" class="embed-responsive embed-responsive-4by3 monaco-border-not-editable">
-            <div id="container" class="embed-responsive-item"></div>
+
+          <div class="w-100" style="position:relative;">
+            <div id="spinner-load-editor" class="d-flex align-items-center justify-content-center bg-light border border-4 border-reset rounded w-100 h-100 line-pattern" style="position:absolute; z-index:1">
+              <div class="d-flex align-items-center justify-content-center bg-light text-reset border border-2 border-reset rounded px-2" style="z-index:2;">
+                <div class="spinner-border me-2" role="status" style="width: 1rem; height: 1rem;">
+                </div>
+                <span class="">Загрузка редактора кода...</span>
+              </div>
+            </div>
+            <div id="div-shell-editor" class="embed-responsive embed-responsive-4by3 monaco-border-not-editable h-100">
+              <div id="container" class="embed-responsive-item h-100"></div>
+            </div>
           </div>
 
           <div class="d-flex justify-content-between mt-1">
@@ -333,14 +352,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
             }
             ?>
             <!--</form>-->
-            <button type="button" class="btn btn-primary" id="run" style="width: 50%;">Запустить в консоли</button>
+            <button type="button" class="btn btn-outline-primary" id="run" style="width: 50%;">Запустить в консоли</button>
 
           </div>
 
         </div>
 
         <!--ТЕСТ РЕДАКТОРА -->
-        <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
+        <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
 
       </div>
       <div class="col-md-4 ps-1">
@@ -355,307 +374,156 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
           </div>
 
           <div id="Task" class="tabcontent overflow-auto fs-8" style="height: 88%;">
-            <div>
-              <?php if ($task_description != "") { ?>
-                <p id="TaskDescr"><?= $task_description ?></p>
-                <script>
-                  document.getElementById('TaskDescr').innerHTML =
-                    marked.parse(document.getElementById('TaskDescr').innerHTML);
-                </script>
-              <?php } else { ?>
-                <h6 class="mt-2">Описание задания отсутствует</h6>
-              <?php } ?>
-              <div>
-                <?php
-                if ($User->isTeacher() || $User->isAdmin())
-                  $task_files = $Task->getTeacherFilesToTaskchat();
-                else
-                  $task_files = $Task->getStudentFilesToTaskchat();
+            <div class="d-flex flex-column">
 
-                if ($task_files) { ?>
-                  <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
-                  <?= showFiles($task_files); ?>
-                <?php }
-                ?>
+              <div class="d-flex flex-column align-items-start h-auto mb-2">
+                <?php foreach (array_merge($Page->getTeachers(), $Assignment->getStudents()) as $i => $assignmentUser) { ?>
+                  <a href="profile.php?user_id=<?= $assignmentUser->id ?>"
+                    class="h-auto badge <?= ($assignmentUser->isTeacher()) ? "badge-success" : "badge-primary" ?> border-0 rounded-3 py-0 px-2 me-2 mb-2 hover-shadow d-flex align-items-center">
+                    <div class="shadow-none p-1 m-0 bg-image me-2"
+                      style="/*left: -<?= $i * 5 ?>%*/">
+                      <?php if ($assignmentUser->getImageFile() != null) { ?>
+                        <div class="embed-responsive embed-responsive-1by1" style="display: block;">
+                          <div class="embed-responsive-item">
+                            <img class="h-100 w-100 p-0 m-0 rounded-circle user-icon" style="vertical-align: unset; /*transform: translateX(-30%);*/" src="<?= $assignmentUser->getImageFile()->download_url ?>" />
+                          </div>
+                        </div>
+                      <?php } else { ?>
+                        <div>
+                          <svg class="h-100 w-100" xmlns="http://www.w3.org/2000/svg" width="20" fill="white" class="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path fill-rule="nonzero" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                            <path fill-rule="nonzero" d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                          </svg>
+                        </div>
+                      <?php } ?>
+                    </div>
+                    <span><?= $assignmentUser->getFIO() ?></span>
+                  </a>
+                <?php } ?>
+              </div>
+
+              <div>
+                <?php if ($task_description != "") { ?>
+                  <p id="TaskDescr"><?= $task_description ?></p>
+                  <script>
+                    document.getElementById('TaskDescr').innerHTML =
+                      marked.parse(document.getElementById('TaskDescr').innerHTML);
+                  </script>
+                <?php } else { ?>
+                  <h6 class="mt-2">Описание задания отсутствует</h6>
+                <?php } ?>
+                <div>
+                  <?php
+                  if ($User->isTeacher() || $User->isAdmin())
+                    $task_files = $Task->getVisibleFiles();
+                  else
+                    $task_files = $Task->getStudentFilesToTaskchat();
+
+                  if ($task_files) { ?>
+                    <p class="mb-1"><strong>Файлы, приложенные к заданию:</strong></p>
+                    <?= showFiles($task_files); ?>
+                  <?php }
+                  ?>
+                </div>
               </div>
             </div>
 
           </div>
 
           <div id="Console" class="tabcontent mx-0 px-0">
-            <h3>Консоль</h3>
+            <div class="d-flex justify-content-between align-items-cemter px-2">
+              <h3>Консоль</h3>
+              <div class="d-flex align-items-center ">
+                <button class="btn btn-outline-primary py-1 px-2 d-flex align-items-center" onclick="makeElementFullScreen('terminal')">
+                  <span class="me-2">Развернуть</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707m4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707m0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707m-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707" />
+                  </svg>
+                </button>
+              </div>
+            </div>
             <div id="terminal" class="mx-0 px-0"></div>
           </div>
 
           <div id="Test" class="tabcontent">
+            <div class="d-flex flex-column">
+              <?php if (!$au->isStudent()) { ?>
+                <div class="d-flex justify-content-between mb-2 w-100">
+                  <a href="taskedit.php?task=<?= $Task->id ?>" class="btn btn-outline-danger d-flex justify-content-center me-2" target="_blank">
+                    <?php getSVGByFileType(2); ?>
+                    <span>&nbsp;Настроить автотесты</span>
+                  </a>
+                  <a href="taskassign.php?assignment_id=<?= $Assignment->id ?>" class="btn btn-outline-danger d-flex justify-content-center" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                      <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0" />
+                      <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z" />
+                    </svg>
+                    <span>&nbsp;Изменить конфигурацию</span>
+                  </a>
+                </div>
+              <?php } ?>
 
-            <?php
+              <?php
 
-            $checkres = json_decode('{
-  "tools": {
-    "build": {
-      "enabled": false,
-      "show_to_student": false,
-      "language": "C++",
-      "check": {
-        "autoreject": true,
-        "full_output": "output_build.txt",
-        "outcome": "pass"
-      },
-      "outcome": "undefined"
-    },
-    "valgrind": {
-      "enabled": false,
-      "show_to_student": false,
-      "bin": "valgrind",
-      "arguments": "",
-      "compiler": "gcc",
-      "checks": [
-        {
-          "check": "errors",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": true,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "leaks",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": true,
-          "result": 5,
-          "outcome": "fail"
-        }
-      ],
-      "full_output": "output_valgrind.xml",
-      "outcome": "undefined"
-    },
-    "cppcheck": {
-      "enabled": false,
-      "show_t_student": false,
-      "bin": "cppcheck",
-      "arguments": "",
-      "checks": [
-        {
-          "check": "error",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "warning",
-          "enabled": true,
-          "imit": 3,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "style",
-          "enabled": true,
-          "limit": 3,
-          "autoreject": false,
-          "result": 2,
-          "outcome": "pass"
-        },
-        {
-          "check": "performance",
-          "enabled": true,
-          "limit": 2,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "portability",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "information",
-          "enabed": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 1,
-          "outcome": "fail"
-        },
-        {
-          "check": "unusedFunction",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "missingnclude",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        }
-      ],
-      "full_output": "output_cppcheck.xml",
-      "outcome": "undefined"
-    },
-    "clang-format": {
-      "enabled": false,
-      "show_to_student": false,
-      "bin": "clang-format",
-      "arguments": "",
-      "check": {
-        "level": "strict",
-        ".comment": "canbediffrentchecks,suchasstrict,less,minimalandsoon",
-        "file": ".clang-format",
-        "limit": 5,
-        "autoreject": true,
-        "result": 8,
-        "outcome": "fail"
-      },
-      "full_output": "output_format.xml",
-      "outcome": "undefined"
-    },
-    "pylint": {
-      "enabled": false,
-      "show_to_student": false,
-      "bin": "pylint",
-      "arguments": "",
-      "checks": [
-        {
-          "check": "error",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "warning",
-          "enabled": true,
-          "limit": 0,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "refactor",
-          "enabled": true,
-          "limit": 3,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        },
-        {
-          "check": "convention",
-          "enabled": true,
-          "limit": 3,
-          "autoreject": false,
-          "result": 0,
-          "outcome": "pass"
-        }
-      ],
-      "full_output": "output_pylint.xml",
-      "outcome": "undefined"
-    },
-    "pytest": {
-      "enabled": false,
-      "show_to_student": false,
-      "bin": "pytest",
-      "arguments": "",
-      "test_path": "autotest.py",
-      "check": {
-        "limit": 0,
-        "autoreject": true,
-        "error": 0,
-        "failed": 0,
-        "passed": 0,
-        "seconds": 0,
-        "outcome": "fail"
-      },
-      "full_output": "output_pytest.txt",
-      "outcome": "undefined"
-    },
-    "copydetect": {
-      "enabled": false,
-      "show_to_student": false,
-      "bin": "copydetect",
-      "arguments": "",
-      "check": {
-        "type": "with_all",
-        "limit": 50,
-        "reference_directory": "copydetect",
-        "autoreject": true,
-        "result": 44,
-        "outcome": "skip"
-      },
-      "full_output": "output_copydetect.html",
-      "outcome": "undefined"
-    },
-    "autotests": {
-      "enabled": false,
-      "show_to_student": false,
-      "test_path": "test_example.cpp",
-      "check": {
-        "limit": 0,
-        "autoreject": true,
-        "outcome": "skip",
-        "errors": 0,
-        "failures": 3
-      },
-      "full_output": "output_tests.txt",
-      "outcome": "undefined"
-    }
-  }
-}', true);
 
-            $hasCheckResults = false;
+              $hasCheckResults = false;
 
-            if (!$last_commit_id || $last_commit_id == "") {
-              $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
-              $last_commit_id = pg_fetch_assoc($resAC)['id'];
-            }
+              if (!$last_commit_id || $last_commit_id == "") {
+                $resAC = pg_query($dbconnect, select_last_commit_id_by_assignment_id($assignment_id));
+                $last_commit_id = pg_fetch_assoc($resAC)['id'];
+              }
 
-            if ($last_commit_id && $last_commit_id != "") {
-              $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
-              if ($resultC && pg_num_rows($resultC) > 0) {
-                $rowC = pg_fetch_assoc($resultC);
-                if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null) {
-                  $checkres = json_decode($rowC['res'], true);
-                  $hasCheckResults = true;
+              $checkres = null;
+              if ($last_commit_id && $last_commit_id != "") {
+                $resultC = pg_query($dbconnect, "select autotest_results res from ax.ax_solution_commit where id = " . $last_commit_id);
+                if ($resultC && pg_num_rows($resultC) > 0) {
+                  $rowC = pg_fetch_assoc($resultC);
+                  if (array_key_exists('res', $rowC) && $rowC['res'] != "null" && $rowC['res'] != null) {
+                    $checkres = json_decode($rowC['res'], true);
+                    $hasCheckResults = true;
+                  }
                 }
               }
-            }
 
-            $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
-              " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
-            $row = pg_fetch_assoc($result);
-            $checks = $row['achecks'];
-            if ($checks == null)
-              $checks = $row['tchecks'];
-            if ($checks == null)
-              $checks = json_encode($checkres);
-            $checks = json_decode($checks, true);
-            ?>
+              $result = pg_query($dbconnect,  "select ax.ax_assignment.id aid, ax.ax_task.id tid, ax.ax_assignment.checks achecks, ax.ax_task.checks tchecks " .
+                " from ax.ax_assignment inner join ax.ax_task on ax.ax_assignment.task_id = ax.ax_task.id where ax.ax_assignment.id = " . $assignment_id);
+              $row = pg_fetch_assoc($result);
+              $checks = $row['achecks'];
+              if ($checks == null)
+                $checks = $row['tchecks'];
+              if ($checks == null)
+                $checks = getDefaultChecksPreset();
+              $checks = json_decode($checks, true);
 
-            <!-- <div>
+              $tools_not_enabled = [];
+              foreach ($checks['tools'] as $key => $tool_json) {
+                if (!$tool_json['enabled']) {
+                  array_push($tools_not_enabled, $key);
+                }
+              }
+              foreach ($tools_not_enabled as $key) {
+                unset($checks['tools'][$key]);
+              }
+
+              ?>
+
+              <!-- <div>
               Плашка над проверками о том, что результаты неактуальны (активна при изменении кода)
               <span id="span-checks-old" class="btn-danger <?= ($hasCheckResults) ? "" : "d-none" ?>">Обратите внимание! Результаты проверки неактуальны.</span>
             </div> -->
 
-            <div id="div-check-results">
-              <?php
-              echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . ";</script>";
-              $accord = getAutotestsAccordionHtml($checks, @$checkres, $User);
-              echo show_accordion('checkres', $accord, "5px");
-              ?>
-
+              <div id="div-check-results">
+                <?php
+                echo "<script>var CONFIG_TOOLS=" . json_encode($checks) . "; </script>";
+                if ($checkres)
+                  echo "<script>var RESULT_TOOLS=" . json_encode($checkres) . "; </script>";
+                $accord = getAutotestsAccordionHtml($checks, $checks, $checkres, $au->isStudent());
+                if (count($accord) > 0) {
+                  echo show_accordion('checkres', $accord, "5px");
+                } else { ?>
+                  <p class="h6 my-2"><strong>Отсутствуют проверки, доступные для запуска.</strong></p>
+                <?php } ?>
+              </div>
             </div>
 
             <input type="hidden" name="commit" value="<?= $last_commit_id ?>">
@@ -665,14 +533,14 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               <?php if (count($accord) > 0) { ?>
                 <button id="startTools" type="button" class="btn btn-outline-primary mt-1 mb-2" name="startTools">Запустить проверки</button>
               <?php } else { ?>
-                <h6 class="mt-2">Отсутствуют проверки, доступные для запуска</h6>
+                <div class="w-50"></div>
               <?php } ?>
 
               <?php if ($au->isAdminOrPrep()) { ?>
                 <div class="w-50 flex-column">
                   <?php if ($Task->isMarkNumber()) { ?>
                     <div class="d-flex flex-row">
-                      <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;">
+                      <div class="file-input-wrapper me-1" style="height: fit-content;font-size: small;font-weight: bold;z-index:0;">
                         <select id="checkTask-select-mark" class="form-select" aria-label=".form-select" style="width: auto;" name="mark">
                           <option hidden value="-1"></option>
                           <?php for ($i = 1; $i <= $Task->max_mark; $i++) { ?>
@@ -761,9 +629,8 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
                       </a>
                       <ul class="dropdown-menu dropdown-submenu" style="cursor: pointer;">
                         <?php
-                        $Page = new Page((int)getPageByAssignment((int)$Assignment->id));
                         $conversationTask = $Page->getConversationTask();
-                        if ($conversationTask) { ?>
+                        if ($conversationTask && $conversationTask->getConversationAssignment() != null) { ?>
                           <li>
                             <a class="dropdown-item" onclick="resendMessages(<?= $conversationTask->getConversationAssignment()->id ?>, <?= $User->id ?>, false)">
                               В общую беседу
@@ -910,7 +777,7 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
               }
 
               function fun() {
-                var deadline = "<?= $Assignment->getEndDateTime() ?>"; // for endless timer
+                var deadline = "<?= $Assignment->getFinishLimit("m-d-Y H:i:s") ?>"; // for endless timer
                 initializeClock("countdown", deadline);
               }
               fun();
@@ -1016,12 +883,12 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
   <!-- <script type="module" src="./js/sandbox.js"></script>-->
 
-  <script src="js/drag.js"></script>
+  <!-- <script src="js/edior/drag.js"></script> -->
   <script src="js/tab.js"></script>
   <!-- <script src="dist/bundle.js"></script> -->
 
   <script type="module" src="./js/dist/index.js"></script>
-  <!-- <script src="js/editor/node_modules/monaco-editor/min/vs/loader.js"></script> -->
+  <!-- <script src="./node_modules/monaco-editor/min/vs/loader.js"></script> -->
   <!-- <script src="js/editorloader.js" type="module"></script> -->
 
   <!-- Handlers -->
@@ -1030,6 +897,32 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
 
   <!-- Custom scripts -->
   <script type="text/javascript">
+    var ELEMENT_FULL_SCREEN = null;
+
+    function makeElementFullScreen(element_id) {
+      ELEMENT_FULL_SCREEN = document.getElementById(element_id);
+      document.getElementById("div-blur").classList.remove("d-none");
+      window.scrollTo(0, 0);
+      document.getElementById("body").classList.add("overflow-hidden");
+      ELEMENT_FULL_SCREEN.classList.add("full-screen");
+    }
+
+    function onKeyFunction(keyCode, func) {
+      if (event.code === keyCode) {
+        func();
+      }
+    }
+
+    function makeElementDefaultScreen() {
+      console.log("makeElementDefaultScreen()")
+      if (ELEMENT_FULL_SCREEN == null)
+        return;
+      document.getElementById("div-blur").classList.add("d-none");
+      document.getElementById("body").classList.remove("overflow-hidden");
+      ELEMENT_FULL_SCREEN.classList.remove("full-screen");
+      ELEMENT_FULL_SCREEN = null;
+    }
+
     function showBorders() {
       if (document.querySelector("TaskDescr") == null)
         return;
@@ -1194,10 +1087,6 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
       //element.classList.add("col-lg-2");
       element.setAttribute("class", "d-flex justify-content-between align-items-center p-2 me-2 mt-1 badge badge-light text-wrap teacher-element");
       element.id = "messageFile-" + id;
-
-      //  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-fill" viewBox="0 0 16 16">
-      //   <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z"/>
-      // </svg>
 
       let svg = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
       svg.classList.add("bi", "bi-file-earmark-fill");
@@ -1488,6 +1377,45 @@ show_head($page_title, array('https://cdn.jsdelivr.net/npm/marked/marked.min.js'
   </script>
 
   <style>
+    .blur-background {
+      backdrop-filter: blur(10px);
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+    }
+
+    .full-screen {
+      height: 75% !important;
+      width: 75% !important;
+      position: absolute;
+      left: 50px;
+      right: 50px;
+      top: 100px;
+      bottom: 50px;
+      justify-self: center;
+      z-index: 4;
+      box-shadow: 0px 0px 50px black;
+    }
+
+    .line-pattern {
+      overflow: hidden;
+    }
+
+    .line-pattern::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(45deg,
+          transparent,
+          transparent 15px,
+          #000 1px,
+          #000 16px);
+    }
+
     .disabled {
       pointer-events: none;
       cursor: default;
