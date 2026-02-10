@@ -1,12 +1,20 @@
-# Accelerator
+# 𝔹𝕖б-𝕔и𝕔𝕥𝕖𝕞𝕒 ди𝕔𝕥𝕒нци𝕠нн𝕠г𝕠 𝕠буч𝕖ния п𝕠 п𝕡𝕠г𝕡𝕒𝕞𝕞и𝕡𝕠в𝕒нию
+![Static Badge](https://img.shields.io/badge/html-orange)
+![Static Badge](https://img.shields.io/badge/css-blue)
+![Static Badge](https://img.shields.io/badge/bootstrap_4-purple)
+![Static Badge](https://img.shields.io/badge/javascript-yellow)
+![Static Badge](https://img.shields.io/badge/nginx-green)
+![Static Badge](https://img.shields.io/badge/php-blue)
+![Static Badge](https://img.shields.io/badge/python-blue)
+![Static Badge](https://img.shields.io/badge/docker%20compose-red)
+![Static Badge](https://img.shields.io/badge/git_hooks-gray)
 
-536 Акселератор
-
-для работы редактора необходимо поставить node.js и https://github.com/microsoft/monaco-editor
+[🔗 Презентация магистерского преокта](https://docs.google.com/presentation/d/1hWgSA1VOycAtBLh89VDt2sWq1E-UR88aG3lwnP9_aGE/edit?usp=sharing)
 
 ---
 
 # Начало работы 
+для работы редактора необходимо поставить node.js и https://github.com/microsoft/monaco-editor
 
 ## Установка hooks
 
