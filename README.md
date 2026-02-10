@@ -9,7 +9,12 @@
 ![Static Badge](https://img.shields.io/badge/docker%20compose-red)
 ![Static Badge](https://img.shields.io/badge/git_hooks-gray)
 
-[🔗 Презентация магистерского преокта](https://docs.google.com/presentation/d/1hWgSA1VOycAtBLh89VDt2sWq1E-UR88aG3lwnP9_aGE/edit?usp=sharing)
+![Preview 01](/preview_01.png)
+![Preview 02](/preview_02.png)
+![Preview 03](/preview_03.png)
+
+[🔗 Презентация магистерского проекта](https://docs.google.com/presentation/d/1hWgSA1VOycAtBLh89VDt2sWq1E-UR88aG3lwnP9_aGE/edit?usp=sharing)
+
 
 ---
 
