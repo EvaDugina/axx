@@ -6,6 +6,7 @@
 ![Static Badge](https://img.shields.io/badge/nginx-green)
 ![Static Badge](https://img.shields.io/badge/php-blue)
 ![Static Badge](https://img.shields.io/badge/python-blue)
+![Static Badge](https://img.shields.io/badge/postgresql-lightblue)
 ![Static Badge](https://img.shields.io/badge/docker%20compose-red)
 ![Static Badge](https://img.shields.io/badge/git_hooks-gray)
 
